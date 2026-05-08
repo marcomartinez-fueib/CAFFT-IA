@@ -64,7 +64,7 @@ export const YOUTUBE_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="
 export const EXPOSURE_EXPLANATION_VIDEO_URL_BASE = "videos_cafft/exposure_explanation"; // Base path for the local explanation video
 
 // Base URL for video assets. In Vercel, set VITE_VIDEO_BASE_URL to the GitHub release URL.
-// Example: https://github.com/marcomartinez-fueib/CAFFT/releases/download/v1.0.0-videos
+// Example: https://github.com/marcomartinez-fueib/CAFFT-IA/releases/download/v1.0.0-videos
 const VIDEO_BASE_URL = import.meta.env.VITE_VIDEO_BASE_URL || '';
 
 export const getVideoUrl = (basePath: string, language: string): string => {

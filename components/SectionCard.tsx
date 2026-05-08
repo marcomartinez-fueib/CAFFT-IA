@@ -9,13 +9,14 @@ interface SectionCardProps {
 
 export const SectionCard: React.FC<SectionCardProps> = ({ title, children, className, titleClassName }) => {
   return (
-    <div className={`bg-white shadow-sm rounded-md p-4 sm:p-6 md:p-8 mb-6 sm:mb-8 border border-gray-200 transition-shadow hover:shadow-md duration-300 ${className}`}>
+    <div className={`bg-white shadow-xl shadow-slate-200/40 rounded-[32px] p-6 sm:p-10 mb-8 border border-slate-100 transition-all hover:shadow-2xl hover:shadow-uib-blue/5 duration-500 overflow-hidden relative group ${className}`}>
       {title && (
-        <h2 className={`text-xl font-bold text-uib-black mb-6 pb-2 border-b border-gray-200 ${titleClassName}`}>
+        <h2 className={`text-2xl font-display font-black text-uib-blue mb-8 pb-4 border-b border-slate-50 flex items-center gap-3 transition-colors group-hover:text-uib-accent ${titleClassName}`}>
+          <div className="w-1.5 h-6 bg-uib-accent rounded-full opacity-30 group-hover:opacity-100 transition-opacity" />
           {title}
         </h2>
       )}
-      <div className="prose prose-slate max-w-none prose-p:text-gray-700 prose-li:text-gray-700 font-light">
+      <div className="font-body text-slate-600 leading-relaxed text-lg">
         {children}
       </div>
     </div>

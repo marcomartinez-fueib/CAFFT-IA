@@ -155,6 +155,7 @@ export type HelpModalContentStructureType = {
     prospectus: HelpSectionContent;
     postTreatment: HelpSectionContent;
     helpVideos: HelpSectionContent;
+    technicalSection: HelpSectionContent;
     aiChat: HelpSectionContent;
     therapistInfo: HelpSectionContent;
     therapistAiChat: HelpSectionContent;
@@ -170,10 +171,56 @@ export interface HelpModalTranslatedStrings {
   needMoreHelp: string;
   noResultsTitle: string;
   noResultsText: string;
-  fearOfFlying: { title: string; prevalence: { title: string; text: string; }; whoIsAffected: { title: string; text: string; }; whatIsIt: { title: string; intro: string; physiological: { title: string; text: string; }; cognitive: { title: string; text: string; }; behavioral: { title: string; text: string; }; }; howItStarts: { title: string; text: string; }; howItIsMaintained: { title: string; text1: string; text2: string; }; howToSolve: { title: string; text1: string; text2: string; }; };
-  cafftInfo: { title: string; intro: string; specifics: { title: string; whatIsCafft: string; objective: string; hierarchy: string; }; howItWorks: { title: string; text1: string; text2: string; text3: string; }; duration: { title: string; text: string; }; efficacy: { title: string; text: string; }; howToUse: { title: string; text: string; }; planning: { title: string; text: string; }; conditions: { title: string; item1: string; item2: string; item3: string; }; involvement: { title: string; text: string; }; betweenSessions: { title: string; text: string; }; };
-  prospectus: { title: string; readCarefully: string; holder: { title: string; text: string; }; whatIsCafft: { title: string; text: string; }; indications: { title: string; text: string; }; requirements: { title: string; item1: string; item2: string; item3: string; }; beforeUsing: { title: string; adverseEffects: string; mostFrequent: { title: string; item1: string; item2: string; item3: string; item4: string; item5: string; }; mostSerious: { title: string; item1: string; }; doNotUse: { title: string; item1: string; item2: string; item3: string; item4: string; }; }; howToUse: { title: string; text1: string; text2: string; text3: string; text4: string; }; otherFormats: { title: string; text: string; }; advantages: { title: string; item1: string; item2: string; item3: string; item4: string; item5: string; item6: string; item7: string; item8: string; }; };
-  postTreatmentSection: { title: string; }; // Title for the new tab
+  heroSubtitle: string;
+  fullManualTitle: string;
+  fullManualSubtitle: string;
+  fullManualMd: string;
+  fearOfFlying: { 
+    title: string; 
+    prevalence: { title: string; textManual: string; }; 
+    whoIsAffected: { title: string; textManual: string; };
+    whatIsIt: { 
+      title: string; 
+      introManual: string; 
+      physiological: { title: string; textManual: string; }; 
+      cognitive: { title: string; textManual: string; }; 
+      behavioral: { title: string; textManual: string; }; 
+    }; 
+    howItStarts: { title: string; textManual: string; };
+    howItIsMaintained: { title: string; textManual: string; };
+    howToSolve: { title: string; textManual: string; };
+  };
+  cafftInfo: { 
+    title: string; 
+    howItWorks: { title: string; textManual: string; }; 
+    duration: { title: string; textManual: string; }; 
+    efficacy: { title: string; textManual: string; }; 
+    conditions: { title: string; item1Manual: string; item2Manual: string; item3Manual: string; item4Manual: string; }; 
+    involvement: { title: string; textManual: string; list1: string; list2: string; list3: string; }; 
+    tasksBetweenSessions: { title: string; textManual: string; };
+  };
+  prospectus: { 
+    title: string; 
+    indications: { title: string; textManual: string; };
+    adverseEffects: { title: string; textManual: string; };
+    advantages: { title: string; list: string[]; };
+  };
+  postTreatmentSection: { 
+    title: string; 
+    introManual: string;
+    instructionItem1Manual: string;
+    instructionItem2Manual: string;
+    instructionItem3Manual: string;
+    instructionItem4Manual: string;
+    instructionItem5Manual: string;
+    instructionItem6Manual: string;
+    nervousnessAdviceManual: string;
+  };
+  technicalSection: { 
+    title: string; 
+    requirements: { title: string; list: string[]; text: string; }; 
+    contraindications: { title: string; text: string; list: string[]; }; 
+  };
   aiChatSection: { title: string; };
   therapistAiChatSection: { title: string; };
   therapistInfo: { 
@@ -191,6 +238,14 @@ export interface HelpModalTranslatedStrings {
 export interface PostTreatmentContent {
   sessionTitle: string;
   instructionsTitle: string;
+  introManual: string;
+  instructionItem1Manual: string;
+  instructionItem2Manual: string;
+  instructionItem3Manual: string;
+  instructionItem4Manual: string;
+  instructionItem5Manual: string;
+  instructionItem6Manual: string;
+  nervousnessAdviceManual: string;
   introQuestion: string;
   instructionItem1: string;
   instructionItem2: string;
@@ -1061,7 +1116,7 @@ export interface UserExposureProgress {
 }
 
 export interface HelpModalSection { 
-  id: 'fearOfFlying' | 'cafftInfo' | 'prospectus' | 'postTreatment' | 'helpVideos' | 'aiChat' | 'therapistInfo' | 'therapistAiChat';
+  id: 'fullManual' | 'fearOfFlying' | 'cafftInfo' | 'prospectus' | 'postTreatment' | 'postTreatmentSection' | 'helpVideos' | 'technicalSection' | 'aiChat' | 'therapistInfo' | 'therapistAiChat';
   titleKey: string; 
 }
 

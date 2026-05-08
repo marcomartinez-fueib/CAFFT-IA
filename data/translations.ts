@@ -8,94 +8,70 @@ const fearOfFlyingContent_CA: HelpSectionContent = {
   titleKey: 'helpModal.fearOfFlying.title',
   content: [
     { type: 'subtitle', textKey: 'helpModal.fearOfFlying.prevalence.title' },
-    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.prevalence.text' },
+    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.prevalence.textManual' },
     { type: 'subtitle', textKey: 'helpModal.fearOfFlying.whoIsAffected.title' },
-    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.whoIsAffected.text' },
+    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.whoIsAffected.textManual' },
     { type: 'subtitle', textKey: 'helpModal.fearOfFlying.whatIsIt.title' },
-    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.whatIsIt.intro' },
-    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.whatIsIt.physiological.title' },
-    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.whatIsIt.physiological.text' },
-    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.whatIsIt.cognitive.title' },
-    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.whatIsIt.cognitive.text' },
-    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.whatIsIt.behavioral.title' },
-    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.whatIsIt.behavioral.text' },
+    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.whatIsIt.introManual' },
+    { type: 'subtitle', textKey: 'helpModal.fearOfFlying.whatIsIt.physiological.title' },
+    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.whatIsIt.physiological.textManual' },
+    { type: 'subtitle', textKey: 'helpModal.fearOfFlying.whatIsIt.cognitive.title' },
+    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.whatIsIt.cognitive.textManual' },
+    { type: 'subtitle', textKey: 'helpModal.fearOfFlying.whatIsIt.behavioral.title' },
+    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.whatIsIt.behavioral.textManual' },
     { type: 'subtitle', textKey: 'helpModal.fearOfFlying.howItStarts.title' },
-    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.howItStarts.text' },
+    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.howItStarts.textManual' },
     { type: 'subtitle', textKey: 'helpModal.fearOfFlying.howItIsMaintained.title' },
-    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.howItIsMaintained.text1' },
-    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.howItIsMaintained.text2' },
+    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.howItIsMaintained.textManual' },
     { type: 'subtitle', textKey: 'helpModal.fearOfFlying.howToSolve.title' },
-    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.howToSolve.text1' },
-    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.howToSolve.text2' },
+    { type: 'paragraph', textKey: 'helpModal.fearOfFlying.howToSolve.textManual' },
   ],
 };
 
 const cafftInfoContent_CA: HelpSectionContent = {
     titleKey: 'helpModal.cafftInfo.title',
     content: [
-        { type: 'paragraph', textKey: 'helpModal.cafftInfo.intro' },
-        { type: 'subtitle', textKey: 'helpModal.cafftInfo.specifics.title' },
-        { type: 'list', itemKeys: ['helpModal.cafftInfo.specifics.whatIsCafft', 'helpModal.cafftInfo.specifics.objective', 'helpModal.cafftInfo.specifics.hierarchy'] },
         { type: 'subtitle', textKey: 'helpModal.cafftInfo.howItWorks.title' },
-        { type: 'paragraph', textKey: 'helpModal.cafftInfo.howItWorks.text1' },
-        { type: 'paragraph', textKey: 'helpModal.cafftInfo.howItWorks.text2' },
-        { type: 'paragraph', textKey: 'helpModal.cafftInfo.howItWorks.text3' },
+        { type: 'paragraph', textKey: 'helpModal.cafftInfo.howItWorks.textManual' },
         { type: 'subtitle', textKey: 'helpModal.cafftInfo.duration.title' },
-        { type: 'paragraph', textKey: 'helpModal.cafftInfo.duration.text' },
+        { type: 'paragraph', textKey: 'helpModal.cafftInfo.duration.textManual' },
         { type: 'subtitle', textKey: 'helpModal.cafftInfo.efficacy.title' },
-        { type: 'paragraph', textKey: 'helpModal.cafftInfo.efficacy.text' },
-        { type: 'subtitle', textKey: 'helpModal.cafftInfo.howToUse.title' },
-        { type: 'paragraph', textKey: 'helpModal.cafftInfo.howToUse.text' },
-        { type: 'subtitle', textKey: 'helpModal.cafftInfo.planning.title' },
-        { type: 'paragraph', textKey: 'helpModal.cafftInfo.planning.text' },
-        { type: 'subtitle', textKey: 'helpModal.cafftInfo.conditions.title' },
-        { type: 'list', itemKeys: ['helpModal.cafftInfo.conditions.item1', 'helpModal.cafftInfo.conditions.item2', 'helpModal.cafftInfo.conditions.item3'] },
-        { type: 'subtitle', textKey: 'helpModal.cafftInfo.involvement.title' },
-        { type: 'paragraph', textKey: 'helpModal.cafftInfo.involvement.text' },
-        { type: 'subtitle', textKey: 'helpModal.cafftInfo.betweenSessions.title' },
-        { type: 'paragraph', textKey: 'helpModal.cafftInfo.betweenSessions.text' },
+        { type: 'paragraph', textKey: 'helpModal.cafftInfo.efficacy.textManual' },
+        { type: 'subtitle', textKey: 'helpModal.cafftInfo.tasksBetweenSessions.title' },
+        { type: 'paragraph', textKey: 'helpModal.cafftInfo.tasksBetweenSessions.textManual' },
     ]
 };
 
 const prospectusContent_CA: HelpSectionContent = {
     titleKey: 'helpModal.prospectus.title',
     content: [
-        { type: 'paragraph', textKey: 'helpModal.prospectus.readCarefully' },
-        { type: 'subtitle', textKey: 'helpModal.prospectus.holder.title' },
-        { type: 'paragraph', textKey: 'helpModal.prospectus.holder.text' },
-        { type: 'subtitle', textKey: 'helpModal.prospectus.whatIsCafft.title' },
-        { type: 'paragraph', textKey: 'helpModal.prospectus.whatIsCafft.text' },
         { type: 'subtitle', textKey: 'helpModal.prospectus.indications.title' },
-        { type: 'paragraph', textKey: 'helpModal.prospectus.indications.text' },
-        { type: 'subtitle', textKey: 'helpModal.prospectus.requirements.title' },
-        { type: 'list', itemKeys: ['helpModal.prospectus.requirements.item1', 'helpModal.prospectus.requirements.item2', 'helpModal.prospectus.requirements.item3'] },
-        { type: 'subtitle', textKey: 'helpModal.prospectus.beforeUsing.title' },
-        { type: 'paragraph', textKey: 'helpModal.prospectus.beforeUsing.adverseEffects' },
-        { type: 'paragraph', textKey: 'helpModal.prospectus.beforeUsing.mostFrequent.title' },
-        { type: 'list', itemKeys: ['helpModal.prospectus.beforeUsing.mostFrequent.item1', 'helpModal.prospectus.beforeUsing.mostFrequent.item2', 'helpModal.prospectus.beforeUsing.mostFrequent.item3', 'helpModal.prospectus.beforeUsing.mostFrequent.item4', 'helpModal.prospectus.beforeUsing.mostFrequent.item5'] },
-        { type: 'paragraph', textKey: 'helpModal.prospectus.beforeUsing.mostSerious.title' },
-        { type: 'list', itemKeys: ['helpModal.prospectus.beforeUsing.mostSerious.item1'] },
-        { type: 'paragraph', textKey: 'helpModal.prospectus.beforeUsing.doNotUse.title' },
-        { type: 'list', itemKeys: ['helpModal.prospectus.beforeUsing.doNotUse.item1', 'helpModal.prospectus.beforeUsing.doNotUse.item2', 'helpModal.prospectus.beforeUsing.doNotUse.item3', 'helpModal.prospectus.beforeUsing.doNotUse.item4'] },
-        { type: 'subtitle', textKey: 'helpModal.prospectus.howToUse.title' },
-        { type: 'paragraph', textKey: 'helpModal.prospectus.howToUse.text1' },
-        { type: 'paragraph', textKey: 'helpModal.prospectus.howToUse.text2' },
-        { type: 'paragraph', textKey: 'helpModal.prospectus.howToUse.text3' },
-        { type: 'paragraph', textKey: 'helpModal.prospectus.howToUse.text4' },
+        { type: 'paragraph', textKey: 'helpModal.prospectus.indications.textManual' },
+        { type: 'subtitle', textKey: 'helpModal.prospectus.adverseEffects.title' },
+        { type: 'paragraph', textKey: 'helpModal.prospectus.adverseEffects.textManual' },
         { type: 'subtitle', textKey: 'helpModal.prospectus.advantages.title' },
-        { type: 'list', itemKeys: ['helpModal.prospectus.advantages.item1', 'helpModal.prospectus.advantages.item2', 'helpModal.prospectus.advantages.item3', 'helpModal.prospectus.advantages.item4', 'helpModal.prospectus.advantages.item5', 'helpModal.prospectus.advantages.item6', 'helpModal.prospectus.advantages.item7', 'helpModal.prospectus.advantages.item8'] },
-        { type: 'subtitle', textKey: 'helpModal.prospectus.otherFormats.title' },
-        { type: 'paragraph', textKey: 'helpModal.prospectus.otherFormats.text' },
+        { type: 'list', itemKeys: ['helpModal.prospectus.advantages.list'] },
+        { type: 'subtitle', textKey: 'helpModal.cafftInfo.conditions.title' },
+        { type: 'list', itemKeys: ['helpModal.cafftInfo.conditions.item1Manual', 'helpModal.cafftInfo.conditions.item2Manual', 'helpModal.cafftInfo.conditions.item3Manual', 'helpModal.cafftInfo.conditions.item4Manual'] },
+        { type: 'subtitle', textKey: 'helpModal.cafftInfo.involvement.title' },
+        { type: 'paragraph', textKey: 'helpModal.cafftInfo.involvement.textManual' },
+        { type: 'list', itemKeys: ['helpModal.cafftInfo.involvement.list1', 'helpModal.cafftInfo.involvement.list2', 'helpModal.cafftInfo.involvement.list3'] },
     ]
 };
 
 const postTreatmentContent_CA: HelpSectionContent = {
     titleKey: 'helpModal.postTreatmentSection.title',
     content: [
-        { type: 'subtitle', textKey: 'postTreatment.instructionsTitle' },
-        { type: 'paragraph', textKey: 'postTreatment.introQuestion' },
-        { type: 'list', itemKeys: ['postTreatment.instructionItem1', 'postTreatment.instructionItem2', 'postTreatment.instructionItem3', 'postTreatment.instructionItem4', 'postTreatment.instructionItem5', 'postTreatment.instructionItem6', 'postTreatment.instructionItem7', 'postTreatment.instructionItem8'] },
-        { type: 'paragraph', textKey: 'postTreatment.nervousnessAdvice' },
+        { type: 'paragraph', textKey: 'helpModal.postTreatmentSection.introManual' },
+        { type: 'list', itemKeys: [
+            'helpModal.postTreatmentSection.instructionItem1Manual', 
+            'helpModal.postTreatmentSection.instructionItem2Manual', 
+            'helpModal.postTreatmentSection.instructionItem3Manual', 
+            'helpModal.postTreatmentSection.instructionItem4Manual', 
+            'helpModal.postTreatmentSection.instructionItem5Manual', 
+            'helpModal.postTreatmentSection.instructionItem6Manual'
+        ] },
+        { type: 'paragraph', textKey: 'helpModal.postTreatmentSection.nervousnessAdviceManual' },
     ]
 };
 
@@ -166,6 +142,17 @@ export const helpModalContentStructure: HelpModalContentStructureType = {
     prospectus: prospectusContent_CA,
     postTreatment: postTreatmentContent_CA,
     helpVideos: helpVideosContent_CA,
+    technicalSection: {
+      titleKey: 'helpModal.technicalSection.title',
+      content: [
+        { type: 'subtitle', textKey: 'helpModal.technicalSection.requirements.title' },
+        { type: 'paragraph', textKey: 'helpModal.technicalSection.requirements.text' },
+        { type: 'list', itemKeys: ['helpModal.technicalSection.requirements.list'] },
+        { type: 'subtitle', textKey: 'helpModal.technicalSection.contraindications.title' },
+        { type: 'paragraph', textKey: 'helpModal.technicalSection.contraindications.text' },
+        { type: 'list', itemKeys: ['helpModal.technicalSection.contraindications.list'] },
+      ]
+    },
     aiChat: aiChatContent_CA,
     therapistAiChat: therapistAiChatContent_CA,
     therapistInfo: therapistInfoContent_CA,
@@ -176,6 +163,17 @@ export const helpModalContentStructure: HelpModalContentStructureType = {
     prospectus: prospectusContent_ES,
     postTreatment: postTreatmentContent_ES,
     helpVideos: helpVideosContent_ES,
+    technicalSection: {
+      titleKey: 'helpModal.technicalSection.title',
+      content: [
+        { type: 'subtitle', textKey: 'helpModal.technicalSection.requirements.title' },
+        { type: 'paragraph', textKey: 'helpModal.technicalSection.requirements.text' },
+        { type: 'list', itemKeys: ['helpModal.technicalSection.requirements.list'] },
+        { type: 'subtitle', textKey: 'helpModal.technicalSection.contraindications.title' },
+        { type: 'paragraph', textKey: 'helpModal.technicalSection.contraindications.text' },
+        { type: 'list', itemKeys: ['helpModal.technicalSection.contraindications.list'] },
+      ]
+    },
     aiChat: aiChatContent_ES,
     therapistAiChat: therapistAiChatContent_ES,
     therapistInfo: therapistInfoContent_ES,
@@ -186,6 +184,17 @@ export const helpModalContentStructure: HelpModalContentStructureType = {
     prospectus: prospectusContent_EN,
     postTreatment: postTreatmentContent_EN,
     helpVideos: helpVideosContent_EN,
+    technicalSection: {
+      titleKey: 'helpModal.technicalSection.title',
+      content: [
+        { type: 'subtitle', textKey: 'helpModal.technicalSection.requirements.title' },
+        { type: 'paragraph', textKey: 'helpModal.technicalSection.requirements.text' },
+        { type: 'list', itemKeys: ['helpModal.technicalSection.requirements.list'] },
+        { type: 'subtitle', textKey: 'helpModal.technicalSection.contraindications.title' },
+        { type: 'paragraph', textKey: 'helpModal.technicalSection.contraindications.text' },
+        { type: 'list', itemKeys: ['helpModal.technicalSection.contraindications.list'] },
+      ]
+    },
     aiChat: aiChatContent_EN,
     therapistAiChat: therapistAiChatContent_EN,
     therapistInfo: therapistInfoContent_EN,
@@ -770,92 +779,176 @@ const caTranslations: TranslationContent = {
         needMoreHelp: "Encara tens dubtes?",
         noResultsTitle: "Sense resultats",
         noResultsText: "Prova altres paraules o explora el menú lateral.",
+        heroSubtitle: "Tot el que necessites saber sobre el programa CAFFT i com superar la teva por de volar de forma definitiva.",
+        fullManualTitle: "Manual Clínic Complet",
+        fullManualSubtitle: "Consulta o descàrrega el manual oficial en format Markdown.",
+        fullManualMd: `
+# Manual Clínic i Prospecte CAFFT 5.1
+**Computer Assisted Fear of Flying Treatment**
+*Universitat de les Illes Balears (UIB)*
+
+---
+
+## 1. Introducció a la Por de Volar (Aerofòbia)
+
+### 1.1 Prevalença i Impacte
+La por de volar afecta aproximadament al **13% de la població adulta** en forma de fòbia clínica. Un **40%** addicional experimenta malestar significatiu. No és una malaltia, sinó una resposta de por apresa.
+
+### 1.2 Els Tres Components de la Por
+1.  **Component Fisiològic:** Taquicàrdia, sudoració, tremolors, hiperventilació.
+2.  **Component Cognitiu:** Pensaments catastrofistes (*"l'avió caurà"*) i anticipació de la por.
+3.  **Component Conductual:** Principalment l'**evitació**. No volar manté el problema.
+
+---
+
+## 2. El Programa CAFFT
+
+### 2.1 Exposició Gradual i Habituació
+El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que simulen les fases del vol. El sistema crea una **jerarquia personalitzada**. L'objectiu és l'**Habituació**.
+
+---
+
+## 3. Guia de l'Usuari (Prospecte)
+
+### 3.1 Condicions d'Ús
+- **Lloc:** Tranquil, llum tènue.
+- **Auriculars:** **ÚS OBLIGATORI**.
+- **Volum:** Ajustar-lo a un nivell real.
+
+### 3.2 Implicació Activa (Sense Muletes)
+- **Honestedat:** Valori el seu malestar de forma sincera (0-10).
+- **Prohibit:** No utilitzi tècniques de relaxació o distracció durant els vídeos. Actuen com a "muletes" que impedeixen l'aprenentatge real.
+
+---
+
+## 4. Instruccions per al Vol Real
+
+- **Medicació:** NO prengui tranquil·litzants.
+- **Alcohol:** NO consumeixi alcohol.
+- **Nervis:** Accepta els nervis com a part de l'aprenentatge.
+        `,
         fearOfFlying: {
-            title: "Sobre la Por de Volar",
+            title: "1. Introducció a la Por de Volar",
             prevalence: {
                 title: "A quanta gent afecta aquest problema?",
-                text: "La por de volar és un problema molt més freqüent del que vostè segurament es pensa. Es calcula que afecta aproximadament un 13% de la població adulta (Fòbia). A més, moltes altres persones (40%) experimenten un cert malestar quan han de volar. (Tortella-Feliu & Fullana, 1999)",
+                textManual: "La por de volar és un problema molt més freqüent del que vostè segurament pensa. Es calcula que afecta prop d’un **13% del conjunt de la població adulta**. A més, moltes altres persones (prop d’un **40%**) experimenten un cert malestar quan han de volar, i només un **47%** de la població vola amb total tranquil·litat."
             },
             whoIsAffected: {
-                title: "A quin tipus de persones afecta aquest problema?",
-                text: "Tothom pot tenir por de volar. Tenir por de volar no és cap malaltia, ni un símptoma de cap desequilibri personal o de ser un covard. Fins i tot, gent que ara vola amb normalitat pot, en algun moment de la seva vida, experimentar sensacions desagradables quan viatja amb avió. No hi ha un perfil determinat de persones que tenguin més risc que unes altres per patir aquesta dificultat. Si de cas, l'únic que se sap és que pot afectar un poc més a dones que a homes i que les persones que en general són nervioses o passadores de pena tenen un poc més de facilitat per desenvolupar-lo.",
+                title: "A quin tipus de persones afecta?",
+                textManual: "Tothom pot tenir por de volar. Tenir por de volar no és cap malaltia, ni un símptoma de cap desequilibri personal o de ser un covard. No hi ha un perfil determinat de persones que tinguin més risc que altres, encara que pot afectar un poc més a dones i a persones que en general són nervioses o preocupadisses."
             },
             whatIsIt: {
                 title: "En què consisteix la por de volar?",
-                intro: "Simplificant es pot dir que la por està constituïda per tres elements bàsics: (1) el component fisiològic o manifestacions físiques de l'ansietat, (2) el component cognitiu que fa referència als pensaments negatius que tenim durant el vol i l'anticipació de les situacions temudes i (3) el component conductual, que bàsicament consisteix en l'evitació de les situacions temudes. (Adaptat de Bornas et al., 2001a)",
+                introManual: "L'aerofòbia no és un sentiment únic, sinó que es manifesta en tres components que s'alimenten entre ells:",
                 physiological: {
-                    title: "Component fisiològic",
-                    text: "El primer és l'aparició de sensacions físiques desagradables davant la situació temuda, com són que el cor vagi molt aviat, suor, tremolors, respiració ràpida, mal de panxa, etc. No vol dir que tothom presenti totes aquestes sensacions a la vegada, sinó que això depèn de cada persona i de les característiques de la situació. Normalment, com més por faci la situació més sensacions hi haurà.",
+                    title: "Component fisiològic: Les sensacions del cos",
+                    textManual: "Aparició de sensacions físiques desagradables com que el **cor vagi molt ràpid (taquicàrdia)**, suor, tremolors, respiració ràpida (hiperventilació), nàusees o dolor de panxa. Com més por faci la situació, més intenses i nombroses seran aquestes sensacions."
                 },
                 cognitive: {
-                    title: "Component cognitiu",
-                    text: "No només apareixen sensacions físiques, també se presenten, sense que nosaltres ho volguem, pensaments negatius relacionats amb la situació. Per exemple, podem pensar que l'avió pot caure quan se mou molt, que si ens passàs qualque cosa dolenta no podríem sortir de dins l'avió, que els altres s'estan adonant que estam passant por i que se'n riuran de nosaltres, etc. Un altre aspecte important del component cognitiu de la por és l'anticipació de situacions temudes. No només tenim por quan ens trobam dins l'avió. Sovint la por és tan gran o més gran quan estam esperant dins la terminal per agafar l'avió, quan anam cap a l'aeroport o quan som a casa fent la maleta.",
+                    title: "Component cognitiu: El que pensem",
+                    textManual: "Pensaments negatius i catastrofistes: *'l'avió podria caure'*, *'no podré sortir d'aquí'*, *'tindré un atac de cor i ningú em podrà ajudar'*, *'els altres es riuran de mi'*. També inclou l'**anticipació**: començar a patir dies abans del vol o simplement en fer la maleta."
                 },
                 behavioral: {
-                    title: "Component conductual o evitació",
-                    text: "El tercer factor és l'evitació de les situacions temudes. D'una manera o d'una altra, tothom que té por tracta d'evitar, quan és possible, anar amb avió i/o exposar-se a llocs o situacions relacionades amb avions (p.ex. pel·lícules en què hi surtin avions, acompanyar gent a l'aeroport o tractar de no pensar en el tema).",
+                    title: "Component conductual: El que fem",
+                    textManual: "Principalment l'**evitació**: tractar de no anar amb avió, cancel·lar viatges, buscar excuses o utilitzar 'muletes' (alcohol, pastilles). També inclou evitar estímuls relacionats com veure pel·lícules d'avions o anar a l'aeroport."
                 },
             },
             howItStarts: {
                 title: "Com comença el problema?",
-                text: "El problema pot tenir orígens diversos, bàsicament: haver tengut un vol complicat; haver rebut notícies impactants sobre accidents; haver vist o tenir a prop persones que ho passen malament quan volen; o haver tengut molèsties físiques mentres s'estava volant o just abans. Però tots aquests elements condueixen a un mateix resultat: la persona associa les situacions relacionades amb el vol, amb les sensacions i/o pensaments desagradables que el mateix li provoca. És a dir, se associa automàticament viatjar en avió i malestar.",
+                textManual: "Pot tenir orígens diversos: haver viscut un vol amb fortes turbulències, rebre notícies d'accidents de forma repetida, veure familiars que pateixen volant o haver experimentat un atac de pànic o molèsties físiques intenses durant un vol previ."
             },
             howItIsMaintained: {
                 title: "Com es manté el problema?",
-                text1: "El factor més important, el que fa que una persona segueixi tenint por, és l'evitació. Si l'evitació és general, és a dir, que la persona mai agafa l'avió, no s'arriba a donar l'oportunitat per aprendre a rompre l'associació entre les sensacions de por o malestar i la situació temuda. (Botella et al., 2004)",
-                text2: "Un altre motiu, molt relacionat amb l'evitació, és que la persona amb por pot tractar, i no sempre de la forma més adequada, de distreure's procurant no pensar en res, parlant d'altres coses o fins i tot fent ús de pastilles o alcohol que permeten afrontar la situació però tenen conseqüències disfuncionals a mitjan o llarg termini, entre les quals hi ha la interferència per aprendre a rompre l' associació entre situació temuda i malestar.",
+                textManual: "El factor més important que manté la por és **l'evitació**. Quan evitem volar, sentim un alleujament immediat, i això 'educa' el nostre aprenentatge a creure que fugir és l'única manera d'estar segurs. Així, mai donem l'oportunitat a l'organisme per aprendre que l'avió és segur."
             },
             howToSolve: {
-                title: "Com solucionar el problema? Aprendre a rompre aquesta associació.",
-                text1: "L'objectiu bàsic del tractament serà exposar-se a imatges i sons relacionats amb el fet d'agafar un avió, fent-ho de manera gradual, per passes. Primer exposant-se a imatges i sons que no li generin excessiva por i anar avançant cap a situacions que li provoquen major malestar, a mesura que es van superant distintes fases. És a dir, anar rompent les associacions entre situacions concretes i respostes d'ansietat.",
-                text2: "La idea és fer un entrenament previ al vol amb un avió. Si abans de pujar a un avió ha aconseguit que la imaginació d'una situació de vol, haver escoltat renous d'avions i aeroports, veure imatges d'avions i situacions relacionades amb el fet de volar, etc. ja no li provoquin malestar això facilita que en trobar-se a la situació real les seves respostes d'ansietat siguin molt menors. (Bornas et al., 2002)",
-            },
+                title: "Com solucionar el problema?",
+                textManual: "L'objectiu és l'**aprenentatge d'extinció**: rompre l'associació entre volar i l'ansietat. Això s'aconsegueix mitjançant l'**exposició gradual**: afrontar les situacions temudes poc a poc, sense fugir-ne, fins que el cos s'habitua i l'ansietat desapareix."
+            }
         },
         cafftInfo: {
-            title: "Sobre el CAFFT",
-            intro: "El CAFFT està format per un conjunt d'imatges i sons característicament representatius del fet de volar amb avió: des de la compra del bitllet fins l'aterratge a l'aeroport de destinació, passant per totes i cadascuna de les passes intermitges. Les imatges i els sons han estat presos en condicions naturals a diferents aeroports i a l'interior d'avions en ple vol.",
-            specifics: {
-                title: "Especificacions del CAFFT",
-                whatIsCafft: "CAFFT significa 'Tractament de la Por de Volar Assistit per Ordinador'.",
-                objective: "L'objectiu és que la persona amb por es pugui exposar a aquestes imatges i sons, amb una versemblança o realisme suficients que permeten que es pugui estar vivint la situació gairebé com si s'hi trobàs, el temps que es faci necessari per a que la por vagi minvant.",
-                hierarchy: "En primer lloc és fa l'exposició a les situacions que, tot i ser temudes, ho són amb menor intensitat i es va progressant cap a les que generen una major ansietat.",
-            },
+            title: "2. El Programa CAFFT",
             howItWorks: {
-                title: "Com funciona el CAFFT?",
-                text1: "El procediment és el següent: la persona que té por fa una avaluació mitjançant un qüestionari (QPV-II) que li presenta l'ordinador. A partir de les respostes l'ordinador confecciona una pauta d'exposició individualitzada.",
-                text2: "A diferència d'altres mètodes, el CAFFT utilitza l'exposició pura. No s'han d'utilitzar tècniques de relaxació, ja que aquestes interfereixen amb la capacitat natural del cos per habituar-se a l'ansietat.",
-                text3: "La persona ha d'imaginar que es troba en aquella situació (implicació). Cada cert temps l'ordinador demana el grau de por (0-10). Quan la por baixa a la meitat de la puntuació inicial, es passa a la situació següent. Si no baixa, es repeteix la mateixa situació.",
+                title: "Com funciona?",
+                textManual: "L'exposició a les situacions temudes serà gradual. El sistema confecciona una **jerarquia individualitzada** basada en el seu qüestionari QPV-II. Cada seqüència es presenta tantes vegades com sigui necessari fins que l'ansietat disminueixi significativament."
             },
             duration: {
                 title: "Quant dura?",
-                text: "La durada és variable. Depèn de cada persona. En general, entre 4 i 6 sessions d'una hora solen ser suficients per notar una millora significativa.",
+                textManual: "La durada varia segons la persona. Es recomanen de **4 a 8 sessions** d'una hora. Amb 2 o 3 sessions setmanals es pot superar el problema en unes poques setmanes."
             },
             efficacy: {
                 title: "És eficaç?",
-                text: "Els estudis realitzats a la UIB demostren que el CAFFT és altament eficaç. La majoria de persones que completen el tractament aconsegueixen volar amb molta menys ansietat o sense gens de por.",
-            },
-            howToUse: {
-                title: "Com utilitzar-lo?",
-                text: "Aquest programa és una eina d'autoajuda. Segueix les instruccions pas a pas. És important ser constant i no deixar les sessions a mitges.",
-            },
-            planning: {
-                title: "Planificació",
-                text: "Es recomana fer les sessions en un lloc tranquil, sense interrupcions, i utilitzar auriculars per a una millor immersió.",
+                textManual: "Més del **70% de les persones tractades** aconsegueixen volar sense problemes. La investigació demostra que l'exposició és la millor manera de superar les fòbies."
             },
             conditions: {
-                title: "Condicions d'ús",
-                item1: "No utilitzar si es pateix epilèpsia fotosensible.",
-                item2: "No utilitzar sota els efectes de l'alcohol o drogues.",
-                item3: "Consultar amb un professional si l'ansietat és molt intensa o incapacitant.",
+                title: "Condicions Ambientals",
+                item1Manual: "Seu còmodament en un lloc tranquil.",
+                item2Manual: "Llum tènue i sense interrupcions.",
+                item3Manual: "**Ús obligatori d'auriculars** (preferiblement que tapin tota l'orella).",
+                item4Manual: "Ajusta el volum perquè el so sigui real i potent.",
             },
             involvement: {
-                title: "Implicació",
-                text: "L'èxit del tractament depèn en gran mesura de la teva implicació. Intenta viure les situacions com si fossin reals.",
+                title: "Implicació de l'usuari",
+                textManual: "Vostè ha de jugar un paper actiu. Intenti sentir-se com si l'estigués VIVINT (implicació).",
+                list1: "Màxima concentració: No separi la vista de la pantalla.",
+                list2: "No vulgui córrer: Indiqui honestament el grau de malestar.",
+                list3: "No s'aturi: No finalitzi una sessió fins que l'ansietat hagi baixat almenys a la meitat.",
             },
-            betweenSessions: {
-                title: "Entre sessions",
-                text: "No és necessari fer res especial entre sessions, però si has de volar, intenta aplicar el que has après.",
+            tasksBetweenSessions: {
+                title: "Tasques entre sessions",
+                textManual: "És necessari completar l'exposició amb situacions reals: anar a l'aeroport, mirar avions o llegir notícies sense evitar-les. Això normalitza les sensacions fora del programa informàtic."
+            }
+        },
+        prospectus: {
+            title: "3. Guia de l'Exposició (Prospecte)",
+            indications: {
+                title: "Indicacions",
+                textManual: "Indicat per a adults amb fòbia específica tipus situacions (viatjar amb avió) o por de volar sense arribar a criteris de fòbia."
             },
+            adverseEffects: {
+                title: "Possibles efectes adversos",
+                textManual: "Es pot experimentar ansietat durant l'exposició, cansament físic o psicològic, i dificultat per agafar el son. Aquests efectes són normals i formen part del procés d'habituació."
+            },
+            advantages: {
+                title: "Avantatges d'utilitzar el CAFFT",
+                list: [
+                    "No haver d'esperar per al tractament.",
+                    "Confidencialitat total.",
+                    "Accessibilitat les 24h.",
+                    "Seguiment dels seus propis avenços.",
+                    "Supervisió professional a distància."
+                ]
+            }
+        },
+        postTreatmentSection: {
+            title: "4. Instruccions per al Vol Real",
+            introManual: "Un cop finalitzat el programa, es recomana realitzar un vol en un termini de 10 a 15 dies.",
+            instructionItem1Manual: "NO prenguis tranquil·litzants ni abans ni durant el vol.",
+            instructionItem2Manual: "NO ingereixis begudes alcohòliques.",
+            instructionItem3Manual: "Seu allà on et toqui per atzar.",
+            instructionItem4Manual: "Evita parlar de la por de volar els dies previs.",
+            instructionItem5Manual: "Utilitza distractors naturals si vols (llegir, música), però no per fugir de l'ansietat.",
+            instructionItem6Manual: "Accepta els nervis com a part de l'aprenentatge.",
+            nervousnessAdviceManual: "Si et poses nerviós, pensa que és una oportunitat per aplicar l'habituació que has practicat amb el CAFFT.",
+        },
+        technicalSection: {
+            title: "5. Informació Tècnica i Contraindicacions",
+            requirements: {
+                title: "Requisits",
+                list: ["Ordinador amb connexió a Internet.", "Auriculars de qualitat.", "Navegador actualitzat."],
+                text: "Necessites un ordinador amb connexió a Internet i auriculars que filtrin l'aire exterior per a una millor immersió."
+            },
+            contraindications: {
+                title: "Contraindicacions",
+                text: "No realitzis el CAFFT sense consultar un metge si:",
+                list: ["Pateixes una malaltia cardíaca crònica.", "Estàs en tractament psiquiàtric o prenent psicofàrmacs.", "Estàs embarassada."]
+            }
+        },
+        aiChatSection: {
+            title: "Assistent Virtual IA",
+        },
+        therapistAiChatSection: {
+            title: "Assistent Clínic IA",
         },
         therapistInfo: {
             title: "Informació per a Terapeutes",
@@ -865,87 +958,19 @@ const caTranslations: TranslationContent = {
             clinicalGuardTitle: "Guia Clínica i Control del Tractament",
             pureExposureReminder: "Recordeu que el CAFFT és un programa d'exposició pura. No s'han d'utilitzar tècniques de relaxació o respiració durant les sessions.",
             safetyBehaviorDetection: "Si observeu un estancament en la habituació, comproveu si el pacient està utilitzant 'muletes' cognitives o conductes de seguretat.",
-        },
-        prospectus: {
-            title: "Prospecte",
-            readCarefully: "Llegeix amb atenció tot aquest prospecte abans de començar a usar el programa.",
-            holder: {
-                title: "Titular de l'autorització",
-                text: "Universitat de les Illes Balears. Grup de Recerca en Evolució i Cognició Humana.",
-            },
-            whatIsCafft: {
-                title: "Què és el CAFFT i per a què s'utilitza?",
-                text: "És un programa d'autoajuda per al tractament de la fòbia a volar. S'utilitza per reduir l'ansietat associada als viatges en avió.",
-            },
-            indications: {
-                title: "Indicacions",
-                text: "Indicat per a persones que pateixen por o ansietat intensa en volar o en anticipar un vol.",
-            },
-            requirements: {
-                title: "Requisits",
-                item1: "Ordinador amb connexió a internet.",
-                item2: "Navegador web modern.",
-                item3: "Auriculars.",
-            },
-            beforeUsing: {
-                title: "Abans d'usar el CAFFT",
-                adverseEffects: "Durant l'exposició es pot experimentar ansietat, taquicàrdia o sudoració. Aquestes reaccions són normals i formen part del tractament.",
-                mostFrequent: {
-                    title: "Freqüents",
-                    item1: "Ansietat.",
-                    item2: "Inquietud.",
-                    item3: "Tensió muscular.",
-                    item4: "Preocupació.",
-                    item5: "Irritabilitat.",
-                },
-                mostSerious: {
-                    title: "Greus (Rars)",
-                    item1: "Atac de pànic.",
-                },
-                doNotUse: {
-                    title: "No utilitzar si:",
-                    item1: "Pateix trastorns psicòtics.",
-                    item2: "Pateix epilèpsia.",
-                    item3: "Té problemes cardíacs greus.",
-                    item4: "Està rebent un altre tractament psicològic incompatible.",
-                },
-            },
-            howToUse: {
-                title: "Instruccions d'ús",
-                text1: "1. Registra't o inicia sessió.",
-                text2: "2. Completa l'avaluació inicial (QPV-II).",
-                text3: "3. Segueix la jerarquia d'exposició proposada.",
-                text4: "4. Repeteix els vídeos fins que l'ansietat disminueixi.",
-            },
-            otherFormats: {
-                title: "Altres formats",
-                text: "Aquest programa només està disponible en format web.",
-            },
-            advantages: {
-                title: "Avantatges",
-                item1: "Econòmic.",
-                item2: "Accessible.",
-                item3: "Privat.",
-                item4: "Al teu ritme.",
-                item5: "Basat en l'evidència.",
-                item6: "Sense fàrmacs.",
-                item7: "Preventiu.",
-                item8: "Autoaplicat.",
-            },
-        },
-        postTreatmentSection: {
-            title: "Pautes Post-Tractament",
-        },
-        aiChatSection: {
-            title: "Assistent Virtual IA",
-        },
-        therapistAiChatSection: {
-            title: "Assistent Clínic IA",
         }
     },
     postTreatment: {
+        instructionsTitle: "4. Instruccions per al Vol Real",
+        introManual: "Un cop finalitzat el programa, es recomana realitzar un vol en un termini de 10 a 15 dies.",
+        instructionItem1Manual: "NO prenguis tranquil·litzants ni abans ni durant el vol.",
+        instructionItem2Manual: "NO ingereixis begudes alcohòliques.",
+        instructionItem3Manual: "Seu allà on et toqui per atzar.",
+        instructionItem4Manual: "Evita parlar de la por de volar els dies previs.",
+        instructionItem5Manual: "Utilitza distractors naturals si vols (llegir, música), però no per fugir de l'ansietat.",
+        instructionItem6Manual: "Accepta els nervis com a part de l'aprenentatge.",
+        nervousnessAdviceManual: "Si et poses nerviós, pensa que és una oportunitat per aplicar l'habituació que has practicat amb el CAFFT.",
         sessionTitle: "Pautes per al proper vol",
-        instructionsTitle: "Instruccions",
         introQuestion: "Què has de fer quan hagis de volar de veritat?",
         instructionItem1: "Arriba a l'aeroport amb temps suficient.",
         instructionItem2: "No evitis mirar els avions o la pista.",
@@ -1448,8 +1473,16 @@ const esTranslations: TranslationContent = {
         }
     },
     postTreatment: {
+        instructionsTitle: "4. Instrucciones para el Vuelo Real",
+        introManual: "Una vez finalizado el programa, se recomienda realizar un vuelo en un plazo de 10 a 15 días.",
+        instructionItem1Manual: "NO tomes tranquilizantes ni antes ni durante el vuelo.",
+        instructionItem2Manual: "NO ingieras bebidas alcohólicas.",
+        instructionItem3Manual: "Siéntate donde te toque por azar.",
+        instructionItem4Manual: "Evita hablar del miedo a volar los días previos.",
+        instructionItem5Manual: "Utiliza distractores naturales si quieres (leer, música), pero no para huir de la ansiedad.",
+        instructionItem6Manual: "Acepta los nervios como parte del aprendizaje.",
+        nervousnessAdviceManual: "Si te pones nervioso, piensa que es una oportunidad para aplicar la habituación que has practicado con el CAFFT.",
         sessionTitle: "Pautas para el próximo vuelo",
-        instructionsTitle: "Instrucciones",
         introQuestion: "¿Qué debes hacer cuando tengas que volar de verdad?",
         instructionItem1: "Llega al aeropuerto con tiempo suficiente.",
         instructionItem2: "No evites mirar los aviones o la pista.",
@@ -1539,7 +1572,6 @@ const esTranslations: TranslationContent = {
         acceptButton: "Aceptar",
         declineButton: "Rechazar",
     },
-    // ... Override Help Modal Specifics for Spanish
     helpModal: {
         ...caTranslations.helpModal,
         modalTitle: "Centro de Ayuda",
@@ -1550,14 +1582,176 @@ const esTranslations: TranslationContent = {
         needMoreHelp: "¿Todavía tienes dudas?",
         noResultsTitle: "Sin resultados",
         noResultsText: "Prueba otras palabras o explora el menú lateral.",
-        cafftInfo: {
-            ...caTranslations.helpModal.cafftInfo,
-            howItWorks: {
-                title: "¿Cómo funciona el CAFFT?",
-                text1: "El procedimiento es el siguiente: la persona que tiene miedo hace una evaluación mediante un cuestionario (QPV-II) que le presenta el ordenador. A partir de las respuestas el ordenador confecciona una pauta de exposición individualizada.",
-                text2: "A diferencia de otros métodos, el CAFFT utiliza la exposición pura. No deben utilizarse técnicas de relajación, ya que estas interfieren con la capacidad natural del cuerpo para habituarse a la ansiedad.",
-                text3: "La persona tiene que imaginar que se encuentra en esa situación (implicación). Cada cierto tiempo el ordenador pide el grado de miedo (0-10). Cuando el miedo baja a la mitad de la puntuación inicial, se pasa a la situación siguiente. Si no baja, se repite la misma situación.",
+        heroSubtitle: "Todo lo que necesitas saber sobre el programa CAFFT y cómo superar tu miedo a volar de forma definitiva.",
+        fullManualTitle: "Manual Clínico Completo",
+        fullManualSubtitle: "Consulta o descarga el manual oficial en formato Markdown.",
+        fullManualMd: `
+# Manual Clínico y Prospecto CAFFT 5.1
+**Computer Assisted Fear of Flying Treatment**
+*Universidad de las Islas Baleares (UIB)*
+
+---
+
+## 1. Introducción al Miedo a Volar (Aerofobia)
+
+### 1.1 Prevalencia e Impacto
+El miedo a volar afecta aproximadamente al **13% de la población adulta** en forma de fobia clínica. Un **40%** adicional experimenta malestar significativo. No es una enfermedad, sino una respuesta de miedo aprendida.
+
+### 1.2 Los Tres Componentes del Miedo
+1.  **Componente Fisiológico:** Taquicardia, sudoración, temblores, hiperventilación.
+2.  **Componente Cognitivo:** Pensamientos catastrofistas (*"el avión caerá"*) y anticipación del miedo.
+3.  **Componente Conductual:** Principalmente la **evitación**. No volar mantiene el problema.
+
+---
+
+## 2. El Programa CAFFT
+
+### 2.1 Exposición Gradual y Habituación
+El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas que simulan las fases del vuelo. El sistema crea una **jerarquía personalizada**. El objetivo es la **Habituación**.
+
+---
+
+## 3. Guía del Usuario (Prospecto)
+
+### 3.1 Condiciones de Uso
+- **Lugar:** Tranquilo, luz tenue.
+- **Auriculares:** **USO OBLIGATORIO**.
+- **Volumen:** Ajustarlo a un nivel real.
+
+### 3.2 Implicación Activa (Sin Muletas)
+- **Honestidad:** Valore su malestar de forma sincera (0-10).
+- **Prohibido:** No utilice técnicas de relajación o distracción durante los vídeos. Actúan como "muletas" que impiden el aprendizaje real.
+
+---
+
+## 4. Instrucciones para el Vuelo Real
+
+- **Medicación:** NO tome tranquilizantes.
+- **Alcohol:** NO consuma alcohol.
+- **Nervios:** Acepte los nervios como parte del aprendizaje.
+        `,
+        fearOfFlying: {
+            title: "1. Introducción al Miedo a Volar",
+            prevalence: {
+                title: "¿A cuánta gente afecta este problema?",
+                textManual: "El miedo a volar es un problema mucho más frecuente de lo que usted seguramente piensa. Se calcula que afecta a cerca de un **13% del conjunto de la población adulta**. Además, muchas otras personas (cerca de un **40%**) experimentan un cierto malestar cuando tienen que volar, y solo un **47%** de la población vuela con total tranquilidad."
+            },
+            whoIsAffected: {
+                title: "¿A qué tipo de personas afecta?",
+                textManual: "Todo el mundo puede tener miedo a volar. Tener miedo a volar no es ninguna enfermedad, ni un síntoma de ningún desequilibrio personal o de ser un cobarde. No hay un perfil determinado de personas que tengan más riesgo que otras, aunque puede afectar un poco más a mujeres y a personas que en general son nerviosas o preocupadizas."
+            },
+            whatIsIt: {
+                title: "¿En qué consiste el miedo a volar?",
+                introManual: "La aerofobia no es un sentimiento único, sino que se manifiesta en tres componentes que se alimenten entre sí:",
+                physiological: {
+                    title: "Componente fisiológico: Las sensaciones del cuerpo",
+                    textManual: "Aparición de sensaciones físicas desagradables como que el **corazón vaya muy rápido (taquicardia)**, sudor, temblores, respiración rápida (hiperventilación), náuseas o dolor de barriga. Cuanto más miedo dé la situación, más intensas y numerosas serán estas sensaciones."
+                },
+                cognitive: {
+                    title: "Componente cognitivo: Lo que pensamos",
+                    textManual: "Pensamientos negativos y catastrofistas: *'el avión podría caer'*, *'no podré salir de aquí'*, *'tendré un ataque al corazón y nadie me podrá ayudar'*, *'los demás se reirán de mí'*. También incluye la **anticipación**: empezar a sufrir días antes del vuelo o simplemente al hacer la maleta."
+                },
+                behavioral: {
+                    title: "Componente conductual: Lo que hacemos",
+                    textManual: "Principalment la **evitación**: tratar de no ir en avión, cancelar viajes, buscar excusas o utilizar 'muletas' (alcohol, pastillas). También incluye evitar estímulos relacionados como ver películas de aviones o ir al aeropuerto."
+                },
+            },
+            howItStarts: {
+                title: "¿Cómo comienza el problema?",
+                textManual: "Puede tener orígenes diversos: haber vivido un vuelo con fuertes turbulencias, recibir noticias de accidentes de forma repetida, ver a familiares que sufren volando o haber experimentado un ataque de pánico o molestias físicas intensas durante un vuelo previo."
+            },
+            howItIsMaintained: {
+                title: "¿Cómo se mantiene el problema?",
+                textManual: "El factor más importante que mantiene el miedo es **la evitación**. Cuando evitamos volar, sentimos un alivio inmediato, y esto 'educa' nuestro aprendizaje a creer que huir es la única manera de estar seguros. Así, nunca damos la oportunidad al organismo para aprender que el avión es seguro."
+            },
+            howToSolve: {
+                title: "¿Cómo solucionar el problema?",
+                textManual: "El objetivo es el **aprendizaje de extinción**: romper la asociación entre volar y la ansiedad. Esto se logra mediante la **exposición gradual**: afrontar las situaciones temidas poco a poco, sin huir de ellas, hasta que el cuerpo se habitúa y la ansiedad desaparece."
             }
+        },
+        cafftInfo: {
+            title: "2. El Programa CAFFT",
+            howItWorks: {
+                title: "¿Cómo funciona?",
+                textManual: "La exposición a las situaciones temidas será gradual. El sistema confecciona una **jerarquía individualizada** basada en su cuestionario QPV-II. Cada secuencia se presenta tantas veces como sea necesario hasta que la ansiedad disminuya significativamente."
+            },
+            duration: {
+                title: "¿Cuánto dura?",
+                textManual: "La duración varía según la persona. Se recomiendan de **4 a 8 sesiones** de una hora. Con 2 o 3 sesiones semanales se puede superar el problema en unas pocas semanas."
+            },
+            efficacy: {
+                title: "¿Es eficaz?",
+                textManual: "Más del **70% de las personas tratadas** consiguen volar sin problemas. La investigación demuestra que la exposición es la mejor manera de superar las fobias."
+            },
+            conditions: {
+                title: "Condiciones Ambientales",
+                item1Manual: "Siéntese cómodamente en un lugar tranquilo.",
+                item2Manual: "Luz tenue y sin interrupciones.",
+                item3Manual: "**Uso obligatorio de auriculares** (preferiblemente que tapen toda la oreja).",
+                item4Manual: "Ajuste el volumen para que el sonido sea real y potente.",
+            },
+            involvement: {
+                title: "Implicación del usuario",
+                textManual: "Usted debe jugar un papel activo. Intente sentirse como si lo estuviera VIVIENDO (implicación).",
+                list1: "Máxima concentración: No separe la vista de la pantalla.",
+                list2: "No quiera correr: Indique honestamente el grado de malestar.",
+                list3: "No se detenga: No finalice una sesión hasta que la ansiedad haya bajado al menos a la mitad.",
+            },
+            tasksBetweenSessions: {
+                title: "Tareas entre sesiones",
+                textManual: "Es necesario completar la exposición con situaciones reales: ir al aeropuerto, mirar aviones o leer noticias sin evitarlas. Esto normaliza las sensaciones fuera del programa informático."
+            }
+        },
+        prospectus: {
+            title: "3. Guía de la Exposición (Prospecto)",
+            indications: {
+                title: "Indicaciones",
+                textManual: "Indicado para adultos con fobia específica tipo situaciones (viajar en avión) o miedo a volar sin llegar a criterios de fobia."
+            },
+            adverseEffects: {
+                title: "Posibles efectos adversos",
+                textManual: "Se puede experimentar ansiedad durante la exposición, cansancio físico o psicológico, y dificultad para conciliar el sueño. Estos efectos son normales y forman parte del proceso de habituación."
+            },
+            advantages: {
+                title: "Ventajas de utilizar el CAFFT",
+                list: [
+                    "No tener que esperar para el tratamiento.",
+                    "Confidencialidad total.",
+                    "Accesibilidad las 24h.",
+                    "Seguimiento de sus propios avances.",
+                    "Supervisión profesional a distancia."
+                ]
+            }
+        },
+        postTreatmentSection: {
+            title: "4. Instrucciones para el Vuelo Real",
+            introManual: "Una vez finalizado el programa, se recomienda realizar un vuelo en un plazo de 10 a 15 días.",
+            instructionItem1Manual: "NO tome tranquilizantes ni antes ni durante el vuelo.",
+            instructionItem2Manual: "NO ingiera bebidas alcohólicas.",
+            instructionItem3Manual: "Siéntese donde le toque por azar.",
+            instructionItem4Manual: "Evite hablar del miedo a volar los días previos.",
+            instructionItem5Manual: "Utilice distractors naturales si quiere (leer, música), pero no para huir de la ansiedad.",
+            instructionItem6Manual: "Acepte los nervios como parte del aprendizaje.",
+            nervousnessAdviceManual: "Si se pone nervioso, piense que es una oportunidad para aplicar la habituación que ha practicado con el CAFFT.",
+        },
+        technicalSection: {
+            title: "5. Información Técnica y Contraindicaciones",
+            requirements: {
+                title: "Requisitos",
+                list: ["Ordenador con conexión a Internet.", "Auriculares de calidad.", "Navegador actualizado."],
+                text: "Necesitas un ordenador con conexión a Internet y auriculares que filtren el aire exterior para una mejor inmersión."
+            },
+            contraindications: {
+                title: "Contraindicaciones",
+                text: "No realices el CAFFT sin consultar a un médico si:",
+                list: ["Sufres alguna enfermedad cardíaca crónica.", "Estás en tratamiento psiquiátrico o tomando psicofármacos.", "Estás embarazada."]
+            }
+        },
+        aiChatSection: {
+            title: "Asistente Virtual IA",
+        },
+        therapistAiChatSection: {
+            title: "Asistente Clínico IA",
         },
         therapistInfo: {
             title: "Información para Terapeutas",
@@ -1567,12 +1761,6 @@ const esTranslations: TranslationContent = {
             clinicalGuardTitle: "Guía Clínica y Control del Tratamiento",
             pureExposureReminder: "Recuerde que el CAFFT es un programa de exposición pura. No se deben utilizar técnicas de relajación o respiración durante las sesiones.",
             safetyBehaviorDetection: "Si observa un estancamiento en la habituación, compruebe si el paciente está utilizando 'muletas' cognitivas o conductas de seguridad.",
-        },
-        aiChatSection: {
-            title: "Asistente Virtual IA",
-        },
-        therapistAiChatSection: {
-            title: "Asistente Clínico IA",
         }
     },
     managerDashboard: {
@@ -2249,11 +2437,19 @@ const enTranslations: TranslationContent = {
         }
     },
     postTreatment: {
+        instructionsTitle: "4. Instructions for the Real Flight",
+        introManual: "Once the program is finished, it is recommended to take a flight within 10 to 15 days.",
+        instructionItem1Manual: "DO NOT take tranquilizers either before or during the flight.",
+        instructionItem2Manual: "DO NOT consume alcoholic beverages.",
+        instructionItem3Manual: "Sit wherever you are assigned by chance.",
+        instructionItem4Manual: "Avoid talking about the fear of flying in the preceding days.",
+        instructionItem5Manual: "Use natural distractors if you wish (reading, music), but not to escape from anxiety.",
+        instructionItem6Manual: "Accept the nerves as part of the learning process.",
+        nervousnessAdviceManual: "If you get nervous, think of it as an opportunity to apply the habituation you have practiced with CAFFT.",
         sessionTitle: "Guidelines for your next flight",
-        instructionsTitle: "Instructions",
         introQuestion: "What should you do when you actually fly?",
-        instructionItem1: "Arrive at the airport with enough time.",
-        instructionItem2: "Do not avoid looking at the planes or the runway.",
+        instructionItem1: "Arrive at the airport with plenty of time.",
+        instructionItem2: "Do not avoid looking at planes or the runway.",
         instructionItem3: "Remember that anxiety is uncomfortable but not dangerous: let it rise and fall on its own.",
         instructionItem4: "Do not use relaxation or breathing techniques; they act as 'crutches' that prevent real habituation.",
         instructionItem5: "Do not take alcohol or drugs to avoid anxiety, as they inhibit safety learning.",
@@ -2919,52 +3115,189 @@ const enTranslations: TranslationContent = {
         nextStep1: "Plan a real flight soon.",
         nextStep2: "Review the post-treatment guidelines.",
         nextStep3: "If needed, use the program again.",
-        returnHomeButton: "Return to home",
+        returnHomeButton: "Return to Home",
         logoutButton: "Logout",
-        viewFlightInstructionsButton: "View flight guidelines",
     },
-    lastSession: {
-        pageTitle: "Session Completed",
-        pageSubtitle: "You have reached the end of your hierarchy.",
-        header: "Guidelines for the future",
-        intro: "Here are some final recommendations.",
-        checklistItem1: "Review what you have learned.",
-        checklistItem2: "Do not demand perfection from yourself.",
-        checklistItem3: "Fly when you can.",
-        checklistItem4: "Accept uncertainty.",
-        checklistItem5: "Take care of your general stress.",
-        checklistItem6: "Remember your successes.",
-        checklistItem7: "Maintain healthy habits.",
-        checklistItem8: "Ask for help if you relapse.",
-        finalAdviceTitle: "One last piece of advice",
-        finalAdviceText: "Fear may reappear, but now you have tools to face it.",
-        actionsTitle: "What do you want to do now?",
-        reviewButton: "Review (if necessary)",
-        reviewButtonTooltip: "Watch some scenes again",
-        reviewDoneButton: "Review completed",
-        reviewDoneButtonTooltip: "You have already completed the review",
-        evaluationButton: "Final Assessment",
-        evaluationButtonTooltip: "Take the QPV-II to see your final progress",
-    },
-    // ... Override Help Modal Specifics for English
     helpModal: {
         ...caTranslations.helpModal,
         modalTitle: "Help Center",
         tocTitle: "Contents",
         searchPlaceholder: "What do you need to know?",
         closeButton: "Close",
-        disclaimer: "General guidance. Does not replace your therapist's judgement.",
-        needMoreHelp: "Still have questions?",
+        disclaimer: "Guidelines. Do not replace your therapist's criteria.",
+        needMoreHelp: "Still have doubts?",
         noResultsTitle: "No results",
-        noResultsText: "Try other keywords or explore the sidebar menu.",
-        cafftInfo: {
-            ...caTranslations.helpModal.cafftInfo,
-            howItWorks: {
-                title: "How does CAFFT work?",
-                text1: "The procedure is as follows: the person who is afraid makes an evaluation using a questionnaire (QPV-II) presented by the computer. Based on the answers, the computer prepares an individualized exposure pattern.",
-                text2: "Unlike other methods, CAFFT uses pure exposure. Relaxation techniques should not be used, as they interfere with the body's natural ability to habituate to anxiety.",
-                text3: "The person has to imagine that they are in that situation (engagement). From time to time the computer asks for the degree of fear (0-10). When the fear goes down by half from the initial score, the next situation is moved on to. If it does not go down, the same situation is repeated.",
+        noResultsText: "Try other words or explore the side menu.",
+        heroSubtitle: "Everything you need to know about the CAFFT program and how to overcome your fear of flying once and for all.",
+        fullManualTitle: "Full Clinical Manual",
+        fullManualSubtitle: "Consult or download the official manual in Markdown format.",
+        fullManualMd: `
+# Clinical Manual and Prospectus CAFFT 5.1
+**Computer Assisted Fear of Flying Treatment**
+*University of the Balearic Islands (UIB)*
+
+---
+
+## 1. Introduction to Fear of Flying (Aerophobia)
+
+### 1.1 Prevalence and Impact
+Fear of flying affects approximately **13% of the adult population** as a clinical phobia. An additional **40%** experience significant discomfort. It is not a disease, but a learned fear response.
+
+### 1.2 The Three Components of Fear
+1.  **Physiological Component:** Tachycardia, sweating, tremors, hyperventilation.
+2.  **Cognitive Component:** Catastrophic thoughts (*"the plane will fall"*) and anticipation of fear.
+3.  **Behavioral Component:** Mainly **avoidance**. Not flying maintains the problem.
+
+---
+
+## 2. The CAFFT Program
+
+### 2.1 Gradual Exposure and Habituation
+The treatment is based on **Pure Exposure**. We use realistic videos that simulate flight phases. The system creates a **personalized hierarchy**. The goal is **Habituation**.
+
+---
+
+## 3. User Guide (Prospectus)
+
+### 3.1 Conditions of Use
+- **Place:** Quiet, dim light.
+- **Headphones:** **MANDATORY USE**.
+- **Volume:** Adjust it to a realistic level.
+
+### 3.2 Active Involvement (No Crutches)
+- **Honesty:** Rate your discomfort sincerely (0-10).
+- **Prohibited:** Do not use relaxation or distraction techniques during videos. They act as "crutches" that prevent real learning.
+
+---
+
+## 4. Instructions for the Real Flight
+
+- **Medication:** DO NOT take tranquilizers.
+- **Alcohol:** DO NOT consume alcohol.
+- **Nerves:** Accept nerves as part of the learning process.
+        `,
+        fearOfFlying: {
+            title: "1. Introduction to Fear of Flying",
+            prevalence: {
+                title: "How many people are affected by this problem?",
+                textManual: "Fear of flying is a much more frequent problem than you probably think. It is estimated to affect about **13% of the total adult population**. Additionally, many other people (about **40%**) experience a certain discomfort when they have to fly, and only **47%** of the population flies with total peace of mind."
             },
+            whoIsAffected: {
+                title: "What kind of people are affected?",
+                textManual: "Anyone can have a fear of flying. Fear of flying is not a disease, nor a symptom of any personal imbalance or being a coward. There is no specific profile of people who are more at risk than others, although it can affect women and people who are generally nervous or 'worry-prone' slightly more."
+            },
+            whatIsIt: {
+                title: "What does fear of flying consist of?",
+                introManual: "Aerophobia is not a single feeling, but manifests in three components that feed into each other:",
+                physiological: {
+                    title: "Physiological component: Body sensations",
+                    textManual: "Appearance of unpleasant physical sensations such as a **racing heart (tachycardia)**, sweat, tremors, rapid breathing (hyperventilation), nausea, or stomach ache. The more fear the situation causes, the more intense and numerous these sensations will be."
+                },
+                cognitive: {
+                    title: "Cognitive component: What we think",
+                    textManual: "Negative and catastrophic thoughts: *'the plane could fall'*, *'I won't be able to get out of here'*, *'I'll have a heart attack and no one will be able to help me'*, *'others will laugh at me'*. It also includes **anticipation**: starting to suffer days before the flight or simply when packing the suitcase."
+                },
+                behavioral: {
+                    title: "Behavioral component: What we do",
+                    textManual: "Mainly **avoidance**: trying not to go by plane, canceling trips, looking for excuses, or using 'crutches' (alcohol, pills). It also includes avoiding related stimuli such as watching plane movies or going to the airport."
+                },
+            },
+            howItStarts: {
+                title: "How does the problem start?",
+                textManual: "It can have various origins: having lived through a flight with strong turbulence, receiving news of accidents repeatedly, seeing relatives who suffer while flying, or having experienced a panic attack or intense physical discomfort during a previous flight."
+            },
+            howItIsMaintained: {
+                title: "How is the problem maintained?",
+                textManual: "The most important factor that maintains fear is **avoidance**. When we avoid flying, we feel immediate relief, and this 'educates' our learning to believe that fleeing is the only way to be safe. Thus, we never give the organism the opportunity to learn that the plane is safe."
+            },
+            howToSolve: {
+                title: "How to solve the problem?",
+                textManual: "The goal is **extinction learning**: breaking the association between flying and anxiety. This is achieved through **gradual exposure**: facing the feared situations little by little, without fleeing from them, until the body habituates and the anxiety disappears."
+            }
+        },
+        cafftInfo: {
+            title: "2. The CAFFT Program",
+            howItWorks: {
+                title: "How does it work?",
+                textManual: "Exposure to feared situations will be gradual. The system prepares an **individualized hierarchy** based on your QPV-II questionnaire. Each sequence is presented as many times as necessary until anxiety significantly decreases."
+            },
+            duration: {
+                title: "How long does it last?",
+                textManual: "The duration varies depending on the person. **4 to 8 sessions** of one hour are recommended. With 2 or 3 weekly sessions, the problem can be overcome in a few weeks."
+            },
+            efficacy: {
+                title: "Is it effective?",
+                textManual: "More than **70% of the treated people** manage to fly without problems. Research shows that exposure is the best way to overcome phobias."
+            },
+            conditions: {
+                title: "Environmental Conditions",
+                item1Manual: "Sit comfortably in a quiet place.",
+                item2Manual: "Dim light and without interruptions.",
+                item3Manual: "**Mandatory use of headphones** (preferably covering the whole ear).",
+                item4Manual: "Adjust the volume so the sound is realistic and powerful.",
+            },
+            involvement: {
+                title: "User involvement",
+                textManual: "You must play an active role. Try to feel as if you are LIVING it (involvement).",
+                list1: "Maximum concentration: Do not look away from the screen.",
+                list2: "Don't rush: Honestly indicate the degree of discomfort.",
+                list3: "Don't stop: Do not end a session until anxiety has dropped at least by half.",
+            },
+            tasksBetweenSessions: {
+                title: "Tasks between sessions",
+                textManual: "It is necessary to complete exposure with real situations: going to the airport, watching planes, or reading news without avoiding them. This normalizes sensations outside the computer program."
+            }
+        },
+        prospectus: {
+            title: "3. Exposure Guide (Prospectus)",
+            indications: {
+                title: "Indications",
+                textManual: "Indicated for adults with specific situation-type phobia (traveling by plane) or fear of flying without reaching phobia criteria."
+            },
+            adverseEffects: {
+                title: "Possible adverse effects",
+                textManual: "Anxiety may be experienced during exposure, physical or psychological tiredness, and difficulty falling asleep. These effects are normal and part of the habituation process."
+            },
+            advantages: {
+                title: "Advantages of using CAFFT",
+                list: [
+                    "No need to wait for treatment.",
+                    "Total confidentiality.",
+                    "24h accessibility.",
+                    "Tracking of your own progress.",
+                    "Remote professional supervision."
+                ]
+            }
+        },
+        postTreatmentSection: {
+            title: "4. Instructions for the Real Flight",
+            introManual: "Once the program is finished, it is recommended to take a flight within 10 to 15 days.",
+            instructionItem1Manual: "DO NOT take tranquilizers either before or during the flight.",
+            instructionItem2Manual: "DO NOT consume alcoholic beverages.",
+            instructionItem3Manual: "Sit wherever you are assigned by chance.",
+            instructionItem4Manual: "Avoid talking about the fear of flying in the preceding days.",
+            instructionItem5Manual: "Use natural distractors if you wish (reading, music), but not to escape from anxiety.",
+            instructionItem6Manual: "Accept the nerves as part of the learning process.",
+            nervousnessAdviceManual: "If you get nervous, think of it as an opportunity to apply the habituation you have practiced with CAFFT.",
+        },
+        technicalSection: {
+            title: "5. Technical Information and Contraindications",
+            requirements: {
+                title: "Requirements",
+                list: ["Computer with Internet connection.", "High-quality headphones.", "Updated browser."],
+                text: "You need a computer with an Internet connection and headphones that filter out external air for better immersion."
+            },
+            contraindications: {
+                title: "Contraindications",
+                text: "Do not perform CAFFT without consulting a doctor if:",
+                list: ["You suffer from chronic heart disease.", "You are under psychiatric treatment or taking psychotropic drugs.", "You are pregnant."]
+            }
+        },
+        aiChatSection: {
+            title: "AI Assistant",
+        },
+        therapistAiChatSection: {
+            title: "Clinical AI Assistant",
         },
         therapistInfo: {
             title: "Information for Therapists",
@@ -2974,12 +3307,6 @@ const enTranslations: TranslationContent = {
             clinicalGuardTitle: "Clinical Guidance and Treatment Control",
             pureExposureReminder: "Remember that CAFFT is a pure exposure program. Relaxation or breathing techniques should not be used during sessions.",
             safetyBehaviorDetection: "If you notice stalled habituation, check if the patient is using cognitive 'crutches' or safety behaviors.",
-        },
-        aiChatSection: {
-            title: "AI Assistant",
-        },
-        therapistAiChatSection: {
-            title: "Clinical AI Assistant",
         }
     }
 };

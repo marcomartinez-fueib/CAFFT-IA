@@ -1,13 +1,12 @@
-
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
 import { useUI } from '../hooks/useUI';
 import { helpModalContentStructure, translations } from '../data/translations';
-import { HelpModalSection, HelpContentItem } from '../types';
+import { HelpModalSection, HelpContentItem, HelpSubtitleItem } from '../types';
 import { YOUTUBE_ICON_SVG } from '../constants';
-import { SectionCard } from '../components/SectionCard';
-import { PageTitle } from '../components/PageTitle';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Plane, 
@@ -17,7 +16,15 @@ import {
   Award, 
   MessageSquare, 
   Search,
-  ChevronRight
+  ChevronRight,
+  FileText,
+  Download,
+  AlertCircle,
+  Stethoscope,
+  ShieldCheck,
+  CheckCircle2,
+  Clock,
+  ArrowRight
 } from 'lucide-react';
 
 export const HelpCenterPage: React.FC = () => {
@@ -25,354 +32,369 @@ export const HelpCenterPage: React.FC = () => {
   const { currentUser } = useAuth();
   const { openAssistant } = useUI();
   const [searchQuery, setSearchQuery] = useState('');
-
-  const sectionOrder: (HelpModalSection & { icon: React.ReactNode })[] = [
-    { id: 'fearOfFlying', titleKey: 'helpModal.fearOfFlying.title', icon: <Plane className="w-5 h-5" /> },
-    { id: 'cafftInfo', titleKey: 'helpModal.cafftInfo.title', icon: <Info className="w-5 h-5" /> },
-    { id: 'prospectus', titleKey: 'helpModal.prospectus.title', icon: <BookOpen className="w-5 h-5" /> },
-    { id: 'helpVideos', titleKey: 'helpVideos.pageTitle', icon: <Video className="w-5 h-5" /> },
-    { id: 'postTreatment', titleKey: 'helpModal.postTreatmentSection.title', icon: <Award className="w-5 h-5" /> },
-    ...(currentUser?.role === 'therapist' ? [
-      { id: 'therapistInfo' as const, titleKey: 'helpModal.therapistInfo.title', icon: <MessageSquare className="w-5 h-5" /> }
-    ] : []),
-  ];
-
-  const [activeTab, setActiveTab] = useState<HelpModalSection['id']>(sectionOrder[0].id);
+  const [activeTab, setActiveTab] = useState<string>('fearOfFlying');
+  const [activeSubsection, setActiveSubsection] = useState<string | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
+  
   const scrollRef = useRef<HTMLDivElement>(null);
   const isAutoScrolling = useRef(false);
-  const observer = useRef<IntersectionObserver | null>(null);
 
-  // Sync active section with scroll using IntersectionObserver
-  useEffect(() => {
-    const sectionElements = sectionOrder.map(section => document.getElementById(`help-section-${section.id}`)).filter(Boolean);
+  const sectionOrder = useMemo(() => {
+    const base: (HelpModalSection & { icon: React.ReactNode })[] = [
+      { id: 'fearOfFlying', titleKey: 'helpModal.fearOfFlying.title', icon: <Plane className="w-5 h-5" /> },
+      { id: 'cafftInfo', titleKey: 'helpModal.cafftInfo.title', icon: <Info className="w-5 h-5" /> },
+      { id: 'prospectus', titleKey: 'helpModal.prospectus.title', icon: <BookOpen className="w-5 h-5" /> },
+      { id: 'helpVideos', titleKey: 'helpVideos.pageTitle', icon: <Video className="w-5 h-5" /> },
+      { id: 'postTreatment', titleKey: 'helpModal.postTreatmentSection.title', icon: <Award className="w-5 h-5" /> },
+      { id: 'technicalSection', titleKey: 'helpModal.technicalSection.title', icon: <ShieldCheck className="w-5 h-5" /> },
+    ];
     
-    const handleGlobalScroll = () => {
-      const winScroll = document.documentElement.scrollTop;
-      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      const scrolled = (winScroll / height) * 100;
-      setScrollProgress(scrolled);
-    };
+    if (currentUser?.role === 'therapist') {
+      base.push({ id: 'therapistInfo' as const, titleKey: 'helpModal.therapistInfo.title', icon: <Stethoscope className="w-5 h-5" /> });
+    }
+    
+    return base;
+  }, [currentUser]);
 
-    window.addEventListener('scroll', handleGlobalScroll);
-
-    observer.current = new IntersectionObserver((entries) => {
+  // Sync scroll with navigation
+  useEffect(() => {
+    const handleScroll = () => {
       if (isAutoScrolling.current) return;
 
-      const visibleEntries = entries.filter(entry => entry.isIntersecting);
-      if (visibleEntries.length > 0) {
-        const sorted = [...visibleEntries].sort((a, b) => a.target.getBoundingClientRect().top - b.target.getBoundingClientRect().top);
-        const sectionId = sorted[0].target.id.replace('help-section-', '');
-        setActiveTab(sectionId as HelpModalSection['id']);
-      }
-    }, {
-      rootMargin: '-20% 0px -50% 0px',
-      threshold: [0, 0.1, 0.5]
-    });
+      const winScroll = document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      setScrollProgress((winScroll / height) * 100);
 
-    sectionElements.forEach(el => el && observer.current?.observe(el));
+      // Simple implementation: check which section is in view
+      const sections = sectionOrder.map(s => document.getElementById(`section-${s.id}`));
+      let currentSectionId = activeTab;
 
-    return () => {
-      observer.current?.disconnect();
-      window.removeEventListener('scroll', handleGlobalScroll);
-    };
-  }, [language, currentUser, searchQuery]);
-
-  // Auto-scroll mobile menu when active tab changes
-  useEffect(() => {
-    if (activeTab && scrollRef.current) {
-        const activeBtn = scrollRef.current.querySelector(`[data-section="${activeTab}"]`);
-        if (activeBtn) {
-            activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      for (const section of sections) {
+        if (!section) continue;
+        const rect = section.getBoundingClientRect();
+        // Check if top of section is near the middle/top of screen
+        if (rect.top <= 200 && rect.bottom >= 200) {
+          currentSectionId = section.id.replace('section-', '');
+          break;
         }
-    }
-  }, [activeTab]);
+      }
 
-  const handleTocClick = (sectionId: HelpModalSection['id']) => {
-    if (isAutoScrolling.current) return;
-    
-    setActiveTab(sectionId);
-    const element = document.getElementById(`help-section-${sectionId}`);
-    if (element) {
-        isAutoScrolling.current = true;
-        // Accurate offset calculation relative to viewport
-        const rect = element.getBoundingClientRect();
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        const headerOffset = window.innerWidth >= 1024 ? 100 : 150;
-        const targetY = rect.top + scrollTop - headerOffset;
+      if (currentSectionId !== activeTab) {
+        setActiveTab(currentSectionId);
+      }
 
-        window.scrollTo({
-          top: targetY,
-          behavior: 'smooth'
+      // Check subsections
+      const sectionStructure = helpModalContentStructure[language][currentSectionId as keyof typeof helpModalContentStructure[typeof language]];
+      if (sectionStructure) {
+        let currentSubId = null;
+        sectionStructure.content.forEach((item, idx) => {
+          if (item.type === 'subtitle') {
+            const el = document.getElementById(`sub-${currentSectionId}-${idx}`);
+            if (el) {
+              const rect = el.getBoundingClientRect();
+              if (rect.top <= 250) {
+                currentSubId = `${currentSectionId}-${idx}`;
+              }
+            }
+          }
         });
-        
-        // Duration should match or slightly exceed the smooth scroll duration
-        setTimeout(() => {
-          isAutoScrolling.current = false;
-        }, 1200);
+        setActiveSubsection(currentSubId);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [activeTab, sectionOrder, language]);
+
+  const scrollTo = (id: string, offset = 120) => {
+    const element = document.getElementById(id);
+    if (element) {
+      isAutoScrolling.current = true;
+      const y = element.getBoundingClientRect().top + window.pageYOffset - offset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+      // Reset auto-scrolling flag after animation finished
+      setTimeout(() => { isAutoScrolling.current = false; }, 1000);
     }
   };
 
-  const renderContentItems = (contentArray: HelpContentItem[]) => {
+  /* handleDownloadManual removed */
+
+  const renderContentItems = (contentArray: HelpContentItem[], sectionId: string) => {
+    // Special rendering for Prospectus or clinical sections to look like a official document
+    const isProspectus = sectionId === 'prospectus' || sectionId === 'technicalSection' || sectionId === 'postTreatmentSection';
+
     return contentArray.map((item, index) => {
-      // Basic search filter logic
+      // Basic search filter
       if (searchQuery) {
-        let matches = false;
-        if ('textKey' in item && item.textKey && t(item.textKey).toLowerCase().includes(searchQuery.toLowerCase())) {
-          matches = true;
-        } else if ('itemKeys' in item && item.itemKeys?.some(k => t(k).toLowerCase().includes(searchQuery.toLowerCase()))) {
-          matches = true;
-        }
-        if (!matches) return null;
+        const textToSearch = (('textKey' in item && item.textKey) ? String(t(item.textKey)) : '') + 
+                           (('itemKeys' in item && item.itemKeys) ? item.itemKeys.flatMap(k => {
+                              const val = t(k, { returnObjects: true });
+                              return Array.isArray(val) ? val : [t(k)];
+                           }).join(' ') : '');
+        if (!textToSearch.toLowerCase().includes(searchQuery.toLowerCase())) return null;
       }
 
       switch (item.type) {
         case 'subtitle':
-          return <h3 key={index} className="text-xl font-bold text-sky-800 mt-10 mb-5">{t(item.textKey || '')}</h3>;
+          return (
+            <div key={index} className="mt-12 mb-6 scroll-mt-40">
+              <h3 
+                id={`sub-${sectionId}-${index}`}
+                className="text-xl font-display font-black text-uib-blue uppercase tracking-widest border-b-2 border-uib-accent/20 pb-2 flex items-center gap-3"
+              >
+                {sectionId === 'technicalSection' && <AlertCircle className="w-5 h-5 text-uib-red" />}
+                {t(item.textKey || '')}
+              </h3>
+            </div>
+          );
         case 'paragraph':
-          return <p key={index} className="text-slate-600 mb-6 leading-relaxed text-lg" dangerouslySetInnerHTML={{ __html: t(item.textKey || '') }} />;
+          const isWarning = item.textKey?.toLowerCase().includes('contraindication') || item.textKey?.toLowerCase().includes('condicions') || item.textKey?.toLowerCase().includes('adverse');
+          return (
+            <div 
+              key={index} 
+              className={`font-body text-slate-600 mb-6 leading-relaxed text-lg prose prose-slate max-w-none prose-strong:text-uib-blue prose-strong:font-black ${isProspectus ? 'bg-slate-50 p-8 rounded-[32px] border-l-8 border-uib-blue shadow-sm relative overflow-hidden' : ''} ${isWarning ? 'border-uib-red bg-red-50/30' : ''}`}
+            >
+              {isProspectus && !isWarning && index === 1 && (
+                <div className="absolute top-0 right-0 p-4 opacity-5 rotate-12">
+                   <ShieldCheck className="w-24 h-24 text-uib-blue" />
+                </div>
+              )}
+              {isProspectus && index === 0 && (
+                <div className="flex items-center gap-3 mb-6 text-uib-blue bg-white/50 w-fit px-4 py-1.5 rounded-full border border-slate-200">
+                  <ShieldCheck className="w-4 h-4 text-uib-accent" />
+                  <span className="text-[9px] font-bold uppercase tracking-wider">Protocol Clínic Estàndard CAFFT 5.1</span>
+                </div>
+              )}
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {t(item.textKey || '')}
+              </ReactMarkdown>
+            </div>
+          );
         case 'list':
           return (
-            <ul key={index} className="space-y-4 mb-8 bg-slate-50 p-6 rounded-2xl border border-slate-100">
-              {item.itemKeys?.map((listItemKey, liIndex) => (
-                <li key={liIndex} className="flex items-start gap-3 text-slate-700 text-lg">
-                    <span className="w-1.5 h-1.5 rounded-full bg-sky-400 mt-3 shrink-0" />
-                    <span className="leading-relaxed" dangerouslySetInnerHTML={{ __html: t(listItemKey) }} />
-                </li>
+            <div key={index} className={`grid grid-cols-1 ${isProspectus ? 'md:grid-cols-2' : ''} gap-4 mb-10`}>
+              {item.itemKeys?.flatMap((key) => {
+                const val = t(key, { returnObjects: true });
+                if (Array.isArray(val)) return val;
+                return [t(key)];
+              }).map((text, i) => (
+                <div key={i} className="flex gap-4 items-start bg-white p-5 rounded-2xl border border-slate-100 shadow-sm transition-transform hover:scale-[1.01]">
+                  <div className="w-8 h-8 rounded-lg bg-uib-accent/10 flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-5 h-5 text-uib-accent" />
+                  </div>
+                  <span className="text-slate-700 font-body text-sm leading-snug">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{String(text)}</ReactMarkdown>
+                  </span>
+                </div>
               ))}
-            </ul>
+            </div>
           );
         case 'video_list':
           const videos = translations[language].helpVideos.videos;
-          if (!videos || videos.length === 0) {
-              return <p key={index} className="text-slate-500 italic py-4">{t('helpVideos.noVideos')}</p>;
-          }
           return (
-              <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 mb-8">
-              {videos.map((video, vIndex) => (
-                  <a 
-                      href={video.link} 
-                      key={vIndex} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="group flex items-center justify-between p-5 bg-white hover:bg-sky-50 border border-slate-200 rounded-2xl transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-                  >
-                      <div className="flex items-center space-x-4">
-                        <div className="bg-sky-100 p-2.5 rounded-xl text-sky-600 font-bold text-sm">
-                            {(vIndex + 1).toString().padStart(2, '0')}
-                        </div>
-                        <span className="text-base font-bold text-slate-700 group-hover:text-sky-600">
-                            {t(`helpVideos.${video.titleKey}`)}
-                        </span>
-                      </div>
-                      <div
-                          className="w-7 h-7 text-red-600 opacity-60 group-hover:opacity-100 transition-opacity"
-                          dangerouslySetInnerHTML={{ __html: YOUTUBE_ICON_SVG }}
-                      />
-                  </a>
+            <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+              {videos?.map((v, i) => (
+                <a 
+                  key={i} href={v.link} target="_blank" rel="noopener noreferrer"
+                  className="flex flex-col p-6 bg-white border border-slate-200 rounded-3xl hover:border-uib-accent transition-all group shadow-sm hover:shadow-md"
+                >
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white font-bold text-xs group-hover:bg-uib-accent">
+                      {String(i + 1).padStart(2, '0')}
+                    </div>
+                    <Video className="w-6 h-6 text-red-500 opacity-40 group-hover:opacity-100" />
+                  </div>
+                  <span className="font-display font-bold text-uib-blue group-hover:text-uib-accent">{t(`helpVideos.${v.titleKey}`)}</span>
+                </a>
               ))}
-              </div>
+            </div>
           );
-        default:
-          return null;
+        case 'ai_chat':
+          return (
+            <div key={index} className="mt-10">
+              <button 
+                onClick={openAssistant}
+                className="w-full flex items-center gap-6 p-8 bg-uib-blue rounded-[32px] text-white hover:bg-[#003657] transition-all"
+              >
+                <div className="w-16 h-16 rounded-2xl bg-uib-accent flex items-center justify-center">
+                  <MessageSquare className="w-8 h-8" />
+                </div>
+                <div className="text-left">
+                  <p className="font-display font-bold text-xl">{t('helpModal.aiChatSection.title')}</p>
+                  <p className="text-sky-200 text-sm">{t('onboarding.step6.content')}</p>
+                </div>
+              </button>
+            </div>
+          );
+        default: return null;
       }
     });
   };
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      {/* Search Header */}
-      <div className="bg-sky-600 pt-8 pb-32">
-          <div className="container mx-auto px-4">
-              <PageTitle title={t('helpModal.modalTitle')} className="text-white border-white/20 mb-8" />
-              
-              <div className="relative max-w-2xl">
-                  <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/50 w-5 h-5" />
-                  <input 
-                    type="text" 
-                    placeholder={t('helpModal.searchPlaceholder')}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-white/10 border-2 border-white/20 text-white placeholder:text-white/40 px-14 py-5 rounded-3xl backdrop-blur-md focus:outline-none focus:border-white/50 transition-all text-lg shadow-2xl"
-                  />
-              </div>
-          </div>
-      </div>
+      {/* Header Section */}
+      <header className="bg-uib-blue pt-20 pb-48 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
+        <div className="container mx-auto px-6 relative z-10 text-center lg:text-left">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-uib-accent text-[10px] font-black uppercase tracking-widest mb-6 border border-white/10">
+               <FileText className="w-3 h-3" />
+               Manual Digital 5.1
+            </div>
+            <h1 className="text-5xl lg:text-7xl font-display font-black text-white mb-6 tracking-tighter">
+              {t('helpModal.modalTitle')}
+            </h1>
+            <p className="text-sky-100/70 text-xl max-w-2xl mb-12">
+              {t('helpModal.heroSubtitle')}
+            </p>
+            
+            <div className="max-w-2xl relative group">
+              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-uib-accent w-6 h-6" />
+              <input 
+                type="text"
+                placeholder={t('helpModal.searchPlaceholder')}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-full py-5 pl-16 pr-8 text-white focus:bg-white focus:text-uib-blue transition-all"
+              />
+            </div>
+          </motion.div>
+        </div>
+      </header>
 
-      <div className="container mx-auto px-4 py-8 lg:py-12">
-          <div className="flex flex-col lg:flex-row gap-8">
-              
-              {/* Sidebar/Navigation */}
-              <aside className="w-full lg:w-80 shrink-0">
-                  <div className="lg:sticky lg:top-24 space-y-6">
-                      
-                      {/* Desktop Navigation Portal */}
-                      <div className="hidden lg:block bg-white rounded-[32px] p-2 shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
-                          <div className="relative pt-6 px-4">
-                              <h3 className="px-3 pb-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t('helpModal.tocTitle')}</h3>
-                              
-                              {/* Progress Line */}
-                              <div className="absolute left-6 top-16 bottom-8 w-px bg-slate-100" />
-                              <motion.div 
-                                className="absolute left-6 top-16 w-px bg-sky-500 origin-top"
-                                style={{ height: `calc(100% - 64px)`, scaleY: scrollProgress / 100 }}
-                              />
+      {/* Main Content */}
+      <div className="container mx-auto px-6 -mt-24 pb-20 relative z-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          
+          {/* Sticky Sidebar */}
+          <aside className="lg:col-span-4 self-start sticky top-24 lg:top-32 z-30 -mt-20 lg:-mt-0">
+            {/* Mobile Navigation (Horizontal Scroll) */}
+            <div className="lg:hidden flex gap-2 overflow-x-auto no-scrollbar pb-4 pt-2 mb-8 bg-uib-blue/5 backdrop-blur-sm p-4 rounded-3xl border border-white/20 shadow-xl">
+              {sectionOrder.map((section) => (
+                <button
+                  key={section.id}
+                  onClick={() => scrollTo(`section-${section.id}`, 100)}
+                  className={`flex items-center gap-2 px-5 py-3 rounded-2xl whitespace-nowrap text-xs font-display font-black tracking-tight transition-all
+                    ${activeTab === section.id ? 'bg-uib-blue text-white shadow-lg' : 'bg-white text-slate-500 border border-slate-200'}
+                  `}
+                >
+                  <div className="w-4 h-4">{section.icon}</div>
+                  {t(section.titleKey)}
+                </button>
+              ))}
+            </div>
 
-                              <div className="space-y-1 relative">
-                                  {sectionOrder.map((section) => (
-                                      <button
-                                        key={`desktop-nav-${section.id}`}
-                                        onClick={() => handleTocClick(section.id)}
-                                        className={`w-full group flex items-center gap-4 px-3 py-3 rounded-2xl transition-all duration-300 relative
-                                          ${activeTab === section.id 
-                                            ? 'text-sky-600' 
-                                            : 'text-slate-500 hover:text-sky-600'
-                                          }`}
-                                      >
-                                          <div className={`z-10 w-2 h-2 rounded-full border-2 transition-all duration-500 shrink-0
-                                            ${activeTab === section.id 
-                                              ? 'bg-sky-500 border-sky-500 scale-125' 
-                                              : 'bg-white border-slate-300 group-hover:border-sky-400'
-                                            }`} 
-                                          />
-                                          <span className={`text-sm font-bold tracking-tight transition-all duration-300 ${activeTab === section.id ? 'translate-x-1' : ''}`}>
-                                              {t(section.titleKey)}
-                                          </span>
-                                      </button>
-                                  ))}
-                              </div>
+            {/* Desktop View Sidebar */}
+            <div className="hidden lg:block bg-white rounded-[40px] border border-slate-200 shadow-xl overflow-hidden">
+              <div className="p-8">
+                <div className="flex items-center justify-between mb-8">
+                  <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('helpModal.tocTitle')}</h3>
+                  <div className="text-[10px] font-bold text-uib-accent bg-uib-accent/10 px-2 py-1 rounded-md">{Math.round(scrollProgress)}%</div>
+                </div>
+
+                <nav className="space-y-1">
+                  {sectionOrder.map((section) => {
+                    const structure = helpModalContentStructure[language][section.id as keyof typeof helpModalContentStructure[typeof language]];
+                    const subsections = (structure?.content || [])
+                      .map((item, idx) => ({ item, idx }))
+                      .filter(({ item }) => item.type === 'subtitle') as { item: HelpSubtitleItem; idx: number }[];
+
+                    return (
+                      <div key={section.id}>
+                        <button
+                          onClick={() => scrollTo(`section-${section.id}`)}
+                          className={`w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group
+                            ${activeTab === section.id ? 'bg-uib-accent text-white font-bold shadow-lg shadow-uib-accent/20' : 'text-slate-500 hover:bg-slate-50'}
+                          `}
+                        >
+                          <div className={`shrink-0 transition-transform ${activeTab === section.id ? 'scale-110' : 'group-hover:translate-x-1'}`}>
+                            {section.icon}
                           </div>
-                          
-                          {/* Assistant shortcut in menu */}
-                          <div className="mt-4 p-4 lg:block hidden">
-                              <button 
-                                onClick={openAssistant}
-                                className="w-full group flex flex-col gap-3 p-5 rounded-[24px] bg-slate-900 text-white transition-all duration-300 hover:bg-sky-600 shadow-lg shadow-slate-200"
-                              >
-                                  <div className="flex items-center justify-between w-full">
-                                      <div className="bg-white/10 p-2 rounded-xl text-white">
-                                          <MessageSquare className="w-4 h-4" />
-                                      </div>
-                                      <ChevronRight className="w-4 h-4 opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                                  </div>
-                                  <div className="text-left">
-                                      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 group-hover:text-white/80">{t('helpModal.needMoreHelp')}</p>
-                                      <p className="text-xs font-bold">{t('onboarding.step6.title')}</p>
-                                  </div>
-                              </button>
-                          </div>
-                      </div>
+                          <span className="text-sm uppercase tracking-wide truncate">{t(section.titleKey)}</span>
+                        </button>
 
-      {/* Mobile Slider / Navigation */}
-                      <div className="lg:hidden sticky top-[72px] z-[50] -mx-4 px-4 bg-white/95 backdrop-blur-md py-4 mb-8 border-b border-slate-200 overflow-x-auto no-scrollbar shadow-sm">
-                          <div ref={scrollRef} className="flex gap-2 min-w-max">
-                              {sectionOrder.map((section) => (
-                                  <button
-                                    key={`mobile-nav-${section.id}`}
-                                    data-section={section.id}
-                                    data-active={activeTab === section.id}
-                                    onClick={() => handleTocClick(section.id)}
-                                    className={`flex items-center gap-2 px-6 py-2.5 rounded-full whitespace-nowrap font-bold text-xs transition-all duration-300
-                                      ${activeTab === section.id 
-                                        ? 'bg-sky-500 text-white shadow-lg shadow-sky-200' 
-                                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
-                                      }`}
-                                  >
-                                      {t(section.titleKey)}
-                                  </button>
+                        <AnimatePresence>
+                          {activeTab === section.id && subsections && subsections.length > 0 && (
+                            <motion.div 
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="ml-10 border-l-2 border-slate-100 py-1 space-y-1 overflow-hidden"
+                            >
+                              {subsections.map(({ item, idx }) => (
+                                <button
+                                  key={idx}
+                                  onClick={() => scrollTo(`sub-${section.id}-${idx}`, 150)}
+                                  className={`w-full text-left py-2 px-4 text-[11px] transition-all hover:text-uib-accent truncate
+                                    ${activeSubsection === `${section.id}-${idx}` ? 'text-uib-accent font-bold bg-uib-accent/5 rounded-r-lg' : 'text-slate-400'}
+                                  `}
+                                >
+                                  {t(item.textKey || '')}
+                                </button>
                               ))}
-                          </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
+                    );
+                  })}
+                </nav>
+              </div>
 
-                      {/* Disclaimer Card */}
-                      <div className="bg-amber-50 border border-amber-100 rounded-[32px] p-6 lg:p-8">
-                          <div className="flex items-center gap-3 mb-3">
-                              <div className="bg-amber-100 p-2 rounded-xl text-amber-600">
-                                  <Info className="w-4 h-4" />
-                              </div>
-                              <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest leading-none">Avis Important</span>
-                          </div>
-                          <p className="text-xs text-amber-900/70 font-medium leading-relaxed italic">
-                              {t('helpModal.disclaimer')}
-                          </p>
-                      </div>
-                  </div>
-              </aside>
+              {/* Download Button Removed */}
+            </div>
 
-      {/* Content Main Area */}
-              <main className="flex-1 min-w-0">
-                  <div className="space-y-12">
-                      {sectionOrder.map((section) => {
-                          const structure = helpModalContentStructure[language][section.id as keyof typeof helpModalContentStructure[typeof language]];
-                          if (!structure) return null;
+            <div className="mt-8 p-8 bg-uib-accent/5 border border-uib-accent/20 rounded-[40px]">
+              <div className="flex items-center gap-3 mb-4">
+                <AlertCircle className="w-5 h-5 text-uib-accent" />
+                <span className="text-[10px] font-black text-uib-blue uppercase tracking-widest">Aviso Clínico</span>
+              </div>
+              <p className="text-xs text-slate-500 leading-relaxed italic">{t('helpModal.disclaimer')}</p>
+            </div>
+          </aside>
 
-                          const renderedItems = renderContentItems(structure.content).filter(Boolean);
-                          if (searchQuery && renderedItems.length === 0) return null;
+          {/* Content Main Area */}
+          <div className="lg:col-span-8 space-y-12">
+            
+            {/* Iteratable Sections */}
+            {sectionOrder.filter(s => s.id !== 'fullManual').map((section) => {
+              const structure = helpModalContentStructure[language][section.id as keyof typeof helpModalContentStructure[typeof language]];
+              if (!structure) return null;
+              
+              const items = renderContentItems(structure.content, section.id).filter(Boolean);
+              if (searchQuery && items.length === 0) return null;
 
-                          return (
-                              <motion.section 
-                                key={`content-section-${section.id}`}
-                                id={`help-section-${section.id}`}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true, margin: "-100px" }}
-                                className="bg-white rounded-[32px] p-8 lg:p-12 shadow-sm border border-slate-200 relative overflow-hidden"
-                              >
-                                  {/* Section Badge */}
-                                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6">
-                                      {section.icon}
-                                      {t(section.titleKey)}
-                                  </div>
-
-                                  <h2 className="text-3xl lg:text-4xl font-black text-slate-900 mb-8 tracking-tight">
-                                      {t(structure.titleKey)}
-                                  </h2>
-
-                                  <div className="prose prose-slate prose-lg max-w-none">
-                                      {renderContentItems(structure.content)}
-                                  </div>
-
-                                  {/* Watermark Icon */}
-                                  <div className="absolute right-[-20px] top-[-20px] opacity-[0.02] text-slate-900 pointer-events-none transform scale-[4]">
-                                      {section.icon}
-                                  </div>
-                              </motion.section>
-                          );
-                      })}
-
-                      {searchQuery && sectionOrder.every(s => {
-                          const struct = helpModalContentStructure[language][s.id as keyof typeof helpModalContentStructure[typeof language]];
-                          return !struct || renderContentItems(struct.content).filter(Boolean).length === 0;
-                      }) && (
-                          <div className="bg-white rounded-[40px] p-20 text-center border-2 border-dashed border-slate-200">
-                              <div className="bg-slate-50 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                                  <Search className="w-10 h-10 text-slate-300" />
-                              </div>
-                              <h3 className="text-2xl font-black text-slate-900 mb-2">{t('helpModal.noResultsTitle')}</h3>
-                              <p className="text-slate-500 font-medium max-w-sm mx-auto">{t('helpModal.noResultsText')}</p>
-                          </div>
-                      )}
+              return (
+                <section key={section.id} id={`section-${section.id}`} className="bg-white rounded-[48px] p-10 lg:p-16 shadow-lg border border-slate-100 scroll-mt-24 transition-all">
+                  <div className="flex items-center gap-4 mb-12">
+                    <div className="w-14 h-14 rounded-2xl bg-uib-blue text-white flex items-center justify-center shadow-lg shadow-uib-blue/20">
+                      {section.icon}
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t(section.titleKey)}</span>
+                      <h4 className="text-3xl font-display font-black text-uib-blue leading-none">{t(structure.titleKey)}</h4>
+                    </div>
                   </div>
 
-                  {/* Feedback Section */}
-                  <div className="mt-12 p-8 lg:p-12 bg-slate-900 rounded-[40px] text-white flex flex-col md:flex-row items-center justify-between gap-8">
-                      <div>
-                          <h3 className="text-2xl font-black mb-2">{t('helpModal.needMoreHelp')}</h3>
-                          <p className="text-slate-400 font-medium">{t('onboarding.step6.content')}</p>
-                      </div>
-                      <button 
-                        onClick={openAssistant}
-                        className="bg-white text-slate-900 px-8 py-4 rounded-2xl font-black hover:bg-sky-100 transition-colors flex items-center gap-3"
-                      >
-                          <MessageSquare className="w-5 h-5 text-sky-500" />
-                          {t('onboarding.step6.title')}
-                      </button>
+                  <div className="space-y-6">
+                    {items}
                   </div>
-              </main>
-
+                  
+                  <div className="mt-16 pt-8 border-t border-slate-50 flex items-center justify-between text-slate-200">
+                    <div className="flex gap-2">
+                       <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
+                       <div className="w-1.5 h-1.5 rounded-full bg-uib-accent/20" />
+                       <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest group-hover:text-uib-accent transition-colors">CAFFT 5.1</span>
+                  </div>
+                </section>
+              );
+            })}
           </div>
+        </div>
       </div>
     </div>
   );
 };
-

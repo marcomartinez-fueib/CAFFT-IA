@@ -3,6 +3,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { useLanguage } from '../hooks/useLanguage';
 import { ChatInterface } from '../pages/ChatPage.tsx';
+import { MessageSquare } from 'lucide-react';
 
 // XMarkIcon SVG
 const XMarkIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -35,28 +36,27 @@ export const AssistantModal: React.FC<AssistantModalProps> = ({ isOpen, onClose 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Simplified Header for the Modal */}
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100 bg-white">
-          <div className="flex items-center space-x-3">
-             <div className="bg-sky-500 p-2 rounded-xl text-white shadow-md">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
+        <div className="flex items-center justify-between p-5 sm:p-7 border-b border-gray-100 bg-white">
+          <div className="flex items-center space-x-4">
+             <div className="bg-uib-blue p-3 rounded-2xl text-white shadow-lg shadow-uib-blue/20">
+                <MessageSquare className="w-6 h-6" />
              </div>
              <div>
-                <h2 id="assistant-modal-title" className="text-xl font-black text-slate-900 tracking-tight leading-tight uppercase">
+                <h2 id="assistant-modal-title" className="text-2xl font-display font-black text-uib-blue tracking-tight leading-tight uppercase">
                 {t('aiChat.pageTitle')}
                 </h2>
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mt-0.5">
-                    Co-terapeuta Virtual CAFFT
+                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] leading-none mt-1.5 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                    Asistent de Suport CAFFT
                 </p>
              </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500"
+            className="p-3 text-slate-400 hover:text-uib-blue hover:bg-slate-50 rounded-2xl transition-all duration-300 focus:outline-none"
             aria-label={t('helpModal.closeButton')}
           >
-            <XMarkIcon className="h-6 w-6" />
+            <XMarkIcon className="h-7 w-7" />
           </button>
         </div>
 

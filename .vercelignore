@@ -1,4 +1,3 @@
-# Video assets are now deployed with the application on Vercel.
-# The .vercelignore previously excluded public/videos_cafft/ to avoid bundling 176MB+ of MP4s,
-# but since the repository is private and GitHub Releases are inaccessible to patients,
-# videos are now served directly from Vercel's static hosting.
+# Ignore local video assets on Vercel to prevent bundling 176MB+ of MP4s.
+# Videos are served from GitHub release assets instead.
+public/videos_cafft/

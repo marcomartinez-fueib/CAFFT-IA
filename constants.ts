@@ -61,22 +61,23 @@ export const PIE_CHART_COLORS = ['#00263E', '#BA0C2F', '#A7A596', '#0072CE']; //
 
 export const YOUTUBE_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-red-600"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-3.897 1.834-3.897 7.691 0 5.861 0 7.429 3.897 7.696 3.6.245 11.626.246 15.23 0 3.897-.266 3.897-1.838 3.897-7.696 0-5.855 0-7.425-3.897-7.691zm-7.615 11.316v-7.143l5.714 3.571-5.714 3.572z"></path></svg>`;
 
-export const EXPOSURE_EXPLANATION_VIDEO_URL_BASE = "/videos_cafft/exposure_explanation"; // Base path for the local explanation video
+export const EXPOSURE_EXPLANATION_VIDEO_URL_BASE = "videos_cafft/exposure_explanation"; // Base path for the local explanation video
 
-// Base URL for video assets. Optional: set VITE_VIDEO_BASE_URL to an external CDN (e.g. GitHub Releases, Cloudflare R2).
-// If set, videos are loaded from that external URL. If not set, videos are served from the local /videos_cafft/ directory.
-// Example external URL: https://github.com/marcomartinez-fueib/CAFFT-IA/releases/download/v1.0.0-videos
+// Base URL for video assets. In Vercel, set VITE_VIDEO_BASE_URL to the GitHub release URL.
+// Example: https://github.com/marcomartinez-fueib/CAFFT-IA/releases/download/v1.0.0-videos
 const VIDEO_BASE_URL = import.meta.env.VITE_VIDEO_BASE_URL || '';
+
+if (!VIDEO_BASE_URL) {
+  console.warn('[CAFFT] VITE_VIDEO_BASE_URL is not defined. Videos will fail to load in production. Please set it to your GitHub Release URL in Vercel.');
+}
 
 export const getVideoUrl = (basePath: string, language: string): string => {
   const fileName = `${basePath.split('/').pop()}_${language}.mp4`;
   if (VIDEO_BASE_URL) {
     return `${VIDEO_BASE_URL}/${fileName}`;
   }
-  // Serve videos from the application's public directory (works for both local dev and Vercel)
-  // Ensure a single leading slash so the path is absolute regardless of whether basePath starts with /
-  const prefix = basePath.startsWith('/') ? '' : '/';
-  return `${prefix}${basePath}_${language}.mp4`;
+  // Fallback for local development only; in production this will likely fail
+  return `${basePath}_${language}.mp4`;
 };
 
 export const QPVII_QUESTIONS: QPVIIQuestion[] = Array.from({ length: 31 }, (_, i) => ({

@@ -92,7 +92,7 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1 lg:space-x-2 xl:space-x-4">
+          <div className="hidden md:flex flex-1 items-center justify-center space-x-1 lg:space-x-2 xl:space-x-4 px-4 overflow-hidden">
             {mainNavItems.map((item) => {
                 let id = "";
                 if (item.path === '/cafft-intro') id = "nav-home";
@@ -107,7 +107,8 @@ export const Navbar: React.FC = () => {
                           <>
                             <span className="flex items-center whitespace-nowrap px-2 py-2 rounded-lg group-hover:bg-slate-50 transition-colors">
                               {navIcons[item.labelKey]}
-                              {t(item.labelKey)}
+                              <span className="hidden lg:inline">{t(item.labelKey)}</span>
+                              <span className="lg:hidden">{t(item.labelKey).split(' ')[0]}</span>
                             </span>
                             {/* Active Indicator Line */}
                             <div className={`absolute bottom-0 left-2 right-2 h-1 bg-uib-blue rounded-t-full transition-all duration-300 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1 group-hover:opacity-30 group-hover:translate-y-0'}`} />
@@ -116,11 +117,16 @@ export const Navbar: React.FC = () => {
                     </NavLink>
                 );
             })}
+          </div>
+
+          {/* User & Actions group */}
+          <div className="hidden md:flex items-center space-x-2 lg:space-x-4 flex-shrink-0 border-l border-gray-100 pl-4 h-full">
+            <LanguageSwitcher />
             
-            <div className="h-8 w-px bg-gray-200 mx-2"></div>
+            <div className="h-8 w-px bg-gray-200"></div>
 
             {currentUser && (
-              <div className="flex items-center ml-2 border-l border-gray-100 pl-4">
+              <div className="flex items-center">
                 <div className="flex flex-col items-end mr-3 hidden lg:flex">
                   <span className="text-xs font-black text-uib-black truncate max-w-[100px] xl:max-w-[150px]">
                     {currentUser.username}
@@ -144,15 +150,11 @@ export const Navbar: React.FC = () => {
             {currentUser && (
                 <button 
                     onClick={handleLogout} 
-                    className="text-[11px] lg:text-sm font-bold uppercase tracking-wide text-uib-darkGray hover:text-uib-blue transition-colors whitespace-nowrap"
+                    className="text-[10px] lg:text-xs font-extrabold uppercase tracking-widest text-uib-darkGray hover:text-uib-red transition-colors whitespace-nowrap pl-2"
                 >
                     {t('nav.logout')}
                 </button>
             )}
-
-            <div className="ml-2">
-                <LanguageSwitcher />
-            </div>
           </div>
 
           {/* Mobile menu button */}

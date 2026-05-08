@@ -257,17 +257,17 @@ const caTranslations: TranslationContent = {
     nav: {
         home: "Inici",
         fearOfFlying: "La Por de Volar",
-        cafftProgram: "Programa\u00A0CAFFT",
-        qpviiEvaluation: "Avaluació\u00A0QPV-II",
+        cafftProgram: "Programa",
+        qpviiEvaluation: "Avaluació",
         exposure: "Exposició",
         login: "Iniciar\u00A0Sessió",
         register: "Registra't",
         profile: "Perfil",
         logout: "Tancar Sessió",
         privacyPolicy: "Política de Privacitat",
-        cafftIntro: "Introducció al CAFFT",
+        cafftIntro: "Inici",
         forgotPasswordLink: "Has oblidat la contrasenya?",
-        evolution: "La meva Evolució",
+        evolution: "Evolució",
         exposureHierarchy: "Jerarquia d'Exposició",
         exposureExplanation: "Explicació de l'Exposició", 
         lastSession: "Sessió Final", 
@@ -279,7 +279,7 @@ const caTranslations: TranslationContent = {
         managers: "Gestors",
         therapistNotifications: "Notificacions",
         feedback: "Feedback",
-        helpCenter: "Centre d'Ajuda",
+        helpCenter: "Ajuda",
         help: "Ajuda",
         addUser: "Afegir Usuari",
         addTherapist: "Afegir Terapeuta",
@@ -287,7 +287,7 @@ const caTranslations: TranslationContent = {
         cancel: "Cancel·lar",
     },
     home: {
-        title: ["Tractament", "Assistit", "per Ordinador", "de la Por al", "Vol"],
+        title: ["Tractament Assistit", "per Ordinador de la", "Por de volar"],
         subtitle: "Un programa de tractament autoaplicat per a la por de volar, basat en tècniques d'exposició i recolzat per dècades d'investigació a la Universitat de les Illes Balears.",
         firstEdition: "Primera Edició: 1999",
         version: "Versió 5.1",
@@ -1350,10 +1350,10 @@ const esTranslations: TranslationContent = {
         no: "No",
         select: "Elige..."
     },
-    nav: { ...caTranslations.nav, home: "Inicio", fearOfFlying: "Miedo a Volar", cafftProgram: "Programa CAFFT", qpviiEvaluation: "Evaluación QPV-II", exposure: "Exposición", login: "Iniciar Sesión", register: "Registrarse", profile: "Perfil", logout: "Cerrar Sesión", privacyPolicy: "Política de Privacidad", cafftIntro: "Introducción a CAFFT", forgotPasswordLink: "¿Olvidaste la contraseña?", evolution: "Mi Evolución", exposureHierarchy: "Jerarquía de Exposición", exposureExplanation: "Explicación de Exposición", lastSession: "Sesión Final", therapistDashboard: "Panel del Terapeuta", managerDashboard: "Panel de Gestor", superadminDashboard: "Panel de Superadministrador", patients: "Pacientes", therapists: "Terapeutas", managers: "Gestores", therapistNotifications: "Notificaciones", helpCenter: "Centro de Ayuda", help: "Ayuda", addUser: "Añadir Usuario", addTherapist: "Añadir Terapeuta", save: "Guardar", cancel: "Cancelar" },
+    nav: { ...caTranslations.nav, home: "Inicio", fearOfFlying: "Miedo a Volar", cafftProgram: "Programa", qpviiEvaluation: "Evaluación", exposure: "Exposición", login: "Iniciar Sesión", register: "Registrarse", profile: "Perfil", logout: "Cerrar Sesión", privacyPolicy: "Política de Privacidad", cafftIntro: "Inicio", forgotPasswordLink: "¿Olvidaste la contraseña?", evolution: "Evolución", exposureHierarchy: "Jerarquía de Exposición", exposureExplanation: "Explicación de Exposición", lastSession: "Sesión Final", therapistDashboard: "Panel del Terapeuta", managerDashboard: "Panel de Gestor", superadminDashboard: "Panel de Superadministrador", patients: "Pacientes", therapists: "Terapeutas", managers: "Gestores", therapistNotifications: "Notificaciones", helpCenter: "Ayuda", help: "Ayuda", addUser: "Añadir Usuario", addTherapist: "Añadir Terapeuta", save: "Guardar", cancel: "Cancelar" },
     home: { 
         ...caTranslations.home, 
-        title: ["Tratamiento", "Asistido", "por Ordenador", "del Miedo a", "Volar"], 
+        title: ["Tratamiento Asistido", "por Ordenador del", "Miedo a volar"], 
         subtitle: "Un programa de tratamiento autoaplicado para el miedo a volar, basado en técnicas de exposición y respaldado por décadas de investigación en la Universidad de las Illes Balears.", 
         firstEdition: "Primera Edición: 1999",
         version: "Versión 5.1",
@@ -2164,7 +2164,7 @@ const enTranslations: TranslationContent = {
         }
     },
     home: {
-        title: ["Computer", "Assisted", "Treatment", "for Fear of", "Flying"],
+        title: ["Computer Assisted", "Treatment for", "Fear of Flying"],
         subtitle: "A self-applied treatment program for fear of flying, based on exposure techniques and backed by decades of research at the University of the Balearic Islands.",
         firstEdition: "First Edition: 1999",
         version: "Version 5.1",
@@ -2208,7 +2208,7 @@ const enTranslations: TranslationContent = {
         no: "No",
         select: "Select..."
     },
-    nav: { ...caTranslations.nav, home: "Home", fearOfFlying: "Fear of Flying", cafftProgram: "CAFFT Program", qpviiEvaluation: "QPV-II Evaluation", exposure: "Exposure", login: "Login", register: "Register", profile: "Profile", logout: "Logout", privacyPolicy: "Privacy Policy", cafftIntro: "CAFFT Intro", forgotPasswordLink: "Forgot Password?", evolution: "My Evolution", exposureHierarchy: "Exposure Hierarchy", exposureExplanation: "Exposure Explanation", lastSession: "Final Session", therapistDashboard: "Therapist Dashboard", managerDashboard: "Manager Dashboard", superadminDashboard: "Superadmin Dashboard", patients: "Patients", therapists: "Therapists", managers: "Managers", therapistNotifications: "Notifications", helpCenter: "Help Center", help: "Help", addUser: "Add User", addTherapist: "Add Therapist", save: "Save", cancel: "Cancel" },
+    nav: { ...caTranslations.nav, home: "Home", fearOfFlying: "Fear of Flying", cafftProgram: "Program", qpviiEvaluation: "Evaluation", exposure: "Exposure", login: "Login", register: "Register", profile: "Profile", logout: "Logout", privacyPolicy: "Privacy Policy", cafftIntro: "Home", forgotPasswordLink: "Forgot Password?", evolution: "Evolution", exposureHierarchy: "Exposure Hierarchy", exposureExplanation: "Exposure Explanation", lastSession: "Final Session", therapistDashboard: "Therapist Dashboard", managerDashboard: "Manager Dashboard", superadminDashboard: "Superadmin Dashboard", patients: "Patients", therapists: "Therapists", managers: "Managers", therapistNotifications: "Notifications", helpCenter: "Help", help: "Help", addUser: "Add User", addTherapist: "Add Therapist", save: "Save", cancel: "Cancel" },
     userGuide: {
         title: "User Guide",
         introduction: "This guide provides important information about requirements, usage, and advantages of the CAFFT program.",

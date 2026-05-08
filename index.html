@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UIB CAFFT 5.1 Program</title>
+  
+  <!-- Google Fonts: Montserrat (UIB Corporate Font) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Montserrat', 'sans-serif'],
+          },
+          colors: {
+            uib: {
+              blue: '#00263E', // Pantone 282 (Blau Institucional)
+              accent: '#0072CE', // Pantone 2935 (Blau Vibrant)
+              red: '#BA0C2F', // PMS 186
+              black: '#111111',
+              warmGray: '#A7A596', // PMS 402
+              lightGray: '#F2F2F2',
+              darkGray: '#333333',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none; /* IE and Edge */
+      scrollbar-width: none; /* Firefox */
+    }
+    .safe-area-bottom {
+      padding-bottom: env(safe-area-inset-bottom, 1rem);
+    }
+    ::selection {
+      background-color: #00263E;
+      color: white;
+    }
+  </style>
+
+  <link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-white text-uib-black h-full selection:bg-uib-blue selection:text-white">
+  <div id="root" class="h-full"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

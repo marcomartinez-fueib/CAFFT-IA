@@ -8,7 +8,7 @@ import { SectionCard } from '../components/SectionCard';
 import { ExposureVideo, QPVIIScores, VideoDiscomfortRating, UserExposureProgress, ExposureSceneKey, QPVIIAnswers } from '../types';
 import { saveUserExposureProgress, getUserExposureProgress, getQPVIIResultsForUser, getCircularReplacer } from '../utils/localStorageDB';
 import { determineVideoSequence, isExposureFullyCompleted } from '../utils/exposureUtils';
-import { EXPOSURE_VIDEOS, CANONICAL_FLIGHT_STAGES_ORDER } from '../constants';
+import { EXPOSURE_VIDEOS, CANONICAL_FLIGHT_STAGES_ORDER, getVideoUrl } from '../constants';
 import { FollowUpService } from '../services/followUpService.ts';
 import { ExposureSessionProgress } from '../components/ExposureSessionProgress';
 
@@ -54,6 +54,7 @@ export const ExposurePage: React.FC = () => {
   const [usingDemoVideo, setUsingDemoVideo] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null); 
+  const maxPlayedTimeRef = useRef<number>(0);
 
   const DEMO_VIDEO_URL = "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
   
@@ -80,7 +81,7 @@ export const ExposurePage: React.FC = () => {
       return CDN_FALLBACKS[video.relatedArea] || DEMO_VIDEO_URL;
     }
     
-    return `${video.mp4Url}_${language}.mp4`;
+    return getVideoUrl(video.mp4Url, language);
   }, [language, usingDemoVideo, fallbackAttempted, CDN_FALLBACKS, DEMO_VIDEO_URL]);
 
   const handleUseDemoVideo = () => {
@@ -332,7 +333,23 @@ export const ExposurePage: React.FC = () => {
     setCurrentVideoIndex(index);
     setUserFeedbackMessage(null);
     setVideoError(null); // Reset error before opening
+    maxPlayedTimeRef.current = 0;
     setIsVideoPlayerModalOpen(true);
+  };
+
+  const handleTimeUpdate = () => {
+    if (videoRef.current) {
+      const current = videoRef.current.currentTime;
+      if (current > maxPlayedTimeRef.current) {
+        maxPlayedTimeRef.current = current;
+      }
+    }
+  };
+
+  const handleSeeking = () => {
+    if (videoRef.current && videoRef.current.currentTime > maxPlayedTimeRef.current) {
+      videoRef.current.currentTime = maxPlayedTimeRef.current;
+    }
   };
   
   const handleFinishSession = () => {
@@ -465,38 +482,41 @@ export const ExposurePage: React.FC = () => {
                 </div>
             </div>
            ) : (
-               <video
-                    ref={videoRef}
-                    autoPlay
-                    className="w-full h-full object-contain pointer-events-none"
-                    onEnded={handleVideoNaturalEnd}
-                    onError={(e) => { 
-                      const videoElement = e.target as HTMLVideoElement;
-                      const error = videoElement.error;
-                      const videoSrc = videoElement.currentSrc || videoElement.src;
-                      const currentVideo = videoSequence[currentVideoIndex];
-                      
-                      const detailedMessage = `URL: ${videoSrc} | Error Code: ${error?.code || 'N/A'} | Message: ${error?.message || 'Not available'}`;
-                      console.error(`Video loading failed. ${detailedMessage}`);
+                <video
+                     ref={videoRef}
+                     controls
+                     autoPlay
+                     className="w-full h-full object-contain exposure-video"
+                     onEnded={handleVideoNaturalEnd}
+                     onTimeUpdate={handleTimeUpdate}
+                     onSeeking={handleSeeking}
+                     onError={(e) => { 
+                       const videoElement = e.target as HTMLVideoElement;
+                       const error = videoElement.error;
+                       const videoSrc = videoElement.currentSrc || videoElement.src;
+                       const currentVideo = videoSequence[currentVideoIndex];
+                       
+                       const detailedMessage = `URL: ${videoSrc} | Error Code: ${error?.code || 'N/A'} | Message: ${error?.message || 'Not available'}`;
+                       console.error(`Video loading failed. ${detailedMessage}`);
 
-                      // If we haven't tried falling back enough times for THIS video, try the next level
-                      const currentAttempt = fallbackAttempted[currentVideo?.id || ''] || 0;
-                      if (currentVideo && currentAttempt < 2) {
-                        console.log(`Attempting automatic CDN fallback (Level ${currentAttempt + 1}) for ${currentVideo.id}`);
-                        setFallbackAttempted(prev => ({ 
-                          ...prev, 
-                          [currentVideo.id]: currentAttempt + 1 
-                        }));
-                        // The source change in src={getLocalizedVideoUrl(...)} will trigger a reload
-                        return;
-                      }
-                      
-                      setVideoError(detailedMessage);
-                    }}
-                    src={getLocalizedVideoUrl(videoSequence[currentVideoIndex])}
-                >
-                    {t('exposure.videoTagNotSupported')}
-                </video>
+                       // If we haven't tried falling back enough times for THIS video, try the next level
+                       const currentAttempt = fallbackAttempted[currentVideo?.id || ''] || 0;
+                       if (currentVideo && currentAttempt < 2) {
+                         console.log(`Attempting automatic CDN fallback (Level ${currentAttempt + 1}) for ${currentVideo.id}`);
+                         setFallbackAttempted(prev => ({ 
+                           ...prev, 
+                           [currentVideo.id]: currentAttempt + 1 
+                         }));
+                         // The source change in src={getLocalizedVideoUrl(...)} will trigger a reload
+                         return;
+                       }
+                       
+                       setVideoError(detailedMessage);
+                     }}
+                     src={getLocalizedVideoUrl(videoSequence[currentVideoIndex])}
+                 >
+                     {t('exposure.videoTagNotSupported')}
+                 </video>
            )}
         </div>
       )}

@@ -8,7 +8,7 @@ import { PageTitle } from '../components/PageTitle';
 import { SectionCard } from '../components/SectionCard';
 import { QPVIIScores, UserExposureProgress } from '../types';
 import { getUserExposureProgress, saveUserExposureProgress } from '../utils/localStorageDB';
-import { EXPOSURE_EXPLANATION_VIDEO_URL_BASE } from '../constants';
+import { EXPOSURE_EXPLANATION_VIDEO_URL_BASE, getVideoUrl } from '../constants';
 
 // SVG Icons
 const PlayIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -32,6 +32,7 @@ export const ExposureExplanationPage: React.FC = () => {
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const maxPlayedTimeRef = useRef<number>(0);
 
   const { qpviiTimestamp, scores } = (location.state as { qpviiTimestamp?: number; scores?: QPVIIScores }) || {};
 
@@ -44,10 +45,10 @@ export const ExposureExplanationPage: React.FC = () => {
   const [fallbackAttempted, setFallbackAttempted] = useState(0);
   const DEMO_VIDEO_URL = "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
 
-  const getLocalizedVideoUrl = useCallback((basePath: string): string => {
+  const getLocalizedVideoUrl = useCallback((fullUrl: string): string => {
     if (fallbackAttempted >= 1) return DEMO_VIDEO_URL;
-    return `${basePath}_${language}.mp4`;
-  }, [language, fallbackAttempted]);
+    return fullUrl;
+  }, [fallbackAttempted]);
 
   const handleUseDemoVideo = () => {
     setVideoError(null);
@@ -93,6 +94,21 @@ export const ExposureExplanationPage: React.FC = () => {
       setIsVideoModalOpen(true);
   };
   const closeVideoModal = () => setIsVideoModalOpen(false);
+
+  const handleTimeUpdate = () => {
+    if (videoRef.current) {
+      const current = videoRef.current.currentTime;
+      if (current > maxPlayedTimeRef.current) {
+        maxPlayedTimeRef.current = current;
+      }
+    }
+  };
+
+  const handleSeeking = () => {
+    if (videoRef.current && videoRef.current.currentTime > maxPlayedTimeRef.current) {
+      videoRef.current.currentTime = maxPlayedTimeRef.current;
+    }
+  };
 
   const sections = [
     { titleKey: 'exposureExplanation.section1Title', textKey: 'exposureExplanation.section1Text' },
@@ -218,10 +234,12 @@ export const ExposureExplanationPage: React.FC = () => {
               ) : (
                 <video
                   ref={videoRef}
-                  src={getLocalizedVideoUrl(EXPOSURE_EXPLANATION_VIDEO_URL_BASE)}
+                  src={getLocalizedVideoUrl(getVideoUrl(EXPOSURE_EXPLANATION_VIDEO_URL_BASE, language))}
                   controls
                   autoPlay
-                  className="w-full h-full"
+                  className="w-full h-full exposure-video"
+                  onTimeUpdate={handleTimeUpdate}
+                  onSeeking={handleSeeking}
                   onError={(e) => {
                       console.error("Video load error:", e);
                       if (fallbackAttempted < 1) {

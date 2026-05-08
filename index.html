@@ -60,6 +60,18 @@
       background-color: #00263E;
       color: white;
     }
+    /* Ocultar barra de progreso en videos de exposición */
+    .exposure-video::-webkit-media-controls-timeline {
+      display: none !important;
+    }
+    .exposure-video::-webkit-media-controls-current-time-display,
+    .exposure-video::-webkit-media-controls-time-remaining-display {
+      display: none !important;
+    }
+    /* Firefox fallback */
+    .exposure-video {
+      pointer-events: auto;
+    }
   </style>
 
   <link rel="stylesheet" href="/index.css">

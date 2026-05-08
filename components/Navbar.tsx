@@ -74,14 +74,14 @@ export const Navbar: React.FC = () => {
 
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-2 sm:px-4 md:px-6">
         <div className="flex justify-between h-20 md:h-24 items-center">
           
           {/* UIB Logo Branding */}
           <div className="flex items-center cursor-pointer group flex-shrink-0" onClick={() => navigate('/')}>
             <UibLogo className="h-7 w-7 sm:h-8 sm:w-8 md:h-9 lg:h-10 md:w-9 lg:w-10 flex-shrink-0" />
             
-            <div className="flex flex-col border-l border-gray-300 ml-2 sm:ml-4 pl-2 sm:pl-4 py-1 justify-center min-w-0">
+            <div className="flex flex-col border-l border-gray-300 ml-1.5 sm:ml-2 pl-1.5 sm:pl-2 py-1 justify-center min-w-0">
                 <span className="text-uib-black font-extrabold text-xs sm:text-base md:text-lg lg:text-xl leading-none tracking-tight group-hover:text-uib-blue transition-colors truncate">
                     {t('appName')}
                 </span>
@@ -92,7 +92,7 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex flex-1 items-center justify-center space-x-1 lg:space-x-2 xl:space-x-4 px-4 overflow-hidden">
+          <div className="hidden md:flex flex-1 items-center justify-start space-x-1 lg:space-x-2 pl-2 lg:pl-4 pr-4 overflow-hidden">
             {mainNavItems.map((item) => {
                 let id = "";
                 if (item.path === '/cafft-intro') id = "nav-home";

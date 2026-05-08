@@ -226,7 +226,7 @@ export const ExposureExplanationPage: React.FC = () => {
               ) : (
                 <video
                   ref={videoRef}
-                  src={getLocalizedVideoUrl(getVideoUrl(EXPOSURE_EXPLANATION_VIDEO_URL_BASE, language))}
+                  src={getVideoUrl(EXPOSURE_EXPLANATION_VIDEO_URL_BASE, language)}
                   controls
                   autoPlay
                   className="w-full h-full exposure-video"

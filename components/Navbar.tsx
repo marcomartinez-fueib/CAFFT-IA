@@ -66,13 +66,11 @@ export const Navbar: React.FC = () => {
   };
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center text-[11px] lg:text-sm font-bold tracking-wide uppercase transition-colors duration-200 ${
+    `relative flex items-center h-20 md:h-24 px-1 text-[10px] lg:text-xs xl:text-[13px] font-extrabold tracking-wider uppercase transition-all duration-300 group ${
       isActive
-        ? 'text-uib-blue border-uib-blue pb-1'
+        ? 'text-uib-blue'
         : 'text-uib-darkGray hover:text-uib-blue'
     }`;
-
-  const linkActiveBorder = (isActive: boolean) => isActive ? "border-b-2" : "";
 
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -83,18 +81,18 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center cursor-pointer group flex-shrink-0" onClick={() => navigate('/')}>
             <UibLogo className="h-7 w-7 sm:h-8 sm:w-8 md:h-9 lg:h-10 md:w-9 lg:w-10 flex-shrink-0" />
             
-            <div className="flex flex-col border-l border-gray-300 pl-2 sm:pl-3 md:pl-3 lg:pl-4 py-1 justify-center min-w-0">
-                <span className="text-uib-black font-bold text-xs sm:text-base md:text-base lg:text-lg leading-tight tracking-tight group-hover:text-uib-blue transition-colors truncate max-w-[100px] xs:max-w-[140px] sm:max-w-[180px] md:max-w-[200px] lg:max-w-none">
+            <div className="flex flex-col border-l border-gray-300 ml-2 sm:ml-4 pl-2 sm:pl-4 py-1 justify-center min-w-0">
+                <span className="text-uib-black font-extrabold text-xs sm:text-base md:text-lg lg:text-xl leading-none tracking-tight group-hover:text-uib-blue transition-colors truncate">
                     {t('appName')}
                 </span>
-                <span className="text-[6.5px] sm:text-[8px] md:text-[10px] lg:text-xs text-uib-darkGray uppercase tracking-widest mt-0.5 font-medium truncate max-w-[90px] xs:max-w-[120px] sm:max-w-[150px] md:max-w-[200px] lg:max-w-none">
+                <span className="text-[6px] sm:text-[8px] md:text-[9px] lg:text-[10px] text-uib-darkGray uppercase tracking-[0.2em] mt-1 font-semibold truncate leading-none">
                     Universitat de les Illes Balears
                 </span>
             </div>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-3 lg:space-x-5 xl:space-x-6">
+          <div className="hidden md:flex items-center space-x-1 lg:space-x-2 xl:space-x-4">
             {mainNavItems.map((item) => {
                 let id = "";
                 if (item.path === '/cafft-intro') id = "nav-home";
@@ -106,28 +104,32 @@ export const Navbar: React.FC = () => {
                 return (
                     <NavLink key={item.path} id={id} to={item.path} className={linkClass}>
                         {({ isActive }) => (
-                          <span className={`flex items-center whitespace-nowrap ${linkActiveBorder(isActive)}`}>
-                            {navIcons[item.labelKey]}
-                            {t(item.labelKey)}
-                          </span>
+                          <>
+                            <span className="flex items-center whitespace-nowrap px-2 py-2 rounded-lg group-hover:bg-slate-50 transition-colors">
+                              {navIcons[item.labelKey]}
+                              {t(item.labelKey)}
+                            </span>
+                            {/* Active Indicator Line */}
+                            <div className={`absolute bottom-0 left-2 right-2 h-1 bg-uib-blue rounded-t-full transition-all duration-300 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1 group-hover:opacity-30 group-hover:translate-y-0'}`} />
+                          </>
                         )}
                     </NavLink>
                 );
             })}
             
-            <div className="h-6 w-px bg-gray-300 mx-2"></div>
+            <div className="h-8 w-px bg-gray-200 mx-2"></div>
 
             {currentUser && (
-              <div className="flex items-center px-2 mr-2">
+              <div className="flex items-center ml-2 border-l border-gray-100 pl-4">
                 <div className="flex flex-col items-end mr-3 hidden lg:flex">
-                  <span className="text-xs font-bold text-uib-black truncate max-w-[100px] xl:max-w-[150px]">
+                  <span className="text-xs font-black text-uib-black truncate max-w-[100px] xl:max-w-[150px]">
                     {currentUser.username}
                   </span>
-                  <span className="text-[9px] font-bold text-uib-darkGray uppercase tracking-tighter leading-none mt-0.5">
+                  <span className="text-[9px] font-black text-uib-blue uppercase tracking-widest leading-none mt-1 bg-blue-50 px-1.5 py-0.5 rounded">
                     {currentUser.role}
                   </span>
                 </div>
-                <div className="w-8 h-8 bg-sky-50 rounded-lg flex items-center justify-center text-xs font-black text-uib-blue border border-sky-100 shadow-sm uppercase shrink-0">
+                <div className="w-9 h-9 bg-uib-blue rounded-xl flex items-center justify-center text-sm font-black text-white border-2 border-white shadow-md ring-1 ring-uib-blue/10 uppercase shrink-0 transition-transform hover:scale-105">
                   {currentUser.username?.charAt(0) || 'U'}
                 </div>
               </div>
@@ -203,9 +205,9 @@ export const Navbar: React.FC = () => {
                   to={item.path}
                   onClick={() => setIsMenuOpen(false)}
                    className={({ isActive }) =>
-                    `flex items-center px-4 py-3 border-l-4 text-base font-bold uppercase tracking-wide whitespace-nowrap transition-colors ${
+                    `flex items-center px-4 py-3 border-l-4 text-sm font-black uppercase tracking-widest whitespace-nowrap transition-all ${
                       isActive
-                        ? 'border-uib-blue bg-sky-50 text-uib-blue'
+                        ? 'border-uib-blue bg-blue-50/50 text-uib-blue scale-[1.02] shadow-sm'
                         : 'border-transparent text-uib-darkGray hover:bg-gray-50 hover:text-uib-black'
                     }`
                   }

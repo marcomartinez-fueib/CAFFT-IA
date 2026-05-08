@@ -31,7 +31,7 @@ import { LastSessionPage } from './pages/LastSessionPage.tsx';
 import { ProfilePage } from './pages/ProfilePage.tsx';
 import { FeedbackPage } from './pages/FeedbackPage.tsx';
 import { HelpCenterPage } from './pages/HelpCenterPage.tsx';
-import { OnboardingProvider } from './hooks/useOnboarding.tsx';
+import { OnboardingProvider, useOnboarding } from './hooks/useOnboarding.tsx';
 import { OnboardingTour } from './components/OnboardingTour.tsx';
 import { ReminderCheck } from './components/ReminderCheck.tsx';
 import { NotificationBanner } from './components/NotificationBanner.tsx';
@@ -55,13 +55,24 @@ import { DevToolsPage } from './pages/dev/DevToolsPage.tsx';
 
 const MainLayout: React.FC = () => {
   const { isAssistantOpen, toggleAssistant } = useUI();
+  const { startTour, hasCompletedTour } = useOnboarding();
+
+  const handleNotificationConsentHandled = () => {
+    // Start onboarding tour for patients after they handle the notification consent modal
+    // We use a small delay to allow the modal to close visually before the tour starts
+    setTimeout(() => {
+      if (!hasCompletedTour) {
+        startTour('patient');
+      }
+    }, 300);
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 overflow-x-hidden">
       <Navbar />
       <PatientProgressIndicator />
       <NotificationBanner />
-      <NotificationConsentManager />
+      <NotificationConsentManager onConsentHandled={handleNotificationConsentHandled} />
       <main className="flex-grow">
         <Outlet />
       </main>

@@ -4,7 +4,11 @@ import { useAuth } from '../hooks/useAuth.tsx';
 import { NotificationConsentModal } from './NotificationConsentModal.tsx';
 import { NotificationService } from '../services/notificationService.ts';
 
-export const NotificationConsentManager: React.FC = () => {
+interface NotificationConsentManagerProps {
+  onConsentHandled?: () => void;
+}
+
+export const NotificationConsentManager: React.FC<NotificationConsentManagerProps> = ({ onConsentHandled }) => {
   const { currentUser, updateUser } = useAuth();
   const [showModal, setShowModal] = useState(false);
 
@@ -31,6 +35,7 @@ export const NotificationConsentManager: React.FC = () => {
 
     await updateUser({ notificationPreferences: initialPrefs });
     setShowModal(false);
+    onConsentHandled?.();
     
     if (permission === 'granted') {
         NotificationService.sendNotification(
@@ -46,6 +51,7 @@ export const NotificationConsentManager: React.FC = () => {
     initialPrefs.enabled = false;
     await updateUser({ notificationPreferences: initialPrefs });
     setShowModal(false);
+    onConsentHandled?.();
   };
 
   return <NotificationConsentModal isOpen={showModal} onAccept={handleAccept} onDecline={handleDecline} />;

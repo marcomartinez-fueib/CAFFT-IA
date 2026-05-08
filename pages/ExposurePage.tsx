@@ -51,42 +51,19 @@ export const ExposurePage: React.FC = () => {
   const [explanationShown, setExplanationShown] = useState<boolean>(false); 
   const [isConfirmingLogout, setIsConfirmingLogout] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
-  const [usingDemoVideo, setUsingDemoVideo] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null); 
   const maxPlayedTimeRef = useRef<number>(0);
 
-  const DEMO_VIDEO_URL = "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-  
-  // CDN Fallback URLs - using stable GTV sample bucket which is more reliable than mixkit
-  const CDN_FALLBACKS: Record<string, string> = {
-    takeoff: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-    inflight: "https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
-    landing: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-    preparation: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-    boarding: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-    accidents: "https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" 
-  };
-
-  const [fallbackAttempted, setFallbackAttempted] = useState<Record<string, number>>({});
-
   const getLocalizedVideoUrl = useCallback((video: ExposureVideo): string => {
-    const attempt = fallbackAttempted[video.id] || 0;
-    
-    if (usingDemoVideo || attempt >= 2) {
-      return DEMO_VIDEO_URL;
-    }
-    
-    if (attempt === 1) {
-      return CDN_FALLBACKS[video.relatedArea] || DEMO_VIDEO_URL;
-    }
-    
     return getVideoUrl(video.mp4Url, language);
-  }, [language, usingDemoVideo, fallbackAttempted, CDN_FALLBACKS, DEMO_VIDEO_URL]);
+  }, [language]);
 
-  const handleUseDemoVideo = () => {
-    setUsingDemoVideo(true);
+  const handleRetryVideo = () => {
     setVideoError(null);
+    // Force a re-render of the video element by toggling the modal
+    setIsVideoPlayerModalOpen(false);
+    setTimeout(() => setIsVideoPlayerModalOpen(true), 50);
   };
   
   useEffect(() => {
@@ -462,10 +439,10 @@ export const ExposurePage: React.FC = () => {
                 <p className="text-xs mt-3">{t('exposure.videoLoadErrorChecklist')}</p>
                 <div className="text-center mt-6 flex flex-wrap justify-center gap-3">
                     <button 
-                        onClick={handleUseDemoVideo} 
+                        onClick={handleRetryVideo} 
                         className="px-5 py-2.5 bg-uib-blue text-white rounded-md text-sm font-bold hover:bg-[#004C8C] shadow-sm transition-colors uppercase"
                     >
-                      {t('exposure.testWithDemoVideoButton') || 'Provar amb Vídeo Demo'}
+                      {t('exposure.retryVideoButton') || 'Reintentar'}
                     </button>
                     <button 
                         onClick={handleSimulateVideoCompletion} 
@@ -490,29 +467,16 @@ export const ExposurePage: React.FC = () => {
                      onEnded={handleVideoNaturalEnd}
                      onTimeUpdate={handleTimeUpdate}
                      onSeeking={handleSeeking}
-                     onError={(e) => { 
-                       const videoElement = e.target as HTMLVideoElement;
-                       const error = videoElement.error;
-                       const videoSrc = videoElement.currentSrc || videoElement.src;
-                       const currentVideo = videoSequence[currentVideoIndex];
-                       
-                       const detailedMessage = `URL: ${videoSrc} | Error Code: ${error?.code || 'N/A'} | Message: ${error?.message || 'Not available'}`;
-                       console.error(`Video loading failed. ${detailedMessage}`);
-
-                       // If we haven't tried falling back enough times for THIS video, try the next level
-                       const currentAttempt = fallbackAttempted[currentVideo?.id || ''] || 0;
-                       if (currentVideo && currentAttempt < 2) {
-                         console.log(`Attempting automatic CDN fallback (Level ${currentAttempt + 1}) for ${currentVideo.id}`);
-                         setFallbackAttempted(prev => ({ 
-                           ...prev, 
-                           [currentVideo.id]: currentAttempt + 1 
-                         }));
-                         // The source change in src={getLocalizedVideoUrl(...)} will trigger a reload
-                         return;
-                       }
-                       
-                       setVideoError(detailedMessage);
-                     }}
+                      onError={(e) => { 
+                        const videoElement = e.target as HTMLVideoElement;
+                        const error = videoElement.error;
+                        const videoSrc = videoElement.currentSrc || videoElement.src;
+                        
+                        const detailedMessage = `URL: ${videoSrc} | Error Code: ${error?.code || 'N/A'} | Message: ${error?.message || 'Not available'}`;
+                        console.error(`Video loading failed. ${detailedMessage}`);
+                        
+                        setVideoError(detailedMessage);
+                      }}
                      src={getLocalizedVideoUrl(videoSequence[currentVideoIndex])}
                  >
                      {t('exposure.videoTagNotSupported')}

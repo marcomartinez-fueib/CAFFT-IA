@@ -67,11 +67,16 @@ export const EXPOSURE_EXPLANATION_VIDEO_URL_BASE = "videos_cafft/exposure_explan
 // Example: https://github.com/marcomartinez-fueib/CAFFT-IA/releases/download/v1.0.0-videos
 const VIDEO_BASE_URL = import.meta.env.VITE_VIDEO_BASE_URL || '';
 
+if (!VIDEO_BASE_URL) {
+  console.warn('[CAFFT] VITE_VIDEO_BASE_URL is not defined. Videos will fail to load in production. Please set it to your GitHub Release URL in Vercel.');
+}
+
 export const getVideoUrl = (basePath: string, language: string): string => {
   const fileName = `${basePath.split('/').pop()}_${language}.mp4`;
   if (VIDEO_BASE_URL) {
     return `${VIDEO_BASE_URL}/${fileName}`;
   }
+  // Fallback for local development only; in production this will likely fail
   return `${basePath}_${language}.mp4`;
 };
 

@@ -8,7 +8,7 @@ import { PageTitle } from '../components/PageTitle';
 import { SectionCard } from '../components/SectionCard';
 import { QPVIIScores, UserExposureProgress } from '../types';
 import { getUserExposureProgress, saveUserExposureProgress } from '../utils/localStorageDB';
-import { EXPOSURE_EXPLANATION_VIDEO_URL_BASE, getVideoUrl } from '../constants';
+import { EXPOSURE_EXPLANATION_VIDEO_URL_BASE } from '../constants';
 
 // SVG Icons
 const PlayIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -32,7 +32,6 @@ export const ExposureExplanationPage: React.FC = () => {
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const maxPlayedTimeRef = useRef<number>(0);
 
   const { qpviiTimestamp, scores } = (location.state as { qpviiTimestamp?: number; scores?: QPVIIScores }) || {};
 
@@ -42,11 +41,19 @@ export const ExposureExplanationPage: React.FC = () => {
     return null;
   }
   
-  const handleRetryVideo = () => {
+  const [fallbackAttempted, setFallbackAttempted] = useState(0);
+  const DEMO_VIDEO_URL = "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+
+  const getLocalizedVideoUrl = useCallback((basePath: string): string => {
+    if (fallbackAttempted >= 1) return DEMO_VIDEO_URL;
+    return `${basePath}_${language}.mp4`;
+  }, [language, fallbackAttempted]);
+
+  const handleUseDemoVideo = () => {
     setVideoError(null);
     if (videoRef.current) {
-      videoRef.current.load();
-      videoRef.current.play().catch(e => console.warn("Video play failed:", e));
+        videoRef.current.src = DEMO_VIDEO_URL;
+        videoRef.current.play().catch(e => console.warn("Video play failed:", e));
     }
   };
 
@@ -86,21 +93,6 @@ export const ExposureExplanationPage: React.FC = () => {
       setIsVideoModalOpen(true);
   };
   const closeVideoModal = () => setIsVideoModalOpen(false);
-
-  const handleTimeUpdate = () => {
-    if (videoRef.current) {
-      const current = videoRef.current.currentTime;
-      if (current > maxPlayedTimeRef.current) {
-        maxPlayedTimeRef.current = current;
-      }
-    }
-  };
-
-  const handleSeeking = () => {
-    if (videoRef.current && videoRef.current.currentTime > maxPlayedTimeRef.current) {
-      videoRef.current.currentTime = maxPlayedTimeRef.current;
-    }
-  };
 
   const sections = [
     { titleKey: 'exposureExplanation.section1Title', textKey: 'exposureExplanation.section1Text' },
@@ -210,10 +202,10 @@ export const ExposureExplanationPage: React.FC = () => {
                     <p className="mt-2 text-sm">{t('exposure.videoLoadErrorBody')}</p>
                     <div className="mt-6 flex flex-wrap justify-center gap-3">
                         <button 
-                            onClick={handleRetryVideo} 
+                            onClick={handleUseDemoVideo} 
                             className="px-5 py-2 bg-uib-blue text-white rounded-md text-xs font-bold hover:bg-[#004C8C] shadow-sm uppercase"
                         >
-                            {t('exposure.retryVideoButton') || 'Reintentar'}
+                            {t('exposure.testWithDemoVideoButton') || 'Provar amb Vídeo Demo'}
                         </button>
                         <button 
                             onClick={() => navigate('/exposure', { state: { qpviiTimestamp, scores } })} 
@@ -226,14 +218,16 @@ export const ExposureExplanationPage: React.FC = () => {
               ) : (
                 <video
                   ref={videoRef}
-                  src={getVideoUrl(EXPOSURE_EXPLANATION_VIDEO_URL_BASE, language)}
+                  src={getLocalizedVideoUrl(EXPOSURE_EXPLANATION_VIDEO_URL_BASE)}
                   controls
                   autoPlay
-                  className="w-full h-full exposure-video"
-                  onTimeUpdate={handleTimeUpdate}
-                  onSeeking={handleSeeking}
+                  className="w-full h-full"
                   onError={(e) => {
                       console.error("Video load error:", e);
+                      if (fallbackAttempted < 1) {
+                        setFallbackAttempted(prev => prev + 1);
+                        return;
+                      }
                       setVideoError(t('exposure.videoLoadErrorBody'));
                   }}
                 >

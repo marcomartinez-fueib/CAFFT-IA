@@ -1,3 +1,0 @@
-# Ignore local video assets on Vercel to prevent bundling 176MB+ of MP4s.
-# Videos are served from GitHub release assets instead.
-public/videos_cafft/

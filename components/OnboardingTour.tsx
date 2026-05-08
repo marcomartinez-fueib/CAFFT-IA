@@ -169,66 +169,123 @@ export const OnboardingTour: React.FC = () => {
     };
 
     const getTooltipStyle = () => {
+        if (!targetRect) return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 320 };
+
         const padding = 16;
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
         const tooltipWidth = Math.min(320, viewportWidth - (padding * 2));
-        const estimatedHeight = 280;
-
-        if (!targetRect) {
-            return {
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: tooltipWidth
-            };
-        }
+        const estimatedHeight = 280; // Safer estimate for vertical clamping
 
         let top = 0;
         let left = 0;
+        let x = '-50%';
+        let y = '-50%';
+
+        const targetCenterX = targetRect.left + targetRect.width / 2;
+        const targetCenterY = targetRect.top + targetRect.height / 2;
 
         switch (step.position) {
             case 'bottom':
                 top = targetRect.bottom + padding;
-                left = targetRect.left + targetRect.width / 2 - tooltipWidth / 2;
+                left = targetCenterX;
+                y = '0%';
                 break;
             case 'top':
-                top = targetRect.top - padding - estimatedHeight;
-                left = targetRect.left + targetRect.width / 2 - tooltipWidth / 2;
+                top = targetRect.top - padding;
+                left = targetCenterX;
+                y = '-100%';
                 break;
             case 'left':
-                top = targetRect.top + targetRect.height / 2 - estimatedHeight / 2;
-                left = targetRect.left - padding - tooltipWidth;
+                top = targetCenterY;
+                left = targetRect.left - padding;
+                x = '-100%';
                 break;
             case 'right':
-                top = targetRect.top + targetRect.height / 2 - estimatedHeight / 2;
+                top = targetCenterY;
                 left = targetRect.right + padding;
+                x = '0%';
                 break;
             case 'center':
             default:
-                return {
-                    top: '50%',
-                    left: '50%',
+                return { 
+                    top: '50%', 
+                    left: '50%', 
                     transform: 'translate(-50%, -50%)',
                     width: tooltipWidth
                 };
         }
 
-        // Help button override: show up and to the left
+        // Target-specific adjustments (Help Button at bottom right)
         if (step.targetId === 'help-button' || step.targetId === 'help-button-mobile') {
-            top = targetRect.top - padding - estimatedHeight;
-            left = targetRect.left - padding - tooltipWidth;
+            // Push it further "up and left" if it's the help button
+            // In mobile or desktop, help button is usually bottom-right
+            left = targetRect.left - padding - 20;
+            top = targetRect.top - padding - 20;
+            x = '-100%';
+            y = '-100%';
+            
+            // Boundary check for being too far left
+            if (left - tooltipWidth < padding) {
+                left = padding + tooltipWidth;
+            }
+            // Boundary check for being too far up
+            if (top - estimatedHeight < padding) {
+                top = padding + estimatedHeight;
+            }
+
+            return {
+                top,
+                left,
+                transform: `translate(${x}, ${y})`,
+                width: tooltipWidth
+            };
         }
 
-        // Clamp to viewport so the tooltip never overflows
-        left = Math.max(padding, left);
-        left = Math.min(left, viewportWidth - padding - tooltipWidth);
-        top = Math.max(padding, top);
-        top = Math.min(top, viewportHeight - padding - estimatedHeight);
+        // Horizontal Clamping
+        if (x === '-50%') {
+            const half = tooltipWidth / 2;
+            if (left - half < padding) {
+                left = padding;
+                x = '0%';
+            } else if (left + half > viewportWidth - padding) {
+                left = viewportWidth - padding;
+                x = '-100%';
+            }
+        } else if (x === '-100%') {
+            if (left - tooltipWidth < padding) {
+                left = padding + tooltipWidth;
+            }
+        } else if (x === '0%') {
+            if (left + tooltipWidth > viewportWidth - padding) {
+                left = viewportWidth - padding - tooltipWidth;
+            }
+        }
+
+        // Vertical Clamping
+        if (y === '0%') {
+            if (top + estimatedHeight > viewportHeight - padding) {
+                top = targetRect.top - padding;
+                y = '-100%';
+            }
+        } else if (y === '-100%') {
+            if (top - estimatedHeight < padding) {
+                top = targetRect.bottom + padding;
+                y = '0%';
+            }
+        } else if (y === '-50%') {
+            const half = estimatedHeight / 2;
+            if (top - half < padding) {
+                top = padding + half;
+            } else if (top + half > viewportHeight - padding) {
+                top = viewportHeight - padding - half;
+            }
+        }
 
         return {
             top,
             left,
+            transform: `translate(${x}, ${y})`,
             width: tooltipWidth
         };
     };

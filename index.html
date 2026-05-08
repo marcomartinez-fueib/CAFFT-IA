@@ -60,20 +60,9 @@
       background-color: #00263E;
       color: white;
     }
-    /* Ocultar barra de progreso en videos de exposición */
-    .exposure-video::-webkit-media-controls-timeline {
-      display: none !important;
-    }
-    .exposure-video::-webkit-media-controls-current-time-display,
-    .exposure-video::-webkit-media-controls-time-remaining-display {
-      display: none !important;
-    }
-    /* Firefox fallback */
-    .exposure-video {
-      pointer-events: auto;
-    }
   </style>
 
+  <link rel="stylesheet" href="/index.css">
 </head>
 <body class="bg-white text-uib-black h-full selection:bg-uib-blue selection:text-white">
   <div id="root" class="h-full"></div>

@@ -35,9 +35,23 @@ export const HelpCenterPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('fearOfFlying');
   const [activeSubsection, setActiveSubsection] = useState<string | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   
   const scrollRef = useRef<HTMLDivElement>(null);
+  const mobileNavRef = useRef<HTMLDivElement>(null);
   const isAutoScrolling = useRef(false);
+
+  // Auto-scroll mobile nav to keep active item in view
+  useEffect(() => {
+    if (mobileNavRef.current) {
+      const activeBtn = mobileNavRef.current.querySelector('[data-active="true"]') as HTMLElement;
+      if (activeBtn) {
+        const container = mobileNavRef.current;
+        const scrollLeft = activeBtn.offsetLeft - (container.offsetWidth / 2) + (activeBtn.offsetWidth / 2);
+        container.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+      }
+    }
+  }, [activeTab]);
 
   const sectionOrder = useMemo(() => {
     const base: (HelpModalSection & { icon: React.ReactNode })[] = [
@@ -64,6 +78,7 @@ export const HelpCenterPage: React.FC = () => {
       const winScroll = document.documentElement.scrollTop;
       const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
       setScrollProgress((winScroll / height) * 100);
+      setShowScrollTop(winScroll > 500);
 
       // Simple implementation: check which section is in view
       const sections = sectionOrder.map(s => document.getElementById(`section-${s.id}`));
@@ -152,7 +167,7 @@ export const HelpCenterPage: React.FC = () => {
           return (
             <div 
               key={index} 
-              className={`font-body text-slate-600 mb-6 leading-relaxed text-lg prose prose-slate max-w-none prose-strong:text-uib-blue prose-strong:font-black ${isProspectus ? 'bg-slate-50 p-8 rounded-[32px] border-l-8 border-uib-blue shadow-sm relative overflow-hidden' : ''} ${isWarning ? 'border-uib-red bg-red-50/30' : ''}`}
+              className={`font-body text-slate-600 mb-6 leading-relaxed text-base md:text-lg prose prose-slate max-w-none prose-strong:text-uib-blue prose-strong:font-black ${isProspectus ? 'bg-slate-50 p-6 md:p-8 rounded-[32px] border-l-8 border-uib-blue shadow-sm relative overflow-hidden' : ''} ${isWarning ? 'border-uib-red bg-red-50/30' : ''}`}
             >
               {isProspectus && !isWarning && index === 1 && (
                 <div className="absolute top-0 right-0 p-4 opacity-5 rotate-12">
@@ -233,30 +248,39 @@ export const HelpCenterPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
+      {/* Progress Bar */}
+      <div className="fixed top-0 left-0 w-full h-1 z-[100] bg-slate-100">
+        <motion.div 
+          className="h-full bg-uib-accent"
+          initial={{ width: 0 }}
+          animate={{ width: `${scrollProgress}%` }}
+        />
+      </div>
+
       {/* Header Section */}
-      <header className="bg-uib-blue pt-20 pb-48 relative overflow-hidden">
+      <header className="bg-uib-blue pt-12 pb-40 md:pt-20 md:pb-48 relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
-        <div className="container mx-auto px-6 relative z-10 text-center lg:text-left">
+        <div className="container mx-auto px-6 relative z-10 text-center md:text-left">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-uib-accent text-[10px] font-black uppercase tracking-widest mb-6 border border-white/10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-uib-accent text-[10px] font-black uppercase tracking-widest mb-4 md:mb-6 border border-white/10">
                <FileText className="w-3 h-3" />
                Manual Digital 5.1
             </div>
-            <h1 className="text-5xl lg:text-7xl font-display font-black text-white mb-6 tracking-tighter">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-display font-black text-white mb-4 md:mb-6 tracking-tighter">
               {t('helpModal.modalTitle')}
             </h1>
-            <p className="text-sky-100/70 text-xl max-w-2xl mb-12">
+            <p className="text-sky-100/70 text-lg md:text-xl max-w-2xl mb-8 md:mb-12">
               {t('helpModal.heroSubtitle')}
             </p>
             
-            <div className="max-w-2xl relative group">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-uib-accent w-6 h-6" />
+            <div className="max-w-2xl mx-auto md:mx-0 relative group">
+              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-uib-accent w-5 h-5 md:w-6 md:h-6" />
               <input 
                 type="text"
                 placeholder={t('helpModal.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-full py-5 pl-16 pr-8 text-white focus:bg-white focus:text-uib-blue transition-all"
+                className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-full py-4 md:py-5 pl-14 md:pl-16 pr-8 text-white text-sm md:text-base focus:bg-white focus:text-uib-blue transition-all"
               />
             </div>
           </motion.div>
@@ -270,10 +294,14 @@ export const HelpCenterPage: React.FC = () => {
           {/* Sticky Sidebar */}
           <aside className="lg:col-span-4 self-start sticky top-24 lg:top-32 z-30 -mt-20 lg:-mt-0">
             {/* Mobile Navigation (Horizontal Scroll) */}
-            <div className="lg:hidden flex gap-2 overflow-x-auto no-scrollbar pb-4 pt-2 mb-8 bg-uib-blue/5 backdrop-blur-sm p-4 rounded-3xl border border-white/20 shadow-xl">
+            <div 
+              ref={mobileNavRef}
+              className="lg:hidden flex gap-2 overflow-x-auto no-scrollbar pb-4 pt-2 mb-8 bg-uib-blue/5 backdrop-blur-sm p-4 rounded-3xl border border-white/20 shadow-xl scroll-smooth"
+            >
               {sectionOrder.map((section) => (
                 <button
                   key={section.id}
+                  data-active={activeTab === section.id}
                   onClick={() => scrollTo(`section-${section.id}`, 100)}
                   className={`flex items-center gap-2 px-5 py-3 rounded-2xl whitespace-nowrap text-xs font-display font-black tracking-tight transition-all
                     ${activeTab === section.id ? 'bg-uib-blue text-white shadow-lg' : 'bg-white text-slate-500 border border-slate-200'}
@@ -355,7 +383,7 @@ export const HelpCenterPage: React.FC = () => {
           </aside>
 
           {/* Content Main Area */}
-          <div className="lg:col-span-8 space-y-12">
+          <div className="lg:col-span-8 space-y-8 md:space-y-12">
             
             {/* Iteratable Sections */}
             {sectionOrder.filter(s => s.id !== 'fullManual').map((section) => {
@@ -366,14 +394,14 @@ export const HelpCenterPage: React.FC = () => {
               if (searchQuery && items.length === 0) return null;
 
               return (
-                <section key={section.id} id={`section-${section.id}`} className="bg-white rounded-[48px] p-10 lg:p-16 shadow-lg border border-slate-100 scroll-mt-24 transition-all">
-                  <div className="flex items-center gap-4 mb-12">
-                    <div className="w-14 h-14 rounded-2xl bg-uib-blue text-white flex items-center justify-center shadow-lg shadow-uib-blue/20">
+                <section key={section.id} id={`section-${section.id}`} className="bg-white rounded-[32px] md:rounded-[48px] p-6 sm:p-10 lg:p-16 shadow-lg border border-slate-100 scroll-mt-24 transition-all">
+                  <div className="flex items-center gap-4 mb-8 md:mb-12">
+                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-uib-blue text-white flex items-center justify-center shadow-lg shadow-uib-blue/20">
                       {section.icon}
                     </div>
                     <div>
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t(section.titleKey)}</span>
-                      <h4 className="text-3xl font-display font-black text-uib-blue leading-none">{t(structure.titleKey)}</h4>
+                      <h4 className="text-2xl md:text-3xl font-display font-black text-uib-blue leading-none">{t(structure.titleKey)}</h4>
                     </div>
                   </div>
 
@@ -395,6 +423,26 @@ export const HelpCenterPage: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* Back to Top & Mobile AI Toggle */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            className="fixed bottom-8 right-8 z-[100] flex flex-col gap-3"
+          >
+            <button 
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="w-12 h-12 bg-white text-uib-blue rounded-full shadow-2xl flex items-center justify-center hover:bg-slate-50 transition-colors border border-slate-100"
+              title="Tornar a dalt"
+            >
+              <ArrowRight className="w-5 h-5 -rotate-90" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

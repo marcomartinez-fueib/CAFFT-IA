@@ -205,7 +205,8 @@ export const helpModalContentStructure: HelpModalContentStructureType = {
 // --- Main Translations ---
 
 const caTranslations: TranslationContent = {
-    appName: "CAFFT 5.1",
+    appName: "Tractament Assistit per Ordinador de la Por de Volar (CAFFT)",
+    appNameShort: "CAFFT",
     common: {
         time: {
             ago: "fa {val} {unit}",
@@ -296,7 +297,7 @@ const caTranslations: TranslationContent = {
         cancel: "Cancel·lar",
     },
     home: {
-        title: ["Tractament Assistit", "per Ordinador de la", "Por de volar"],
+        title: ["Tractament Assistit", "per Ordinador de la", "Por de Volar", "(CAFFT)"],
         subtitle: "Un programa de tractament autoaplicat per a la por de volar, basat en tècniques d'exposició i recolzat per dècades d'investigació a la Universitat de les Illes Balears.",
         firstEdition: "Primera Edició: 1999",
         version: "Versió 5.1",
@@ -784,7 +785,7 @@ const caTranslations: TranslationContent = {
         fullManualSubtitle: "Consulta o descàrrega el manual oficial en format Markdown.",
         fullManualMd: `
 # Manual Clínic i Prospecte CAFFT 5.1
-**Computer Assisted Fear of Flying Treatment**
+**Tractament Assistit per Ordinador de la Por de Volar (CAFFT)**
 *Universitat de les Illes Balears (UIB)*
 
 ---
@@ -1316,6 +1317,8 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
 
 const esTranslations: TranslationContent = {
     ...caTranslations,
+    appName: "Tratamiento Asistido por Ordenador del Miedo a Volar (CAFFT)",
+    appNameShort: "CAFFT",
     common: {
         ...caTranslations.common,
         time: {
@@ -1378,8 +1381,7 @@ const esTranslations: TranslationContent = {
     nav: { ...caTranslations.nav, home: "Inicio", fearOfFlying: "Miedo a Volar", cafftProgram: "Programa", qpviiEvaluation: "Evaluación", exposure: "Exposición", login: "Iniciar Sesión", register: "Registrarse", profile: "Perfil", logout: "Cerrar Sesión", privacyPolicy: "Política de Privacidad", cafftIntro: "Inicio", forgotPasswordLink: "¿Olvidaste la contraseña?", evolution: "Evolución", exposureHierarchy: "Jerarquía de Exposición", exposureExplanation: "Explicación de Exposición", lastSession: "Sesión Final", therapistDashboard: "Panel del Terapeuta", managerDashboard: "Panel de Gestor", superadminDashboard: "Panel de Superadministrador", patients: "Pacientes", therapists: "Terapeutas", managers: "Gestores", therapistNotifications: "Notificaciones", helpCenter: "Ayuda", help: "Ayuda", addUser: "Añadir Usuario", addTherapist: "Añadir Terapeuta", save: "Guardar", cancel: "Cancelar" },
     home: { 
         ...caTranslations.home, 
-        title: ["Tratamiento Asistido", "por Ordenador del", "Miedo a volar"], 
-        subtitle: "Un programa de tratamiento autoaplicado para el miedo a volar, basado en técnicas de exposición y respaldado por décadas de investigación en la Universidad de las Illes Balears.", 
+        title: ["Tratamiento Asistido", "por Ordenador del", "Miedo a Volar", "(CAFFT)"], 
         firstEdition: "Primera Edición: 1999",
         version: "Versión 5.1",
         startButton: "Empezar Programa" 
@@ -1587,7 +1589,7 @@ const esTranslations: TranslationContent = {
         fullManualSubtitle: "Consulta o descarga el manual oficial en formato Markdown.",
         fullManualMd: `
 # Manual Clínico y Prospecto CAFFT 5.1
-**Computer Assisted Fear of Flying Treatment**
+**Tratamiento Asistido por Ordenador del Miedo a Volar (CAFFT)**
 *Universidad de las Islas Baleares (UIB)*
 
 ---
@@ -2330,6 +2332,8 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
 
 const enTranslations: TranslationContent = {
     ...caTranslations,
+    appName: "Computer Assisted Fear of Flying Treatment (CAFFT)",
+    appNameShort: "CAFFT",
     common: {
         ...caTranslations.common,
         time: {
@@ -2352,7 +2356,7 @@ const enTranslations: TranslationContent = {
         }
     },
     home: {
-        title: ["Computer Assisted", "Treatment for", "Fear of Flying"],
+        title: ["Computer Assisted", "Fear of Flying", "Treatment", "(CAFFT)"],
         subtitle: "A self-applied treatment program for fear of flying, based on exposure techniques and backed by decades of research at the University of the Balearic Islands.",
         firstEdition: "First Edition: 1999",
         version: "Version 5.1",
@@ -3133,7 +3137,7 @@ const enTranslations: TranslationContent = {
         fullManualSubtitle: "Consult or download the official manual in Markdown format.",
         fullManualMd: `
 # Clinical Manual and Prospectus CAFFT 5.1
-**Computer Assisted Fear of Flying Treatment**
+**Computer Assisted Fear of Flying Treatment (CAFFT)**
 *University of the Balearic Islands (UIB)*
 
 ---

@@ -624,6 +624,7 @@ export interface InformedConsentContent {
 
 export interface TranslationContent {
   appName: string;
+  appNameShort: string;
   common: {
     time: {
       ago: string;

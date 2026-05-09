@@ -66,7 +66,7 @@ export const Navbar: React.FC = () => {
   };
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `relative flex items-center h-20 md:h-24 px-1 text-[10px] lg:text-xs xl:text-[13px] font-extrabold tracking-wider uppercase transition-all duration-300 group ${
+    `relative flex items-center h-full px-1 text-[10px] lg:text-xs xl:text-[13px] font-extrabold tracking-wider uppercase transition-all duration-300 group ${
       isActive
         ? 'text-uib-blue'
         : 'text-uib-darkGray hover:text-uib-blue'
@@ -74,18 +74,21 @@ export const Navbar: React.FC = () => {
 
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
-      <div className="w-full px-2 sm:px-4 md:px-6">
-        <div className="flex justify-between h-20 md:h-24 items-center">
+      <div className="w-full px-2 sm:px-4 md:px-6 max-w-[1920px] mx-auto">
+        <div className="flex justify-between h-16 md:h-24 items-center">
           
           {/* UIB Logo Branding */}
-          <div className="flex items-center cursor-pointer group flex-shrink-0" onClick={() => navigate('/')}>
-            <UibLogo className="h-7 w-7 sm:h-8 sm:w-8 md:h-9 lg:h-10 md:w-9 lg:w-10 flex-shrink-0" />
+          <div className="flex items-center cursor-pointer group flex-shrink-0 min-w-0" onClick={() => navigate('/')}>
+            <UibLogo className="h-6 w-6 sm:h-8 sm:w-8 md:h-9 lg:h-10 flex-shrink-0" />
             
-            <div className="flex flex-col border-l border-gray-300 ml-1.5 sm:ml-2 pl-1.5 sm:pl-2 py-1 justify-center min-w-0">
-                <span className="text-uib-black font-extrabold text-xs sm:text-base md:text-lg lg:text-xl leading-none tracking-tight group-hover:text-uib-blue transition-colors truncate">
+            <div className="flex flex-col border-l border-gray-300 ml-1 sm:ml-2 pl-1 sm:pl-2 py-0.5 md:py-1 justify-center min-w-0">
+                <span className="lg:hidden text-uib-black font-extrabold text-[13px] sm:text-base md:text-lg lg:text-xl leading-tight tracking-tight group-hover:text-uib-blue transition-colors">
+                    {t('appNameShort')}
+                </span>
+                <span className="hidden lg:inline text-uib-black font-extrabold text-lg lg:text-xl leading-none tracking-tight group-hover:text-uib-blue transition-colors truncate">
                     {t('appName')}
                 </span>
-                <span className="text-[6px] sm:text-[8px] md:text-[9px] lg:text-[10px] text-uib-darkGray uppercase tracking-[0.2em] mt-1 font-semibold truncate leading-none">
+                <span className="text-[5px] sm:text-[7px] md:text-[9px] lg:text-[10px] text-uib-darkGray uppercase tracking-[0.15em] sm:tracking-[0.2em] mt-0.5 font-semibold truncate leading-none">
                     Universitat de les Illes Balears
                 </span>
             </div>
@@ -120,22 +123,22 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* User & Actions group */}
-          <div className="hidden md:flex items-center space-x-2 lg:space-x-4 flex-shrink-0 border-l border-gray-100 pl-4 h-full">
+          <div className="hidden md:flex items-center space-x-1 lg:space-x-4 flex-shrink-0 border-l border-gray-100 pl-2 lg:pl-4 h-full">
             <LanguageSwitcher />
             
-            <div className="h-8 w-px bg-gray-200"></div>
+            <div className="h-6 w-px bg-gray-200 mx-1 md:mx-0"></div>
 
             {currentUser && (
               <div className="flex items-center">
-                <div className="flex flex-col items-end mr-3 hidden lg:flex">
-                  <span className="text-xs font-black text-uib-black truncate max-w-[100px] xl:max-w-[150px]">
+                <div className="flex flex-col items-end mr-2 lg:mr-3 hidden lg:flex">
+                  <span className="text-xs font-black text-uib-black truncate max-w-[60px] lg:max-w-[150px]">
                     {currentUser.username}
                   </span>
                   <span className="text-[9px] font-black text-uib-blue uppercase tracking-widest leading-none mt-1 bg-blue-50 px-1.5 py-0.5 rounded">
                     {currentUser.role}
                   </span>
                 </div>
-                <div className="w-9 h-9 bg-uib-blue rounded-xl flex items-center justify-center text-sm font-black text-white border-2 border-white shadow-md ring-1 ring-uib-blue/10 uppercase shrink-0 transition-transform hover:scale-105">
+                <div className="w-8 h-8 lg:w-9 lg:h-9 bg-uib-blue rounded-xl flex items-center justify-center text-sm font-black text-white border-2 border-white shadow-md ring-1 ring-uib-blue/10 uppercase shrink-0 transition-transform hover:scale-105">
                   {currentUser.username?.charAt(0) || 'U'}
                 </div>
               </div>
@@ -159,14 +162,14 @@ export const Navbar: React.FC = () => {
 
           {/* Mobile menu button */}
           <div className="flex items-center md:hidden">
-            <div className="mr-2 sm:mr-4 scale-90 sm:scale-100">
+            <div className="mr-1 sm:mr-4">
                 <LanguageSwitcher />
             </div>
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-uib-black hover:text-uib-blue focus:outline-none p-1.5 sm:p-2 transition-colors"
+              className="text-uib-black hover:text-uib-blue focus:outline-none p-1 sm:p-2 transition-colors"
             >
-              {isMenuOpen ? <CloseIcon className="h-5 w-5 sm:h-6 sm:w-6" /> : <MenuIcon className="h-5 w-5 sm:h-6 sm:w-6" />}
+              {isMenuOpen ? <CloseIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
             </button>
           </div>
         </div>

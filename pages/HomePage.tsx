@@ -39,9 +39,12 @@ export const HomePage: React.FC = () => {
                     </div>
                     
                     {/* Title */}
-                    <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-uib-black tracking-tight leading-[0.9] sm:leading-none mb-6 md:mb-8 px-2">
+                    <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-uib-black tracking-tight leading-[0.9] sm:leading-none mb-6 md:mb-8 px-2 overflow-hidden">
                         {homeTitleParts.map((part, index) => (
-                            <span key={index} className={index === homeTitleParts.length - 1 ? "text-uib-blue block mt-1 sm:mt-2" : "text-uib-black mr-2 md:mr-3"}>
+                            <span 
+                                key={index} 
+                                className={`block ${index === homeTitleParts.length - 1 ? "text-uib-blue mt-2 sm:mt-4" : "text-uib-black mb-1"}`}
+                            >
                                 {part}
                             </span>
                         ))}

@@ -99,7 +99,7 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex flex-1 items-center justify-center space-x-0 overflow-hidden h-full">
+          <div className="hidden md:flex flex-1 items-center justify-start ml-2 lg:ml-8 xl:ml-12 space-x-0 overflow-hidden h-full">
             {mainNavItems.map((item) => {
                 let id = "";
                 if (item.path === '/cafft-intro') id = "nav-home";

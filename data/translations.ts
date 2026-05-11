@@ -210,7 +210,7 @@ export const helpModalContentStructure: HelpModalContentStructureType = {
 // --- Main Translations ---
 
 const caTranslations: TranslationContent = {
-    appName: "Tractament Assistit per Ordinador de la Por de Volar (CAFFT)",
+    appName: "CAFFT",
     appNameShort: "CAFFT",
     common: {
         time: {
@@ -1371,7 +1371,7 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
 
 const esTranslations: TranslationContent = {
     ...caTranslations,
-    appName: "Tratamiento Asistido por Ordenador del Miedo a Volar (CAFFT)",
+    appName: "CAFFT",
     appNameShort: "CAFFT",
     common: {
         ...caTranslations.common,
@@ -2253,7 +2253,7 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
         initialMessageCompleted: ["¡Hola, {username}! Soy {assistantName}. He revisado tu progreso y estoy listo para tus sesiones de exposición. ¿Cómo te sientes?", "¡Hola! Soy {assistantName}. ¿Quieres que continuemos con tus sesiones o prefieres comentar alguna duda?", "¡Buenas, {username}! Soy {assistantName}. ¿En qué puedo ayudarte hoy?"],
         inputPlaceholder: "Escribe aquí...",
         sendButton: "Enviar",
-        systemInstruction: "Eres el asistente experto del CAFFT 5.1 (investigación UIB). REGLA CRÍTICA: Respuestas BREVES y NATURALES, pero sé MÁS DIDÁCTICO y EXPLICATIVO si el usuario expresa dudas, frustración o falta de progreso. En estos casos, NO insistas en seguir con la exposición de inmediato; en su lugar, explica didácticamente el proceso de habituación (puedes usar [VISUAL:habituation] para mostrar ejemplos de curvas de ansiedad) y valida sus sentimientos. No pidas NUNCA cosas que el usuario ya ha hecho. REGLA DE VOCABULARIO: Evita palabras como 'muleta' o 'cerebro'. Utiliza 'recurso de seguridad', 'estrategia de afrontamiento', 'aprendizaje', 'habituación' o 'extinción de la respuesta de miedo'. Enlaces markdown (ej. [Exposición](/exposure)) solo si son el siguiente paso lógico. ESTADO ACTUAL QPV-II: {hasCompletedQPVII}. CONTEXTO DEL PACIENTE: {therapeuticContext}. Puedes invocar visualizaciones con [VISUAL:evolution] o [VISUAL:habituation].",
+        systemInstruction: "Eres el asistente experto del CAFFT 5.1 (investigación UIB). REGLA CRÍTICA: NO INSISTAS en continuar la exposición o la jerarquía si el usuario muestra dudas, frustración o malestar. Sé MÁS DIDÁCTICO y EXPLICATIVO: usa ejemplos claros, explica el porqué de cada paso y valida siempre la emoción del usuario. Alterna la DIRECTIVIDAD (proponer tareas) con la ORIENTACIÓN (acompañar, explicar y resolver dudas). REGLA DE VOCABULARIO: Evita 'muleta' o 'cerebro'. Usa 'recurso de seguridad', 'estrategia', 'aprendizaje', 'habituación' o 'regulación'. Los enlaces markdown (ej. [Exposición](/exposure)) deben ser secundarios a la explicación humana y didáctica. Puedes usar [VISUAL:habituation] para mostrar ejemplos de cómo la ansiedad baja progresivamente. CONTEXTO: {therapeuticContext}. ESTADO QPVII: {hasCompletedQPVII}.",
         therapistSystemInstruction: "Eres el Asistente de Soporte Clínico para terapeutas del CAFFT 5.1 (UIB). Tu rol es ayudar a los terapeutas a interpretar datos y optimizar el proceso, con un tono profesional y técnico. MISIONES: 1. Interpretar métricas: RCI (Índice de Cambio Fiable, > 1.96 es significativo) y curvas de habituación. 2. Funciones: Guía sobre [gestión de pacientes](/therapist/patients), [notificaciones](/therapist/notifications) y [jerarquía de exposición](/therapist/dashboard). 3. Ajuste Clínico: Sugiere ajustes basados en evidencia (Bornas et al., Tortella-Feliu et al.). Recuerda la importancia de la exposición pura sin relajación. REGLA CRÍTICA: Incluye siempre enlaces markdown relevantes. Máximo 4 frases técnicas. Evita palabras como 'muleta' o 'cerebro'. Puedes invocar visualizaciones con [VISUAL:evolution] o [VISUAL:habituation].",
         therapistInitialMessage: "Hola, {username}. ¿Cómo puedo ayudarte hoy en la gestión de tus pacientes o en el funcionamiento técnico del CAFFT?",
         assistantNameTitle: "¿Cómo se llama tu co-terapeuta?",
@@ -2431,7 +2431,7 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
 
 const enTranslations: TranslationContent = {
     ...caTranslations,
-    appName: "Computer Assisted Fear of Flying Treatment (CAFFT)",
+    appName: "CAFFT",
     appNameShort: "CAFFT",
     common: {
         ...caTranslations.common,

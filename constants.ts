@@ -16,7 +16,6 @@ export const TOP_NAV_GUEST: NavItem[] = [
   { path: '/fear-of-flying', labelKey: 'nav.fearOfFlying' },
   { path: '/cafft-program', labelKey: 'nav.cafftProgram' },
   { path: '/qpvii-evaluation', labelKey: 'nav.qpviiEvaluation' },
-  { path: '/help-center', labelKey: 'nav.helpCenter' },
 ];
 
 // Top-level navigation items for AUTHENTICATED PATIENT users

@@ -223,22 +223,37 @@ export interface HelpModalTranslatedStrings {
   };
   aiChatSection: { title: string; };
   therapistAiChatSection: { title: string; };
-  therapistInfo: { 
+    therapistInfo: { 
     title: string; 
     evidenceTitle: string;
     evidenceText: string;
     mechanismTitle: string;
     mechanismText: string;
+    inhibitoryTitle?: string;
+    inhibitoryText?: string;
     metricsTitle: string;
     rciTitle?: string;
     rciExplanation: string;
     slopeTitle?: string;
     slopeExplanation: string;
     applicationTitle: string;
+    principlesTitle?: string;
+    principlesList?: string[];
     applicationSummary?: string;
     applicationText: string;
     faqTitle: string;
     faqText: string;
+    objectivesTitle?: string;
+    objectivesList?: { title: string; desc: string }[];
+    procedureTitle?: string;
+    procedureSteps?: { step: string; title: string; desc: string }[];
+    feedbackTitle?: string;
+    feedbackImmediateTitle?: string;
+    feedbackImmediateList?: string[];
+    feedbackMaintenanceTitle?: string;
+    feedbackMaintenanceList?: string[];
+    successMessage?: string;
+    successDesc?: string;
   };
 }
 

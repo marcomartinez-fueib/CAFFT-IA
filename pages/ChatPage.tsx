@@ -7,6 +7,7 @@ import { useAuth } from '../hooks/useAuth';
 import { ai, createChatSession, getAiLastError } from '../utils/gemini';
 import { getQPVIIResultsForUser, getAllUserExposureProgress, getUsers, saveAiConsultation } from '../utils/localStorageDB.ts';
 import { calculateQPVIIScores } from '../utils/qpviiScoring';
+import { THERAPEUTIC_KNOWLEDGE } from '../data/therapeuticKnowledge';
 import { ChatVisualizer } from '../components/ChatVisualizer';
 import { EvolutionChartDataPoint, UserExposureProgress, StoredUser } from '../types';
 import ReactMarkdown from 'react-markdown';
@@ -172,35 +173,60 @@ export const ChatInterface: React.FC<{onCloseModal?: () => void; hideHeader?: bo
               const myPatients = (allUsers as StoredUser[]).filter(u => u.role === 'patient' && u.therapistId === currentUser.id);
               
               if (myPatients.length > 0) {
-                  therapistContext = "\n\nDATOS DE TUS PACIENTES (Puedes analizarlos y dar consejos específicos si el terapeuta pregunta por uno de ellos):\n";
+                  therapistContext = "\n\nDATOS CLÍNICOS DE TUS PACIENTES (Analiza estos datos para asesorar al terapeuta):\n";
                   myPatients.forEach(patient => {
-                      const patientResults = getQPVIIResultsForUser(patient.id);
-                      const patientProgress = getAllUserExposureProgress().filter(p => p.userId === patient.id);
+                      const patientResults = getQPVIIResultsForUser(patient.id).sort((a, b) => a.timestamp - b.timestamp);
+                      const patientProgress = getAllUserExposureProgress().filter(p => p.userId === patient.id).sort((a, b) => b.lastUpdated - a.lastUpdated);
                       
-                      const lastResult = patientResults.length > 0 ? patientResults[0] : null;
+                      const lastResult = patientResults.length > 0 ? patientResults[patientResults.length - 1] : null;
                       const scores = lastResult?.scores ? 
                         `Total: ${lastResult.scores.total} (Malestar: ${lastResult.scores.malestarGeneral}, Prep: ${lastResult.scores.subPreparatius}, Vic: ${lastResult.scores.subVicari}, Vol: ${lastResult.scores.subVol})` : 
                         "Sin resultados";
                         
+                      // Calculate RCI if possible
+                      let rciInfo = "RCI: No disponible (falten dades)";
+                      if (patientResults.length >= 2) {
+                          const firstTotal = calculateQPVIIScores(patientResults[0].answers).total;
+                          const lastTotal = calculateQPVIIScores(patientResults[patientResults.length - 1].answers).total;
+                          const rciVal = (firstTotal - lastTotal) / 17.6;
+                          rciInfo = `RCI: ${rciVal.toFixed(2)} (${rciVal >= 1.96 ? 'Significatiu' : 'No significatiu'})`;
+                      }
+
                       const progressSummary = patientProgress.length > 0 
-                          ? `${patientProgress.length} sesiones, última: ${new Date(patientProgress[0].lastUpdated).toLocaleDateString()}`
+                          ? `${patientProgress.length} sessions, última: ${new Date(patientProgress[0].lastUpdated).toLocaleDateString()}`
                           : "No hay sesiones.";
                           
-                      therapistContext += `- ${patient.username}: QPV-II: ${scores}. Progreso: ${progressSummary}\n`;
+                      therapistContext += `- PACIENT: ${patient.username} (ID: ${patient.id})\n  * QPV-II actual: ${scores}\n  * ${rciInfo}\n  * Progrés: ${progressSummary}\n`;
                   });
               } else {
                   therapistContext = "\n\nNo tienes pacientes asignados actualmente.";
               }
           }
           
+          // Documentation Knowledge Base
+          const docsKnowledge = `
+BASE DE CONEXEMENT CLÍNIC (Protocol CAFFT 5.1):
+${THERAPEUTIC_KNOWLEDGE.manual}
+${isTherapist ? THERAPEUTIC_KNOWLEDGE.therapistGuide : ''}
+${THERAPEUTIC_KNOWLEDGE.hierarchyLogic}
+${THERAPEUTIC_KNOWLEDGE.patientFlow}
+${THERAPEUTIC_KNOWLEDGE.coreFeatures}
+
+DIRETRIUS DE COMPORTAMENT:
+- Empatia i Professionalitat: Sigues empàtic però professional (especialment amb terapeutes, on has de ser més tècnic).
+- Vocabulari: Utilitza "habituació", "extinció de la resposta de por", "regulació emocional". Evita la paraula "cervell" (inclou termes com "aprenentatge" o "processament emocional").
+- Rigor: Les teves pautes han d'estar 100% alineades amb els papers de Bornas et al. i Tortella-Feliu et al. citats.
+- Visualitzacions: Pots invocar visualitzacions amb [VISUAL:evolution] o [VISUAL:habituation] si el context ho requereix.
+`;
+
           const systemInstruction = isTherapist 
-            ? t('aiChat.therapistSystemInstruction', { username: currentUser.username }) + therapistContext
+            ? t('aiChat.therapistSystemInstruction', { username: currentUser.username }) + "\n\n" + docsKnowledge + therapistContext
             : t('aiChat.systemInstruction', { 
                 therapeuticContext: contextText,
                 assistantName: currentUser.assistantName || 'Bora',
                 username: currentUser.username || 'Pacient',
                 hasCompletedQPVII: results.length > 0 ? "SÍ" : "NO"
-            });
+            }) + "\n\n" + docsKnowledge;
           
           const chatSession = createChatSession(systemInstruction);
 
@@ -309,14 +335,29 @@ export const ChatInterface: React.FC<{onCloseModal?: () => void; hideHeader?: bo
         const hasQPVII = qpviiData.length > 0;
         const contextText = t(`aiChat.moment.${momentKey}`);
 
+        // Documentation Knowledge Base
+        const docsKnowledge = `
+BASE DE CONEXEMENT CLÍNIC (Protocol CAFFT 5.1):
+${THERAPEUTIC_KNOWLEDGE.manual}
+${isTherapist ? THERAPEUTIC_KNOWLEDGE.therapistGuide : ''}
+${THERAPEUTIC_KNOWLEDGE.hierarchyLogic}
+${THERAPEUTIC_KNOWLEDGE.patientFlow}
+${THERAPEUTIC_KNOWLEDGE.coreFeatures}
+
+DIRETRIUS DE COMPORTAMENT:
+- Empatia i Professionalitat: Sigues empàtic però professional.
+- Vocabulari: Utilitza "habituació", "extinció de la resposta de por", "regulació emocional".
+- Rigor: Les teves pautes han d'estar alineades amb l'evidència científica de la UIB.
+`;
+
         const systemInstruction = isTherapist 
-          ? t('aiChat.therapistSystemInstruction', { username: currentUser.username }) + therapistContext
+          ? t('aiChat.therapistSystemInstruction', { username: currentUser.username }) + "\n\n" + docsKnowledge + therapistContext
           : t('aiChat.systemInstruction', { 
               therapeuticContext: contextText,
               assistantName: currentUser.assistantName || 'Bora',
               username: currentUser.username || 'Pacient',
               hasCompletedQPVII: hasQPVII ? "SÍ (ja ha realitzat el qüestionari inicial)" : "NO (encara ha de fer el qüestionari)"
-          });
+          }) + "\n\n" + docsKnowledge;
 
         const stream = await ai.models.generateContentStream({
             model: "gemini-3-flash-preview",

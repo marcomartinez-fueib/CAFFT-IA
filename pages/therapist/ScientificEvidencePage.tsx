@@ -159,6 +159,16 @@ export const ScientificEvidencePage: React.FC = () => {
       issue: "2",
       pages: "265-285",
       url: "https://www.behavioralpsycho.com/wp-content/uploads/2019/08/04.Breton_23-2.pdf"
+    },
+    {
+      authors: "Craske, M. G., Treanor, M., Conway, C. C., Zbozinek, T., & Vervliet, B.",
+      year: 2014,
+      title: "Maximizing exposure therapy: An inhibitory learning approach.",
+      journal: "Behaviour Research and Therapy",
+      volume: "58",
+      pages: "10-23",
+      doi: "10.1016/j.brat.2014.04.006",
+      url: "https://doi.org/10.1016/j.brat.2014.04.006"
     }
   ];
 
@@ -233,6 +243,17 @@ export const ScientificEvidencePage: React.FC = () => {
                             </p>
                             <div className="text-slate-700 text-[15px] leading-relaxed prose prose-sky max-w-none font-medium">
                                 <ReactMarkdown>{t('helpModal.therapistInfo.mechanismText')}</ReactMarkdown>
+                            </div>
+                        </div>
+
+                        {/* Inhibitory Learning Section */}
+                        <div className="p-6 bg-emerald-50/50 rounded-3xl border border-emerald-100 hover:bg-emerald-50 transition-colors">
+                            <p className="text-sm font-black text-emerald-700 uppercase tracking-widest mb-3 flex items-center">
+                                <span className="w-2.5 h-2.5 bg-emerald-400 rounded-full mr-3 shadow-lg shadow-emerald-400/40"></span>
+                                {t('helpModal.therapistInfo.inhibitoryTitle') || 'Inhibitory Learning (Craske)'}
+                            </p>
+                            <div className="text-slate-700 text-[15px] leading-relaxed prose prose-slate max-w-none font-medium">
+                                <ReactMarkdown>{t('helpModal.therapistInfo.inhibitoryText')}</ReactMarkdown>
                             </div>
                         </div>
                     </div>

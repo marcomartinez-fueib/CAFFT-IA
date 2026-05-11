@@ -964,12 +964,49 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
             evidenceText: "El CAFFT (**Computer-Assisted Fear of Flying Treatment**) és un programa d'exposició simulat que recrea situacions de vol mitjançant imatges i sons reals. Múltiples assajos controlats aleatoris (**Bornas et al., 2001, 2002, 2006; Tortella-Feliu et al., 2011; Botella-Arbona et al., 2004**) han demostrat:\n\n- **Eficàcia:** Reducció significativament major de la por de volar comparat amb llista d'espera.\n- **Equivalència:** Tan eficaç com la Realitat Virtual (**VRET**) i intervencions multicomponent més llargues.\n- **Manteniment:** Els èxits es mantenen en seguiments de **6 mesos i 1 any**.\n- **Taxa d'èxit:** Entre el **80% i el 90%** dels pacients milloren o es recuperen clínicament.",
             mechanismTitle: "Mecanismes de Funcionament",
             mechanismText: "El tractament divideix el viatge en etapes cronològiques (preparació, aeroport, enlairament, vol, aterratge) i afegeix una etapa sobre accidents per reduir l'ansietat catastròfica. El programa genera una jerarquia personalitzada basada en el **QPV-II**. **L'extinció** de la resposta de por s'aconsegueix mitjançant l'**habituació** per exposició repetida.",
+            inhibitoryTitle: "Model d'Aprenentatge Inhibitori (Michelle Craske)",
+            inhibitoryText: "Aquest enfocament (Craske et al., 2014) optimitza l'exposició anant més enllà de la simple habituació. L'objectiu és la **violació de l'expectativa**: el pacient ha de comprovar que el que temia no passa. Es reforça mitjançant l'eliminació total de **conductes de seguretat**, la **variabilitat** en les sessions i l'**etiquetatge afectiu** (posar paraules a l'emoció).",
             metricsTitle: "Interpretació de Mètriques",
             rciTitle: "Reliable Change Index (RCI)",
             rciExplanation: "L'Índex de Canvi Fiable (**RCI**) indica si el canvi en el QPV-II entre pre i post és clínicament significatiu (**> 1.96**).",
             slopeTitle: "Pendent d'Habituació (Slope)",
             slopeExplanation: "El pendent d'habituació (**slope**) indica la velocitat d'habituació; un pendent negatiu pronunciat és senyal d'un procés d'extinció actiu.",
             applicationTitle: "Guia d'Aplicació Clínica",
+            principlesTitle: "Principis de l'Exposició",
+            principlesList: [
+                "Habituació de les respostes emocionals condicionades.",
+                "Extinció de les respostes emocionals condicionades.",
+                "Aprenentatge d'estratègies d'afrontament incompatibles amb l'evitació.",
+                "Optimització de l'aprenentatge inhibitori (violació d'expectatives)."
+            ],
+            objectivesTitle: "Objectius del Tractament",
+            objectivesList: [
+                { title: "Fisiològics", desc: "Habituació de les respostes del sistema nerviós autònom." },
+                { title: "Motors", desc: "Extinció de les conductes d'evitació i fugida." },
+                { title: "Cognitius", desc: "Optimització de l'aprenentatge inhibitori i desmentiment de pors." }
+            ],
+            procedureTitle: "Procediment d'Aplicació",
+            procedureSteps: [
+                { step: "1", title: "Conceptualització", desc: "Explicació del procés. Introduir l'aprenentatge inhibitori (Craske): posar a prova pors específiques." },
+                { step: "2", title: "Jerarquia", desc: "Identificació d'estímuls i construcció de la jerarquia basada en el QPV-II." },
+                { step: "3", title: "Presentació", desc: "Exposició gradual als vídeos fins a l'habituació o violació de l'expectativa." },
+                { step: "4", title: "Pràctica", desc: "Generalització en múltiples contextos i reforçament de la seguretat." }
+            ],
+            feedbackTitle: "Pautes de Feedback",
+            feedbackImmediateTitle: "Immediat",
+            feedbackImmediateList: [
+                "Basat en conductes concretes.",
+                "Centrat en conductes objectiu.",
+                "Valoració personalitzada."
+            ],
+            feedbackMaintenanceTitle: "Manteniment",
+            feedbackMaintenanceList: [
+                "Llenguatge comprensible.",
+                "Propostes de millora.",
+                "Reforçament del progrés."
+            ],
+            successMessage: "L'èxit de l'exposició depèn de la implicació.",
+            successDesc: "Recordi que el CAFFT és una eina de suport. Supervisi que el pacient s'impliqui emocionalment sense usar mecanismes de defensa.",
             applicationSummary: "Disposem d'una guia detallada per a l'aplicació clínica del protocol CAFFT, amb instruccions sobre l'exposició, el feedback i les tècniques de regulació.",
             applicationText: "El terapeuta pot supervisar les sessions o permetre l'autoaplicació. És **CRUCIAL** que el pacient es mantingui '**implicat emocionalment**' (vivint la situació com a real).\n\n- **No relaxació:** Les tècniques de relaxació **NO** s'han d'usar durant l'exposició, ja que inhibeixen l'aprenentatge d'habituació.\n- **Criteri d'èxit:** Repetir cada seqüència fins que l'ansietat baixi a nivells baixos (**1-2** en una escala de 1 a 9).\n- **Vol de graduació:** Es recomana un vol real en els **15 dies** posteriors al tractament per consolidar l'aprenentatge.",
             faqTitle: "Resolució de Dubtes (FAQs)",
@@ -1777,12 +1814,49 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
             evidenceText: "El CAFFT (**Computer-Assisted Fear of Flying Treatment**) es un programa de exposición simulada que recrea situaciones de vuelo mediante imágenes y sonidos reales. Múltiples ensayos controlados aleatorios (**Bornas et al., 2001, 2002, 2006; Tortella-Feliu et al., 2011; Botella-Arbona et al., 2004**) han demostrado:\n\n- **Eficacia:** Reducción significativamente mayor del miedo a volar comparado con lista de espera.\n- **Equivalencia:** Tan eficaz como la Realidad Virtual (**VRET**) e intervenciones multicomponente más largas.\n- **Mantenimiento:** Los éxitos se mantienen en seguimientos de **6 meses y 1 año**.\n- **Tasa de éxito:** Entre el **80% y el 90%** de los pacientes mejoran o se recuperan clínicamente.",
             mechanismTitle: "Mecanismos de Funcionamiento",
             mechanismText: "El tratamiento divide el viaje en etapas cronológicas (preparación, aeropuerto, despegue, vuelo, aterrizaje) y añade una etapa sobre accidentes para reducir la ansiedad catastrófica. El programa genera una jerarquía personalizada basada en el **QPV-II**. La **extinción** de la respuesta de miedo se logra mediante la **habituación** por exposición repetida.",
+            inhibitoryTitle: "Modelo de Aprendizaje Inhibitorio (Michelle Craske)",
+            inhibitoryText: "Este enfoque (Craske et al., 2014) optimiza la exposición yendo más allá de la simple habituación. El objetivo es la **violación de la expectativa**: el paciente debe comprobar que lo que temía no sucede. Se refuerza eliminando totalmente las **conductas de seguridad**, fomentando la **variabilidad** en las sesiones y utilizando el **etiquetado afectivo** (poner palabras a la emoción).",
             metricsTitle: "Interpretación de Métricas",
             rciTitle: "Reliable Change Index (RCI)",
             rciExplanation: "El Índice de Cambio Fiable (**RCI**) indica si el cambio en el QPV-II entre pre y post es clínicamente significativo (> 1.96).",
             slopeTitle: "Pendiente de Habituación (Slope)",
             slopeExplanation: "La pendiente de habituación (**slope**) indica la velocidad de habituación; una pendiente negativa pronunciada es señal de un proceso de extinción activo.",
             applicationTitle: "Guía de Aplicación Clínica",
+            principlesTitle: "Principios de la Exposición",
+            principlesList: [
+                "Habituación de las respuestas emocionales condicionadas.",
+                "Extinción de las respuestas emocionales condicionadas.",
+                "Aprendizaje de estrategias de afrontamiento incompatibles con la evitación.",
+                "Optimización del aprendizaje inhibitorio (violación de expectativas)."
+            ],
+            objectivesTitle: "Objetivos del Tratamiento",
+            objectivesList: [
+                { title: "Fisiológicos", desc: "Habituación de las respuestas del sistema nervioso autónomo." },
+                { title: "Motores", desc: "Extinción de las conductas de evitación y huida." },
+                { title: "Cognitivos", desc: "Optimización del aprendizaje inhibitorio y desmentido de miedos." }
+            ],
+            procedureTitle: "Procedimiento de Aplicación",
+            procedureSteps: [
+                { step: "1", title: "Conceptualización", desc: "Explicación del proceso. Introducir el aprendizaje inhibitorio (Craske): poner a prueba miedos específicos." },
+                { step: "2", title: "Jerarquía", desc: "Identificación de estímulos y construcción de la jerarquía basada en el QPV-II." },
+                { step: "3", title: "Presentación", desc: "Exposición gradual a los vídeos hasta la habituación o violación de la expectativa." },
+                { step: "4", title: "Práctica", desc: "Generalización en múltiples contextos y reforzamiento de la seguridad." }
+            ],
+            feedbackTitle: "Pautas de Feedback",
+            feedbackImmediateTitle: "Inmediato",
+            feedbackImmediateList: [
+                "Basado en conductas concretas.",
+                "Centrado en conductas objetivo.",
+                "Valoración personalizada."
+            ],
+            feedbackMaintenanceTitle: "Mantenimiento",
+            feedbackMaintenanceList: [
+                "Lenguaje comprensible.",
+                "Propuestas de mejora.",
+                "Reforzamiento del progreso."
+            ],
+            successMessage: "El éxito de la exposición depende de la implicación.",
+            successDesc: "Recuerde que el CAFFT es una herramienta de soporte. Supervise que el paciente se implique emocionalmente sin usar mecanismos de defensa.",
             applicationText: "El terapeuta puede supervisar las sesiones o permitir la autoaplicación. Es **CRUCIAL** que el paciente se mantenga 'implicado' (viviendo la situación como real).\n\n- **Sin relajación:** Las técnicas de relajación **NO** deben usarse durante la exposición, ya que inhiben el aprendizaje de habituación.\n- **Criterio de éxito:** Repetir cada secuencia hasta que la ansiedad baje a niveles bajos (**1-2** en escala 1-9).\n- **Vuelo de graduación:** Se recomienda un vuelo real en los **15 días** posteriores al tratamiento para consolidar el aprendizaje.",
             faqTitle: "Resolución de Dudas (FAQs)",
             faqText: "- **¿Funciona para personas que evitan totalmente?** Sí, los ayuda a habituarse antes del vuelo real.\n- **¿Es mejor la Realidad Virtual?** La evidencia indica que el CAFFT es igual de eficaz y mucho más asequible y portable.\n- **¿Se puede hacer en casa?** Sí, versiones **autoaplicadas** han mostrado resultados similares cuando hay un seguimiento mínimo por parte del terapeuta.",
@@ -3340,12 +3414,49 @@ The treatment is based on **Pure Exposure**. We use realistic videos that simula
             evidenceText: "CAFFT (**Computer-Assisted Fear of Flying Treatment**) is a simulated exposure program that recreates flight situations using real images and sounds. Multiple randomized controlled trials (**Bornas et al., 2001, 2002, 2006; Tortella-Feliu et al., 2011; Botella-Arbona et al., 2004**) have demonstrated:\n\n- **Efficacy:** Significantly greater reduction in fear of flying compared to waiting list controls.\n- **Equivalence:** As effective as Virtual Reality Exposure Therapy (**VRET**) and longer multicomponent interventions.\n- **Maintenance:** Successes are maintained at **6-month and 1-year** follow-ups.\n- **Success Rate:** Between **80% and 90%** of patients improve or recover clinically.",
             mechanismTitle: "Mechanisms of Action",
             mechanismText: "The treatment divides the trip into chronological stages (preparation, airport, takeoff, flight, landing) and adds a stage on accidents to reduce catastrophic anxiety. The program generates a personalized hierarchy based on the **QPV-II**. **Extinction** of the fear response is achieved through **habituation** via repeated exposure.",
+            inhibitoryTitle: "Inhibitory Learning Model (Michelle Craske)",
+            inhibitoryText: "This approach (Craske et al., 2014) optimizes exposure by going beyond simple habituation. The goal is **expectancy violation**: the patient must verify that what they feared does not happen. It is reinforced by totally removing **safety behaviors**, fostering **variability** in sessions, and using **affect labeling** (putting emotions into words).",
             metricsTitle: "Interpretation of Metrics",
             rciTitle: "Reliable Change Index (RCI)",
             rciExplanation: "The Reliable Change Index (**RCI**) indicates whether the change in QPV-II between pre and post is clinically significant (> 1.96).",
             slopeTitle: "Habituation Slope",
             slopeExplanation: "The habituation **slope** indicates the speed of habituation; a steep negative slope is a sign of an active extinction process.",
             applicationTitle: "Clinical Application Guide",
+            principlesTitle: "Principles of Exposure",
+            principlesList: [
+                "Habituation of conditioned emotional responses.",
+                "Extinction of conditioned emotional responses.",
+                "Learning of coping strategies incompatible with avoidance.",
+                "Inhibitory learning optimization (expectancy violation)."
+            ],
+            objectivesTitle: "Treatment Objectives",
+            objectivesList: [
+                { title: "Physiological", desc: "Habituation of autonomic nervous system responses." },
+                { title: "Motor", desc: "Extinction of avoidance and escape behaviors." },
+                { title: "Cognitive", desc: "Optimization of inhibitory learning and disproving fears." }
+            ],
+            procedureTitle: "Application Procedure",
+            procedureSteps: [
+                { step: "1", title: "Conceptualization", desc: "Explanation of the process. Introduce inhibitory learning (Craske): testing specific fears." },
+                { step: "2", title: "Hierarchy", desc: "Identification of stimuli and hierarchy construction based on QPV-II." },
+                { step: "3", title: "Presentation", desc: "Gradual video exposure until habituation or expectancy violation." },
+                { step: "4", title: "Practice", desc: "Generalization in multiple contexts and reinforcement of safety." }
+            ],
+            feedbackTitle: "Feedback Guidelines",
+            feedbackImmediateTitle: "Immediate",
+            feedbackImmediateList: [
+                "Based on concrete behaviors.",
+                "Focused on target behaviors.",
+                "Personalized assessment."
+            ],
+            feedbackMaintenanceTitle: "Maintenance",
+            feedbackMaintenanceList: [
+                "Understandable language.",
+                "Improvement proposals.",
+                "Reinforcement of progress."
+            ],
+            successMessage: "Exposure success depends on engagement.",
+            successDesc: "Remember that CAFFT is a support tool. Supervise that the patient is emotionally involved without using defense mechanisms.",
             applicationText: "The therapist can supervise sessions or allow self-application. It is **CRUCIAL** that the patient remains 'implied' (experiencing the situation as real).\n\n- **No relaxation:** Relaxation techniques should **NOT** be used during exposure, as they inhibit habituation learning.\n- **Success criteria:** Repeat each sequence until anxiety drops to low levels (**1-2** on a 1-9 scale).\n- **Graduation flight:** A real flight is recommended within **15 days** after treatment to consolidate learning.",
             faqTitle: "Frequently Asked Questions (FAQs)",
             faqText: "- **Does it work for complete avoiders?** Yes, it helps them habituate before the real flight.\n- **Is Virtual Reality better?** Evidence indicates that CAFFT is equally effective and much more affordable and portable.\n- **Can it be used autonomously?** Yes, **self-applied** versions have shown similar results with minimal therapist follow-up.",

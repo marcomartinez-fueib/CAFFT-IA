@@ -912,8 +912,6 @@ export const EvolutionPage: React.FC = () => {
         </SectionCard>
       )}
 
-      {!showSessionDebrief && <PostTreatmentGuidelines />}
-
       <SectionCard title={t('evolution.exposureTitle')}>
         {filteredExposureSessions.length === 0 ? ( 
           <p className="text-gray-600 p-4 text-center">{t('evolution.noExposureData')}</p>

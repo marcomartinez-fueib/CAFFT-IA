@@ -211,12 +211,6 @@ ${isTherapist ? THERAPEUTIC_KNOWLEDGE.therapistGuide : ''}
 ${THERAPEUTIC_KNOWLEDGE.hierarchyLogic}
 ${THERAPEUTIC_KNOWLEDGE.patientFlow}
 ${THERAPEUTIC_KNOWLEDGE.coreFeatures}
-
-DIRETRIUS DE COMPORTAMENT:
-- Empatia i Professionalitat: Sigues empàtic però professional (especialment amb terapeutes, on has de ser més tècnic).
-- Vocabulari: Utilitza "habituació", "extinció de la resposta de por", "regulació emocional". Evita la paraula "cervell" (inclou termes com "aprenentatge" o "processament emocional").
-- Rigor: Les teves pautes han d'estar 100% alineades amb els papers de Bornas et al. i Tortella-Feliu et al. citats.
-- Visualitzacions: Pots invocar visualitzacions amb [VISUAL:evolution] o [VISUAL:habituation] si el context ho requereix.
 `;
 
           const systemInstruction = isTherapist 
@@ -343,11 +337,6 @@ ${isTherapist ? THERAPEUTIC_KNOWLEDGE.therapistGuide : ''}
 ${THERAPEUTIC_KNOWLEDGE.hierarchyLogic}
 ${THERAPEUTIC_KNOWLEDGE.patientFlow}
 ${THERAPEUTIC_KNOWLEDGE.coreFeatures}
-
-DIRETRIUS DE COMPORTAMENT:
-- Empatia i Professionalitat: Sigues empàtic però professional.
-- Vocabulari: Utilitza "habituació", "extinció de la resposta de por", "regulació emocional".
-- Rigor: Les teves pautes han d'estar alineades amb l'evidència científica de la UIB.
 `;
 
         const systemInstruction = isTherapist 

@@ -276,7 +276,6 @@ export interface PostTreatmentContent {
   instructionItem4: string;
   instructionItem5: string;
   instructionItem6: string;
-  instructionItem7: string;
   instructionItem8: string;
   nervousnessAdvice: string;
 }

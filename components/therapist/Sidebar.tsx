@@ -90,6 +90,7 @@ export const Sidebar: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                         return (
                             <button
                                 key={item.path}
+                                id={item.path === '/therapist/guide' ? 'nav-help-center' : undefined}
                                 onClick={() => handleNavigate(item.path)}
                                 className={`${baseLinkStyle} ${isActive ? activeLinkStyle : inactiveLinkStyle}`}
                             >
@@ -103,6 +104,7 @@ export const Sidebar: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                 <div className="space-y-4 pt-6 mt-6 border-t border-slate-800/50">
                     <button 
                         onClick={() => setIsHelpOpen(true)} 
+                        id="help-button"
                         className={`${baseLinkStyle} ${inactiveLinkStyle}`}
                     >
                         <Bot className="w-5 h-5 text-sky-400" />

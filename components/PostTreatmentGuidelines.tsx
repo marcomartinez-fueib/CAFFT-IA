@@ -14,7 +14,6 @@ export const PostTreatmentGuidelines: React.FC = () => {
     'postTreatment.instructionItem4',
     'postTreatment.instructionItem5',
     'postTreatment.instructionItem6',
-    'postTreatment.instructionItem7',
     'postTreatment.instructionItem8',
   ];
 

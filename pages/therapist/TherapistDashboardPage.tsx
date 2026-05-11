@@ -135,10 +135,14 @@ export const TherapistDashboardPage: React.FC = () => {
   });
   
   useEffect(() => {
-    // Auto start tour for therapists if not completed
+    // Auto start tour for therapists if not completed and not already auto-started
     if (currentUser && currentUser.role === 'therapist') {
+      const autoStartKey = `cafft_onboarding_autostart_done_${currentUser.id}`;
+      if (localStorage.getItem(autoStartKey) === 'true') return;
+
       const completed = checkTourStatus(currentUser.id, 'therapist');
       if (!completed) {
+        localStorage.setItem(autoStartKey, 'true');
         startTour('therapist', currentUser.id);
       }
     }

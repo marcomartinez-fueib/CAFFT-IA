@@ -33,8 +33,10 @@ export const CafftIntroPage: React.FC = () => {
 
   useEffect(() => {
     if (currentUser && !hasCompletedTour) {
-        // We could auto-start here, but a button is often less intrusive
-        // However, for a first-time experience, auto-start is common
+        const autoStartKey = `cafft_onboarding_autostart_done_${currentUser.id}`;
+        if (localStorage.getItem(autoStartKey) === 'true') return;
+
+        localStorage.setItem(autoStartKey, 'true');
         const timer = setTimeout(() => {
             startTour();
         }, 1500);

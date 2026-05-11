@@ -13,6 +13,16 @@ export const ScientificEvidencePage: React.FC = () => {
 
   const references = [
     {
+      authors: "Bornas, X. y Tortella-F. M.",
+      year: 1995,
+      title: "Descripción y análisis psicométrico de un instrumento de autoinforme para la evaluación del miedo a volar.",
+      journal: "Psicología Conductual",
+      volume: "3",
+      issue: "1",
+      pages: "67–86",
+      url: ""
+    },
+    {
       authors: "Bornas, X. et al.",
       year: 1999,
       title: "Validacion Factorial Del Cuestionario De Miedo a Volar.",
@@ -21,6 +31,17 @@ export const ScientificEvidencePage: React.FC = () => {
       issue: "104",
       pages: "885–907",
       url: ""
+    },
+    {
+      authors: "Bornas, X., Fullana, M. A., Tortella-Feliu, M., Llabrés, J., & De La Banda, G. G.",
+      year: 2001,
+      title: "Computer-assisted therapy in the treatment of flight phobia: A case report.",
+      journal: "Cognitive and Behavioral Practice",
+      volume: "8",
+      issue: "3",
+      pages: "234–240",
+      doi: "10.1016/S1077-7229(01)80058-4",
+      url: "https://doi.org/10.1016/S1077-7229(01)80058-4"
     },
     {
       authors: "Bornas, X.",
@@ -37,7 +58,7 @@ export const ScientificEvidencePage: React.FC = () => {
       authors: "Bornas, X., Tortella-Feliu, M., Llabrés, J., Mühlberger, A., Pauli, P., & Barceló, F.",
       year: 2002,
       title: "Clinical usefulness of a simulated exposure treatment for fear of flying.",
-      journal: "International Journal of Clinical and Health Psychology",
+      journal: "Int J Clin Health Psychol",
       volume: "2",
       issue: "2",
       pages: "247-262",
@@ -69,7 +90,7 @@ export const ScientificEvidencePage: React.FC = () => {
       authors: "Bornas, X., & Llabrés, J.",
       year: 2007,
       title: "Tratamiento del miedo a volar con exposición asistida por ordenador Computer-Assisted fear of flying treatment.",
-      journal: "Anuario de Psicología Clinica y de la Salud",
+      journal: "Flying",
       volume: "3",
       pages: "21–34",
       url: "https://sites.google.com/site/unitatdinarem/serveis/revisioCAFFT.pdf"
@@ -86,17 +107,6 @@ export const ScientificEvidencePage: React.FC = () => {
       url: "https://doi.org/10.1016/j.biopsycho.2007.07.007"
     },
     {
-      authors: "Tortella-Feliu, M., Botella, C., Llabrés, J., Bretón-López, J., Riera del Amo, A., Baños, R. M., & Gelabert, J. M.",
-      year: 2011,
-      title: "Virtual reality versus computer-aided exposure treatments for fear of flying.",
-      journal: "Behavior Modification",
-      volume: "35",
-      issue: "1",
-      pages: "3–30",
-      doi: "10.1177/0145445510390801",
-      url: "https://doi.org/10.1177/0145445510390801"
-    },
-    {
         authors: "Bornas, X., Gelabert, J. M., Llabrés, J., Balle, M., & Tortella-Feliu, M.",
         year: 2011,
         title: "Slope of change throughout exposure treatment for flight phobia: the role of autonomic flexibility.",
@@ -108,6 +118,17 @@ export const ScientificEvidencePage: React.FC = () => {
         url: "https://doi.org/10.1002/jclp.20780"
     },
     {
+      authors: "Tortella-Feliu, M., Botella, C., Llabrés, J., Bretón-López, J., Riera del Amo, A., Baños, R. M., & Gelabert, J. M.",
+      year: 2011,
+      title: "Virtual reality versus computer-aided exposure treatments for fear of flying.",
+      journal: "Behavior Modification",
+      volume: "35",
+      issue: "1",
+      pages: "3–30",
+      doi: "10.1177/0145445510390801",
+      url: "https://doi.org/10.1177/0145445510390801"
+    },
+    {
         authors: "Bornas, X., Riera del Amo, A., Tortella-Feliu, M., & Llabrés, J.",
         year: 2012,
         title: "Heart rate variability profiles and exposure therapy treatment outcome in flight phobia.",
@@ -117,6 +138,16 @@ export const ScientificEvidencePage: React.FC = () => {
         pages: "53–62",
         doi: "10.1007/s10484-011-9179-5",
         url: "https://doi.org/10.1007/s10484-011-9179-5"
+    },
+    {
+      authors: "Craske, M. G., Treanor, M., Conway, C. C., Zbozinek, T., & Vervliet, B.",
+      year: 2014,
+      title: "Maximizing exposure therapy: An inhibitory learning approach.",
+      journal: "Behaviour Research and Therapy",
+      volume: "58",
+      pages: "10–23",
+      doi: "10.1016/j.brat.2014.04.006",
+      url: "https://doi.org/10.1016/j.brat.2014.04.006"
     },
     {
       authors: "Bretón-López, J., Tortella-Feliu, M., Riera del Amo, A., Baños, R., Llabrés, J., Gelabert, J. M., & Botella, C.",

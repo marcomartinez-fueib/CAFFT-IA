@@ -25,7 +25,7 @@ Sessions: 4-8 sessions de 60 minuts. Freqüència: 2-3 sessions per setmana.
 ## 3. Guia de l'Usuari (Prospecte)
 Condicions d'ús: Lloc tranquil, llum tènue, AURICULARS OBLIGATORIS, volum realista.
 Implicació activa: Concentració, honestedat en el malestar (SUDS 0-10), no aturar l'exposició si l'ansietat és alta.
-PROHIBIT: No utilitzar tècniques de relaxació, respiració profunda o distracció durant els vídeos. Aquestes actuen com a "muletes" que impedeixen l'aprenentatge real.
+PROHIBIT: No utilitzar tècniques de relaxació, respiració profunda o distracció durant els vídeos. Aquestes actuen com a suports externs que impedeixen l'aprenentatge real i l'habituació.
 
 ## 4. Instruccions per al Vol Real (Post-Tractament)
 Realitzar un vol en 10-15 dies després de la jerarquia.
@@ -51,7 +51,7 @@ No fer servir sense supervisió en cas de malalties cardíaques greus, tractamen
 
 ## 3. Pautes Clau (Model Inhibitori - Craske)
 - **Violació d'Expectatives**: El canvi es produeix quan el pacient experimenta un "desajust" entre el que temia que passaria i el que realment passa.
-- **Eliminació de Senyals de Seguretat**: Treure "muletes" (com la respiració profunda o la presència del terapeuta) per maximitzar l'aprenentatge.
+- **Eliminació de senyals de seguretat**: Treure suports (com la respiració profunda o la presència del terapeuta) per maximitzar l'aprenentatge.
 - **Variabilitat**: Canviar la durada, el context i els estímuls per fer l'aprenentatge més robust i resistent a recaigudes.
 - **Etiquetatge Afectiu**: Expressar les emocions en paraules durant l'exposició ajuda a la regulació emocional.
 `,
@@ -65,7 +65,7 @@ Aquest model complementa la visió clàssica de l'habituació i se centra en max
 2. **Extinció Aprofundida (Deepened Extinction)**: Combinar estímuls ja exhibits anteriorment per potenciar l'aprenentatge.
 3. **Variabilitat**: No seguir sempre un ordre lineal de menys a més por; introduir variacions en el nivell d'ansietat.
 4. **Múltiples Contextos**: Practicar en diferents llocs, hores i estats emocionals.
-5. **Eliminació de Conductes de Seguretat**: Forçar la confrontació sense mecanismes de defensa atenuants.
+5. **Eliminació de Conductes de Seguretat**: Forçar la confrontació sense recursos de seguretat atenuants.
 `,
 
     hierarchyLogic: `

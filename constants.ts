@@ -24,7 +24,6 @@ export const TOP_NAV_AUTH: NavItem[] = [
   { path: '/qpvii-evaluation', labelKey: 'nav.qpviiEvaluation', authRequired: true }, 
   { path: '/exposure', labelKey: 'nav.exposure', authRequired: true }, 
   { path: '/evolution', labelKey: 'nav.evolution', authRequired: true },
-  { path: '/help-center', labelKey: 'nav.helpCenter', authRequired: true },
 ];
 
 // Sidebar navigation for THERAPIST users

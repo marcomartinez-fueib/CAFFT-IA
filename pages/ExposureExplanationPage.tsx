@@ -101,6 +101,7 @@ export const ExposureExplanationPage: React.FC = () => {
       subsections: [
         { subtitleKey: 'exposureExplanation.section2SubtitleHabituation', textKey: 'exposureExplanation.section2TextHabituation' },
         { subtitleKey: 'exposureExplanation.section2SubtitleExtinction', textKey: 'exposureExplanation.section2TextExtinction' },
+        { subtitleKey: 'exposureExplanation.section2SubtitleInhibitory', textKey: 'exposureExplanation.section2TextInhibitory' },
       ]
     },
     { 

@@ -38,7 +38,9 @@ export const ClinicalGuidePage: React.FC = () => {
                                     "Aprenentatge d'estratègies d'afrontament incompatibles amb la fugida i l'evitació."
                                 ];
                                 return finalList.map((principle, idx) => (
-                                    <li key={idx}>{principle}</li>
+                                    <li key={`principle-${idx}`}>
+                                        {typeof principle === 'string' ? principle : String(principle)}
+                                    </li>
                                 ));
                             })()}
                         </ul>
@@ -58,10 +60,14 @@ export const ClinicalGuidePage: React.FC = () => {
                             { title: "Motors", desc: "Extinció de les conductes d'evitació i fugida." },
                             { title: "Cognitius", desc: "Optimització de l'aprenentatge inhibitori i desmentiment de pors." }
                         ];
-                        return finalList.map((item, i) => (
-                            <div key={i} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-                                <h5 className="font-bold text-slate-800 mb-1">{item.title}</h5>
-                                <p className="text-xs text-slate-500 leading-relaxed">{item.desc}</p>
+                        return finalList.map((item: any, i: number) => (
+                            <div key={`objective-${i}`} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                                <h5 className="font-bold text-slate-800 mb-1">
+                                    {typeof item === 'object' ? item.title : String(item)}
+                                </h5>
+                                {typeof item === 'object' && item.desc && (
+                                    <p className="text-xs text-slate-500 leading-relaxed">{item.desc}</p>
+                                )}
                             </div>
                         ));
                     })()}
@@ -82,13 +88,17 @@ export const ClinicalGuidePage: React.FC = () => {
                                 { step: "3", title: "Presentació", desc: "Exposició gradual." },
                                 { step: "4", title: "Pràctica", desc: "Generalització." }
                             ];
-                            return finalList.map((item, i) => (
-                                <div key={i} className="relative">
+                            return finalList.map((item: any, i: number) => (
+                                <div key={`step-${i}`} className="relative">
                                     <div className="absolute -left-8 w-6 h-6 bg-white border-2 border-amber-500 rounded-full flex items-center justify-center text-[10px] font-black text-amber-500 z-10">
-                                        {item.step}
+                                        {typeof item === 'object' ? item.step : (i + 1)}
                                     </div>
-                                    <h5 className="font-bold text-slate-800 mb-1">{item.title}</h5>
-                                    <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
+                                    <h5 className="font-bold text-slate-800 mb-1">
+                                        {typeof item === 'object' ? item.title : String(item)}
+                                    </h5>
+                                    {typeof item === 'object' && item.desc && (
+                                        <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
+                                    )}
                                 </div>
                             ));
                         })()}
@@ -111,9 +121,9 @@ export const ClinicalGuidePage: React.FC = () => {
                                 const list = t('helpModal.therapistInfo.feedbackImmediateList', { returnObjects: true });
                                 const finalList = Array.isArray(list) ? list : [];
                                 return finalList.map((point, idx) => (
-                                    <li key={idx} className="flex items-start gap-2">
+                                    <li key={`immediate-${idx}`} className="flex items-start gap-2">
                                         <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full mt-1.5 shrink-0" />
-                                        {point}
+                                        {typeof point === 'string' ? point : String(point)}
                                     </li>
                                 ));
                             })()}
@@ -129,9 +139,9 @@ export const ClinicalGuidePage: React.FC = () => {
                                 const list = t('helpModal.therapistInfo.feedbackMaintenanceList', { returnObjects: true });
                                 const finalList = Array.isArray(list) ? list : [];
                                 return finalList.map((point, idx) => (
-                                    <li key={idx} className="flex items-start gap-2">
+                                    <li key={`maintenance-${idx}`} className="flex items-start gap-2">
                                         <span className="w-1.5 h-1.5 bg-uib-blue/40 rounded-full mt-1.5 shrink-0" />
-                                        {point}
+                                        {typeof point === 'string' ? point : String(point)}
                                     </li>
                                 ));
                             })()}
@@ -157,7 +167,7 @@ export const ClinicalGuidePage: React.FC = () => {
                         </div>
                     </div>
                     <p className="text-slate-500 max-w-xl leading-relaxed">
-                        Aquesta secció conté les directrius oficials per al terapeuta segons el manual CAFFT i la fonamentació en tècniques d'exposició conductual.
+                        Aquesta secció conté les directrius oficials per al terapeuta segons el manual CAFFT, la fonamentació en tècniques d'exposició conductual i les aportacions de Michelle Craske (Inhibitory Learning).
                     </p>
                 </div>
             </header>

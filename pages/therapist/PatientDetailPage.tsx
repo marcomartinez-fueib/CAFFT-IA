@@ -579,16 +579,29 @@ export const PatientDetailPage: React.FC = () => {
             </div>
 
             {selectedEmail && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white p-6 rounded-md shadow-xl w-full max-w-2xl">
-                        <h3 className="text-lg font-bold mb-4 text-uib-black">{t('patientDetail.emailModalTitle')}</h3>
-                        <div className="p-4 bg-gray-50 border border-gray-200 rounded-md max-h-80 overflow-y-auto">
-                            <p className="font-bold text-sm text-uib-black">Subject: {selectedEmail.subject}</p>
-                            <hr className="my-2 border-gray-200"/>
-                            <p className="text-sm whitespace-pre-wrap text-gray-700">{selectedEmail.body}</p>
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+                    <div className="bg-white p-6 sm:p-8 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-2xl border border-slate-100 flex flex-col h-auto max-h-[95vh] overflow-y-auto">
+                        <div className="sm:hidden flex justify-center pb-4">
+                            <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
                         </div>
-                        <div className="mt-6 flex justify-end">
-                            <button onClick={() => setSelectedEmail(null)} className="px-4 py-2 bg-gray-200 rounded-md font-bold text-gray-700 hover:bg-gray-300 transition-colors">{t('patientDetail.closeButton')}</button>
+                        <h3 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight">{t('patientDetail.emailModalTitle')}</h3>
+                        <div className="p-6 bg-slate-50 border border-slate-200 rounded-2xl mb-8 overflow-y-auto scrollbar-hide shadow-inner">
+                            <div className="mb-4 pb-4 border-b border-slate-200">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Subject</p>
+                                <p className="text-sm font-bold text-slate-800">{selectedEmail.subject}</p>
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Message</p>
+                                <p className="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">{selectedEmail.body}</p>
+                            </div>
+                        </div>
+                        <div className="flex justify-end pb-8 sm:pb-0">
+                            <button 
+                                onClick={() => setSelectedEmail(null)} 
+                                className="w-full sm:w-auto px-10 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all uppercase text-xs tracking-widest font-black shadow-lg"
+                            >
+                                {t('patientDetail.closeButton')}
+                            </button>
                         </div>
                     </div>
                 </div>

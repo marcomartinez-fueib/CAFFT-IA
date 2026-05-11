@@ -16,16 +16,8 @@ export const ScientificFoundationPage: React.FC = () => {
   // Journal volume/issue/pages are included as per OCR.
   const references: ReferenceItem[] = [
     {
-      key: 'bornas1995pc',
-      htmlContent: 'Bornas, X. y Tortella-F. M. (1995). Descripción y análisis psicométrico de un instrumento de autoinforme para la evaluación del miedo a volar. <em>Psicología Conductual, 3</em>(1), 67–86.',
-    },
-    {
       key: 'bornas1999amc',
       htmlContent: 'Bornas, X. et al. (1999). Validación Factorial Del Cuestionario De Miedo a Volar. <em>Análisis y Modificación de Conducta, 25</em>(104), 885–907.',
-    },
-    {
-      key: 'bornas2001cbp',
-      htmlContent: 'Bornas, X., Fullana, M. A., Tortella-Feliu, M., Llabrés, J., & De La Banda, G. G. (2001). Computer-assisted therapy in the treatment of flight phobia: A case report. <em>Cognitive and Behavioral Practice, 8</em>(3), 234–240. <a href="https://doi.org/10.1016/S1077-7229(01)80058-4" target="_blank" rel="noopener noreferrer" class="text-sky-600 hover:underline">https://doi.org/10.1016/S1077-7229(01)80058-4</a>',
     },
     {
       key: 'bornas2001pr',
@@ -34,10 +26,6 @@ export const ScientificFoundationPage: React.FC = () => {
     {
       key: 'bornas2002ijchp',
       htmlContent: 'Bornas, X., Tortella-Feliu, M., Llabrés, J., Muhlberger, A., Pauli, P., & Barceló, F. (2002). Clinical usefulness of a simulated exposure treatment for fear of flying. <em>International Journal of Clinical and Health Psychology, 2</em>, 247–262.',
-    },
-    {
-      key: 'botella2004cpp',
-      htmlContent: 'Botella-Arbona, C., Osma, J., García-Palacios, A., Quero, S., & Baños, R. M. (2004). Treatment of flying phobia using virtual reality: Data from a 1-year follow-up using a multiple baseline design. <em>Clinical Psychology and Psychotherapy, 11</em>(5), 311–323. <a href="https://doi.org/10.1002/cpp.404" target="_blank" rel="noopener noreferrer" class="text-sky-600 hover:underline">https://doi.org/10.1002/cpp.404</a>',
     },
     {
       key: 'bornas2004asc',
@@ -54,6 +42,10 @@ export const ScientificFoundationPage: React.FC = () => {
     {
       key: 'bornas2007flying',
       htmlContent: 'Bornas, X., & Llabrés, J. (2007). Tratamiento del miedo a volar con exposición asistida por ordenador Computer-Assisted fear of flying treatment. <em>Flying</em>, 21–34.',
+    },
+    {
+      key: 'bornas2011jcp',
+      htmlContent: 'Bornas, X., Gelabert, J. M., Llabrés, J., Balle, M., & Tortella-Feliu, M. (2011). Slope of change throughout exposure treatment for flight phobia: the role of autonomic flexibility. <em>Journal of Clinical Psychology, 67</em>(6), 550–560.',
     },
     {
       key: 'tortella2011bm',

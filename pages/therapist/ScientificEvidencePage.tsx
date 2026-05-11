@@ -13,16 +13,6 @@ export const ScientificEvidencePage: React.FC = () => {
 
   const references = [
     {
-      authors: "Bornas, X. y Tortella-Feliu, M.",
-      year: 1995,
-      title: "Descripción y análisis psicométrico de un instrumento de autoinforme para la evaluación del miedo a volar.",
-      journal: "Psicología Conductual",
-      volume: "3",
-      issue: "1",
-      pages: "67–86",
-      url: ""
-    },
-    {
       authors: "Bornas, X. et al.",
       year: 1999,
       title: "Validacion Factorial Del Cuestionario De Miedo a Volar.",
@@ -31,17 +21,6 @@ export const ScientificEvidencePage: React.FC = () => {
       issue: "104",
       pages: "885–907",
       url: ""
-    },
-    {
-      authors: "Bornas, X., Fullana, M. A., Tortella-Feliu, M., Llabrés, J., & García de la Banda, G.",
-      year: 2001,
-      title: "Computer-assisted therapy in the treatment of flight phobia: A case report.",
-      journal: "Cognitive and Behavioral Practice",
-      volume: "8",
-      issue: "3",
-      pages: "234–240",
-      doi: "10.1016/S1077-7229(01)80058-4",
-      url: "https://doi.org/10.1016/S1077-7229(01)80058-4"
     },
     {
       authors: "Bornas, X.",
@@ -76,17 +55,6 @@ export const ScientificEvidencePage: React.FC = () => {
       url: "https://doi.org/10.1080/10615800512331328777"
     },
     {
-        authors: "Botella-Arbona, C., Osma, J., Garcia-Palacios, A., Quero, S., & Baños, R. M.",
-        year: 2004,
-        title: "Treatment of flying phobia using virtual reality: Data from a 1-year follow-up using a multiple baseline design.",
-        journal: "Clinical Psychology and Psychotherapy",
-        volume: "11",
-        issue: "5",
-        pages: "311–323",
-        doi: "10.1002/cpp.404",
-        url: "https://doi.org/10.1002/cpp.404"
-    },
-    {
       authors: "Bornas, X., Tortella-Feliu, M., & Llabrés, J.",
       year: 2006,
       title: "Do all treatments work for flight phobia? Computer-assisted exposure versus a brief multicomponent nonexposure treatment.",
@@ -98,24 +66,24 @@ export const ScientificEvidencePage: React.FC = () => {
       url: "https://doi.org/10.1080/10503300500091058"
     },
     {
-        authors: "Bornas, X., & Llabrés, J.",
-        year: 2007,
-        title: "Tratamiento del miedo a volar con exposición asistida por ordenador Computer-Assisted fear of flying treatment.",
-        journal: "Anuario de Psicología Clinica y de la Salud",
-        volume: "3",
-        pages: "21–34",
-        url: "https://sites.google.com/site/unitatdinarem/serveis/revisioCAFFT.pdf"
+      authors: "Bornas, X., & Llabrés, J.",
+      year: 2007,
+      title: "Tratamiento del miedo a volar con exposición asistida por ordenador Computer-Assisted fear of flying treatment.",
+      journal: "Anuario de Psicología Clinica y de la Salud",
+      volume: "3",
+      pages: "21–34",
+      url: "https://sites.google.com/site/unitatdinarem/serveis/revisioCAFFT.pdf"
     },
     {
-        authors: "Bornas, X., Llabrés, J., Tortella-Feliu, M., Fullana, M. A., Montoya, P., López, A., … Gelabert, J. M.",
-        year: 2007,
-        title: "Vagally mediated heart rate variability and heart rate entropy as predictors of treatment outcome in flight phobia.",
-        journal: "Biological Psychology",
-        volume: "76",
-        issue: "3",
-        pages: "188-195",
-        doi: "10.1016/j.biopsycho.2007.07.007",
-        url: "https://doi.org/10.1016/j.biopsycho.2007.07.007"
+      authors: "Bornas, X., Llabrés, J., Tortella-Feliu, M., Fullana, M. A., Montoya, P., López, A., … Gelabert, J. M.",
+      year: 2007,
+      title: "Vagally mediated heart rate variability and heart rate entropy as predictors of treatment outcome in flight phobia.",
+      journal: "Biological Psychology",
+      volume: "76",
+      issue: "3",
+      pages: "188-195",
+      doi: "10.1016/j.biopsycho.2007.07.007",
+      url: "https://doi.org/10.1016/j.biopsycho.2007.07.007"
     },
     {
       authors: "Tortella-Feliu, M., Botella, C., Llabrés, J., Bretón-López, J., Riera del Amo, A., Baños, R. M., & Gelabert, J. M.",
@@ -159,16 +127,6 @@ export const ScientificEvidencePage: React.FC = () => {
       issue: "2",
       pages: "265-285",
       url: "https://www.behavioralpsycho.com/wp-content/uploads/2019/08/04.Breton_23-2.pdf"
-    },
-    {
-      authors: "Craske, M. G., Treanor, M., Conway, C. C., Zbozinek, T., & Vervliet, B.",
-      year: 2014,
-      title: "Maximizing exposure therapy: An inhibitory learning approach.",
-      journal: "Behaviour Research and Therapy",
-      volume: "58",
-      pages: "10-23",
-      doi: "10.1016/j.brat.2014.04.006",
-      url: "https://doi.org/10.1016/j.brat.2014.04.006"
     }
   ];
 

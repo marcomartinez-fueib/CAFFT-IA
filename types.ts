@@ -341,6 +341,8 @@ export interface ExposureExplanationContent {
   section2TextHabituation: string;
   section2SubtitleExtinction: string;
   section2TextExtinction: string;
+  section2SubtitleInhibitory: string;
+  section2TextInhibitory: string;
   section3Title: string;
   section3Point1Active: string;
   section3Point2Stay: string;

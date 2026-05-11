@@ -25,18 +25,23 @@ export const AssistantModal: React.FC<AssistantModalProps> = ({ isOpen, onClose 
 
   return createPortal(
     <div 
-      className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-end sm:items-center justify-center z-[9999] sm:p-4 transition-all duration-300 ease-in-out"
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-[9999] p-0 sm:p-4 md:p-8 transition-all duration-500 ease-in-out"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="assistant-modal-title"
     >
       <div 
-        className="bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl w-full max-w-2xl h-[94vh] sm:h-[85vh] flex flex-col overflow-hidden transform transition-all duration-300 ease-in-out animate-fadeIn relative border border-slate-100"
+        className="bg-white rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl w-full max-w-2xl h-[92vh] sm:h-[85vh] md:h-[80vh] flex flex-col overflow-hidden transform transition-all duration-300 ease-in-out animate-fadeIn relative border border-slate-100"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Simplified Header for the Modal */}
-        <div className="flex items-center justify-between p-5 sm:p-7 border-b border-gray-100 bg-white">
+        {/* Mobile Drag Handle */}
+        <div className="sm:hidden flex justify-center pt-3 pb-1">
+          <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
+        </div>
+
+        {/* Header for the Modal */}
+        <div className="flex items-center justify-between p-5 pt-2 sm:pt-7 sm:p-7 border-b border-gray-100 bg-white">
           <div className="flex items-center space-x-4">
              <div className="bg-uib-blue p-3 rounded-2xl text-white shadow-lg shadow-uib-blue/20">
                 <MessageSquare className="w-6 h-6" />

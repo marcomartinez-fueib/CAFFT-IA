@@ -59,7 +59,14 @@ export const ExposurePage: React.FC = () => {
   const DEMO_VIDEO_URL = "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
   
   // CDN Fallback URLs - using stable GTV sample bucket which is more reliable than mixkit
-  const CDN_FALLBACKS: Record<string, string> = {
+  const CDN_FALLBACK_VIDEOS = [
+    "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+    "https://www.w3schools.com/html/mov_bbb.mp4",
+    "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    "https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
+  ];
+
+  const CDN_FALLBACKS_BY_AREA: Record<string, string> = {
     takeoff: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
     inflight: "https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
     landing: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
@@ -73,16 +80,20 @@ export const ExposurePage: React.FC = () => {
   const getLocalizedVideoUrl = useCallback((video: ExposureVideo): string => {
     const attempt = fallbackAttempted[video.id] || 0;
     
-    if (usingDemoVideo || attempt >= 2) {
-      return DEMO_VIDEO_URL;
+    if (usingDemoVideo || attempt >= 4) {
+      return CDN_FALLBACK_VIDEOS[2]; // BigBuckBunny
     }
     
     if (attempt === 1) {
-      return CDN_FALLBACKS[video.relatedArea] || DEMO_VIDEO_URL;
+      return CDN_FALLBACKS_BY_AREA[video.relatedArea] || CDN_FALLBACK_VIDEOS[0];
+    }
+
+    if (attempt >= 2) {
+      return CDN_FALLBACK_VIDEOS[attempt - 2] || CDN_FALLBACK_VIDEOS[0];
     }
     
     return `${video.mp4Url}_${language}.mp4`;
-  }, [language, usingDemoVideo, fallbackAttempted, CDN_FALLBACKS, DEMO_VIDEO_URL]);
+  }, [language, usingDemoVideo, fallbackAttempted, CDN_FALLBACKS_BY_AREA, CDN_FALLBACK_VIDEOS]);
 
   const handleUseDemoVideo = () => {
     setUsingDemoVideo(true);
@@ -465,11 +476,14 @@ export const ExposurePage: React.FC = () => {
                     </button>
                 </div>
             </div>
-           ) : (
-               <video
+            ) : (
+                <video
                     ref={videoRef}
+                    key={`video-${videoSequence[currentVideoIndex].id}-${fallbackAttempted[videoSequence[currentVideoIndex].id] || 0}`}
                     autoPlay
                     playsInline
+                    controls
+                    crossOrigin="anonymous"
                     className="w-full h-full object-cover pointer-events-none"
                     onEnded={handleVideoNaturalEnd}
                     onContextMenu={(e) => e.preventDefault()}
@@ -484,7 +498,7 @@ export const ExposurePage: React.FC = () => {
 
                       // If we haven't tried falling back enough times for THIS video, try the next level
                       const currentAttempt = fallbackAttempted[currentVideo?.id || ''] || 0;
-                      if (currentVideo && currentAttempt < 2) {
+                      if (currentVideo && currentAttempt < 4) {
                         console.log(`Attempting automatic CDN fallback (Level ${currentAttempt + 1}) for ${currentVideo.id}`);
                         setFallbackAttempted(prev => ({ 
                           ...prev, 

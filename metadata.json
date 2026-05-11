@@ -1,6 +1,6 @@
 {
   "name": "CAFFT 5.1",
-  "description": "A web application providing information and guidance about CAFFT, a Computer Assisted Fear of Flying Treatment program. It includes details on the fear of flying, the CAFFT program specifics, user guides, and help resources.",
+  "description": "Plataforma per al tractament de la por a volar (CAFFT 5.1). Inclou exposició per vídeo, seguiment de vols, teràpia cognitiva i principis d'aprenentatge inhibitori (Michelle Craske) per maximitzar l'eficàcia de l'extinció de la por.",
   "requestFramePermissions": [],
   "prompt": "",
   "majorCapabilities": []

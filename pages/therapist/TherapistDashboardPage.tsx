@@ -933,6 +933,144 @@ export const TherapistDashboardPage: React.FC = () => {
           </div>
       </div>
 
+      {/* Modals */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white p-6 sm:p-8 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-md border border-slate-100 flex flex-col h-auto max-h-[90vh] overflow-y-auto">
+            <div className="sm:hidden flex justify-center pb-4">
+              <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
+            </div>
+            <h3 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight">{t('therapistDashboard.addPatientModal.title')}</h3>
+            {error && <div className="mb-6 p-4 bg-rose-50 border border-rose-100 text-rose-700 text-sm rounded-xl font-medium">{error}</div>}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{t('therapistDashboard.addPatientModal.usernameLabel')}</label>
+                <input type="text" value={newPatientData.username} onChange={(e) => setNewPatientData({...newPatientData, username: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all" />
+              </div>
+              <div>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{t('therapistDashboard.addPatientModal.emailLabel')}</label>
+                <input type="email" value={newPatientData.email} onChange={(e) => setNewPatientData({...newPatientData, email: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all" />
+              </div>
+              <div>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{t('therapistDashboard.addPatientModal.passwordLabel')}</label>
+                <input type="password" value={newPatientData.password} onChange={(e) => setNewPatientData({...newPatientData, password: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all" />
+              </div>
+            </div>
+            <div className="mt-8 flex gap-3 pb-8 sm:pb-0">
+              <button onClick={() => setAddModalOpen(false)} className="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors uppercase text-xs tracking-widest">{t('therapistDashboard.addPatientModal.cancelButton')}</button>
+              <button onClick={handleAddPatient} className="flex-1 px-4 py-3 bg-sky-600 text-white rounded-xl font-bold hover:bg-sky-700 transition-all uppercase text-xs tracking-widest shadow-lg shadow-sky-200">{t('therapistDashboard.addPatientModal.createButton')}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isInviteModalOpen && patientToProcess && invitationContent && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white p-6 sm:p-8 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-2xl border border-slate-100 flex flex-col h-auto max-h-[90vh] overflow-y-auto">
+            <div className="sm:hidden flex justify-center pb-4">
+              <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
+            </div>
+            <h3 className="text-xl font-black text-slate-900 mb-2 uppercase tracking-tight">{t('therapistDashboard.inviteModal.title')}</h3>
+            <p className="text-sm text-slate-500 mb-6">{t('therapistDashboard.inviteModal.subtitle', { username: (patientToProcess as any).username })}</p>
+            
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-8">
+               <div className="mb-4">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('therapistDashboard.inviteEmail.subject')}</p>
+                  <p className="text-sm font-bold text-slate-800">{invitationContent.subject}</p>
+               </div>
+               <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('therapistDashboard.inviteEmail.bodyLabel')}</p>
+                  <p className="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">{invitationContent.body}</p>
+               </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-8 sm:pb-0">
+               <button 
+                  onClick={handleCopyInvite} 
+                  className={`flex items-center justify-center px-4 py-3 rounded-xl font-bold transition-all uppercase text-xs tracking-widest border border-slate-200 ${inviteCopied ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
+               >
+                  {inviteCopied ? t('therapistDashboard.inviteModal.copied') : t('therapistDashboard.inviteModal.copy')}
+               </button>
+               <button 
+                  onClick={handleSendInviteEmail} 
+                  className="flex items-center justify-center px-4 py-3 bg-sky-600 text-white rounded-xl font-bold hover:bg-sky-700 transition-all uppercase text-xs tracking-widest shadow-lg shadow-sky-200"
+               >
+                  <SendIcon className="w-4 h-4 mr-2" />
+                  {t('therapistDashboard.inviteModal.sendEmail')}
+               </button>
+               <button 
+                  onClick={() => setInviteModalOpen(false)} 
+                  className="sm:col-span-2 mt-2 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors uppercase text-xs tracking-widest"
+               >
+                  {t('therapistDashboard.inviteModal.done')}
+               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isDeleteModalOpen && patientToProcess && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white p-6 sm:p-8 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-md border border-slate-100">
+            <div className="sm:hidden flex justify-center pb-4">
+              <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
+            </div>
+            <h3 className="text-xl font-black text-slate-900 mb-4 uppercase tracking-tight">{t('therapistDashboard.deletePatientModal.title')}</h3>
+            <p className="text-slate-600 mb-8 leading-relaxed">{t('therapistDashboard.deletePatientModal.confirmationText', { username: (patientToProcess as any).username })}</p>
+            <div className="flex gap-3 pb-8 sm:pb-0">
+              <button onClick={() => setDeleteModalOpen(false)} className="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors uppercase text-xs tracking-widest">{t('therapistDashboard.deletePatientModal.cancelButton')}</button>
+              <button onClick={handleDeletePatient} className="flex-1 px-4 py-3 bg-rose-600 text-white rounded-xl font-bold hover:bg-rose-700 transition-all uppercase text-xs tracking-widest shadow-lg shadow-rose-200">{t('therapistDashboard.deletePatientModal.deleteButton')}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isResetModalOpen && patientToProcess && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white p-6 sm:p-8 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-md border border-slate-100 text-center">
+            <div className="sm:hidden flex justify-center pb-4">
+              <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
+            </div>
+            <h3 className="text-xl font-black text-slate-900 mb-4 uppercase tracking-tight">{t('therapistDashboard.resetPasswordModal.title', { username: (patientToProcess as any).username })}</h3>
+            <p className="text-slate-600 mb-4">{t('therapistDashboard.resetPasswordModal.newPasswordIs')}</p>
+            <div className="p-5 bg-slate-50 border border-slate-200 rounded-2xl font-mono text-xl font-black text-sky-700 tracking-wider mb-8 shadow-inner">{newPassword}</div>
+            <div className="flex gap-3 pb-8 sm:pb-0">
+              <button onClick={() => setResetModalOpen(false)} className="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors uppercase text-xs tracking-widest">{t('therapistDashboard.resetPasswordModal.closeButton')}</button>
+              <button onClick={handleCopyPassword} className="flex-1 px-4 py-3 bg-sky-600 text-white rounded-xl font-bold hover:bg-sky-700 transition-all uppercase text-xs tracking-widest shadow-lg shadow-sky-200">{passwordCopied ? t('therapistDashboard.resetPasswordModal.copiedButton') : t('therapistDashboard.resetPasswordModal.copyButton')}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isExportModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white p-6 sm:p-8 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-md border border-slate-100">
+            <div className="sm:hidden flex justify-center pb-4">
+              <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
+            </div>
+            <h3 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight">{t('therapistDashboard.exportModal.title')}</h3>
+            <div className="mb-8">
+              <label className="flex items-center space-x-3 cursor-pointer group p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-sky-200 transition-colors">
+                <input 
+                  type="checkbox" 
+                  checked={anonymizeExport} 
+                  onChange={(e) => setAnonymizeExport(e.target.checked)} 
+                  className="w-5 h-5 text-sky-600 border-slate-300 rounded focus:ring-sky-500"
+                />
+                <div className="flex flex-col">
+                    <span className="text-sm font-bold text-slate-700">{t('therapistDashboard.exportModal.anonymizeLabel')}</span>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{t('therapistDashboard.exportModal.anonymizeDescription')}</span>
+                </div>
+              </label>
+            </div>
+            <div className="flex gap-3 pb-8 sm:pb-0">
+              <button onClick={() => setExportModalOpen(false)} className="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors uppercase text-xs tracking-widest">{t('therapistDashboard.exportModal.cancelButton')}</button>
+              <button onClick={handleExportData} className="flex-1 px-4 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all uppercase text-xs tracking-widest shadow-lg">{t('therapistDashboard.exportModal.exportButton')}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </>
   );
 };

@@ -11,7 +11,7 @@ import {
 } from '../../constants';
 import { UibLogo } from '../Logo';
 import { AssistantModal } from '../AssistantModal';
-import { HelpCircle, X, LayoutDashboard, Bell, Users, LogOut, MessageSquare, Beaker, Bot } from 'lucide-react';
+import { HelpCircle, X, LayoutDashboard, Bell, Users, LogOut, MessageSquare, Beaker, Bot, BookOpen } from 'lucide-react';
 
 const navIcons: { [key: string]: any } = {
     'nav.therapistDashboard': LayoutDashboard,
@@ -19,6 +19,7 @@ const navIcons: { [key: string]: any } = {
     'nav.superadminDashboard': LayoutDashboard,
     'nav.patients': Users,
     'nav.therapistNotifications': Bell,
+    'nav.clinicalGuide': BookOpen,
     'nav.scientificEvidence': Beaker,
     'nav.feedback': MessageSquare,
 };

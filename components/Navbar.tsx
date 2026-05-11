@@ -31,7 +31,8 @@ import {
   Bell,
   MessageSquare,
   LifeBuoy,
-  Beaker
+  Beaker,
+  BookOpen
 } from 'lucide-react';
 
 const navIcons: Record<string, React.ReactNode> = {
@@ -43,6 +44,7 @@ const navIcons: Record<string, React.ReactNode> = {
   'nav.therapistDashboard': <LayoutDashboard className="w-4 h-4 mr-2" />,
   'nav.patients': <Users className="w-4 h-4 mr-2" />,
   'nav.therapistNotifications': <Bell className="w-4 h-4 mr-2" />,
+  'nav.clinicalGuide': <BookOpen className="w-4 h-4 mr-2" />,
   'nav.scientificEvidence': <Beaker className="w-4 h-4 mr-2" />,
   'nav.settings': <Settings className="w-4 h-4 mr-2" />,
   'nav.feedback': <MessageSquare className="w-4 h-4 mr-2" />,
@@ -68,7 +70,7 @@ export const Navbar: React.FC = () => {
   };
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `relative flex items-center h-full text-[9px] lg:text-[11px] xl:text-[13px] font-extrabold tracking-tight lg:tracking-wider uppercase transition-all duration-300 group ${
+    `relative flex items-center h-full text-[8.5px] lg:text-[10px] xl:text-[12.5px] font-extrabold tracking-tighter lg:tracking-tight uppercase transition-all duration-300 group ${
       isActive
         ? 'text-uib-blue'
         : 'text-uib-darkGray hover:text-uib-blue'
@@ -76,28 +78,28 @@ export const Navbar: React.FC = () => {
 
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
-      <div className="w-full px-2 sm:px-4 lg:px-8 max-w-[1920px] mx-auto">
-        <div className="flex justify-between h-16 md:h-24 items-center gap-2">
+      <div className="w-full px-2 lg:px-4 max-w-full mx-auto">
+        <div className="flex justify-between h-16 md:h-24 items-center gap-1">
           
           {/* UIB Logo Branding */}
           <div className="flex items-center cursor-pointer group flex-shrink-0 min-w-0" onClick={() => navigate('/')}>
-            <UibLogo className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 lg:h-12 flex-shrink-0" />
+            <UibLogo className="h-6 w-6 sm:h-8 sm:w-8 md:h-9 lg:h-10 flex-shrink-0" />
             
-            <div className="flex flex-col border-l border-gray-300 ml-1 lg:ml-3 pl-1 lg:pl-3 py-0.5 md:py-1 justify-center min-w-0">
+            <div className="flex flex-col border-l border-gray-300 ml-1 lg:ml-2 pl-1 lg:pl-2 py-0.5 md:py-1 justify-center min-w-0">
                 <span className="lg:hidden text-uib-black font-black text-[12px] sm:text-sm md:text-base leading-tight tracking-tighter group-hover:text-uib-blue transition-colors truncate">
                     {t('appNameShort')}
                 </span>
-                <span className="hidden lg:inline text-uib-black font-black text-lg xl:text-xl leading-none tracking-tighter group-hover:text-uib-blue transition-colors truncate">
+                <span className="hidden lg:inline text-uib-black font-black text-base xl:text-lg leading-none tracking-tighter group-hover:text-uib-blue transition-colors truncate">
                     {t('appName')}
                 </span>
-                <span className="hidden sm:inline text-[5px] md:text-[8px] lg:text-[9px] text-uib-darkGray uppercase tracking-[0.1em] lg:tracking-[0.2em] mt-0.5 font-bold truncate leading-none">
+                <span className="hidden sm:inline text-[5px] md:text-[8px] lg:text-[9px] text-uib-darkGray uppercase tracking-[0.1em] lg:tracking-[0.15em] mt-0.5 font-bold truncate leading-none">
                     Universitat de les Illes Balears
                 </span>
             </div>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex flex-1 items-center justify-center space-x-0 lg:space-x-1 xl:space-x-2 px-1 lg:px-4 overflow-hidden h-full">
+          <div className="hidden md:flex flex-1 items-center justify-center space-x-0 overflow-hidden h-full">
             {mainNavItems.map((item) => {
                 let id = "";
                 if (item.path === '/cafft-intro') id = "nav-home";
@@ -109,12 +111,10 @@ export const Navbar: React.FC = () => {
                 return (
                     <NavLink key={item.path} id={id} to={item.path} className={linkClass}>
                         {({ isActive }) => (
-                          <div className="flex flex-col items-center justify-center h-full px-0.5 lg:px-1 xl:px-2 relative">
-                            <span className="flex items-center whitespace-nowrap px-1.5 lg:px-2 py-2 rounded-lg group-hover:bg-slate-50 transition-colors">
-                              <span className="shrink-0">{navIcons[item.labelKey]}</span>
-                              <span className="hidden xl:inline">{t(item.labelKey)}</span>
-                              <span className="xl:hidden lg:inline">{t(item.labelKey).length > 15 ? t(item.labelKey).substring(0, 13) + '..' : t(item.labelKey)}</span>
-                              <span className="text-[10px] lg:hidden truncate max-w-[60px]">{t(item.labelKey)}</span>
+                          <div className="flex flex-col items-center justify-center h-full px-0 relative">
+                            <span className="flex items-center whitespace-nowrap px-0.5 lg:px-1.5 py-2 rounded-lg group-hover:bg-slate-50 transition-colors">
+                              <span className="shrink-0 scale-75 lg:scale-100">{navIcons[item.labelKey]}</span>
+                              <span className="hidden md:inline">{t(item.labelKey)}</span>
                             </span>
                             {/* Active Indicator Line */}
                             <div className={`absolute bottom-0 left-0 right-0 h-1 bg-uib-blue rounded-t-full transition-all duration-300 ${isActive ? 'opacity-100 translate-y-0 shadow-[0_-2px_10px_rgba(30,58,138,0.2)]' : 'opacity-0 translate-y-1 group-hover:opacity-20 group-hover:translate-y-0'}`} />

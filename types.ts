@@ -230,9 +230,12 @@ export interface HelpModalTranslatedStrings {
     mechanismTitle: string;
     mechanismText: string;
     metricsTitle: string;
+    rciTitle?: string;
     rciExplanation: string;
+    slopeTitle?: string;
     slopeExplanation: string;
     applicationTitle: string;
+    applicationSummary?: string;
     applicationText: string;
     faqTitle: string;
     faqText: string;
@@ -675,6 +678,7 @@ export interface TranslationContent {
     therapists?: string;
     managers?: string;
     therapistNotifications: string;
+    clinicalGuide?: string;
     scientificEvidence?: string;
     helpCenter: string;
     addUser: string;

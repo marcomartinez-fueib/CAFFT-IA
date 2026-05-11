@@ -1,6 +1,7 @@
 
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../hooks/useLanguage';
 import { PageTitle } from '../../components/PageTitle';
 import { Breadcrumbs } from '../../components/Breadcrumbs';
@@ -8,6 +9,7 @@ import { FileText, ExternalLink, Quote, Beaker, Zap, BarChart3, HelpCircle } fro
 
 export const ScientificEvidencePage: React.FC = () => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
   const references = [
     {
@@ -168,30 +170,30 @@ export const ScientificEvidencePage: React.FC = () => {
       <div className="mt-8 space-y-12">
         {/* Foundation & Evidence Description */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-            <div className="bg-slate-900 text-white p-8 md:p-10 rounded-[40px] shadow-2xl relative overflow-hidden flex flex-col justify-between">
-                <div className="absolute -top-10 -right-10 opacity-10">
-                    <Beaker className="w-64 h-64 text-uib-accent" />
+            <div className="bg-white p-8 md:p-10 rounded-[40px] border border-slate-200 shadow-xl relative overflow-hidden flex flex-col justify-between">
+                <div className="absolute -top-10 -right-10 opacity-[0.03]">
+                    <Beaker className="w-64 h-64 text-uib-blue" />
                 </div>
                 <div className="relative z-10">
-                    <h3 className="text-2xl font-black uppercase tracking-[0.2em] mb-8 flex items-center text-uib-accent">
-                        <Beaker className="w-8 h-8 mr-4" />
+                    <h3 className="text-2xl font-black text-uib-blue uppercase tracking-[0.2em] mb-8 flex items-center">
+                        <Beaker className="w-8 h-8 mr-4 text-uib-accent" />
                         {t('helpModal.therapistInfo.evidenceTitle')}
                     </h3>
-                    <div className="space-y-4 text-slate-200 text-base leading-relaxed">
+                    <div className="space-y-4 text-slate-600 text-base leading-relaxed">
                         <ReactMarkdown 
                             components={{
-                                p: ({node, ...props}) => <p className="mb-4 text-slate-200" {...props} />,
-                                strong: ({node, ...props}) => <strong className="text-white font-bold" {...props} />,
+                                p: ({node, ...props}) => <p className="mb-4 text-slate-600" {...props} />,
+                                strong: ({node, ...props}) => <strong className="text-uib-blue font-black" {...props} />,
                                 ul: ({node, ...props}) => <ul className="list-disc pl-6 mb-4 space-y-3" {...props} />,
-                                li: ({node, ...props}) => <li className="text-slate-300" {...props} />,
+                                li: ({node, ...props}) => <li className="text-slate-600" {...props} />,
                             }}
                         >
                             {t('helpModal.therapistInfo.evidenceText')}
                         </ReactMarkdown>
                     </div>
                 </div>
-                <div className="mt-10 pt-6 border-t border-slate-700/50 flex items-center text-uib-accent/60 text-xs font-bold uppercase tracking-widest">
-                    <Zap className="w-4 h-4 mr-2" />
+                <div className="mt-10 pt-6 border-t border-slate-100 flex items-center text-slate-400 text-xs font-bold uppercase tracking-widest">
+                    <Zap className="w-4 h-4 mr-2 text-uib-accent" />
                     Basat en la darrera evidència científica (UIB)
                 </div>
             </div>
@@ -206,30 +208,30 @@ export const ScientificEvidencePage: React.FC = () => {
                         {t('helpModal.therapistInfo.metricsTitle')}
                     </h3>
                     <div className="grid grid-cols-1 gap-6">
-                        <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 hover:bg-slate-100/50 transition-colors">
-                            <p className="text-xs font-black text-uib-blue uppercase tracking-widest mb-3 flex items-center">
-                                <span className="w-2 h-2 bg-uib-accent rounded-full mr-2"></span>
+                        <div className="p-6 bg-slate-50 rounded-3xl border border-slate-200 hover:bg-slate-100 transition-colors">
+                            <p className="text-sm font-black text-uib-blue uppercase tracking-widest mb-3 flex items-center">
+                                <span className="w-2.5 h-2.5 bg-uib-accent rounded-full mr-3 shadow-lg shadow-uib-accent/40"></span>
                                 {t('helpModal.therapistInfo.rciTitle') || 'Reliable Change Index (RCI)'}
                             </p>
-                            <div className="text-slate-600 text-sm leading-relaxed prose prose-sm prose-slate max-w-none">
+                            <div className="text-slate-700 text-[15px] leading-relaxed prose prose-slate max-w-none font-medium">
                                 <ReactMarkdown>{t('helpModal.therapistInfo.rciExplanation')}</ReactMarkdown>
                             </div>
                         </div>
-                        <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 hover:bg-slate-100/50 transition-colors">
-                            <p className="text-xs font-black text-uib-blue uppercase tracking-widest mb-3 flex items-center">
-                                <span className="w-2 h-2 bg-uib-accent rounded-full mr-2"></span>
+                        <div className="p-6 bg-slate-50 rounded-3xl border border-slate-200 hover:bg-slate-100 transition-colors">
+                            <p className="text-sm font-black text-uib-blue uppercase tracking-widest mb-3 flex items-center">
+                                <span className="w-2.5 h-2.5 bg-uib-accent rounded-full mr-3 shadow-lg shadow-uib-accent/40"></span>
                                 {t('helpModal.therapistInfo.slopeTitle') || 'Habituation Slope'}
                             </p>
-                            <div className="text-slate-600 text-sm leading-relaxed prose prose-sm prose-slate max-w-none">
+                            <div className="text-slate-700 text-[15px] leading-relaxed prose prose-slate max-w-none font-medium">
                                 <ReactMarkdown>{t('helpModal.therapistInfo.slopeExplanation')}</ReactMarkdown>
                             </div>
                         </div>
-                        <div className="p-6 bg-sky-50 rounded-3xl border border-sky-100/50 hover:bg-sky-100/30 transition-colors">
-                            <p className="text-xs font-black text-uib-blue uppercase tracking-widest mb-3 flex items-center font-sans">
-                                <span className="w-2 h-2 bg-uib-accent rounded-full mr-2"></span>
+                        <div className="p-6 bg-sky-50 rounded-3xl border border-sky-200/50 hover:bg-sky-100/50 transition-colors">
+                            <p className="text-sm font-black text-uib-blue uppercase tracking-widest mb-3 flex items-center">
+                                <span className="w-2.5 h-2.5 bg-uib-accent rounded-full mr-3 shadow-lg shadow-uib-accent/40"></span>
                                 {t('helpModal.therapistInfo.mechanismTitle')}
                             </p>
-                            <div className="text-slate-600 text-sm leading-relaxed prose prose-sm prose-sky max-w-none">
+                            <div className="text-slate-700 text-[15px] leading-relaxed prose prose-sky max-w-none font-medium">
                                 <ReactMarkdown>{t('helpModal.therapistInfo.mechanismText')}</ReactMarkdown>
                             </div>
                         </div>
@@ -282,27 +284,26 @@ export const ScientificEvidencePage: React.FC = () => {
         </div>
 
         {/* Clinical Application Footer */}
-        <div className="bg-slate-900 text-white p-8 rounded-[32px] shadow-xl relative overflow-hidden">
-             <div className="absolute top-0 right-0 p-8 opacity-5">
-                <Zap className="w-40 h-40" />
+        <div className="bg-slate-900 text-white p-10 rounded-[40px] shadow-2xl relative overflow-hidden group">
+             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                <Zap className="w-48 h-48" />
              </div>
-             <div className="flex items-start space-x-6 relative z-10">
-                <div className="bg-uib-accent p-4 rounded-2xl text-uib-blue shrink-0">
-                    <HelpCircle className="w-8 h-8" />
+             <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
+                <div className="bg-uib-accent p-5 rounded-3xl text-uib-blue shrink-0 shadow-xl shadow-uib-accent/20">
+                    <HelpCircle className="w-10 h-10" />
                 </div>
-                <div className="space-y-4">
-                    <h3 className="text-xl font-black uppercase tracking-widest">{t('helpModal.therapistInfo.applicationTitle')}</h3>
-                    <div className="text-slate-300 text-sm leading-relaxed max-w-none">
-                        <ReactMarkdown
-                            components={{
-                                p: ({node, ...props}) => <p className="mb-4" {...props} />,
-                                strong: ({node, ...props}) => <strong className="text-white font-black" {...props} />,
-                                ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-4 space-y-2" {...props} />,
-                            }}
-                        >
-                            {t('helpModal.therapistInfo.applicationText')}
-                        </ReactMarkdown>
-                    </div>
+                <div className="flex-1 space-y-4">
+                    <h3 className="text-2xl font-black uppercase tracking-widest text-white">{t('helpModal.therapistInfo.applicationTitle')}</h3>
+                    <p className="text-white text-base leading-relaxed max-w-3xl opacity-90">
+                        {t('helpModal.therapistInfo.applicationSummary') || "Disposem d'una guia detallada per a l'aplicació clínica del protocol CAFFT, amb instruccions sobre l'exposició, el feedback i les tècniques de regulació."}
+                    </p>
+                    <button 
+                        onClick={() => navigate('/therapist/guide')}
+                        className="bg-white text-uib-blue font-black px-8 py-4 rounded-2xl hover:bg-uib-accent transition-all transform hover:scale-105 shadow-xl flex items-center"
+                    >
+                        <Zap className="w-5 h-5 mr-3" />
+                         ANAR A LA GUIA CLÍNICA
+                    </button>
                 </div>
              </div>
         </div>

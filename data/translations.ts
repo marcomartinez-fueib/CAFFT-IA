@@ -85,12 +85,17 @@ const helpVideosContent_CA: HelpSectionContent = {
 const therapistInfoContent_CA: HelpSectionContent = {
     titleKey: 'helpModal.therapistInfo.title',
     content: [
+        { type: 'subtitle', textKey: 'helpModal.therapistInfo.evidenceTitle' },
+        { type: 'paragraph', textKey: 'helpModal.therapistInfo.evidenceText' },
+        { type: 'subtitle', textKey: 'helpModal.therapistInfo.mechanismTitle' },
+        { type: 'paragraph', textKey: 'helpModal.therapistInfo.mechanismText' },
         { type: 'subtitle', textKey: 'helpModal.therapistInfo.metricsTitle' },
         { type: 'paragraph', textKey: 'helpModal.therapistInfo.rciExplanation' },
         { type: 'paragraph', textKey: 'helpModal.therapistInfo.slopeExplanation' },
-        { type: 'subtitle', textKey: 'helpModal.therapistInfo.clinicalGuardTitle' },
-        { type: 'paragraph', textKey: 'helpModal.therapistInfo.pureExposureReminder' },
-        { type: 'paragraph', textKey: 'helpModal.therapistInfo.safetyBehaviorDetection' },
+        { type: 'subtitle', textKey: 'helpModal.therapistInfo.applicationTitle' },
+        { type: 'paragraph', textKey: 'helpModal.therapistInfo.applicationText' },
+        { type: 'subtitle', textKey: 'helpModal.therapistInfo.faqTitle' },
+        { type: 'paragraph', textKey: 'helpModal.therapistInfo.faqText' },
     ]
 };
 
@@ -288,6 +293,7 @@ const caTranslations: TranslationContent = {
         therapists: "Terapeutes",
         managers: "Gestors",
         therapistNotifications: "Notificacions",
+        scientificEvidence: "Evidència Científica",
         feedback: "Feedback",
         helpCenter: "Ajuda",
         help: "Ajuda",
@@ -952,14 +958,20 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
             title: "Assistent Clínic IA",
         },
         therapistInfo: {
-            title: "Informació per a Terapeutes",
+            title: "Informació Científica i Guia Clínica",
+            evidenceTitle: "Fonamentació Científica i Evidència",
+            evidenceText: "El CAFFT (**Computer-Assisted Fear of Flying Treatment**) és un programa d'exposició simulat que recrea situacions de vol mitjançant imatges i sons reals. Múltiples assajos controlats aleatoris (**Bornas et al., 2001, 2002, 2006; Tortella-Feliu et al., 2011; Botella-Arbona et al., 2004**) han demostrat:\n\n- **Eficàcia:** Reducció significativament major de la por de volar comparat amb llista d'espera.\n- **Equivalència:** Tan eficaç com la Realitat Virtual (**VRET**) i intervencions multicomponent més llargues.\n- **Manteniment:** Els èxits es mantenen en seguiments de **6 mesos i 1 any**.\n- **Taxa d'èxit:** Entre el **80% i el 90%** dels pacients milloren o es recuperen clínicament.",
+            mechanismTitle: "Mecanismes de Funcionament",
+            mechanismText: "El tractament divideix el viatge en etapes cronològiques (preparació, aeroport, enlairament, vol, aterratge) i afegeix una etapa sobre accidents per reduir l'ansietat catastròfica. El programa genera una jerarquia personalitzada basada en el **QPV-II**. **L'extinció** de la resposta de por s'aconsegueix mitjançant l'**habituació** per exposició repetida.",
             metricsTitle: "Interpretació de Mètriques",
-            rciExplanation: "L'Índex de Canvi Fiable (RCI) indica si el canvi en el QPV-II entre pre i post és clínicament significatiu (> 1.96).",
-            slopeExplanation: "El pendent d'habituació (slope) s'ha de mantenir negatiu; un pendent més pronunciat indica una habituació més ràpida.",
-            clinicalGuardTitle: "Guia Clínica i Control del Tractament",
-            pureExposureReminder: "Recordeu que el CAFFT és un programa d'exposició pura. No s'han d'utilitzar tècniques de relaxació o respiració durant les sessions.",
-            safetyBehaviorDetection: "Si observeu un estancament en la habituació, comproveu si el pacient està utilitzant 'muletes' cognitives o conductes de seguretat.",
+            rciExplanation: "L'Índex de Canvi Fiable (**RCI**) indica si el canvi en el QPV-II entre pre i post és clínicament significatiu (**> 1.96**).",
+            slopeExplanation: "El pendent d'habituació (**slope**) indica la velocitat d'habituació; un pendent negatiu pronunciat és senyal d'un procés d'extinció actiu.",
+            applicationTitle: "Guia d'Aplicació Clínica",
+            applicationText: "El terapeuta pot supervisar les sessions o permetre l'autoaplicació. És **CRUCIAL** que el pacient es mantingui '**implicat emocionalment**' (vivint la situació com a real).\n\n- **No relaxació:** Les tècniques de relaxació **NO** s'han d'usar durant l'exposició, ja que inhibeixen l'aprenentatge d'habituació.\n- **Criteri d'èxit:** Repetir cada seqüència fins que l'ansietat baixi a nivells baixos (**1-2** en una escala de 1 a 9).\n- **Vol de graduació:** Es recomana un vol real en els **15 dies** posteriors al tractament per consolidar l'aprenentatge.",
+            faqTitle: "Resolució de Dubtes (FAQs)",
+            faqText: "- **Funciona per a persones que eviten totalment?** Sí, els ajuda a habituar-se abans del vol real.\n- **És millor la Realitat Virtual?** L'evidència indica que el CAFFT és igual d'eficaç i molt més assequible i portable.\n- **Se'n pot fer un ús autònom?** Sí, versions **autoaplicades** han mostrat resultats similars quan hi ha un seguiment mínim per part del terapeuta.",
         }
+
     },
     postTreatment: {
         instructionsTitle: "4. Instruccions per al Vol Real",
@@ -976,9 +988,9 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
         instructionItem1: "Arriba a l'aeroport amb temps suficient.",
         instructionItem2: "No evitis mirar els avions o la pista.",
         instructionItem3: "Recorda que l'ansietat és incòmoda però no perillosa: deixa que pugi i baixi sola.",
-        instructionItem4: "No utilitzis tècniques de relaxació o respiració; actuen com a 'muletes' que impedeixen l'habituació real.",
-        instructionItem5: "No prenguis alcohol ni fàrmacs per evitar l'ansietat, ja que inhibeixen l'aprenentatge de seguretat.",
-        instructionItem6: "Mantingues l'atenció en el vol (implicació) en lloc de distreure't.",
+        instructionItem4: "No utilitzi tècniques de relaxació o respiració; actuen com a 'recursos de seguretat' que impedeixen l'habituació real.",
+        instructionItem5: "No prengui alcohol ni fàrmacs per evitar l'ansietat, ja que inhibeixen l'aprenentatge de seguretat.",
+        instructionItem6: "Mantingui l'atenció en el vol (implicació emocional) en lloc de distreure's.",
         instructionItem7: "Confia en la seguretat de l'avió.",
         instructionItem8: "Felicita't per cada pas que facis.",
         nervousnessAdvice: "És normal sentir una mica de nervis. No interpretis aquests nervis com un senyal de perill.",
@@ -998,7 +1010,7 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
         section3Point1Active: "Mantingues la implicació: viu la situació com si fóra real.",
         section3Point2Stay: "No utilitzis tècniques de relaxació, respiració ni distraccions; impedeixen l'habituació.",
         section3Point3Rate: "No paris el vídeo ni tanquis els ulls fins que l'ansietat hagi baixat, almenys, a la meitat.",
-        section3Point4Repeat: "La repetició sense 'muletes' és la clau de l'èxit.",
+        section3Point4Repeat: "La repetició sense 'ajudes temporals' és la clau de l'èxit.",
         section4Title: "Què esperar?",
         section4TextInitialAnxiety: "Al principi, l'ansietat pot ser alta.",
         section4TextGradualDecrease: "Amb el temps, anirà baixant.",
@@ -1052,7 +1064,7 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
         inputPlaceholder: "Escriu aquí...",
         sendButton: "Enviar",
         systemInstruction: "Ets l'assistent expert del CAFFT (recerca UIB). REGLA CRÍTICA: Respostes molt BREUS, DIRECTES i NATURALS (màxim 1-2 frases). No demanis MAI coses que l'usuari ja ha fet (com el QPV-II si ja consta com a fet). Prioritza el text. Enllaços markdown (ex. [Exposició](/exposure), [Centre d'Ajuda](/help-center)) només si són el seguënt pas lògic. ESTAT ACTUAL QPV-II: {hasCompletedQPVII}. CONTEXT DEL PACIENT: {therapeuticContext}.",
-        therapistSystemInstruction: "Ets l'Assistent de Suport Clínic per a terapeutes del programa CAFFT (Investigació de la Universitat de les Illes Balears). El teu rol és ajudar als terapeutes a interpretar dades i optimitzar el procés. MISSIONS: 1. Interpretar mètriques: RCI (Índex de Canvi Fiable, ha de ser > 1.96 per ser significatiu), pendents d'habituació (negatiu és bo, més pronunciat és més ràpid) i tendències de SUDS. 2. Funcions de programari: Guia sobre crear/eliminar pacients, activar/desactivar el recorregut d'onboarding, gestionar notificacions push ([NOTIFICACIONS](/therapist/notifications)), i interpretar la jerarquia d'exposició. 3. Ajust Clínic: Suggereix quan mantenir una escena (ex. si hi ha resistències o conductes de seguretat) o quan progressar basant-te en les dades d'habituació. REGLA CRÍTICA: Inclou sempre enllaços markdown on sigui rellevant (ex. [Panell](/therapist/dashboard)). Màxim 4 frases tècniques basades en recerca d'impacte.",
+        therapistSystemInstruction: "Ets l'Assistent de Suport Clínic per a terapeutes del programa CAFFT (Investigació de la UIB). El teu rol és ajudar als terapeutes a interpretar dades i optimitzar el procés, basant-te en l'evidència científica. MISSIONS: 1. Interpretar mètriques: RCI (Índex de Canvi Fiable, ha de ser > 1.96 per ser significatiu), pendents d'habituació (negatiu és bo) i tendències de SUDS. 2. Funcions de programari: Guia sobre [gestionar pacients](/therapist/patients), configurar [notificacions](/therapist/notifications) i interpretar la [jerarquia d'exposició](/therapist/dashboard). 3. Ajust Clínic: Suggereix ajustos basats en l'evidència (Bornas et al., 2001, 2006). Recorda la importància de l'exposició pura sense relaxació. REGLA CRÍTICA: Inclou sempre enllaços markdown rellevants. Màxim 4 frases tècniques.",
         therapistInitialMessage: "Hola, {username}. Com et puc ajudar avui en la gestió dels teus pacients o en el funcionament tècnic del CAFFT?",
         assistantNameTitle: "Com es diu el teu co-terapeuta?",
         assistantNamePlaceholder: "Escriu un nom...",
@@ -1378,7 +1390,7 @@ const esTranslations: TranslationContent = {
         no: "No",
         select: "Elige..."
     },
-    nav: { ...caTranslations.nav, home: "Inicio", fearOfFlying: "Miedo a Volar", cafftProgram: "Programa", qpviiEvaluation: "Evaluación", exposure: "Exposición", login: "Iniciar Sesión", register: "Registrarse", profile: "Perfil", logout: "Cerrar Sesión", privacyPolicy: "Política de Privacidad", cafftIntro: "Inicio", forgotPasswordLink: "¿Olvidaste la contraseña?", evolution: "Evolución", exposureHierarchy: "Jerarquía de Exposición", exposureExplanation: "Explicación de Exposición", lastSession: "Sesión Final", therapistDashboard: "Panel del Terapeuta", managerDashboard: "Panel de Gestor", superadminDashboard: "Panel de Superadministrador", patients: "Pacientes", therapists: "Terapeutas", managers: "Gestores", therapistNotifications: "Notificaciones", helpCenter: "Ayuda", help: "Ayuda", addUser: "Añadir Usuario", addTherapist: "Añadir Terapeuta", save: "Guardar", cancel: "Cancelar" },
+    nav: { ...caTranslations.nav, home: "Inicio", fearOfFlying: "Miedo a Volar", cafftProgram: "Programa", qpviiEvaluation: "Evaluación", exposure: "Exposición", login: "Iniciar Sesión", register: "Registrarse", profile: "Perfil", logout: "Cerrar Sesión", privacyPolicy: "Política de Privacidad", cafftIntro: "Inicio", forgotPasswordLink: "¿Olvidaste la contraseña?", evolution: "Evolución", exposureHierarchy: "Jerarquía de Exposición", exposureExplanation: "Explicación de Exposición", lastSession: "Sesión Final", therapistDashboard: "Panel del Terapeuta", managerDashboard: "Panel de Gestor", superadminDashboard: "Panel de Superadministrador", patients: "Pacientes", therapists: "Terapeutas", managers: "Gestores", therapistNotifications: "Notificaciones", scientificEvidence: "Evidencia Científica", helpCenter: "Ayuda", help: "Ayuda", addUser: "Añadir Usuario", addTherapist: "Añadir Terapeuta", save: "Guardar", cancel: "Cancelar" },
     home: { 
         ...caTranslations.home, 
         title: ["Tratamiento Asistido", "por Ordenador del", "Miedo a Volar", "(CAFFT)"], 
@@ -1489,9 +1501,9 @@ const esTranslations: TranslationContent = {
         instructionItem1: "Llega al aeropuerto con tiempo suficiente.",
         instructionItem2: "No evites mirar los aviones o la pista.",
         instructionItem3: "Recuerda que la ansiedad es incómoda pero no peligrosa: deja que suba y baje sola.",
-        instructionItem4: "No utilices técnicas de relajación o respiración; actúan como 'muletas' que impiden la habituación real.",
+        instructionItem4: "No utilices técnicas de relajación o respiración; actúan como 'recursos de seguridad' que impiden la habituación real.",
         instructionItem5: "No tomes alcohol ni fármacos para evitar la ansiedad, ya que inhiben el aprendizaje de seguridad.",
-        instructionItem6: "Mantén la atención en el vuelo (implicación) en lugar de distraerte.",
+        instructionItem6: "Mantén la atención en el vuelo (implicación emocional) en lugar de distraerte.",
         instructionItem7: "Confía en la seguridad del avión.",
         instructionItem8: "Felicítate por cada paso que des.",
         nervousnessAdvice: "Es normal sentir un poco de nervios. No interpretes estos nervios como una señal de peligro.",
@@ -1620,9 +1632,9 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
 - **Auriculares:** **USO OBLIGATORIO**.
 - **Volumen:** Ajustarlo a un nivel real.
 
-### 3.2 Implicación Activa (Sin Muletas)
+### 3.2 Implicación Activa (Sin Ajudes Temporals)
 - **Honestidad:** Valore su malestar de forma sincera (0-10).
-- **Prohibido:** No utilice técnicas de relajación o distracción durante los vídeos. Actúan como "muletas" que impiden el aprendizaje real.
+- **Prohibido:** No utilice técnicas de relajación o distracción durante los vídeos. Actúan como "ajudes temporals" que impiden el aprendizaje real.
 
 ---
 
@@ -1655,7 +1667,7 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
                 },
                 behavioral: {
                     title: "Componente conductual: Lo que hacemos",
-                    textManual: "Principalment la **evitación**: tratar de no ir en avión, cancelar viajes, buscar excusas o utilizar 'muletas' (alcohol, pastillas). También incluye evitar estímulos relacionados como ver películas de aviones o ir al aeropuerto."
+                    textManual: "Principalment la **evitación**: tratar de no ir en avión, cancelar viajes, buscar excusas o utilizar 'recursos de seguretat' (alcohol, pastillas). También incluye evitar estímulos relacionados como ver películas de aviones o ir al aeropuerto."
                 },
             },
             howItStarts: {
@@ -1756,13 +1768,18 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
             title: "Asistente Clínico IA",
         },
         therapistInfo: {
-            title: "Información para Terapeutas",
+            title: "Información Científica y Guía Clínica",
+            evidenceTitle: "Fundamentación Científica y Evidencia",
+            evidenceText: "El CAFFT (**Computer-Assisted Fear of Flying Treatment**) es un programa de exposición simulada que recrea situaciones de vuelo mediante imágenes y sonidos reales. Múltiples ensayos controlados aleatorios (**Bornas et al., 2001, 2002, 2006; Tortella-Feliu et al., 2011; Botella-Arbona et al., 2004**) han demostrado:\n\n- **Eficacia:** Reducción significativamente mayor del miedo a volar comparado con lista de espera.\n- **Equivalencia:** Tan eficaz como la Realidad Virtual (**VRET**) e intervenciones multicomponente más largas.\n- **Mantenimiento:** Los éxitos se mantienen en seguimientos de **6 meses y 1 año**.\n- **Tasa de éxito:** Entre el **80% y el 90%** de los pacientes mejoran o se recuperan clínicamente.",
+            mechanismTitle: "Mecanismos de Funcionamiento",
+            mechanismText: "El tratamiento divide el viaje en etapas cronológicas (preparación, aeropuerto, despegue, vuelo, aterrizaje) y añade una etapa sobre accidentes para reducir la ansiedad catastrófica. El programa genera una jerarquía personalizada basada en el **QPV-II**. La **extinción** de la respuesta de miedo se logra mediante la **habituación** por exposición repetida.",
             metricsTitle: "Interpretación de Métricas",
-            rciExplanation: "El Índice de Cambio Fiable (RCI) indica si el cambio en el QPV-II entre pre y post es clínicamente significativo (> 1.96).",
-            slopeExplanation: "La pendiente de habituación (slope) debe mantenerse negativa; una pendiente más pronunciada indica una habituación más rápida.",
-            clinicalGuardTitle: "Guía Clínica y Control del Tratamiento",
-            pureExposureReminder: "Recuerde que el CAFFT es un programa de exposición pura. No se deben utilizar técnicas de relajación o respiración durante las sesiones.",
-            safetyBehaviorDetection: "Si observa un estancamiento en la habituación, compruebe si el paciente está utilizando 'muletas' cognitivas o conductas de seguridad.",
+            rciExplanation: "El Índice de Cambio Fiable (**RCI**) indica si el cambio en el QPV-II entre pre y post es clínicamente significativo (> 1.96).",
+            slopeExplanation: "La pendiente de habituación (**slope**) indica la velocidad de habituación; una pendiente negativa pronunciada es señal de un proceso de extinción activo.",
+            applicationTitle: "Guía de Aplicación Clínica",
+            applicationText: "El terapeuta puede supervisar las sesiones o permitir la autoaplicación. Es **CRUCIAL** que el paciente se mantenga 'implicado' (viviendo la situación como real).\n\n- **Sin relajación:** Las técnicas de relajación **NO** deben usarse durante la exposición, ya que inhiben el aprendizaje de habituación.\n- **Criterio de éxito:** Repetir cada secuencia hasta que la ansiedad baje a niveles bajos (**1-2** en escala 1-9).\n- **Vuelo de graduación:** Se recomienda un vuelo real en los **15 días** posteriores al tratamiento para consolidar el aprendizaje.",
+            faqTitle: "Resolución de Dudas (FAQs)",
+            faqText: "- **¿Funciona para personas que evitan totalmente?** Sí, los ayuda a habituarse antes del vuelo real.\n- **¿Es mejor la Realidad Virtual?** La evidencia indica que el CAFFT es igual de eficaz y mucho más asequible y portable.\n- **¿Se puede hacer en casa?** Sí, versiones **autoaplicadas** han mostrado resultados similares cuando hay un seguimiento mínimo por parte del terapeuta.",
         }
     },
     managerDashboard: {
@@ -2157,7 +2174,7 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
         inputPlaceholder: "Escribe aquí...",
         sendButton: "Enviar",
         systemInstruction: "Eres el asistente experto del CAFFT (investigación UIB). REGLA CRÍTICA: Respuestas muy BREVES, DIRECTAS y NATURALES (máximo 1-2 frases). No pidas NUNCA cosas que el usuario ya ha hecho (como el QPV-II si ya consta como hecho). Prioriza el texto. Enlaces markdown (ej. [Exposición](/exposure), [Centro de Ayuda](/help-center)) solo si son el siguiente paso lógico. ESTADO ACTUAL QPV-II: {hasCompletedQPVII}. CONTEXTO DEL PACIENTE: {therapeuticContext}.",
-        therapistSystemInstruction: "Eres el Asistente de Soporte Clínico para terapeutas del programa CAFFT (Investigación de la Universidad de las Islas Baleares). Tu rol es ayudar a los terapeutas a interpretar datos y optimizar el proceso. MISIONES: 1. Interpretar métricas: RCI (Índice de Cambio Fiable, debe ser > 1.96 para ser significativo), pendientes de habituación (negativo es bueno, más pronunciado es más rápido) y tendencias de SUDS. 2. Funciones de software: Guía sobre crear/eliminar pacientes, activar/desactivar el recorrido de onboarding, gestionar notificaciones push ([NOTIFICACIONES](/therapist/notifications)) e interpretar la jerarquía de exposición. 3. Ajuste Clínico: Sugiere cuándo mantener una escena (ej. si hay resistencias o conductas de seguridad) o cuándo progresar basándote en los datos de habituación. REGLA CRÍTICA: Incluye siempre enlaces markdown donde sea relevante (ej. [Panel](/therapist/dashboard)). Máximo 4 frases técnicas basadas en investigación de impacto.",
+        therapistSystemInstruction: "Eres el Asistente de Soporte Clínico para terapeutas del programa CAFFT (Investigación de la UIB). Tu rol es ayudar a los terapeutas a interpretar datos y optimizar el proceso, basándote en la evidencia científica. MISIONES: 1. Interpretar métricas: RCI (valor > 1.96 para ser significativo), pendientes de habituación (negativo es bueno) y tendencias de SUDS. 2. Funciones de software: Guía sobre [gestión de pacientes](/therapist/patients), [notificaciones](/therapist/notifications) y [jerarquía de exposición](/therapist/dashboard). 3. Ajuste Clínico: Sugiere ajustes basados en la evidencia (Bornas et al., 2001, 2006). Recuerda la importancia de la exposición pura sin relajación. REGLA CRÍTICA: Incluye siempre enlaces markdown relevantes. Máximo 4 frases técnicas.",
         therapistInitialMessage: "Hola, {username}. ¿Cómo puedo ayudarte hoy en la gestión de tus pacientes o en el funcionamiento técnico del CAFFT?",
         assistantNameTitle: "¿Cómo se llama tu co-terapeuta?",
         assistantNamePlaceholder: "Escribe un nombre...",
@@ -2400,7 +2417,7 @@ const enTranslations: TranslationContent = {
         no: "No",
         select: "Select..."
     },
-    nav: { ...caTranslations.nav, home: "Home", fearOfFlying: "Fear of Flying", cafftProgram: "Program", qpviiEvaluation: "Evaluation", exposure: "Exposure", login: "Login", register: "Register", profile: "Profile", logout: "Logout", privacyPolicy: "Privacy Policy", cafftIntro: "Home", forgotPasswordLink: "Forgot Password?", evolution: "Evolution", exposureHierarchy: "Exposure Hierarchy", exposureExplanation: "Exposure Explanation", lastSession: "Final Session", therapistDashboard: "Therapist Dashboard", managerDashboard: "Manager Dashboard", superadminDashboard: "Superadmin Dashboard", patients: "Patients", therapists: "Therapists", managers: "Managers", therapistNotifications: "Notifications", helpCenter: "Help", help: "Help", addUser: "Add User", addTherapist: "Add Therapist", save: "Save", cancel: "Cancel" },
+    nav: { ...caTranslations.nav, home: "Home", fearOfFlying: "Fear of Flying", cafftProgram: "Program", qpviiEvaluation: "Evaluation", exposure: "Exposure", login: "Login", register: "Register", profile: "Profile", logout: "Logout", privacyPolicy: "Privacy Policy", cafftIntro: "Home", forgotPasswordLink: "Forgot Password?", evolution: "Evolution", exposureHierarchy: "Exposure Hierarchy", exposureExplanation: "Exposure Explanation", lastSession: "Final Session", therapistDashboard: "Therapist Dashboard", managerDashboard: "Manager Dashboard", superadminDashboard: "Superadmin Dashboard", patients: "Patients", therapists: "Therapists", managers: "Managers", therapistNotifications: "Notifications", scientificEvidence: "Scientific Evidence", helpCenter: "Help", help: "Help", addUser: "Add User", addTherapist: "Add Therapist", save: "Save", cancel: "Cancel" },
     userGuide: {
         title: "User Guide",
         introduction: "This guide provides important information about requirements, usage, and advantages of the CAFFT program.",
@@ -2455,9 +2472,9 @@ const enTranslations: TranslationContent = {
         instructionItem1: "Arrive at the airport with plenty of time.",
         instructionItem2: "Do not avoid looking at planes or the runway.",
         instructionItem3: "Remember that anxiety is uncomfortable but not dangerous: let it rise and fall on its own.",
-        instructionItem4: "Do not use relaxation or breathing techniques; they act as 'crutches' that prevent real habituation.",
+        instructionItem4: "Do not use relaxation or breathing techniques; they act as 'safety behaviors' that prevent real habituation.",
         instructionItem5: "Do not take alcohol or drugs to avoid anxiety, as they inhibit safety learning.",
-        instructionItem6: "Maintain attention on the flight (engagement) instead of distracting yourself.",
+        instructionItem6: "Maintain attention on the flight (emotional involvement) instead of distracting yourself.",
         instructionItem7: "Trust in the safety of the plane.",
         instructionItem8: "Congratulate yourself for each step you take.",
         nervousnessAdvice: "It is normal to feel a bit of nerves. Do not interpret these nerves as a danger sign.",
@@ -2975,7 +2992,7 @@ const enTranslations: TranslationContent = {
         inputPlaceholder: "Type here...",
         sendButton: "Send",
         systemInstruction: "You are the CAFFT expert assistant (UIB research). CRITICAL RULE: Very BRIEF, DIRECT, and NATURAL responses (max 1-2 sentences). NEVER ask for things the user has already done (like QPV-II if already completed). Prioritize text. Markdown links (e.g., [Exposure](/exposure), [Help Center](/help-center)) only if they are the logical next step. QPV-II CURRENT STATUS: {hasCompletedQPVII}. PATIENT CONTEXT: {therapeuticContext}.",
-        therapistSystemInstruction: "You are the Clinical Support Assistant for therapists in the CAFFT program (University of the Balearic Islands research). Your role is to help therapists interpret patient data and optimize the therapeutic process. MISSIONS: 1. Interpret clinical metrics: RCI (Reliable Change Index, (> 1.96 for significance), habituation slopes (negative is good, steeper is faster), and SUDS trends. 2. Software features: Guide on creating/deleting patients, enabling/disabling the onboarding walkthrough, managing push notifications ([NOTIFICATIONS](/therapist/notifications)), and interpreting the exposure hierarchy. 3. Clinical Adjustment: Suggest when to stick with a scene (e.g., if there's resistance or safety behaviors) or when it's safe to progress based on habituation data. CRITICAL RULE: Always include markdown links where relevant (e.g., [Dashboard](/therapist/dashboard)). Maximum 4 technical sentences per response.",
+        therapistSystemInstruction: "You are the Clinical Support Assistant for therapists in the CAFFT program (UIB research). Your role is to help therapists interpret patient data and optimize the therapeutic process, based on scientific evidence. MISSIONS: 1. Interpret clinical metrics: RCI (> 1.96 for significance), habituation slopes, and SUDS trends. 2. Software features: Guide on [patient management](/therapist/patients), [notifications](/therapist/notifications), and [exposure hierarchy](/therapist/dashboard). 3. Clinical Adjustment: Suggest evidence-based adjustments (Bornas et al., 2001, 2006). Stress absolute pure exposure without relaxation. CRITICAL RULE: Always include markdown links where relevant. Maximum 4 technical sentences.",
         therapistInitialMessage: "Hello, {username}. How can I help you today with your patient management or the technical functioning of CAFFT?",
         assistantNameTitle: "What's the name of your co-therapist?",
         assistantNamePlaceholder: "Type a name...",
@@ -3103,8 +3120,16 @@ const enTranslations: TranslationContent = {
     exposureExplanation: {
         ...caTranslations.exposureExplanation,
         pageTitle: "Exposure Explanation",
+        section1Title: "Anxiety is a False Alarm",
         section1Text: "Your body reacts as if there were a real danger, but in a modern commercial aircraft, the danger is extremely low. You are retraining your behavior and regulating your emotions.",
+        section2Title: "Habituation and Extinction",
         section2TextHabituation: "Habituation is a learning process in which your emotional response (what you feel, think, and do) to a stimulus (such as one of the videos in the program) decreases after repeated exposure. By watching the videos multiple times, you learn that there is no real threat, and your anxiety gradually reduces. These graphs show how your discomfort drops with each repetition.",
+        section3Title: "Key Instructions (Pure Exposure)",
+        section3Point1Active: "Maintain involvement: experience the situation as if it were real.",
+        section3Point2Stay: "Do not use relaxation, breathing techniques, or distractions; they prevent habituation.",
+        section3Point3Rate: "Do not stop the video or close your eyes until the anxiety has dropped by at least half.",
+        section3Point4Repeat: "Repetition without 'safety aids' is the key to success.",
+        section4Title: "What to expect?",
         proceedButton: "Understood, I want to start",
     },
     celebration: {
@@ -3168,9 +3193,9 @@ The treatment is based on **Pure Exposure**. We use realistic videos that simula
 - **Headphones:** **MANDATORY USE**.
 - **Volume:** Adjust it to a realistic level.
 
-### 3.2 Active Involvement (No Crutches)
+### 3.2 Active Involvement (No Safety Aids)
 - **Honesty:** Rate your discomfort sincerely (0-10).
-- **Prohibited:** Do not use relaxation or distraction techniques during videos. They act as "crutches" that prevent real learning.
+- **Prohibited:** Do not use relaxation or distraction techniques during videos. They act as "safety aids" that prevent real learning.
 
 ---
 
@@ -3203,7 +3228,7 @@ The treatment is based on **Pure Exposure**. We use realistic videos that simula
                 },
                 behavioral: {
                     title: "Behavioral component: What we do",
-                    textManual: "Mainly **avoidance**: trying not to go by plane, canceling trips, looking for excuses, or using 'crutches' (alcohol, pills). It also includes avoiding related stimuli such as watching plane movies or going to the airport."
+                    textManual: "Mainly **avoidance**: trying not to go by plane, canceling trips, looking for excuses, or using 'safety aids' (alcohol, pills). It also includes avoiding related stimuli such as watching plane movies or going to the airport."
                 },
             },
             howItStarts: {
@@ -3304,13 +3329,18 @@ The treatment is based on **Pure Exposure**. We use realistic videos that simula
             title: "Clinical AI Assistant",
         },
         therapistInfo: {
-            title: "Information for Therapists",
-            metricsTitle: "Interpreting Metrics",
-            rciExplanation: "The Reliable Change Index (RCI) indicates if the change in the QPV-II between pre and post is clinically significant (> 1.96).",
-            slopeExplanation: "The habituation slope should remain negative; a steeper slope indicates faster habituation.",
-            clinicalGuardTitle: "Clinical Guidance and Treatment Control",
-            pureExposureReminder: "Remember that CAFFT is a pure exposure program. Relaxation or breathing techniques should not be used during sessions.",
-            safetyBehaviorDetection: "If you notice stalled habituation, check if the patient is using cognitive 'crutches' or safety behaviors.",
+            title: "Scientific Information and Clinical Guide",
+            evidenceTitle: "Scientific Foundation and Evidence",
+            evidenceText: "CAFFT (**Computer-Assisted Fear of Flying Treatment**) is a simulated exposure program that recreates flight situations using real images and sounds. Multiple randomized controlled trials (**Bornas et al., 2001, 2002, 2006; Tortella-Feliu et al., 2011; Botella-Arbona et al., 2004**) have demonstrated:\n\n- **Efficacy:** Significantly greater reduction in fear of flying compared to waiting list controls.\n- **Equivalence:** As effective as Virtual Reality Exposure Therapy (**VRET**) and longer multicomponent interventions.\n- **Maintenance:** Successes are maintained at **6-month and 1-year** follow-ups.\n- **Success Rate:** Between **80% and 90%** of patients improve or recover clinically.",
+            mechanismTitle: "Mechanisms of Action",
+            mechanismText: "The treatment divides the trip into chronological stages (preparation, airport, takeoff, flight, landing) and adds a stage on accidents to reduce catastrophic anxiety. The program generates a personalized hierarchy based on the **QPV-II**. **Extinction** of the fear response is achieved through **habituation** via repeated exposure.",
+            metricsTitle: "Interpretation of Metrics",
+            rciExplanation: "The Reliable Change Index (**RCI**) indicates whether the change in QPV-II between pre and post is clinically significant (> 1.96).",
+            slopeExplanation: "The habituation **slope** indicates the speed of habituation; a steep negative slope is a sign of an active extinction process.",
+            applicationTitle: "Clinical Application Guide",
+            applicationText: "The therapist can supervise sessions or allow self-application. It is **CRUCIAL** that the patient remains 'implied' (experiencing the situation as real).\n\n- **No relaxation:** Relaxation techniques should **NOT** be used during exposure, as they inhibit habituation learning.\n- **Success criteria:** Repeat each sequence until anxiety drops to low levels (**1-2** on a 1-9 scale).\n- **Graduation flight:** A real flight is recommended within **15 days** after treatment to consolidate learning.",
+            faqTitle: "Frequently Asked Questions (FAQs)",
+            faqText: "- **Does it work for complete avoiders?** Yes, it helps them habituate before the real flight.\n- **Is Virtual Reality better?** Evidence indicates that CAFFT is equally effective and much more affordable and portable.\n- **Can it be used autonomously?** Yes, **self-applied** versions have shown similar results with minimal therapist follow-up.",
         }
     }
 };

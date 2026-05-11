@@ -44,6 +44,7 @@ import { TherapistDashboardPage } from './pages/therapist/TherapistDashboardPage
 import { TherapistPatientsPage } from './pages/therapist/TherapistPatientsPage.tsx';
 import { TherapistNotificationsPage } from './pages/therapist/TherapistNotificationsPage.tsx';
 import { PatientDetailPage } from './pages/therapist/PatientDetailPage.tsx';
+import { ScientificEvidencePage } from './pages/therapist/ScientificEvidencePage.tsx';
 
 // Manager & Superadmin Imports
 import { SuperadminDashboardPage } from './pages/superadmin/SuperadminDashboardPage.tsx';
@@ -138,6 +139,7 @@ const App: React.FC = () => {
                 <Route path="dashboard" element={<TherapistDashboardPage />} />
                 <Route path="patients" element={<TherapistPatientsPage />} />
                 <Route path="notifications" element={<TherapistNotificationsPage />} />
+                <Route path="evidence" element={<ScientificEvidencePage />} />
                 <Route path="patient/:patientId" element={<PatientDetailPage />} />
               </Route>
 

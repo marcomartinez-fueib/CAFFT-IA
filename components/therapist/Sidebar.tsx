@@ -11,7 +11,7 @@ import {
 } from '../../constants';
 import { UibLogo } from '../Logo';
 import { AssistantModal } from '../AssistantModal';
-import { HelpCircle, X, LayoutDashboard, Bell, Users, LogOut, MessageSquare } from 'lucide-react';
+import { HelpCircle, X, LayoutDashboard, Bell, Users, LogOut, MessageSquare, Beaker, Bot } from 'lucide-react';
 
 const navIcons: { [key: string]: any } = {
     'nav.therapistDashboard': LayoutDashboard,
@@ -19,12 +19,13 @@ const navIcons: { [key: string]: any } = {
     'nav.superadminDashboard': LayoutDashboard,
     'nav.patients': Users,
     'nav.therapistNotifications': Bell,
+    'nav.scientificEvidence': Beaker,
     'nav.feedback': MessageSquare,
 };
 
 export const Sidebar: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
     const { currentUser, logout } = useAuth();
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const navigate = useNavigate();
     const location = useLocation();
     const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -103,8 +104,8 @@ export const Sidebar: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                         onClick={() => setIsHelpOpen(true)} 
                         className={`${baseLinkStyle} ${inactiveLinkStyle}`}
                     >
-                        <HelpCircle className="w-5 h-5 text-sky-400" />
-                        <span className="ml-3 text-xs uppercase font-black tracking-widest">{t('nav.help')}</span>
+                        <Bot className="w-5 h-5 text-sky-400" />
+                        <span className="ml-3 text-xs uppercase font-black tracking-widest">{language === 'ca' ? 'Assistent Clínic' : language === 'es' ? 'Asistente Clínico' : 'Clinical Assistant'}</span>
                     </button>
                     
                     <button onClick={handleLogout} className={`${baseLinkStyle} group hover:bg-rose-500/10 text-rose-400`}>

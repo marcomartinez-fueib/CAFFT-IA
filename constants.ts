@@ -33,7 +33,7 @@ export const THERAPIST_SIDEBAR_NAV: NavItem[] = [
   { path: '/therapist/dashboard', labelKey: 'nav.therapistDashboard' },
   { path: '/therapist/patients', labelKey: 'nav.patients' },
   { path: '/therapist/notifications', labelKey: 'nav.therapistNotifications' },
-  { path: '/help-center', labelKey: 'nav.helpCenter', authRequired: true },
+  { path: '/therapist/evidence', labelKey: 'nav.scientificEvidence' },
   { path: '/feedback', labelKey: 'nav.feedback' },
 ];
 

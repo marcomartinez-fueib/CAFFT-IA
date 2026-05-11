@@ -63,10 +63,6 @@ export const HelpCenterPage: React.FC = () => {
       { id: 'technicalSection', titleKey: 'helpModal.technicalSection.title', icon: <ShieldCheck className="w-5 h-5" /> },
     ];
     
-    if (currentUser?.role === 'therapist') {
-      base.push({ id: 'therapistInfo' as const, titleKey: 'helpModal.therapistInfo.title', icon: <Stethoscope className="w-5 h-5" /> });
-    }
-    
     return base;
   }, [currentUser]);
 

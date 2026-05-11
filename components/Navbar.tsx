@@ -30,7 +30,8 @@ import {
   Users,
   Bell,
   MessageSquare,
-  LifeBuoy
+  LifeBuoy,
+  Beaker
 } from 'lucide-react';
 
 const navIcons: Record<string, React.ReactNode> = {
@@ -42,6 +43,7 @@ const navIcons: Record<string, React.ReactNode> = {
   'nav.therapistDashboard': <LayoutDashboard className="w-4 h-4 mr-2" />,
   'nav.patients': <Users className="w-4 h-4 mr-2" />,
   'nav.therapistNotifications': <Bell className="w-4 h-4 mr-2" />,
+  'nav.scientificEvidence': <Beaker className="w-4 h-4 mr-2" />,
   'nav.settings': <Settings className="w-4 h-4 mr-2" />,
   'nav.feedback': <MessageSquare className="w-4 h-4 mr-2" />,
   'nav.helpCenter': <LifeBuoy className="w-4 h-4 mr-2" />,
@@ -66,7 +68,7 @@ export const Navbar: React.FC = () => {
   };
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `relative flex items-center h-full px-1 text-[10px] lg:text-xs xl:text-[13px] font-extrabold tracking-wider uppercase transition-all duration-300 group ${
+    `relative flex items-center h-full text-[9px] lg:text-[11px] xl:text-[13px] font-extrabold tracking-tight lg:tracking-wider uppercase transition-all duration-300 group ${
       isActive
         ? 'text-uib-blue'
         : 'text-uib-darkGray hover:text-uib-blue'
@@ -74,28 +76,28 @@ export const Navbar: React.FC = () => {
 
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
-      <div className="w-full px-2 sm:px-4 md:px-6 max-w-[1920px] mx-auto">
-        <div className="flex justify-between h-16 md:h-24 items-center">
+      <div className="w-full px-2 sm:px-4 lg:px-8 max-w-[1920px] mx-auto">
+        <div className="flex justify-between h-16 md:h-24 items-center gap-2">
           
           {/* UIB Logo Branding */}
           <div className="flex items-center cursor-pointer group flex-shrink-0 min-w-0" onClick={() => navigate('/')}>
-            <UibLogo className="h-6 w-6 sm:h-8 sm:w-8 md:h-9 lg:h-10 flex-shrink-0" />
+            <UibLogo className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 lg:h-12 flex-shrink-0" />
             
-            <div className="flex flex-col border-l border-gray-300 ml-1 sm:ml-2 pl-1 sm:pl-2 py-0.5 md:py-1 justify-center min-w-0">
-                <span className="lg:hidden text-uib-black font-extrabold text-[13px] sm:text-base md:text-lg lg:text-xl leading-tight tracking-tight group-hover:text-uib-blue transition-colors">
+            <div className="flex flex-col border-l border-gray-300 ml-1 lg:ml-3 pl-1 lg:pl-3 py-0.5 md:py-1 justify-center min-w-0">
+                <span className="lg:hidden text-uib-black font-black text-[12px] sm:text-sm md:text-base leading-tight tracking-tighter group-hover:text-uib-blue transition-colors truncate">
                     {t('appNameShort')}
                 </span>
-                <span className="hidden lg:inline text-uib-black font-extrabold text-lg lg:text-xl leading-none tracking-tight group-hover:text-uib-blue transition-colors truncate">
+                <span className="hidden lg:inline text-uib-black font-black text-lg xl:text-xl leading-none tracking-tighter group-hover:text-uib-blue transition-colors truncate">
                     {t('appName')}
                 </span>
-                <span className="text-[5px] sm:text-[7px] md:text-[9px] lg:text-[10px] text-uib-darkGray uppercase tracking-[0.15em] sm:tracking-[0.2em] mt-0.5 font-semibold truncate leading-none">
+                <span className="hidden sm:inline text-[5px] md:text-[8px] lg:text-[9px] text-uib-darkGray uppercase tracking-[0.1em] lg:tracking-[0.2em] mt-0.5 font-bold truncate leading-none">
                     Universitat de les Illes Balears
                 </span>
             </div>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex flex-1 items-center justify-start space-x-1 lg:space-x-2 pl-2 lg:pl-4 pr-4 overflow-hidden">
+          <div className="hidden md:flex flex-1 items-center justify-center space-x-0 lg:space-x-1 xl:space-x-2 px-1 lg:px-4 overflow-hidden h-full">
             {mainNavItems.map((item) => {
                 let id = "";
                 if (item.path === '/cafft-intro') id = "nav-home";
@@ -107,15 +109,16 @@ export const Navbar: React.FC = () => {
                 return (
                     <NavLink key={item.path} id={id} to={item.path} className={linkClass}>
                         {({ isActive }) => (
-                          <>
-                            <span className="flex items-center whitespace-nowrap px-2 py-2 rounded-lg group-hover:bg-slate-50 transition-colors">
-                              {navIcons[item.labelKey]}
-                              <span className="hidden lg:inline">{t(item.labelKey)}</span>
-                              <span className="lg:hidden">{t(item.labelKey).split(' ')[0]}</span>
+                          <div className="flex flex-col items-center justify-center h-full px-0.5 lg:px-1 xl:px-2 relative">
+                            <span className="flex items-center whitespace-nowrap px-1.5 lg:px-2 py-2 rounded-lg group-hover:bg-slate-50 transition-colors">
+                              <span className="shrink-0">{navIcons[item.labelKey]}</span>
+                              <span className="hidden xl:inline">{t(item.labelKey)}</span>
+                              <span className="xl:hidden lg:inline">{t(item.labelKey).length > 15 ? t(item.labelKey).substring(0, 13) + '..' : t(item.labelKey)}</span>
+                              <span className="text-[10px] lg:hidden truncate max-w-[60px]">{t(item.labelKey)}</span>
                             </span>
                             {/* Active Indicator Line */}
-                            <div className={`absolute bottom-0 left-2 right-2 h-1 bg-uib-blue rounded-t-full transition-all duration-300 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1 group-hover:opacity-30 group-hover:translate-y-0'}`} />
-                          </>
+                            <div className={`absolute bottom-0 left-0 right-0 h-1 bg-uib-blue rounded-t-full transition-all duration-300 ${isActive ? 'opacity-100 translate-y-0 shadow-[0_-2px_10px_rgba(30,58,138,0.2)]' : 'opacity-0 translate-y-1 group-hover:opacity-20 group-hover:translate-y-0'}`} />
+                          </div>
                         )}
                     </NavLink>
                 );
@@ -123,37 +126,33 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* User & Actions group */}
-          <div className="hidden md:flex items-center space-x-1 lg:space-x-4 flex-shrink-0 border-l border-gray-100 pl-2 lg:pl-4 h-full">
-            <LanguageSwitcher />
+          <div className="hidden md:flex items-center space-x-1 lg:space-x-3 xl:space-x-5 flex-shrink-0 border-l border-gray-100 pl-2 lg:pl-4 xl:pl-6 h-full">
+            <div className="shrink-0 scale-90 lg:scale-100">
+                <LanguageSwitcher />
+            </div>
             
-            <div className="h-6 w-px bg-gray-200 mx-1 md:mx-0"></div>
+            <div className="h-8 w-px bg-slate-100 hidden lg:block mx-1"></div>
 
             {currentUser && (
-              <div className="flex items-center">
+              <div className="flex items-center group cursor-pointer">
                 <div className="flex flex-col items-end mr-2 lg:mr-3 hidden lg:flex">
-                  <span className="text-xs font-black text-uib-black truncate max-w-[60px] lg:max-w-[150px]">
+                  <span className="text-[11px] xl:text-xs font-black text-uib-black truncate max-w-[80px] xl:max-w-[150px]">
                     {currentUser.username}
                   </span>
-                  <span className="text-[9px] font-black text-uib-blue uppercase tracking-widest leading-none mt-1 bg-blue-50 px-1.5 py-0.5 rounded">
+                  <span className="text-[8px] xl:text-[9px] font-black text-white px-2 py-0.5 rounded-full bg-gradient-to-r from-uib-blue to-uib-accent/80 uppercase tracking-widest leading-none mt-1 shadow-sm">
                     {currentUser.role}
                   </span>
                 </div>
-                <div className="w-8 h-8 lg:w-9 lg:h-9 bg-uib-blue rounded-xl flex items-center justify-center text-sm font-black text-white border-2 border-white shadow-md ring-1 ring-uib-blue/10 uppercase shrink-0 transition-transform hover:scale-105">
+                <div className="w-8 h-8 xl:w-10 xl:h-10 bg-uib-blue rounded-xl flex items-center justify-center text-sm font-black text-white border-2 border-white shadow-lg ring-1 ring-uib-blue/5 uppercase shrink-0 transition-all group-hover:scale-110 group-hover:shadow-uib-blue/20">
                   {currentUser.username?.charAt(0) || 'U'}
                 </div>
               </div>
             )}
 
-            {actionNavItems.map((item) => (
-                <NavLink key={item.path} to={item.path} className={linkClass}>
-                    {t(item.labelKey)}
-                </NavLink>
-            ))}
-
             {currentUser && (
                 <button 
                     onClick={handleLogout} 
-                    className="text-[10px] lg:text-xs font-extrabold uppercase tracking-widest text-uib-darkGray hover:text-uib-red transition-colors whitespace-nowrap pl-2"
+                    className="text-[9px] lg:text-[10px] xl:text-xs font-black uppercase tracking-widest text-slate-400 hover:text-uib-red transition-all whitespace-nowrap pl-2 hover:translate-x-0.5"
                 >
                     {t('nav.logout')}
                 </button>

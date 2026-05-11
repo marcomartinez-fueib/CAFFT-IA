@@ -412,6 +412,16 @@ export interface AIChatContent {
   changeName?: string;
   reconnectButton: string;
   connecting: string;
+  didactic?: {
+    habituationTitle: string;
+    upLabel: string;
+    habituationLabel: string;
+    exposureGood: string;
+    exposureGoodDesc: string;
+    avoidanceBad: string;
+    avoidanceBadDesc: string;
+    anxietyLevel: string;
+  };
   reminder: {
     emailSubject: string;
     emailBody: string;

@@ -17,7 +17,8 @@ import {
     YAxis, 
     CartesianGrid, 
     Tooltip, 
-    ResponsiveContainer 
+    ResponsiveContainer,
+    ReferenceArea
 } from 'recharts';
 import { EXPOSURE_VIDEOS } from '../constants';
 
@@ -59,6 +60,72 @@ export const ChatVisualizer: React.FC<ChatVisualizerProps> = ({ type, qpviiData,
     { dataKey: 'subVicari', name: t('evolution.subVicariEvolution'), color: uibDarkGray },
     { dataKey: 'subVol', name: t('evolution.subVolEvolution'), color: uibBlue }, 
   ], [t]);
+
+  if (type === 'habituation_tutorial') {
+    const tutorialData = [
+      { time: 0, anxiety: 2, escape: 2 },
+      { time: 5, anxiety: 6, escape: 6 },
+      { time: 10, anxiety: 9, escape: 9 },
+      { time: 11, anxiety: 8, escape: 1 }, // Escape happens
+      { time: 15, anxiety: 7, escape: 0.5 },
+      { time: 25, anxiety: 4, escape: 0.2 },
+      { time: 40, anxiety: 1.5, escape: 0.1 },
+    ];
+
+    const labels = {
+      title: t('aiChat.didactic.habituationTitle') || "Com funciona l'habituació?",
+      up: t('aiChat.didactic.upLabel') || 'Pujada',
+      habituation: t('aiChat.didactic.habituationLabel') || 'Habituació',
+      good: t('aiChat.didactic.exposureGood') || 'Exposició (Bé)',
+      goodDesc: t('aiChat.didactic.exposureGoodDesc') || "L'ansietat puja però si et quedes, el teu cervell aprèn que no hi ha perill i baixa sola.",
+      bad: t('aiChat.didactic.avoidanceBad') || 'Evitació (Malament)',
+      badDesc: t('aiChat.didactic.avoidanceBadDesc') || "Si fuges, l'ansietat baixa ràpid però el cervell NO aprèn. La pròxima vegada serà igual de forta.",
+      anxietyLevel: t('aiChat.didactic.anxietyLevel') || "Nivell d'ansietat"
+    };
+
+    return (
+      <div className="my-4 p-4 bg-white/80 backdrop-blur-sm rounded-2xl border border-sky-100 shadow-md">
+        <div className="flex items-center space-x-3 mb-4">
+            <div className="bg-sky-500 p-2 rounded-xl text-white">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+            <h4 className="text-sm font-black text-uib-blue uppercase tracking-tight">{labels.title}</h4>
+        </div>
+        
+        <div className="h-48 mb-4">
+            <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={tutorialData} margin={{ top: 10, right: 20, left: -25, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <XAxis dataKey="time" hide />
+                    <YAxis domain={[0, 10]} ticks={[0, 5, 10]} tick={{ fontSize: 9, fill: '#94a3b8' }} />
+                    <Tooltip content={<div className="bg-white p-2 rounded-lg border shadow-sm text-[10px] font-bold text-slate-500">{labels.anxietyLevel}</div>} />
+                    <ReferenceArea x1={0} x2={10} fill="#fee2e2" fillOpacity={0.3} label={{ position: 'top', value: labels.up, fontSize: 10, fill: '#ef4444', fontWeight: 'bold' }} />
+                    <ReferenceArea x1={10} x2={40} fill="#f0fdf4" fillOpacity={0.3} label={{ position: 'top', value: labels.habituation, fontSize: 10, fill: '#22c55e', fontWeight: 'bold' }} />
+                    <Line type="monotone" dataKey="anxiety" stroke={uibBlue} strokeWidth={3} dot={false} name={labels.habituation} />
+                    <Line type="monotone" dataKey="escape" stroke="#cbd5e1" strokeDasharray="5 5" strokeWidth={2} dot={false} name={labels.bad} />
+                </LineChart>
+            </ResponsiveContainer>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-100">
+                <p className="text-[10px] font-black text-uib-blue uppercase mb-1 flex items-center">
+                    <span className="w-1.5 h-1.5 rounded-full bg-uib-blue mr-2 animate-pulse" />
+                    {labels.good}
+                </p>
+                <p className="text-[10px] text-slate-600 leading-relaxed font-medium">{labels.goodDesc}</p>
+            </div>
+            <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                <p className="text-[10px] font-black text-slate-400 uppercase mb-1 flex items-center">
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-200 mr-2" />
+                    {labels.bad}
+                </p>
+                <p className="text-[10px] text-slate-500 leading-relaxed font-medium">{labels.badDesc}</p>
+            </div>
+        </div>
+      </div>
+    );
+  }
 
   if (type === 'evolution') {
     if (!qpviiData || qpviiData.length === 0) return null;

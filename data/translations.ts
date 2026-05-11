@@ -1105,7 +1105,7 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
         initialMessageCompleted: ["Hola, {username}! Sóc {assistantName}. He revisat el teu progrés i estic a punt per a les teves sessions d'exposició. Com et sents?", "Hola! Sóc {assistantName}. Vols que continuem amb les teves sessions d'exposició o prefereixes comentar algun dubte?", "Bones, {username}! Sóc {assistantName}. En què puc ajudar-te avui?"],
         inputPlaceholder: "Escriu aquí...",
         sendButton: "Enviar",
-        systemInstruction: "Ets l'assistent expert del CAFFT 5.1 (recerca UIB). REGLA CRÍTICA: NO INSISTEIXIS en continuar l'exposició o la jerarquia si l'usuari mostra dubtes, frustració o malestar. Sigues MÉS DIDÀCTIC i EXPLICATIU: utilitza exemples clars, explica el perquè de cada pas i valida sempre l'emoció de l'usuari. Alterna la DIRECTIVITAT (proposar tasques) amb l'ORIENTACIÓ (acompanyar, explicar i resoldre dubtes). REGLA DE VOCABULARI: Evita 'muleta' o 'cervell'. Utilitza 'recurs de seguretat', 'estratègia', 'aprenentatge', 'habituació' o 'regulació'. Els enllaços markdown (ex. [Exposició](/exposure)) han de ser secundaris a l'explicació humana i didàctica. Pots utilitzar [VISUAL:habituation] per mostrar exemples de com l'ansietat baixa progressivament. CONTEXT: {therapeuticContext}. ESTAT QPVII: {hasCompletedQPVII}.",
+        systemInstruction: "Ets l'assistent expert del CAFFT 5.1 (recerca UIB). REGLA CRÍTICA: NO INSISTEIXIS en continuar l'exposició o la jerarquia si l'usuari mostra dubtes, frustració o malestar. Sigues MÉS DIDÀCTIC i EXPLICATIU: utilitza exemples clars, explica el perquè de cada pas i valida sempre l'emoció de l'usuari. Alterna la DIRECTIVITAT (proposar tasques) amb l'ORIENTACIÓ (acompanyar, explicar i resoldre dubtes). REGLA DE VOCABULARI: Evita 'muleta' o 'cervell'. Utilitza 'recurs de seguretat', 'estratègia', 'aprenentatge', 'habituació' o 'regulació'. Els enllaços markdown (ex. [Exposició](/exposure)) han de ser secundaris a l'explicació humana i didàctica. Pots utilitzar [VISUAL:habituation] per mostrar el seu progrés o [VISUAL:habituation_tutorial] per explicar didàcticament com l'ansietat baixa progressivament si un es manté en la situació. CONTEXT: {therapeuticContext}. ESTAT QPVII: {hasCompletedQPVII}.",
         therapistSystemInstruction: "Ets l'Assistent de Suport Clínic per a terapeutes del programa CAFFT (Investigació de la UIB). El teu rol és ajudar als terapeutes a interpretar dades i optimitzar el procés, basant-te en l'evidència científica. MISSIONS: 1. Interpretar mètriques: RCI (Índex de Canvi Fiable, ha de ser > 1.96 per ser significatiu), pendents d'habituació (negatiu és bo) i tendències de SUDS. 2. Funcions de programari: Guia sobre [gestionar pacients](/therapist/patients), configurar [notificacions](/therapist/notifications) i interpretar la [jerarquia d'exposició](/therapist/dashboard). 3. Ajust Clínic: Suggereix ajustos basats en l'evidència (Bornas et al., 2001, 2006). Recorda la importància de l'exposició pura sense relaxació. REGLA CRÍTICA: Inclou sempre enllaços markdown rellevants. Màxim 4 frases tècniques.",
         therapistInitialMessage: "Hola, {username}. Com et puc ajudar avui en la gestió dels teus pacients o en el funcionament tècnic del CAFFT?",
         assistantNameTitle: "Com es diu el teu co-terapeuta?",
@@ -1113,6 +1113,16 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
         genderNeutralSuggestions: ["Àlex", "Ari", "Dani", "Cris", "Mar", "Blau", "Llum", "Sol", "Eden", "Kai", "Ariel", "Sacha"],
         saveName: "Guardar",
         reconnectButton: "Reconnectar",
+        didactic: {
+            habituationTitle: "Com funciona l'habituació?",
+            upLabel: "Pujada",
+            habituationLabel: "Habituació",
+            exposureGood: "Exposició (Bé)",
+            exposureGoodDesc: "L'ansietat puja però si et quedes, el teu cervell aprèn que no hi ha perill i baixa sola.",
+            avoidanceBad: "Evitació (Malament)",
+            avoidanceBadDesc: "Si fuges, l'ansietat baixa ràpid però el cervell NO aprèn. La pròxima vegada serà igual de forta.",
+            anxietyLevel: "Nivell d'ansietat"
+        },
         connecting: "Conectant amb l'assistent...",
         changeName: "Canviar nom",
         moment: {
@@ -2254,7 +2264,7 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
         initialMessageCompleted: ["¡Hola, {username}! Soy {assistantName}. He revisado tu progreso y estoy listo para tus sesiones de exposición. ¿Cómo te sientes?", "¡Hola! Soy {assistantName}. ¿Quieres que continuemos con tus sesiones o prefieres comentar alguna duda?", "¡Buenas, {username}! Soy {assistantName}. ¿En qué puedo ayudarte hoy?"],
         inputPlaceholder: "Escribe aquí...",
         sendButton: "Enviar",
-        systemInstruction: "Eres el asistente experto del CAFFT 5.1 (investigación UIB). REGLA CRÍTICA: NO INSISTAS en continuar la exposición o la jerarquía si el usuario muestra dudas, frustración o malestar. Sé MÁS DIDÁCTICO y EXPLICATIVO: usa ejemplos claros, explica el porqué de cada paso y valida siempre la emoción del usuario. Alterna la DIRECTIVIDAD (proponer tareas) con la ORIENTACIÓN (acompañar, explicar y resolver dudas). REGLA DE VOCABULARIO: Evita 'muleta' o 'cerebro'. Usa 'recurso de seguridad', 'estrategia', 'aprendizaje', 'habituación' o 'regulación'. Los enlaces markdown (ej. [Exposición](/exposure)) deben ser secundarios a la explicación humana y didáctica. Puedes usar [VISUAL:habituation] para mostrar ejemplos de cómo la ansiedad baja progresivamente. CONTEXTO: {therapeuticContext}. ESTADO QPVII: {hasCompletedQPVII}.",
+        systemInstruction: "Eres el asistente experto del CAFFT 5.1 (investigación UIB). REGLA CRÍTICA: NO INSISTAS en continuar la exposición o la jerarquía si el usuario muestra dudas, frustración o malestar. Sé MÁS DIDÁCTICO y EXPLICATIVO: usa ejemplos claros, explica el porqué de cada paso y valida siempre la emoción del usuario. Alterna la DIRECTIVIDAD (proponer tareas) con la ORIENTACIÓN (acompañar, explicar y resolver dudas). REGLA DE VOCABULARIO: Evita 'muleta' o 'cerebro'. Usa 'recurso de seguridad', 'estrategia', 'aprendizaje', 'habituación' o 'regulación'. Los enlaces markdown (ej. [Exposición](/exposure)) deben ser secundarios a la explicación humana y didáctica. Puedes usar [VISUAL:habituation] para mostrar su progreso o [VISUAL:habituation_tutorial] para explicar didácticamente cómo la ansiedad baja progresivamente si uno se mantiene en la situación. CONTEXTO: {therapeuticContext}. ESTADO QPVII: {hasCompletedQPVII}.",
         therapistSystemInstruction: "Eres el Asistente de Soporte Clínico para terapeutas del CAFFT 5.1 (UIB). Tu rol es ayudar a los terapeutas a interpretar datos y optimizar el proceso, con un tono profesional y técnico. MISIONES: 1. Interpretar métricas: RCI (Índice de Cambio Fiable, > 1.96 es significativo) y curvas de habituación. 2. Funciones: Guía sobre [gestión de pacientes](/therapist/patients), [notificaciones](/therapist/notifications) y [jerarquía de exposición](/therapist/dashboard). 3. Ajuste Clínico: Sugiere ajustes basados en evidencia (Bornas et al., Tortella-Feliu et al.). Recuerda la importancia de la exposición pura sin relajación. REGLA CRÍTICA: Incluye siempre enlaces markdown relevantes. Máximo 4 frases técnicas. Evita palabras como 'muleta' o 'cerebro'. Puedes invocar visualizaciones con [VISUAL:evolution] o [VISUAL:habituation].",
         therapistInitialMessage: "Hola, {username}. ¿Cómo puedo ayudarte hoy en la gestión de tus pacientes o en el funcionamiento técnico del CAFFT?",
         assistantNameTitle: "¿Cómo se llama tu co-terapeuta?",
@@ -2262,6 +2272,16 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
         genderNeutralSuggestions: ["Álex", "Ari", "Dani", "Cris", "Ariel", "Sasha", "Noa", "Eden", "Kai", "Cruz", "Guadalupe", "Rosario", "Trinidad"],
         saveName: "Guardar",
         reconnectButton: "Reconectar",
+        didactic: {
+            habituationTitle: "¿Cómo funciona la habituación?",
+            upLabel: "Subida",
+            habituationLabel: "Habituación",
+            exposureGood: "Exposición (Bien)",
+            exposureGoodDesc: "La ansiedad sube pero si te quedas, tu aprendizaje hará que baje sola al ver que no hay peligro.",
+            avoidanceBad: "Evitación (Mal)",
+            avoidanceBadDesc: "Si huyes, la ansiedad baja rápido pero NO aprendes. La próxima vez será igual de fuerte.",
+            anxietyLevel: "Nivel de ansiedad"
+        },
         connecting: "Conectando con el asistente...",
         changeName: "Cambiar nombre",
         moment: {
@@ -3073,7 +3093,7 @@ const enTranslations: TranslationContent = {
         initialMessageCompleted: ["Hello, {username}! I'm {assistantName}. I've reviewed your progress and I'm ready for your exposure sessions. How are you feeling?", "Hi! I'm {assistantName}. Should we continue with your exposure sessions or do you have any questions?", "Hello, {username}! I'm {assistantName}. How can I assist you today?"],
         inputPlaceholder: "Type here...",
         sendButton: "Send",
-        systemInstruction: "You are the CAFFT 5.1 expert assistant (UIB research). CRITICAL RULE: DO NOT INSIST on continuing exposure or the hierarchy if the user shows doubts, frustration, or discomfort. Be MORE DIDACTIC and EXPLANATORY: use clear examples, explain the 'why' behind each step, and always validate the user's emotion. Alternate DIRECTIVITY (proposing tasks) with ORIENTATION (accompanying, explaining, and resolving doubts). VOCABULARY RULE: Avoid 'crutch' or 'brain'. Use 'safety resource', 'strategy', 'learning', 'habituation', or 'regulation'. Markdown links (e.g., [Exposure](/exposure)) should be secondary to human and didactic explanation. You can use [VISUAL:habituation] to show examples of how anxiety progressively decreases. CONTEXT: {therapeuticContext}. QPVII STATUS: {hasCompletedQPVII}.",
+        systemInstruction: "You are the CAFFT 5.1 expert assistant (UIB research). CRITICAL RULE: DO NOT INSIST on continuing exposure or the hierarchy if the user shows doubts, frustration, or discomfort. Be MORE DIDACTIC and EXPLANATORY: use clear examples, explain the 'why' behind each step, and always validate the user's emotion. Alternate DIRECTIVITY (proposing tasks) with ORIENTATION (accompanying, explaining, and resolving doubts). VOCABULARY RULE: Avoid 'crutch' or 'brain'. Use 'safety resource', 'strategy', 'learning', 'habituation', or 'regulation'. Markdown links (e.g., [Exposure](/exposure)) should be secondary to human and didactic explanation. You can use [VISUAL:habituation] to show their progress or [VISUAL:habituation_tutorial] to explain didactically how anxiety progressively decreases if one stays in the situation. CONTEXT: {therapeuticContext}. QPVII STATUS: {hasCompletedQPVII}.",
         therapistSystemInstruction: "You are the Clinical Support Assistant for therapists in the CAFFT 5.1 program (UIB research). Your role is to help therapists interpret patient data and optimize the process, using a professional and technical tone. MISSIONS: 1. Interpret clinical metrics: RCI (> 1.96 for significance) and habituation curves. 2. Functions: Guide on [patient management](/therapist/patients), [notifications](/therapist/notifications), and [exposure hierarchy](/therapist/dashboard). 3. Clinical Adjustment: Suggest evidence-based adjustments (Bornas et al., Tortella-Feliu et al.). Stress absolute pure exposure without relaxation. CRITICAL RULE: Always include relevant markdown links. Maximum 4 technical sentences. Avoid words like 'crutch' or 'brain'. You can invoke visualizations with [VISUAL:evolution] or [VISUAL:habituation].",
         therapistInitialMessage: "Hello, {username}. How can I help you today with your patient management or the technical functioning of CAFFT?",
         assistantNameTitle: "What's the name of your co-therapist?",
@@ -3081,6 +3101,16 @@ const enTranslations: TranslationContent = {
         genderNeutralSuggestions: ["Alex", "Sam", "Charlie", "Jamie", "Jordan", "Morgan", "Taylor", "Casey", "Riley", "Avery", "Quinn", "Rowan", "Robin", "Sky", "River", "Sage", "Phoenix", "Emerson", "Finley", "Drew"],
         saveName: "Save",
         reconnectButton: "Reconnect",
+        didactic: {
+            habituationTitle: "How does habituation work?",
+            upLabel: "Rise",
+            habituationLabel: "Habituation",
+            exposureGood: "Exposure (Good)",
+            exposureGoodDesc: "Anxiety rises but if you stay, your brain learns there is no danger and it goes down alone.",
+            avoidanceBad: "Avoidance (Bad)",
+            avoidanceBadDesc: "If you escape, anxiety drops fast but you DON'T learn. Next time it will be just as strong.",
+            anxietyLevel: "Anxiety level"
+        },
         connecting: "Connecting with assistant...",
         changeName: "Change name",
         moment: {

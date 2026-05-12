@@ -92,6 +92,7 @@ export const ExposurePage: React.FC = () => {
       return CDN_FALLBACK_VIDEOS[attempt - 2] || CDN_FALLBACK_VIDEOS[0];
     }
     
+    // video.mp4Url now contains the full base URL from GitHub Release
     return `${video.mp4Url}_${language}.mp4`;
   }, [language, usingDemoVideo, fallbackAttempted, CDN_FALLBACKS_BY_AREA, CDN_FALLBACK_VIDEOS]);
 

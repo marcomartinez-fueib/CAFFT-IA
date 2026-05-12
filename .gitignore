@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Videos (hosted on GitHub Releases)
+public/videos_cafft/*.mp4

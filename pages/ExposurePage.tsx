@@ -8,7 +8,7 @@ import { SectionCard } from '../components/SectionCard';
 import { ExposureVideo, QPVIIScores, VideoDiscomfortRating, UserExposureProgress, ExposureSceneKey, QPVIIAnswers } from '../types';
 import { saveUserExposureProgress, getUserExposureProgress, getQPVIIResultsForUser, getCircularReplacer } from '../utils/localStorageDB';
 import { determineVideoSequence, isExposureFullyCompleted } from '../utils/exposureUtils';
-import { EXPOSURE_VIDEOS, CANONICAL_FLIGHT_STAGES_ORDER } from '../constants';
+import { EXPOSURE_VIDEOS, CANONICAL_FLIGHT_STAGES_ORDER, getVideoUrl } from '../constants';
 import { FollowUpService } from '../services/followUpService.ts';
 import { ExposureSessionProgress } from '../components/ExposureSessionProgress';
 
@@ -51,63 +51,28 @@ export const ExposurePage: React.FC = () => {
   const [explanationShown, setExplanationShown] = useState<boolean>(false); 
   const [isConfirmingLogout, setIsConfirmingLogout] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
-  const [usingDemoVideo, setUsingDemoVideo] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null); 
-  const modalRef = useRef<HTMLDivElement>(null);
-
-  const DEMO_VIDEO_URL = "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-  
-  // CDN Fallback URLs - using stable GTV sample bucket which is more reliable than mixkit
-  const CDN_FALLBACK_VIDEOS = [
-    "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
-    "https://www.w3schools.com/html/mov_bbb.mp4",
-    "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-    "https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
-  ];
-
-  const CDN_FALLBACKS_BY_AREA: Record<string, string> = {
-    takeoff: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-    inflight: "https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
-    landing: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-    preparation: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-    boarding: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-    accidents: "https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" 
-  };
-
-  const [fallbackAttempted, setFallbackAttempted] = useState<Record<string, number>>({});
+  const maxPlayedTimeRef = useRef<number>(0);
 
   const getLocalizedVideoUrl = useCallback((video: ExposureVideo): string => {
-    const attempt = fallbackAttempted[video.id] || 0;
-    
-    if (usingDemoVideo || attempt >= 4) {
-      return CDN_FALLBACK_VIDEOS[2]; // BigBuckBunny
-    }
-    
-    if (attempt === 1) {
-      return CDN_FALLBACKS_BY_AREA[video.relatedArea] || CDN_FALLBACK_VIDEOS[0];
-    }
+    return getVideoUrl(video.mp4Url, language);
+  }, [language]);
 
-    if (attempt >= 2) {
-      return CDN_FALLBACK_VIDEOS[attempt - 2] || CDN_FALLBACK_VIDEOS[0];
-    }
-    
-    // video.mp4Url now contains the full base URL from GitHub Release
-    return `${video.mp4Url}_${language}.mp4`;
-  }, [language, usingDemoVideo, fallbackAttempted, CDN_FALLBACKS_BY_AREA, CDN_FALLBACK_VIDEOS]);
-
-  const handleUseDemoVideo = () => {
-    setUsingDemoVideo(true);
+  const handleRetryVideo = () => {
     setVideoError(null);
+    // Force a re-render of the video element by toggling the modal
+    setIsVideoPlayerModalOpen(false);
+    setTimeout(() => setIsVideoPlayerModalOpen(true), 50);
   };
   
   useEffect(() => {
-    if (isVideoPlayerModalOpen && modalRef.current && !videoError) {
+    if (isVideoPlayerModalOpen && videoRef.current && !videoError) {
       const playVideoAndRequestFullscreen = async () => {
         try {
           await videoRef.current?.play(); 
-          if (modalRef.current?.requestFullscreen) {
-            await modalRef.current.requestFullscreen();
+          if (videoRef.current?.requestFullscreen) {
+            await videoRef.current.requestFullscreen();
           }
         } catch (err) {
           console.warn("Fullscreen request failed or video play prevented:", err);
@@ -345,7 +310,23 @@ export const ExposurePage: React.FC = () => {
     setCurrentVideoIndex(index);
     setUserFeedbackMessage(null);
     setVideoError(null); // Reset error before opening
+    maxPlayedTimeRef.current = 0;
     setIsVideoPlayerModalOpen(true);
+  };
+
+  const handleTimeUpdate = () => {
+    if (videoRef.current) {
+      const current = videoRef.current.currentTime;
+      if (current > maxPlayedTimeRef.current) {
+        maxPlayedTimeRef.current = current;
+      }
+    }
+  };
+
+  const handleSeeking = () => {
+    if (videoRef.current && videoRef.current.currentTime > maxPlayedTimeRef.current) {
+      videoRef.current.currentTime = maxPlayedTimeRef.current;
+    }
   };
   
   const handleFinishSession = () => {
@@ -446,9 +427,9 @@ export const ExposurePage: React.FC = () => {
       </SectionCard>
 
       {isVideoPlayerModalOpen && currentVideoIndex < videoSequence.length && (
-        <div ref={modalRef} className="fixed inset-0 bg-black flex items-center justify-center z-[1000] cursor-none">
+        <div className="fixed inset-0 bg-black flex items-center justify-center z-[1000]" onClick={!videoError ? handleVideoPlayerCloseInteraction : undefined}>
           {videoError ? (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg relative max-w-lg text-left shadow-lg m-4 cursor-default" role="alert">
+            <div className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg relative max-w-lg text-left shadow-lg m-4" role="alert">
                 <strong className="font-bold text-lg">{t('exposure.videoLoadErrorTitle')}</strong>
                 <p className="mt-2 text-sm">{t('exposure.videoLoadErrorBody')}</p>
                 <div className="mt-3 bg-red-200 text-red-900 text-xs font-mono p-2 rounded break-words">
@@ -458,10 +439,10 @@ export const ExposurePage: React.FC = () => {
                 <p className="text-xs mt-3">{t('exposure.videoLoadErrorChecklist')}</p>
                 <div className="text-center mt-6 flex flex-wrap justify-center gap-3">
                     <button 
-                        onClick={handleUseDemoVideo} 
+                        onClick={handleRetryVideo} 
                         className="px-5 py-2.5 bg-uib-blue text-white rounded-md text-sm font-bold hover:bg-[#004C8C] shadow-sm transition-colors uppercase"
                     >
-                      {t('exposure.testWithDemoVideoButton') || 'Provar amb Vídeo Demo'}
+                      {t('exposure.retryVideoButton') || 'Reintentar'}
                     </button>
                     <button 
                         onClick={handleSimulateVideoCompletion} 
@@ -477,44 +458,29 @@ export const ExposurePage: React.FC = () => {
                     </button>
                 </div>
             </div>
-            ) : (
+           ) : (
                 <video
-                    ref={videoRef}
-                    key={`video-${videoSequence[currentVideoIndex].id}-${fallbackAttempted[videoSequence[currentVideoIndex].id] || 0}`}
-                    autoPlay
-                    playsInline
-                    controls
-                    crossOrigin="anonymous"
-                    className="w-full h-full object-cover pointer-events-none"
-                    onEnded={handleVideoNaturalEnd}
-                    onContextMenu={(e) => e.preventDefault()}
-                    onError={(e) => { 
-                      const videoElement = e.target as HTMLVideoElement;
-                      const error = videoElement.error;
-                      const videoSrc = videoElement.currentSrc || videoElement.src;
-                      const currentVideo = videoSequence[currentVideoIndex];
-                      
-                      const detailedMessage = `URL: ${videoSrc} | Error Code: ${error?.code || 'N/A'} | Message: ${error?.message || 'Not available'}`;
-                      console.error(`Video loading failed. ${detailedMessage}`);
-
-                      // If we haven't tried falling back enough times for THIS video, try the next level
-                      const currentAttempt = fallbackAttempted[currentVideo?.id || ''] || 0;
-                      if (currentVideo && currentAttempt < 4) {
-                        console.log(`Attempting automatic CDN fallback (Level ${currentAttempt + 1}) for ${currentVideo.id}`);
-                        setFallbackAttempted(prev => ({ 
-                          ...prev, 
-                          [currentVideo.id]: currentAttempt + 1 
-                        }));
-                        // The source change in src={getLocalizedVideoUrl(...)} will trigger a reload
-                        return;
-                      }
-                      
-                      setVideoError(detailedMessage);
-                    }}
-                    src={getLocalizedVideoUrl(videoSequence[currentVideoIndex])}
-                >
-                    {t('exposure.videoTagNotSupported')}
-                </video>
+                     ref={videoRef}
+                     controls
+                     autoPlay
+                     className="w-full h-full object-contain exposure-video"
+                     onEnded={handleVideoNaturalEnd}
+                     onTimeUpdate={handleTimeUpdate}
+                     onSeeking={handleSeeking}
+                      onError={(e) => { 
+                        const videoElement = e.target as HTMLVideoElement;
+                        const error = videoElement.error;
+                        const videoSrc = videoElement.currentSrc || videoElement.src;
+                        
+                        const detailedMessage = `URL: ${videoSrc} | Error Code: ${error?.code || 'N/A'} | Message: ${error?.message || 'Not available'}`;
+                        console.error(`Video loading failed. ${detailedMessage}`);
+                        
+                        setVideoError(detailedMessage);
+                      }}
+                     src={getLocalizedVideoUrl(videoSequence[currentVideoIndex])}
+                 >
+                     {t('exposure.videoTagNotSupported')}
+                 </video>
            )}
         </div>
       )}

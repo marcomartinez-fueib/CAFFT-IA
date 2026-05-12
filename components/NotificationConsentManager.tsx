@@ -1,11 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth.tsx';
+import { useOnboarding } from '../hooks/useOnboarding.tsx';
 import { NotificationConsentModal } from './NotificationConsentModal.tsx';
 import { NotificationService } from '../services/notificationService.ts';
 
 export const NotificationConsentManager: React.FC = () => {
   const { currentUser, updateUser } = useAuth();
+  const { startTour } = useOnboarding();
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
@@ -18,6 +20,13 @@ export const NotificationConsentManager: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [currentUser]);
+
+  const launchOnboarding = () => {
+    // Small delay so the modal exit animation finishes before the tour overlay appears
+    setTimeout(() => {
+      startTour('patient', currentUser?.id, false);
+    }, 300);
+  };
 
   const handleAccept = async () => {
     const permission = await NotificationService.requestPermission();
@@ -38,6 +47,8 @@ export const NotificationConsentManager: React.FC = () => {
             'Notificacions activades amb èxit. Gràcies per la teva confiança!'
         );
     }
+
+    launchOnboarding();
   };
 
   const handleDecline = async () => {
@@ -46,6 +57,8 @@ export const NotificationConsentManager: React.FC = () => {
     initialPrefs.enabled = false;
     await updateUser({ notificationPreferences: initialPrefs });
     setShowModal(false);
+
+    launchOnboarding();
   };
 
   return <NotificationConsentModal isOpen={showModal} onAccept={handleAccept} onDecline={handleDecline} />;

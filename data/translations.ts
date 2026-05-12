@@ -296,7 +296,6 @@ const caTranslations: TranslationContent = {
         clinicalGuide: "Guia Clínica",
         scientificEvidence: "Evidència",
         feedback: "Feedback",
-        helpCenter: "Ajuda",
         help: "Ajuda",
         addUser: "Afegir Usuari",
         addTherapist: "Afegir Terapeuta",
@@ -1437,7 +1436,7 @@ const esTranslations: TranslationContent = {
         no: "No",
         select: "Elige..."
     },
-    nav: { ...caTranslations.nav, home: "Inicio", fearOfFlying: "Miedo a Volar", cafftProgram: "Programa", qpviiEvaluation: "Evaluación", exposure: "Exposición", login: "Iniciar Sesión", register: "Registrarse", profile: "Perfil", logout: "Cerrar Sesión", privacyPolicy: "Política de Privacidad", cafftIntro: "Inicio", forgotPasswordLink: "¿Olvidaste la contraseña?", evolution: "Evolución", exposureHierarchy: "Jerarquía de Exposición", exposureExplanation: "Explicación de Exposición", lastSession: "Sesión Final", therapistDashboard: "Panel Control", managerDashboard: "Control", superadminDashboard: "Admin", patients: "Pacientes", therapists: "Terapeutas", managers: "Gestores", therapistNotifications: "Notificaciones", clinicalGuide: "Guía Clínica", scientificEvidence: "Evidencia", helpCenter: "Ayuda", help: "Ayuda", addUser: "Añadir Usuario", addTherapist: "Añadir Terapeuta", save: "Guardar", cancel: "Cancelar" },
+    nav: { ...caTranslations.nav, home: "Inicio", fearOfFlying: "Miedo a Volar", cafftProgram: "Programa", qpviiEvaluation: "Evaluación", exposure: "Exposición", login: "Iniciar Sesión", register: "Registrarse", profile: "Perfil", logout: "Cerrar Sesión", privacyPolicy: "Política de Privacidad", cafftIntro: "Inicio", forgotPasswordLink: "¿Olvidaste la contraseña?", evolution: "Evolución", exposureHierarchy: "Jerarquía de Exposición", exposureExplanation: "Explicación de Exposición", lastSession: "Sesión Final", therapistDashboard: "Panel Control", managerDashboard: "Control", superadminDashboard: "Admin", patients: "Pacientes", therapists: "Terapeutas", managers: "Gestores", therapistNotifications: "Notificaciones", clinicalGuide: "Guía Clínica", scientificEvidence: "Evidencia", help: "Ayuda", addUser: "Añadir Usuario", addTherapist: "Añadir Terapeuta", save: "Guardar", cancel: "Cancelar" },
     home: { 
         ...caTranslations.home, 
         title: ["Tratamiento del", "Miedo a Volar", "Asistido por Ordenador", "(CAFFT)"], 
@@ -2510,7 +2509,7 @@ const enTranslations: TranslationContent = {
         no: "No",
         select: "Select..."
     },
-    nav: { ...caTranslations.nav, home: "Home", fearOfFlying: "Fear of Flying", cafftProgram: "Program", qpviiEvaluation: "Evaluation", exposure: "Exposure", login: "Login", register: "Register", profile: "Profile", logout: "Logout", privacyPolicy: "Privacy Policy", cafftIntro: "Home", forgotPasswordLink: "Forgot Password?", evolution: "Evolution", exposureHierarchy: "Exposure Hierarchy", exposureExplanation: "Exposure Explanation", lastSession: "Final Session", therapistDashboard: "Dashboard", managerDashboard: "Manager", superadminDashboard: "Admin", patients: "Patients", therapists: "Therapists", managers: "Managers", therapistNotifications: "Notifications", clinicalGuide: "Clinical Guide", scientificEvidence: "Evidence", helpCenter: "Help", help: "Help", addUser: "Add User", addTherapist: "Add Therapist", save: "Save", cancel: "Cancel" },
+    nav: { ...caTranslations.nav, home: "Home", fearOfFlying: "Fear of Flying", cafftProgram: "Program", qpviiEvaluation: "Evaluation", exposure: "Exposure", login: "Login", register: "Register", profile: "Profile", logout: "Logout", privacyPolicy: "Privacy Policy", cafftIntro: "Home", forgotPasswordLink: "Forgot Password?", evolution: "Evolution", exposureHierarchy: "Exposure Hierarchy", exposureExplanation: "Exposure Explanation", lastSession: "Final Session", therapistDashboard: "Dashboard", managerDashboard: "Manager", superadminDashboard: "Admin", patients: "Patients", therapists: "Therapists", managers: "Managers", therapistNotifications: "Notifications", clinicalGuide: "Clinical Guide", scientificEvidence: "Evidence", help: "Help", addUser: "Add User", addTherapist: "Add Therapist", save: "Save", cancel: "Cancel" },
     userGuide: {
         title: "User Guide",
         introduction: "This guide provides important information about requirements, usage, and advantages of the CAFFT program.",

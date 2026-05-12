@@ -89,7 +89,7 @@ const THERAPIST_STEPS: TourStep[] = [
         position: 'top'
     },
     {
-        targetId: 'help-button',
+        targetId: 'tour-help-button',
         titleKey: 'onboarding.therapist.step8.title',
         contentKey: 'onboarding.therapist.step8.content',
         position: 'top'
@@ -110,47 +110,87 @@ export const OnboardingTour: React.FC = () => {
         }
     }, [isTourActive]);
 
+    // Single source of truth for target rect updates
+    const updateTargetRect = () => {
+        if (!isTourActive) return;
+        
+        const step = steps[currentStep];
+        if (!step) return;
+
+        if (step.position === 'center') {
+            setTargetRect(null);
+            return;
+        }
+
+        let element = document.getElementById(step.targetId);
+        if (!element) {
+            element = document.getElementById(`${step.targetId}-mobile`);
+        }
+
+        if (element) {
+            const rect = element.getBoundingClientRect();
+            // Only update if dimensions have actually changed or it moved
+            if (rect.width > 0) {
+                setTargetRect(rect);
+            }
+        } else {
+            setTargetRect(null);
+        }
+    };
+
+    // Handle step change effects (scrolling)
     useEffect(() => {
         if (!isTourActive) return;
 
-        const updateRect = () => {
-            const step = steps[currentStep];
+        const step = steps[currentStep];
+        if (!step || step.position === 'center') {
+            setTargetRect(null);
+            return;
+        }
+
+        const scrollToTarget = () => {
             let element = document.getElementById(step.targetId);
-            
-            // Try mobile ID if desktop not found
             if (!element) {
                 element = document.getElementById(`${step.targetId}-mobile`);
             }
-            
+
             if (element) {
-                // Multi-stage update to handle layout shifts
-                const update = () => {
-                    const rect = element.getBoundingClientRect();
-                    if (rect.width > 0) {
-                        setTargetRect(rect);
-                        const style = window.getComputedStyle(element);
-                        const isFixed = style.position === 'fixed';
-                        if (!isFixed && rect.top !== 0) {
-                            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }
-                    }
-                };
+                const rect = element.getBoundingClientRect();
+                const style = window.getComputedStyle(element);
+                const isFixed = style.position === 'fixed';
                 
-                update();
-                requestAnimationFrame(update);
-                setTimeout(update, 100);
-            } else {
-                setTargetRect(null);
+                // Only scroll if not already comfortably in view
+                const isVisible = rect.top >= 100 && rect.bottom <= window.innerHeight - 100;
+                
+                if (!isFixed && !isVisible) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                
+                updateTargetRect();
             }
         };
 
-        updateRect();
-        window.addEventListener('resize', updateRect);
-        window.addEventListener('scroll', updateRect);
+        // Delay slightly for any transitions or data loading
+        const timer = setTimeout(scrollToTarget, 100);
+        return () => clearTimeout(timer);
+    }, [currentStep, isTourActive, steps]);
+
+    // Handle continuous updates for layout changes/scrolling (without scrollIntoView)
+    useEffect(() => {
+        if (!isTourActive) return;
+
+        updateTargetRect();
+        
+        window.addEventListener('resize', updateTargetRect);
+        window.addEventListener('scroll', updateTargetRect, { passive: true });
+        
+        // Polling as a fallback for dynamic content
+        const interval = setInterval(updateTargetRect, 500);
 
         return () => {
-            window.removeEventListener('resize', updateRect);
-            window.removeEventListener('scroll', updateRect);
+            window.removeEventListener('resize', updateTargetRect);
+            window.removeEventListener('scroll', updateTargetRect);
+            clearInterval(interval);
         };
     }, [isTourActive, currentStep, steps]);
 
@@ -304,20 +344,24 @@ export const OnboardingTour: React.FC = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/60 pointer-events-auto cursor-default"
+                    className="absolute inset-0 pointer-events-auto cursor-default"
                     onClick={stopTour}
                 >
                     <svg className="w-full h-full">
                         <defs>
+                            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feGaussianBlur stdDeviation="6" result="blur" />
+                                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                            </filter>
                             <mask id="tour-mask">
                                 <rect width="100%" height="100%" fill="white" />
                                 {targetRect && (
                                     <rect 
-                                        x={targetRect.left - 4} 
-                                        y={targetRect.top - 4} 
-                                        width={targetRect.width + 8} 
-                                        height={targetRect.height + 8} 
-                                        rx={8} 
+                                        x={targetRect.left - 6} 
+                                        y={targetRect.top - 6} 
+                                        width={targetRect.width + 12} 
+                                        height={targetRect.height + 12} 
+                                        rx={12} 
                                         fill="black" 
                                     />
                                 )}
@@ -326,7 +370,34 @@ export const OnboardingTour: React.FC = () => {
                                 )}
                             </mask>
                         </defs>
-                        <rect width="100%" height="100%" fill="currentColor" mask="url(#tour-mask)" />
+                        
+                        {/* The backdrop overlay */}
+                        <rect width="100%" height="100%" fill="rgba(15, 23, 42, 0.85)" mask="url(#tour-mask)" />
+                        
+                        {/* The spotlight light effect (focus ring) */}
+                        {targetRect && (
+                            <motion.rect
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ 
+                                    opacity: [0.4, 0.7, 0.4],
+                                    scale: [1, 1.02, 1],
+                                }}
+                                transition={{
+                                    duration: 2,
+                                    repeat: Infinity,
+                                    ease: "easeInOut"
+                                }}
+                                x={targetRect.left - 8}
+                                y={targetRect.top - 8}
+                                width={targetRect.width + 16}
+                                height={targetRect.height + 16}
+                                rx={14}
+                                fill="none"
+                                stroke="white"
+                                strokeWidth="2"
+                                style={{ filter: 'url(#glow)' }}
+                            />
+                        )}
                     </svg>
                 </motion.div>
 
@@ -367,26 +438,24 @@ export const OnboardingTour: React.FC = () => {
                                 <button 
                                     key={i} 
                                     onClick={() => setCurrentStep(i)}
-                                    className={`w-2 h-2 rounded-full transition-all ${i === currentStep ? 'bg-uib-blue w-6' : 'bg-slate-200 hover:bg-slate-300'}`}
+                                    className={`w-2 h-2 rounded-full transition-all duration-300 ${i === currentStep ? 'bg-uib-blue w-6' : 'bg-slate-200 hover:bg-slate-300'}`}
                                     aria-label={`Go to step ${i + 1}`}
                                 />
                             ))}
                         </div>
-
+                        
                         <div className="flex items-center gap-3">
-                            {isFirst && (
-                                <button
-                                    onClick={stopTour}
-                                    className="px-4 py-2 text-xs font-bold text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-colors"
-                                >
-                                    {t('therapistDashboard.addPatientModal.cancelButton')}
-                                </button>
-                            )}
+                            <button
+                                onClick={stopTour}
+                                className="px-4 py-2 text-xs font-bold text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-colors"
+                            >
+                                {t('onboarding.cancel')}
+                            </button>
                             
                             {!isFirst && (
                                 <button
                                     onClick={handlePrev}
-                                    className="flex items-center justify-center p-2 text-slate-500 hover:bg-slate-100 rounded-xl transition-all font-bold group"
+                                    className="flex items-center justify-center p-2.5 text-slate-500 hover:bg-slate-100 rounded-xl transition-all font-bold group"
                                 >
                                     <ChevronLeft size={22} className="group-hover:-translate-x-0.5 transition-transform" />
                                 </button>

@@ -550,6 +550,7 @@ export const TherapistDashboardPage: React.FC = () => {
       <div id="onboarding-welcome" className="flex justify-between items-center mb-2">
           <PageTitle title={t('therapistDashboard.pageTitle')} />
           <button 
+              id="tour-help-button"
               onClick={() => startTour('therapist', undefined, true)}
               className="text-xs font-bold text-uib-blue hover:underline cursor-pointer flex items-center bg-sky-50 px-3 py-1.5 rounded-lg border border-sky-100"
           >

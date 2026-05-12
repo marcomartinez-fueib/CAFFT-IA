@@ -737,6 +737,7 @@ const caTranslations: TranslationContent = {
         startManual: "Fer el Recorregut",
         next: "Següent",
         prev: "Anterior",
+        cancel: "Cancel·lar",
         finish: "Finalitzar",
         step1: {
             title: "Benvingut al CAFFT",
@@ -2316,6 +2317,7 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
         startManual: "Hacer el Recorrido",
         next: "Siguiente",
         prev: "Anterior",
+        cancel: "Cancelar",
         finish: "Finalizar",
         step1: {
             title: "Bienvenido al CAFFT",
@@ -3143,6 +3145,7 @@ const enTranslations: TranslationContent = {
         startManual: "Take the Walkthrough",
         next: "Next",
         prev: "Previous",
+        cancel: "Cancel",
         finish: "Finish",
         step1: {
             title: "Welcome to CAFFT",

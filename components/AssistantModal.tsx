@@ -41,27 +41,27 @@ export const AssistantModal: React.FC<AssistantModalProps> = ({ isOpen, onClose 
         </div>
 
         {/* Header for the Modal */}
-        <div className="flex items-center justify-between p-5 pt-2 sm:pt-7 sm:p-7 border-b border-gray-100 bg-white">
-          <div className="flex items-center space-x-4">
-             <div className="bg-uib-blue p-3 rounded-2xl text-white shadow-lg shadow-uib-blue/20">
-                <MessageSquare className="w-6 h-6" />
+        <div className="flex items-center justify-between p-4 pt-2 sm:pt-7 sm:p-7 border-b border-gray-100 bg-white">
+          <div className="flex items-center space-x-3 sm:space-x-4">
+             <div className="bg-uib-blue p-2 sm:p-3 rounded-xl sm:rounded-2xl text-white shadow-lg shadow-uib-blue/20">
+                <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6" />
              </div>
              <div>
-                <h2 id="assistant-modal-title" className="text-2xl font-display font-black text-uib-blue tracking-tight leading-tight uppercase">
+                <h2 id="assistant-modal-title" className="text-lg sm:text-2xl font-display font-black text-uib-blue tracking-tight leading-tight uppercase">
                 {t('aiChat.pageTitle')}
                 </h2>
-                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] leading-none mt-1.5 flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                <p className="text-[8px] sm:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] leading-none mt-1 sm:mt-1.5 flex items-center gap-1 sm:gap-1.5">
+                    <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-green-500 animate-pulse" />
                     Asistent de Suport CAFFT
                 </p>
              </div>
           </div>
           <button
             onClick={onClose}
-            className="p-3 text-slate-400 hover:text-uib-blue hover:bg-slate-50 rounded-2xl transition-all duration-300 focus:outline-none"
+            className="p-2 sm:p-3 text-slate-400 hover:text-uib-blue hover:bg-slate-50 rounded-xl sm:rounded-2xl transition-all duration-300 focus:outline-none"
             aria-label={t('helpModal.closeButton')}
           >
-            <XMarkIcon className="h-7 w-7" />
+            <XMarkIcon className="h-6 w-6 sm:h-7 sm:w-7" />
           </button>
         </div>
 

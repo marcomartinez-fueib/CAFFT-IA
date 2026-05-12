@@ -56,7 +56,7 @@ import { DevToolsPage } from './pages/dev/DevToolsPage.tsx';
 
 
 const MainLayout: React.FC = () => {
-  const { isAssistantOpen, toggleAssistant } = useUI();
+  const { isAssistantOpen, toggleAssistant, isAssistantHidden } = useUI();
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 overflow-x-hidden">
@@ -67,8 +67,12 @@ const MainLayout: React.FC = () => {
       <main className="flex-grow">
         <Outlet />
       </main>
-      <HelpButton onClick={toggleAssistant} />
-      <AssistantModal isOpen={isAssistantOpen} onClose={toggleAssistant} />
+      {!isAssistantHidden && (
+        <>
+          <HelpButton onClick={toggleAssistant} />
+          <AssistantModal isOpen={isAssistantOpen} onClose={toggleAssistant} />
+        </>
+      )}
       <Footer />
     </div>
   );

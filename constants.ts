@@ -1,4 +1,5 @@
 
+
 import { Language, NavItem, QPVIIQuestion, ExposureVideo, ExposureSceneKey } from './types';
 
 export const DEFAULT_LANGUAGE = Language.CA;
@@ -59,20 +60,7 @@ export const PIE_CHART_COLORS = ['#00263E', '#BA0C2F', '#A7A596', '#0072CE']; //
 
 export const YOUTUBE_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-red-600"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-3.897 1.834-3.897 7.691 0 5.861 0 7.429 3.897 7.696 3.6.245 11.626.246 15.23 0 3.897-.266 3.897-1.838 3.897-7.696 0-5.855 0-7.425-3.897-7.691zm-7.615 11.316v-7.143l5.714 3.571-5.714 3.572z"></path></svg>`;
 
-export const EXPOSURE_EXPLANATION_VIDEO_URL_BASE = "https://github.com/marcomartinez-fueib/CAFFT-IA/releases/download/v1.0.0-videos/exposure_explanation"; // Base path for the local explanation video
-
-// Base URL for video assets. Defaults to GitHub Release URL.
-// Override via VITE_VIDEO_BASE_URL env var if needed (e.g., for local dev).
-const VIDEO_BASE_URL = 'https://github.com/marcomartinez-fueib/CAFFT-IA/releases/download/v1.0.0-videos';
-
-export const getVideoUrl = (basePath: string, language: string): string => {
-  const fileName = `${basePath.split('/').pop()}_${language}.mp4`;
-  if (VIDEO_BASE_URL) {
-    return `${VIDEO_BASE_URL}/${fileName}`;
-  }
-  // Fallback for local development only; in production this will likely fail
-  return `${basePath}_${language}.mp4`;
-};
+export const EXPOSURE_EXPLANATION_VIDEO_URL_BASE = "videos_cafft/exposure_explanation"; // Base path for the local explanation video
 
 export const QPVII_QUESTIONS: QPVIIQuestion[] = Array.from({ length: 31 }, (_, i) => ({
   id: i,
@@ -144,7 +132,7 @@ export const EXPOSURE_VIDEOS: ExposureVideo[] = [
     titleKey: 'exposure.ev001_title',
     descriptionKey: 'exposure.ev001_desc',
     relatedArea: 'preparation',
-    intensity: 1,
+    intensity: 1, // Lowest intensity
   },
   {
     id: 'ev002',
@@ -152,7 +140,7 @@ export const EXPOSURE_VIDEOS: ExposureVideo[] = [
     titleKey: 'exposure.ev002_title',
     descriptionKey: 'exposure.ev002_desc',
     relatedArea: 'boarding',
-    intensity: 2,
+    intensity: 2, // Higher than prep
   },
   {
     id: 'ev003',
@@ -160,7 +148,7 @@ export const EXPOSURE_VIDEOS: ExposureVideo[] = [
     titleKey: 'exposure.ev003_title',
     descriptionKey: 'exposure.ev003_desc',
     relatedArea: 'takeoff',
-    intensity: 4,
+    intensity: 4, // More intense than boarding/inflight
   },
   {
     id: 'ev004',
@@ -168,7 +156,7 @@ export const EXPOSURE_VIDEOS: ExposureVideo[] = [
     titleKey: 'exposure.ev004_title',
     descriptionKey: 'exposure.ev004_desc',
     relatedArea: 'inflight',
-    intensity: 3,
+    intensity: 3, // Mid-level intensity, typically calmer than takeoff/landing
   },
   {
     id: 'ev005',
@@ -176,7 +164,7 @@ export const EXPOSURE_VIDEOS: ExposureVideo[] = [
     titleKey: 'exposure.ev005_title',
     descriptionKey: 'exposure.ev005_desc',
     relatedArea: 'landing',
-    intensity: 5,
+    intensity: 5, // More intense than takeoff
   },
   {
     id: 'ev006',
@@ -184,7 +172,7 @@ export const EXPOSURE_VIDEOS: ExposureVideo[] = [
     titleKey: 'exposure.ev006_title',
     descriptionKey: 'exposure.ev006_desc',
     relatedArea: 'accidents',
-    intensity: 8,
+    intensity: 8, // Highest intensity
   },
   {
     id: 'ev007',
@@ -192,7 +180,7 @@ export const EXPOSURE_VIDEOS: ExposureVideo[] = [
     titleKey: 'exposure.ev007_title',
     descriptionKey: 'exposure.ev007_desc',
     relatedArea: 'inflight',
-    intensity: 6,
+    intensity: 6, // Higher than calm flight (3)
   },
   {
     id: 'ev008',
@@ -200,6 +188,6 @@ export const EXPOSURE_VIDEOS: ExposureVideo[] = [
     titleKey: 'exposure.ev008_title',
     descriptionKey: 'exposure.ev008_desc',
     relatedArea: 'accidents',
-    intensity: 9,
+    intensity: 9, // Higher than ev006 (8)
   },
 ];

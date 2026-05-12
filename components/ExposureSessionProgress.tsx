@@ -40,7 +40,7 @@ export const ExposureSessionProgress: React.FC<ExposureSessionProgressProps> = (
         </span>
       </div>
 
-      <div className="p-6 mb-[15px]">
+      <div className="p-6">
         {/* Progress Steps */}
         <div className="flex items-start justify-between relative">
           {/* Connector Line */}

@@ -435,7 +435,7 @@ ${THERAPEUTIC_KNOWLEDGE.coreFeatures}
           }
           if (!part.trim()) return null;
           return (
-            <div key={i} className={`prose prose-sm max-w-none ${isUser ? 'prose-invert prose-p:text-white' : 'prose-slate'} prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-li:my-0.5`}>
+            <div key={i} className={`prose prose-sm max-w-none ${isUser ? 'prose-invert prose-p:text-white' : 'prose-slate'} prose-p:my-0.5 sm:prose-p:my-1 prose-headings:my-1.5 sm:prose-headings:my-2 prose-ul:my-0.5 sm:prose-ul:my-1 prose-li:my-0.5`}>
                 <ReactMarkdown 
                   remarkPlugins={[remarkGfm]}
                   components={{
@@ -569,7 +569,7 @@ ${THERAPEUTIC_KNOWLEDGE.coreFeatures}
             transition={{ duration: 0.3, ease: "easeOut" }}
             className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            <div className={`group relative max-w-[88%] sm:max-w-xl lg:max-w-2xl px-4 py-3 sm:px-5 sm:py-4 rounded-2xl shadow-sm ${
+            <div className={`group relative max-w-[90%] sm:max-w-xl lg:max-w-2xl px-3.5 py-2.5 sm:px-5 sm:py-4 rounded-2xl shadow-sm ${
               msg.role === 'user' 
                 ? 'bg-sky-600 text-white rounded-br-none' 
                 : 'bg-white text-slate-800 rounded-bl-none border border-slate-100'

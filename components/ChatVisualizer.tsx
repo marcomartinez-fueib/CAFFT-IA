@@ -84,43 +84,43 @@ export const ChatVisualizer: React.FC<ChatVisualizerProps> = ({ type, qpviiData,
     };
 
     return (
-      <div className="my-4 p-4 bg-white/80 backdrop-blur-sm rounded-2xl border border-sky-100 shadow-md">
-        <div className="flex items-center space-x-3 mb-4">
-            <div className="bg-sky-500 p-2 rounded-xl text-white">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      <div className="my-2 sm:my-4 p-2.5 sm:p-4 bg-white/80 backdrop-blur-sm rounded-2xl border border-sky-100 shadow-md">
+        <div className="flex items-center space-x-2 sm:space-x-3 mb-3 sm:mb-4">
+            <div className="bg-sky-500 p-1.5 sm:p-2 rounded-xl text-white">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             </div>
-            <h4 className="text-sm font-black text-uib-blue uppercase tracking-tight">{labels.title}</h4>
+            <h4 className="text-[11px] sm:text-sm font-black text-uib-blue uppercase tracking-tight">{labels.title}</h4>
         </div>
         
-        <div className="h-48 mb-4">
+        <div className="h-40 sm:h-48 mb-3 sm:mb-4">
             <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={tutorialData} margin={{ top: 10, right: 20, left: -25, bottom: 0 }}>
+                <LineChart data={tutorialData} margin={{ top: 10, right: 10, left: -30, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                     <XAxis dataKey="time" hide />
-                    <YAxis domain={[0, 10]} ticks={[0, 5, 10]} tick={{ fontSize: 9, fill: '#94a3b8' }} />
-                    <Tooltip content={<div className="bg-white p-2 rounded-lg border shadow-sm text-[10px] font-bold text-slate-500">{labels.anxietyLevel}</div>} />
-                    <ReferenceArea x1={0} x2={10} fill="#fee2e2" fillOpacity={0.3} label={{ position: 'top', value: labels.up, fontSize: 10, fill: '#ef4444', fontWeight: 'bold' }} />
-                    <ReferenceArea x1={10} x2={40} fill="#f0fdf4" fillOpacity={0.3} label={{ position: 'top', value: labels.habituation, fontSize: 10, fill: '#22c55e', fontWeight: 'bold' }} />
+                    <YAxis domain={[0, 10]} ticks={[0, 5, 10]} tick={{ fontSize: 8, fill: '#94a3b8' }} />
+                    <Tooltip content={<div className="bg-white p-2 rounded-lg border shadow-sm text-[8px] sm:text-[10px] font-bold text-slate-500">{labels.anxietyLevel}</div>} />
+                    <ReferenceArea x1={0} x2={10} fill="#fee2e2" fillOpacity={0.3} label={{ position: 'top', value: labels.up, fontSize: 8, fill: '#ef4444', fontWeight: 'bold' }} />
+                    <ReferenceArea x1={10} x2={40} fill="#f0fdf4" fillOpacity={0.3} label={{ position: 'top', value: labels.habituation, fontSize: 8, fill: '#22c55e', fontWeight: 'bold' }} />
                     <Line type="monotone" dataKey="anxiety" stroke={uibBlue} strokeWidth={3} dot={false} name={labels.habituation} />
                     <Line type="monotone" dataKey="escape" stroke="#cbd5e1" strokeDasharray="5 5" strokeWidth={2} dot={false} name={labels.bad} />
                 </LineChart>
             </ResponsiveContainer>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-100">
-                <p className="text-[10px] font-black text-uib-blue uppercase mb-1 flex items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+            <div className="p-2 sm:p-2.5 rounded-xl bg-blue-50 border border-blue-100">
+                <p className="text-[9px] sm:text-[10px] font-black text-uib-blue uppercase mb-0.5 sm:mb-1 flex items-center">
                     <span className="w-1.5 h-1.5 rounded-full bg-uib-blue mr-2 animate-pulse" />
                     {labels.good}
                 </p>
-                <p className="text-[10px] text-slate-600 leading-relaxed font-medium">{labels.goodDesc}</p>
+                <p className="text-[9px] sm:text-[10px] text-slate-600 leading-tight sm:leading-relaxed font-medium">{labels.goodDesc}</p>
             </div>
-            <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                <p className="text-[10px] font-black text-slate-400 uppercase mb-1 flex items-center">
+            <div className="p-2 sm:p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase mb-0.5 sm:mb-1 flex items-center">
                     <span className="w-1.5 h-1.5 rounded-full bg-slate-200 mr-2" />
                     {labels.bad}
                 </p>
-                <p className="text-[10px] text-slate-500 leading-relaxed font-medium">{labels.badDesc}</p>
+                <p className="text-[9px] sm:text-[10px] text-slate-500 leading-tight sm:leading-relaxed font-medium">{labels.badDesc}</p>
             </div>
         </div>
       </div>
@@ -130,24 +130,24 @@ export const ChatVisualizer: React.FC<ChatVisualizerProps> = ({ type, qpviiData,
   if (type === 'evolution') {
     if (!qpviiData || qpviiData.length === 0) return null;
     return (
-      <div className="my-3 p-3 sm:p-4 bg-white/50 rounded-xl border border-slate-100 shadow-sm">
-        <h4 className="text-[10px] sm:text-xs font-black text-slate-500 mb-3 uppercase tracking-widest text-center">{t('evolution.qpviiEvolutionChartTitle')}</h4>
-        <div className="h-48 sm:h-64">
+      <div className="my-2 sm:my-3 p-2 sm:p-4 bg-white/50 rounded-xl border border-slate-100 shadow-sm">
+        <h4 className="text-[9px] sm:text-xs font-black text-slate-500 mb-2 sm:mb-3 uppercase tracking-widest text-center">{t('evolution.qpviiEvolutionChartTitle')}</h4>
+        <div className="h-40 sm:h-56 md:h-64">
           <QpviiEvolutionChart data={qpviiData} lines={qpviiLineConfigs} />
         </div>
         {rciData && (
-          <div className={`mt-4 p-3 rounded-lg border flex items-center ${rciData.isSignificant ? 'bg-green-50/50 border-green-100' : 'bg-blue-50/50 border-blue-100'}`}>
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-3 flex-shrink-0 ${rciData.isSignificant ? 'bg-green-600 text-white' : 'bg-blue-600 text-white shadow-sm'}`}>
-                <span className="font-black text-base">{rciData.value.toFixed(1)}</span>
+          <div className={`mt-3 sm:mt-4 p-2 sm:p-3 rounded-lg border flex items-center ${rciData.isSignificant ? 'bg-green-50/50 border-green-100' : 'bg-blue-50/50 border-blue-100'}`}>
+            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0 ${rciData.isSignificant ? 'bg-green-600 text-white' : 'bg-blue-600 text-white shadow-sm'}`}>
+                <span className="font-black text-sm sm:text-base">{rciData.value.toFixed(1)}</span>
             </div>
             <div className="flex-grow">
-                <h4 className="font-bold text-slate-700 flex items-center uppercase tracking-wide text-[9px]">
+                <h4 className="font-bold text-slate-700 flex items-center uppercase tracking-wide text-[8px] sm:text-[9px]">
                     {t('evolution.rciTitle')}
                     {rciData.isSignificant && (
-                        <span className="ml-2 px-1.5 py-0.5 bg-green-200 text-green-800 text-[7px] rounded-md font-black uppercase">SIG.</span>
+                        <span className="ml-2 px-1.5 py-0.5 bg-green-200 text-green-800 text-[6px] sm:text-[7px] rounded-md font-black uppercase">SIG.</span>
                     )}
                 </h4>
-                <p className="text-[9px] text-slate-500 mt-0.5">
+                <p className="text-[8px] sm:text-[9px] text-slate-500 mt-0.5">
                   {t('evolution.improvement')}: {rciData.improvement} {t('evolution.points')} ({rciData.improvementPercent}%)
                 </p>
             </div>
@@ -187,20 +187,20 @@ export const ChatVisualizer: React.FC<ChatVisualizerProps> = ({ type, qpviiData,
     if (scenes.length === 0) return null;
 
     return (
-        <div className="my-3 space-y-3">
+        <div className="my-2 sm:my-3 space-y-2 sm:space-y-3">
              {scenes.map(sceneKey => (
-                 <div key={sceneKey} className="p-3 sm:p-4 bg-white/50 rounded-xl border border-slate-100 shadow-sm">
-                    <h4 className="text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest text-center">
+                 <div key={sceneKey} className="p-2 sm:p-4 bg-white/50 rounded-xl border border-slate-100 shadow-sm">
+                    <h4 className="text-[9px] font-black text-slate-500 mb-1.5 sm:mb-2 uppercase tracking-widest text-center">
                         {t(sceneTranslationKeys[sceneKey as ExposureSceneKey])}
                     </h4>
-                    <div className="h-40">
+                    <div className="h-32 sm:h-40">
                         <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={sceneData[sceneKey]} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
+                            <LineChart data={sceneData[sceneKey]} margin={{ top: 5, right: 5, left: -30, bottom: 0 }}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                                 <XAxis dataKey="instance" hide />
-                                <YAxis domain={[0, 10]} ticks={[0, 5, 10]} tick={{ fontSize: 9, fill: '#94a3b8' }} />
+                                <YAxis domain={[0, 10]} ticks={[0, 5, 10]} tick={{ fontSize: 8, fill: '#94a3b8' }} />
                                 <Tooltip content={<SceneChartTooltip t={t} chartData={sceneData[sceneKey]} />} />
-                                <Line type="monotone" dataKey="rating" stroke={uibBlue} strokeWidth={2.5} dot={{ r: 3, fill: uibBlue, strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 5 }} />
+                                <Line type="monotone" dataKey="rating" stroke={uibBlue} strokeWidth={2.5} dot={{ r: 2, fill: uibBlue, strokeWidth: 1.5, stroke: '#fff' }} activeDot={{ r: 4 }} />
                             </LineChart>
                         </ResponsiveContainer>
                     </div>

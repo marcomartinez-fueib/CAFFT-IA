@@ -27,12 +27,22 @@ const XMarkIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 export const CafftIntroPage: React.FC = () => {
   const { t } = useLanguage();
   const { currentUser } = useAuth();
-  const { startTour } = useOnboarding();
+  const { startTour, hasCompletedTour } = useOnboarding();
   const navigate = useNavigate();
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 
-  // Onboarding auto-start is now handled by NotificationConsentManager
-  // after the user resolves the notification consent modal.
+  useEffect(() => {
+    if (currentUser && !hasCompletedTour) {
+        const autoStartKey = `cafft_onboarding_autostart_done_${currentUser.id}`;
+        if (localStorage.getItem(autoStartKey) === 'true') return;
+
+        localStorage.setItem(autoStartKey, 'true');
+        const timer = setTimeout(() => {
+            startTour();
+        }, 1500);
+        return () => clearTimeout(timer);
+    }
+  }, [currentUser, hasCompletedTour, startTour]);
 
   useEffect(() => {
     if (currentUser) {

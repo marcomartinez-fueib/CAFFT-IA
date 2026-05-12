@@ -5,19 +5,30 @@ interface UIContextType {
   toggleAssistant: () => void;
   openAssistant: () => void;
   closeAssistant: () => void;
+  isAssistantHidden: boolean;
+  setAssistantHidden: (hidden: boolean) => void;
 }
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
 
 export const UIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
+  const [isAssistantHidden, setIsAssistantHidden] = useState(false);
 
   const toggleAssistant = () => setIsAssistantOpen(prev => !prev);
   const openAssistant = () => setIsAssistantOpen(true);
   const closeAssistant = () => setIsAssistantOpen(false);
+  const setAssistantHidden = (hidden: boolean) => setIsAssistantHidden(hidden);
 
   return (
-    <UIContext.Provider value={{ isAssistantOpen, toggleAssistant, openAssistant, closeAssistant }}>
+    <UIContext.Provider value={{ 
+      isAssistantOpen, 
+      toggleAssistant, 
+      openAssistant, 
+      closeAssistant,
+      isAssistantHidden,
+      setAssistantHidden
+    }}>
       {children}
     </UIContext.Provider>
   );

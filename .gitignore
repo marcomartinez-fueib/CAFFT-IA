@@ -23,5 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 
-# Videos - tracked with Git LFS
-# public/videos_cafft/*.mp4
+# Videos (hosted on GitHub Releases)
+public/videos_cafft/*.mp4

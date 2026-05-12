@@ -218,59 +218,65 @@ export const OnboardingTour: React.FC = () => {
     };
 
     const getTooltipStyle = () => {
-        if (!targetRect) return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 320 };
-
         const padding = 16;
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
         const tooltipWidth = Math.min(320, viewportWidth - (padding * 2));
-        const estimatedHeight = 350; // Safer estimate for vertical clamping
-
-        let top = 0;
-        let left = 0;
-        let x = '-50%';
-        let y = '-50%';
+        const estimatedHeight = 300;
 
         if (step.position === 'center' || !targetRect) {
-            return { 
-                top: '50%', 
-                left: '50%', 
-                transform: 'translate(-50%, -50%)',
+            return {
+                top: '50%',
+                left: '50%',
+                x: '-50%',
+                y: '-50%',
                 width: tooltipWidth,
                 maxHeight: '85vh',
                 overflowY: 'auto' as const
             };
         }
 
+        let top = 0;
+        let left = 0;
+        let x = '0%';
+        let y = '0%';
+
         const targetCenterX = targetRect.left + targetRect.width / 2;
         const targetCenterY = targetRect.top + targetRect.height / 2;
 
-        switch (step.position) {
-            case 'bottom':
-                top = targetRect.bottom + padding;
-                left = targetCenterX;
-                y = '0%';
-                break;
-            case 'top':
+        if (step.position === 'bottom') {
+            top = targetRect.bottom + padding;
+            left = targetCenterX;
+            x = '-50%';
+            y = '0%';
+            // Clamp top
+            if (top + estimatedHeight > viewportHeight - padding) {
                 top = targetRect.top - padding;
-                left = targetCenterX;
                 y = '-100%';
-                break;
-            case 'left':
-                top = targetCenterY;
-                left = targetRect.left - padding;
-                x = '-100%';
-                break;
-            case 'right':
-                top = targetCenterY;
-                left = targetRect.right + padding;
-                x = '0%';
-                break;
-            default:
-                break;
+            }
+        } else if (step.position === 'top') {
+            top = targetRect.top - padding;
+            left = targetCenterX;
+            x = '-50%';
+            y = '-100%';
+            // Clamp top
+            if (top - estimatedHeight < padding) {
+                top = targetRect.bottom + padding;
+                y = '0%';
+            }
+        } else if (step.position === 'left') {
+            top = targetCenterY;
+            left = targetRect.left - padding;
+            x = '-100%';
+            y = '-50%';
+        } else if (step.position === 'right') {
+            top = targetCenterY;
+            left = targetRect.right + padding;
+            x = '0%';
+            y = '-50%';
         }
 
-        // Special handling for help button (usually in corner)
+        // Special handling for help buttons
         if (step.targetId.includes('help-button')) {
             left = targetRect.left - padding;
             top = targetRect.top - padding;
@@ -278,52 +284,23 @@ export const OnboardingTour: React.FC = () => {
             y = '-100%';
         }
 
-        // Vertical Clamping - Ensure it doesn't go off top/bottom
-        if (y === '0%') {
-            if (top + estimatedHeight > viewportHeight - padding) {
-                // Not enough room below, try above
-                top = targetRect.top - padding;
-                y = '-100%';
-            }
-        } else if (y === '-100%') {
-            if (top - estimatedHeight < padding) {
-                // Not enough room above, try below
-                top = targetRect.bottom + padding;
-                y = '0%';
-            }
-        }
-
-        // Ensure it stays on screen vertically regardless of position
-        if (y === '0%') {
-             top = Math.max(padding, Math.min(top, viewportHeight - estimatedHeight - padding));
-        } else if (y === '-100%') {
-             top = Math.max(padding + estimatedHeight, Math.min(top, viewportHeight - padding));
-        }
-
-        // Horizontal Clamping
-        if (x === '-50%') {
+        // Final safety clamping
+        left = Math.max(padding, Math.min(left, viewportWidth - padding));
+        if (x === '0%' && left + tooltipWidth > viewportWidth - padding) {
+            left = viewportWidth - padding - tooltipWidth;
+        } else if (x === '-100%' && left - tooltipWidth < padding) {
+            left = padding + tooltipWidth;
+        } else if (x === '-50%') {
             const half = tooltipWidth / 2;
-            if (left - half < padding) {
-                left = padding;
-                x = '0%';
-            } else if (left + half > viewportWidth - padding) {
-                left = viewportWidth - padding;
-                x = '-100%';
-            }
-        } else if (x === '-100%') {
-            if (left - tooltipWidth < padding) {
-                left = padding + tooltipWidth;
-            }
-        } else if (x === '0%') {
-            if (left + tooltipWidth > viewportWidth - padding) {
-                left = viewportWidth - padding - tooltipWidth;
-            }
+            if (left - half < padding) left = padding + half;
+            if (left + half > viewportWidth - padding) left = viewportWidth - padding - half;
         }
 
         return {
             top,
             left,
-            transform: `translate(${x}, ${y})`,
+            x,
+            y,
             width: tooltipWidth,
             maxHeight: '85vh',
             overflowY: 'auto' as const
@@ -421,11 +398,15 @@ export const OnboardingTour: React.FC = () => {
                 {/* Tooltip */}
                 <motion.div
                     key={currentStep}
-                    initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, y: 10 }}
-                    className="absolute bg-white rounded-2xl shadow-[0_30px_70px_rgba(0,0,0,0.3)] pointer-events-auto border border-slate-100 ring-1 ring-black/5 flex flex-col"
-                    style={getTooltipStyle()}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ 
+                        opacity: 1, 
+                        scale: 1,
+                        ...getTooltipStyle()
+                    }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ type: 'spring', damping: 25, stiffness: 120 }}
+                    className="absolute bg-white rounded-2xl shadow-[0_30px_70px_rgba(0,0,0,0.3)] pointer-events-auto border border-slate-100 ring-1 ring-black/5 flex flex-col z-[10000]"
                 >
                     <div className="p-6 sm:p-8 flex flex-col h-full">
                         <div className="flex justify-between items-start mb-4">

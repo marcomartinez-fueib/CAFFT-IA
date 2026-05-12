@@ -59,7 +59,7 @@ export const PIE_CHART_COLORS = ['#00263E', '#BA0C2F', '#A7A596', '#0072CE']; //
 
 export const YOUTUBE_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-red-600"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-3.897 1.834-3.897 7.691 0 5.861 0 7.429 3.897 7.696 3.6.245 11.626.246 15.23 0 3.897-.266 3.897-1.838 3.897-7.696 0-5.855 0-7.425-3.897-7.691zm-7.615 11.316v-7.143l5.714 3.571-5.714 3.572z"></path></svg>`;
 
-export const EXPOSURE_EXPLANATION_VIDEO_URL_BASE = "videos_cafft/exposure_explanation"; // Base path for the local explanation video
+export const EXPOSURE_EXPLANATION_VIDEO_URL_BASE = "https://github.com/marcomartinez-fueib/CAFFT-IA/releases/download/v1.0.0-videos"; // Base path for the local explanation video
 
 // Base URL for video assets. Defaults to GitHub Release URL.
 // Override via VITE_VIDEO_BASE_URL env var if needed (e.g., for local dev).

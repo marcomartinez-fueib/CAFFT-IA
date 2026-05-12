@@ -53,7 +53,6 @@ export const ExposurePage: React.FC = () => {
   const [videoError, setVideoError] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null); 
-  const maxPlayedTimeRef = useRef<number>(0);
 
   const getLocalizedVideoUrl = useCallback((video: ExposureVideo): string => {
     return getVideoUrl(video.mp4Url, language);
@@ -310,23 +309,7 @@ export const ExposurePage: React.FC = () => {
     setCurrentVideoIndex(index);
     setUserFeedbackMessage(null);
     setVideoError(null); // Reset error before opening
-    maxPlayedTimeRef.current = 0;
     setIsVideoPlayerModalOpen(true);
-  };
-
-  const handleTimeUpdate = () => {
-    if (videoRef.current) {
-      const current = videoRef.current.currentTime;
-      if (current > maxPlayedTimeRef.current) {
-        maxPlayedTimeRef.current = current;
-      }
-    }
-  };
-
-  const handleSeeking = () => {
-    if (videoRef.current && videoRef.current.currentTime > maxPlayedTimeRef.current) {
-      videoRef.current.currentTime = maxPlayedTimeRef.current;
-    }
   };
   
   const handleFinishSession = () => {
@@ -459,26 +442,24 @@ export const ExposurePage: React.FC = () => {
                 </div>
             </div>
            ) : (
-                <video
-                     ref={videoRef}
-                     controls
-                     autoPlay
-                     className="w-full h-full object-contain exposure-video"
-                     onEnded={handleVideoNaturalEnd}
-                     onTimeUpdate={handleTimeUpdate}
-                     onSeeking={handleSeeking}
-                      onError={(e) => { 
-                        const videoElement = e.target as HTMLVideoElement;
-                        const error = videoElement.error;
-                        const videoSrc = videoElement.currentSrc || videoElement.src;
-                        
-                        const detailedMessage = `URL: ${videoSrc} | Error Code: ${error?.code || 'N/A'} | Message: ${error?.message || 'Not available'}`;
-                        console.error(`Video loading failed. ${detailedMessage}`);
-                        
-                        setVideoError(detailedMessage);
-                      }}
-                     src={getLocalizedVideoUrl(videoSequence[currentVideoIndex])}
-                 >
+                 <video
+                      ref={videoRef}
+                      autoPlay
+                      playsInline
+                      className="w-full h-full object-contain exposure-video"
+                      onEnded={handleVideoNaturalEnd}
+                       onError={(e) => { 
+                         const videoElement = e.target as HTMLVideoElement;
+                         const error = videoElement.error;
+                         const videoSrc = videoElement.currentSrc || videoElement.src;
+                         
+                         const detailedMessage = `URL: ${videoSrc} | Error Code: ${error?.code || 'N/A'} | Message: ${error?.message || 'Not available'}`;
+                         console.error(`Video loading failed. ${detailedMessage}`);
+                         
+                         setVideoError(detailedMessage);
+                       }}
+                      src={getLocalizedVideoUrl(videoSequence[currentVideoIndex])}
+                  >
                      {t('exposure.videoTagNotSupported')}
                  </video>
            )}

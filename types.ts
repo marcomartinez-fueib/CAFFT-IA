@@ -38,6 +38,8 @@ export interface User {
   role: 'patient' | 'therapist' | 'manager' | 'superadmin';
   assistantName?: string;
   lastReminderSentDate?: number;
+  lastLoginDate?: number;
+  lastAssessmentDate?: number;
   notificationPreferences?: NotificationPreferences;
   sentFollowUps?: string[];
   onboardingEnabled?: boolean;
@@ -51,6 +53,8 @@ export interface StoredUser extends Omit<User, 'email'> {
   managerId?: string;   // For therapists
   assistantName?: string;
   lastReminderSentDate?: number;
+  lastLoginDate?: number;
+  lastAssessmentDate?: number;
   notificationPreferences?: NotificationPreferences;
   informedConsentMetadata?: InformedConsentMetadata;
   sentFollowUps?: string[];

@@ -5,7 +5,13 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
 import { ai, createChatSession, getAiLastError } from '../utils/gemini';
-import { getQPVIIResultsForUser, getAllUserExposureProgress, getUsers, saveAiConsultation } from '../utils/localStorageDB.ts';
+import { 
+    getQPVIIResultsForUser, 
+    getAllUserExposureProgress, 
+    getUsers, 
+    saveAiConsultation,
+    getDaysSinceLastActivity
+} from '../utils/localStorageDB.ts';
 import { calculateQPVIIScores } from '../utils/qpviiScoring';
 import { THERAPEUTIC_KNOWLEDGE } from '../data/therapeuticKnowledge';
 import { ChatVisualizer } from '../components/ChatVisualizer';
@@ -256,10 +262,23 @@ ${THERAPEUTIC_KNOWLEDGE.coreFeatures}
           setIsAiReady(true);
           
           const isQpviiCompleted = qpviiData.length > 0;
-          const initialMessageKey = (!isTherapist && isQpviiCompleted) ? 'aiChat.initialMessageCompleted' : 'aiChat.initialMessage';
+          const daysInactive = getDaysSinceLastActivity(currentUser.id);
+          
+          let initialMessageKey = (!isTherapist && isQpviiCompleted) ? 'aiChat.initialMessageCompleted' : 'aiChat.initialMessage';
+          
+          // Use a special key for returning patients if they've been gone for > 7 days
+          if (!isTherapist && daysInactive !== null && daysInactive >= 7) {
+              initialMessageKey = 'aiChat.initialMessageReturning'; // We'll add this to translations if missing or handle it
+          }
           
           const initialMessageText = (() => {
-            const messagesArray = t(initialMessageKey, { returnObjects: true });
+            // Check if our special returning key exists, otherwise fallback
+            const hasReturningKey = t('aiChat.initialMessageReturning') !== 'aiChat.initialMessageReturning';
+            const finalKey = (initialMessageKey === 'aiChat.initialMessageReturning' && !hasReturningKey) 
+                ? 'aiChat.initialMessage' 
+                : initialMessageKey;
+
+            const messagesArray = t(finalKey, { returnObjects: true });
             
             if (Array.isArray(messagesArray)) {
                 const selectedIndex = Math.floor(Math.random() * messagesArray.length);

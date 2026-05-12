@@ -1100,6 +1100,7 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
         disclaimer: "Aquest és un assistent automàtic. La informació pot no ser exacta. En cas de dubte, consulta un professional.",
         initialMessage: ["Hola! Sóc {assistantName}, el teu co-terapeuta. En què puc ajudar-te avui?", "Hola {username}! Sóc {assistantName}. Tens algun dubte o vols que comentem alguna cosa?", "Hola, sóc {assistantName}. Com et sents avui? Estic aquí per acompanyar-te."],
         initialMessageCompleted: ["Hola, {username}! Sóc {assistantName}. He revisat el teu progrés i veig que vas molt bé. Què et preocupa ara mateix?", "Hola! Sóc {assistantName}. Vols que continuem amb les teves sessions d'exposició o prefereixes comentar algun dubte?", "Bones, {username}! Sóc {assistantName}. En què puc ajudar-te avui?"],
+        initialMessageReturning: ["Hola de nou, {username}! S'ha trobat a faltar la teva constància. Com et sents per reprendre les teves sessions d'exposició avui?", "Hola {username}! Bentornat/da. Fa uns dies que no et veiem per aquí. Vols que continuem per on ho vam deixar?", "Hola! Sóc {assistantName}. M'alegra molt tornar-te a veure. Estàs a punt per fer un petit pas més avui?"],
         inputPlaceholder: "Escriu aquí...",
         sendButton: "Enviar",
         systemInstruction: "Ets l'assistent expert del CAFFT 5.1 (recerca UIB). REGLA CRÍTICA: La conversa ha de ser NATURAL, FLUÏDA i HUMANA (ex: 'Hola {username}, tens algun dubte?'). Evita respondre com un manual d'instruccions o llistes de tasques repetitives. NO INSISTEIXIS en continuar l'exposició si l'usuari mostra malestar. REGLA D'OR: FES NOMÉS UNA PREGUNTA per resposta. No demanis informació que el sistema ja sap (vídeo, progrés, QPV-II). Alterna DIRECTIVITAT amb ORIENTACIÓ. REGLA DE VOCABULARI: Evita 'muleta' o 'cervell'. Utilitza 'recurs de seguretat', 'estratègia', 'aprenentatge', 'habituació' o 'regulació'. Pots usar [VISUAL:habituation] o [VISUAL:habituation_tutorial]. CONTEXT: {therapeuticContext}. ESTAT QPVII: {hasCompletedQPVII}.",
@@ -1253,6 +1254,7 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
         notificationsTitle: "Notificacions",
         reminders: {
             sendReminderButton: "Enviar Recordatori",
+            sendAllReminders: "Enviar Recordatoris d'Adherència",
             reminderSentSuccess: "S'ha enviat el recordatori correctament.",
             inactivityBadge: "Inactiu ({days}d)",
             abandonmentRisk: "Risc d'abandonament prematur",
@@ -1601,6 +1603,13 @@ const esTranslations: TranslationContent = {
         changePasswordSuccess: "Contraseña cambiada con éxito.",
         changePasswordError: "La contraseña actual es incorrecta.",
         passwordMinLengthError: "La contraseña debe tener al menos 6 caracteres.",
+    },
+    aiChat: {
+        ...caTranslations.aiChat,
+        initialMessage: ["¡Hola! Soy {assistantName}, tu co-terapeuta. ¿En qué puedo ayudarte hoy?", "¡Hola {username}! Soy {assistantName}. ¿Tienes alguna duda o quieres que comentemos algo?", "Hola, soy {assistantName}. ¿Cómo te sientes hoy? Estoy aquí para acompañarte."],
+        initialMessageCompleted: ["¡Hola, {username}! Soy {assistantName}. He revisado tu progreso y veo que vas muy bien. ¿Qué te preocupa ahora mismo?", "¿Hola! Soy {assistantName}. ¿Quieres que continuemos con tus sesiones de exposición o prefieres comentar alguna duda?", "¡Buenas, {username}! Soy {assistantName}. ¿En qué puedo ayudarte hoy?"],
+        initialMessageReturning: ["¡Hola de nuevo, {username}! Se ha echado de menos tu constancia. ¿Cómo te sientes para retomar tus sesiones de exposición hoy?", "¡Hola {username}! Bienvenido/a de nuevo. Hace unos días que no te veíamos por aquí. ¿Quieres que continuemos por donde lo dejamos?", "¡Hola! Soy {assistantName}. Me alegra mucho volver a verte. ¿Estás listo/a para dar un pequeño paso más hoy?"],
+        inputPlaceholder: "Escribe aquí...",
     },
     profile: {
         ...caTranslations.profile,
@@ -1955,6 +1964,7 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
         },
         reminders: {
             sendReminderButton: "Enviar Recordatorio",
+            sendAllReminders: "Enviar Recordatorios de Adherencia",
             reminderSentSuccess: "Se ha enviado el recordatorio correctamente.",
             inactivityBadge: "Inactivo ({days}d)",
             abandonmentRisk: "Riesgo de abandono prematuro",

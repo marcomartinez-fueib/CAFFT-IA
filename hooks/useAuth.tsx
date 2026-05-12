@@ -89,7 +89,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (storedUser && storedUser.hashedPassword) {
       const isMatch = await verifyPassword(passwordAttempt, storedUser.hashedPassword);
       if (isMatch) {
-        const { hashedPassword, ...userToSet } = storedUser;
+        // Update user activity dates in database
+        const now = Date.now();
+        const updatedStoredUser: StoredUser = { ...storedUser, lastLoginDate: now };
+        saveUser(updatedStoredUser);
+
+        const { hashedPassword, ...userToSet } = updatedStoredUser;
         setCurrentUser(userToSet as User);
         setSessionUser(userToSet as User);
         

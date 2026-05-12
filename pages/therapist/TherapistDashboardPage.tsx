@@ -19,7 +19,9 @@ import {
     toggleUserNotifications,
     getAiConsultationsByUserIds,
     toggleUserOnboarding,
-    generatePatientCode
+    generatePatientCode,
+    getDaysSinceLastActivity,
+    sendAdherenceRemindersToAllInactive
 } from '../../utils/localStorageDB';
 import { calculateQPVIIScores } from '../../utils/qpviiScoring';
 import { hashPassword } from '../../utils/hash';
@@ -286,11 +288,9 @@ export const TherapistDashboardPage: React.FC = () => {
             highRiskCount++;
         }
 
-        const lastActivity = statsInternal.patientProgressItems.length > 0 
-            ? [...statsInternal.patientProgressItems].sort((a,b) => b.lastUpdated - a.lastUpdated)[0].lastUpdated 
-            : null;
+        const daysInactive = getDaysSinceLastActivity(p.id);
             
-        if (lastActivity && (Date.now() - lastActivity) > (3 * 24 * 60 * 60 * 1000)) {
+        if (daysInactive !== null && daysInactive >= 3) { // Using 3 days for general "inactive" stat
             inactiveCount++;
         }
 
@@ -363,9 +363,26 @@ export const TherapistDashboardPage: React.FC = () => {
         p.status.textKey === 'stalled' || 
         p.status.textKey === 'dropping_out' || 
         p.status.textKey === 'needs_review' ||
-        (p.lastActive && (Date.now() - p.lastActive) > (3 * 24 * 60 * 60 * 1000))
+        (getDaysSinceLastActivity(p.id) !== null && (getDaysSinceLastActivity(p.id) || 0) >= 3)
     ) : [];
   }, [patientsWithStats, dashboardStats]);
+
+  const handleSendAllReminders = () => {
+    if (!currentUser) return;
+    const count = sendAdherenceRemindersToAllInactive(
+        currentUser.id,
+        3, // threshold
+        t('aiChat.reminder.emailSubject'),
+        t('aiChat.reminder.emailBody')
+    );
+    
+    if (count > 0) {
+        alert(t('therapistDashboard.reminders.reminderSentSuccess') + ` (${count})`);
+        fetchAllData();
+    } else {
+        alert(t('therapistDashboard.noPatients') + " " + t('nav.help')); // Or just a generic "nothing to send"
+    }
+  };
 
   
   const handleOpenAddModal = () => {
@@ -761,6 +778,13 @@ export const TherapistDashboardPage: React.FC = () => {
                       />
                       <svg className="absolute left-2.5 top-2.5 w-4 h-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                   </div>
+                  <button 
+                    onClick={handleSendAllReminders}
+                    className="p-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition-colors shadow-sm"
+                    title={t('therapistDashboard.reminders.sendReminderButton')}
+                  >
+                        <BellIcon className="w-5 h-5"/>
+                  </button>
                   <button id="add-patient-btn" onClick={handleOpenAddModal} className="p-2 bg-sky-500 text-white rounded-xl hover:bg-sky-600 transition-colors shadow-sm">
                       <AddUserIcon className="w-5 h-5"/>
                   </button>
@@ -796,6 +820,11 @@ export const TherapistDashboardPage: React.FC = () => {
                                       {patient.patientCode && <span className="ml-2 text-[10px] font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-400 group-hover:bg-sky-50 group-hover:text-sky-600 transition-colors uppercase">{patient.patientCode}</span>}
                                   </div>
                                   <div className="text-[10px] text-slate-400">{patient.email}</div>
+                                  {getDaysSinceLastActivity(patient.id) !== null && (getDaysSinceLastActivity(patient.id) || 0) >= 3 && (
+                                       <span className="mt-1 inline-block text-[8px] font-black bg-amber-100 px-1.5 py-0.5 rounded text-amber-700 uppercase tracking-widest">
+                                           {t('therapistDashboard.reminders.inactivityBadge', { days: getDaysSinceLastActivity(patient.id) })}
+                                       </span>
+                                   )}
                               </td>
                               <td className="px-6 py-4">
                                   <PatientStatusBadge status={patient.status} t={t} />

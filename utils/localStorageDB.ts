@@ -155,6 +155,13 @@ export function saveQPVIIResultForUser(
     };
     allResults.push(newResult);
     localStorage.setItem(LOCAL_STORAGE_KEYS.QPVII_RESULTS, JSON.stringify(allResults, getCircularReplacer()));
+
+    // NEW: Update user's last assessment date
+    const user = findUserById(userId);
+    if (user) {
+        saveUser({ ...user, lastAssessmentDate: timestamp });
+    }
+
     return true;
   } catch (error) {
     console.error("[DB] saveQPVIIResultForUser: Error writing QPVII result to localStorage:", error);
@@ -185,7 +192,9 @@ export function setSessionUser(user: User | null): void {
                 consentGiven: user.consentGiven,
                 role: user.role,
                 assistantName: user.assistantName,
-                lastReminderSentDate: user.lastReminderSentDate
+                lastReminderSentDate: user.lastReminderSentDate,
+                lastLoginDate: user.lastLoginDate,
+                lastAssessmentDate: user.lastAssessmentDate
             }, getCircularReplacer()));
         } else {
             localStorage.removeItem(LOCAL_STORAGE_KEYS.CURRENT_USER);
@@ -205,7 +214,9 @@ export function getSessionUser(): User | null {
             email: parsedUser.email || undefined,
             patientCode: parsedUser.patientCode || undefined,
             assistantName: parsedUser.assistantName || undefined,
-            lastReminderSentDate: parsedUser.lastReminderSentDate || undefined
+            lastReminderSentDate: parsedUser.lastReminderSentDate || undefined,
+            lastLoginDate: parsedUser.lastLoginDate || undefined,
+            lastAssessmentDate: parsedUser.lastAssessmentDate || undefined
         };
     } catch (e) {
         console.error("[DB] getSessionUser: Error parsing session user:", e);
@@ -464,14 +475,34 @@ export async function resetPatientPassword(patientId: string): Promise<string | 
 }
 
 export function getDaysSinceLastActivity(userId: string): number | null {
+    const user = findUserById(userId);
+    if (!user) return null;
+
+    const activities: number[] = [];
+    
+    // 1. Exposure progress
     const allProgress = getAllUserExposureProgress().filter(p => p.userId === userId);
-    if (allProgress.length === 0) return null;
+    if (allProgress.length > 0) {
+        const mostRecentProgress = allProgress.reduce((prev, current) => 
+            (prev.lastUpdated > current.lastUpdated) ? prev : current
+        );
+        activities.push(mostRecentProgress.lastUpdated);
+    }
 
-    const mostRecentProgress = allProgress.reduce((prev, current) => 
-        (prev.lastUpdated > current.lastUpdated) ? prev : current
-    );
+    // 2. Login date
+    if (user.lastLoginDate) {
+        activities.push(user.lastLoginDate);
+    }
 
-    const diffMs = Date.now() - mostRecentProgress.lastUpdated;
+    // 3. Assessment date
+    if (user.lastAssessmentDate) {
+        activities.push(user.lastAssessmentDate);
+    }
+
+    if (activities.length === 0) return null;
+
+    const mostRecent = Math.max(...activities);
+    const diffMs = Date.now() - mostRecent;
     return Math.floor(diffMs / (24 * 60 * 60 * 1000));
 }
 
@@ -541,24 +572,17 @@ export function checkAndSendInactivityReminder(
 
     // Only send if we haven't sent one recently (to avoid spamming if they keep not logging in)
     const now = Date.now();
-    const fiveDaysMs = thresholdDays * 24 * 60 * 60 * 1000;
+    const fiveDaysMs = 5 * 24 * 60 * 60 * 1000; // Hardcoded 5 day gap between reminders
     
     if (user.lastReminderSentDate && (now - user.lastReminderSentDate < fiveDaysMs)) {
         return false;
     }
 
-    // Get last activity from exposure progress
-    const allProgress = getAllUserExposureProgress().filter(p => p.userId === userId);
-    if (allProgress.length === 0) return false;
-
-    const mostRecentProgress = allProgress.reduce((prev, current) => 
-        (prev.lastUpdated > current.lastUpdated) ? prev : current
-    );
-
-    if (now - mostRecentProgress.lastUpdated > fiveDaysMs) {
+    const daysInactive = getDaysSinceLastActivity(userId);
+    if (daysInactive !== null && daysInactive >= thresholdDays) {
         // Send email
         const email: SimulatedEmail = {
-            id: `rem_${now}`,
+            id: `rem_${now}_${userId}`,
             patientId: userId,
             type: 'reminder',
             subject: subject,
@@ -576,6 +600,25 @@ export function checkAndSendInactivityReminder(
     }
 
     return false;
+}
+
+export function sendAdherenceRemindersToAllInactive(
+    therapistId: string,
+    thresholdDays: number,
+    subject: string,
+    bodyTemplate: string // Template like "Hola {username}, ..."
+): number {
+    const patients = getPatientsForTherapist(therapistId);
+    let count = 0;
+
+    patients.forEach(patient => {
+        const body = bodyTemplate.replace('{username}', patient.username);
+        if (checkAndSendInactivityReminder(patient.id, thresholdDays, subject, body)) {
+            count++;
+        }
+    });
+
+    return count;
 }
 
 // --- Feedback Management ---

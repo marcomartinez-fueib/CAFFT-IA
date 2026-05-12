@@ -81,6 +81,65 @@ export const ExposurePage: React.FC = () => {
     }
   }, [isVideoPlayerModalOpen, videoError]); 
 
+  // Block all user interaction with the video: keyboard, seek, context menu, fullscreen exit
+  useEffect(() => {
+    if (!isVideoPlayerModalOpen || videoError) return;
+
+    const videoElement = videoRef.current;
+    let lastKnownTime = 0;
+
+    const blockKeyboard = (e: KeyboardEvent) => {
+      const blockedKeys = ['Escape', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' ', 'Spacebar', 'f', 'F', 'm', 'M'];
+      if (blockedKeys.includes(e.key)) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+
+    const blockSeek = () => {
+      if (videoElement) {
+        videoElement.currentTime = lastKnownTime;
+      }
+    };
+
+    const blockContextMenu = (e: Event) => {
+      e.preventDefault();
+    };
+
+    const trackTime = () => {
+      if (videoElement) {
+        lastKnownTime = videoElement.currentTime;
+      }
+    };
+
+    const blockFullscreenExit = (e: Event) => {
+      if (document.fullscreenElement && videoElement) {
+        e.preventDefault();
+        // Re-enter fullscreen if user tries to exit
+        videoElement.requestFullscreen?.().catch(() => {});
+      }
+    };
+
+    document.addEventListener('keydown', blockKeyboard, true);
+    document.addEventListener('fullscreenchange', blockFullscreenExit);
+    
+    if (videoElement) {
+      videoElement.addEventListener('contextmenu', blockContextMenu);
+      videoElement.addEventListener('seeking', blockSeek);
+      videoElement.addEventListener('timeupdate', trackTime);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', blockKeyboard, true);
+      document.removeEventListener('fullscreenchange', blockFullscreenExit);
+      if (videoElement) {
+        videoElement.removeEventListener('contextmenu', blockContextMenu);
+        videoElement.removeEventListener('seeking', blockSeek);
+        videoElement.removeEventListener('timeupdate', trackTime);
+      }
+    };
+  }, [isVideoPlayerModalOpen, videoError]);
+
   const exitFullscreenMode = async () => {
     if (document.fullscreenElement) {
       try {
@@ -410,7 +469,7 @@ export const ExposurePage: React.FC = () => {
       </SectionCard>
 
       {isVideoPlayerModalOpen && currentVideoIndex < videoSequence.length && (
-        <div className="fixed inset-0 bg-black flex items-center justify-center z-[1000]" onClick={!videoError ? handleVideoPlayerCloseInteraction : undefined}>
+        <div className="fixed inset-0 bg-black flex items-center justify-center z-[1000]">
           {videoError ? (
             <div className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg relative max-w-lg text-left shadow-lg m-4" role="alert">
                 <strong className="font-bold text-lg">{t('exposure.videoLoadErrorTitle')}</strong>
@@ -446,8 +505,12 @@ export const ExposurePage: React.FC = () => {
                       ref={videoRef}
                       autoPlay
                       playsInline
+                      controls={false}
+                      disablePictureInPicture
+                      controlsList="nodownload nofullscreen noremoteplayback"
                       className="w-full h-full object-contain exposure-video"
                       onEnded={handleVideoNaturalEnd}
+                      onContextMenu={(e) => e.preventDefault()}
                        onError={(e) => { 
                          const videoElement = e.target as HTMLVideoElement;
                          const error = videoElement.error;

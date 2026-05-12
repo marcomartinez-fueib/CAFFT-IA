@@ -500,32 +500,36 @@ export const ExposurePage: React.FC = () => {
                     </button>
                 </div>
             </div>
-           ) : (
-                 <video
-                      ref={videoRef}
-                      autoPlay
-                      playsInline
-                      controls={false}
-                      disablePictureInPicture
-                      controlsList="nodownload nofullscreen noremoteplayback"
-                      className="w-full h-full object-contain exposure-video"
-                      onEnded={handleVideoNaturalEnd}
-                      onContextMenu={(e) => e.preventDefault()}
-                       onError={(e) => { 
-                         const videoElement = e.target as HTMLVideoElement;
-                         const error = videoElement.error;
-                         const videoSrc = videoElement.currentSrc || videoElement.src;
-                         
-                         const detailedMessage = `URL: ${videoSrc} | Error Code: ${error?.code || 'N/A'} | Message: ${error?.message || 'Not available'}`;
-                         console.error(`Video loading failed. ${detailedMessage}`);
-                         
-                         setVideoError(detailedMessage);
-                       }}
-                      src={getLocalizedVideoUrl(videoSequence[currentVideoIndex])}
-                  >
-                     {t('exposure.videoTagNotSupported')}
-                 </video>
-           )}
+            ) : (
+                 <div className="relative w-full h-full">
+                  <video
+                       ref={videoRef}
+                       autoPlay
+                       playsInline
+                       controls={false}
+                       disablePictureInPicture
+                       controlsList="nodownload nofullscreen noremoteplayback"
+                       className="w-full h-full object-contain exposure-video"
+                       onEnded={handleVideoNaturalEnd}
+                       onContextMenu={(e) => e.preventDefault()}
+                        onError={(e) => { 
+                          const videoElement = e.target as HTMLVideoElement;
+                          const error = videoElement.error;
+                          const videoSrc = videoElement.currentSrc || videoElement.src;
+                          
+                          const detailedMessage = `URL: ${videoSrc} | Error Code: ${error?.code || 'N/A'} | Message: ${error?.message || 'Not available'}`;
+                          console.error(`Video loading failed. ${detailedMessage}`);
+                          
+                          setVideoError(detailedMessage);
+                        }}
+                       src={getLocalizedVideoUrl(videoSequence[currentVideoIndex])}
+                   >
+                      {t('exposure.videoTagNotSupported')}
+                  </video>
+                  {/* Transparent overlay blocks ALL taps/clicks/swipes on the video */}
+                  <div className="absolute inset-0 z-10" aria-hidden="true" />
+                 </div>
+            )}
         </div>
       )}
 

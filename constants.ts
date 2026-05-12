@@ -60,10 +60,19 @@ export const PIE_CHART_COLORS = ['#00263E', '#BA0C2F', '#A7A596', '#0072CE']; //
 
 export const YOUTUBE_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-red-600"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-3.897 1.834-3.897 7.691 0 5.861 0 7.429 3.897 7.696 3.6.245 11.626.246 15.23 0 3.897-.266 3.897-1.838 3.897-7.696 0-5.855 0-7.425-3.897-7.691zm-7.615 11.316v-7.143l5.714 3.571-5.714 3.572z"></path></svg>`;
 
-// GitHub Release video URLs
-const VIDEOS_BASE_URL = 'https://github.com/marcomartinez-fueib/CAFFT-IA/releases/download/v1.0.0-videos/';
+// Cloudinary video hosting with CORS support
+const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || '';
+const CLOUDINARY_FOLDER = import.meta.env.VITE_CLOUDINARY_VIDEO_FOLDER || 'cafft';
 
-export const EXPOSURE_EXPLANATION_VIDEO_URL_BASE = `${VIDEOS_BASE_URL}exposure_explanation`;
+const buildVideoUrl = (videoId: string) => {
+  if (CLOUDINARY_CLOUD_NAME) {
+    return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/video/upload/${CLOUDINARY_FOLDER}/${videoId}`;
+  }
+  // Fallback to local videos during development
+  return `videos_cafft/${videoId}`;
+};
+
+export const EXPOSURE_EXPLANATION_VIDEO_URL_BASE = buildVideoUrl('exposure_explanation');
 
 export const QPVII_QUESTIONS: QPVIIQuestion[] = Array.from({ length: 31 }, (_, i) => ({
   id: i,
@@ -131,7 +140,7 @@ export const AVERAGE_VIDEO_DURATION_SECONDS = 180; // 3 minutes
 export const EXPOSURE_VIDEOS: ExposureVideo[] = [
   {
     id: 'ev001',
-    mp4Url: `${VIDEOS_BASE_URL}ev001`,
+    mp4Url: buildVideoUrl('ev001'),
     titleKey: 'exposure.ev001_title',
     descriptionKey: 'exposure.ev001_desc',
     relatedArea: 'preparation',
@@ -139,7 +148,7 @@ export const EXPOSURE_VIDEOS: ExposureVideo[] = [
   },
   {
     id: 'ev002',
-    mp4Url: `${VIDEOS_BASE_URL}ev002`,
+    mp4Url: buildVideoUrl('ev002'),
     titleKey: 'exposure.ev002_title',
     descriptionKey: 'exposure.ev002_desc',
     relatedArea: 'boarding',
@@ -147,7 +156,7 @@ export const EXPOSURE_VIDEOS: ExposureVideo[] = [
   },
   {
     id: 'ev003',
-    mp4Url: `${VIDEOS_BASE_URL}ev003`,
+    mp4Url: buildVideoUrl('ev003'),
     titleKey: 'exposure.ev003_title',
     descriptionKey: 'exposure.ev003_desc',
     relatedArea: 'takeoff',
@@ -155,7 +164,7 @@ export const EXPOSURE_VIDEOS: ExposureVideo[] = [
   },
   {
     id: 'ev004',
-    mp4Url: `${VIDEOS_BASE_URL}ev004`,
+    mp4Url: buildVideoUrl('ev004'),
     titleKey: 'exposure.ev004_title',
     descriptionKey: 'exposure.ev004_desc',
     relatedArea: 'inflight',
@@ -163,7 +172,7 @@ export const EXPOSURE_VIDEOS: ExposureVideo[] = [
   },
   {
     id: 'ev005',
-    mp4Url: `${VIDEOS_BASE_URL}ev005`,
+    mp4Url: buildVideoUrl('ev005'),
     titleKey: 'exposure.ev005_title',
     descriptionKey: 'exposure.ev005_desc',
     relatedArea: 'landing',
@@ -171,7 +180,7 @@ export const EXPOSURE_VIDEOS: ExposureVideo[] = [
   },
   {
     id: 'ev006',
-    mp4Url: `${VIDEOS_BASE_URL}ev006`,
+    mp4Url: buildVideoUrl('ev006'),
     titleKey: 'exposure.ev006_title',
     descriptionKey: 'exposure.ev006_desc',
     relatedArea: 'accidents',
@@ -179,7 +188,7 @@ export const EXPOSURE_VIDEOS: ExposureVideo[] = [
   },
   {
     id: 'ev007',
-    mp4Url: `${VIDEOS_BASE_URL}ev007`,
+    mp4Url: buildVideoUrl('ev007'),
     titleKey: 'exposure.ev007_title',
     descriptionKey: 'exposure.ev007_desc',
     relatedArea: 'inflight',
@@ -187,7 +196,7 @@ export const EXPOSURE_VIDEOS: ExposureVideo[] = [
   },
   {
     id: 'ev008',
-    mp4Url: `${VIDEOS_BASE_URL}ev008`,
+    mp4Url: buildVideoUrl('ev008'),
     titleKey: 'exposure.ev008_title',
     descriptionKey: 'exposure.ev008_desc',
     relatedArea: 'accidents',

@@ -299,72 +299,105 @@ export const OnboardingTour: React.FC = () => {
     return (
         <div className="fixed inset-0 z-[9999] pointer-events-none overflow-hidden h-full w-full">
             <AnimatePresence>
-                {/* Overlay backdrop with a hole */}
+                {/* Overlay backdrop with a hole using SVG mask for better cross-browser compatibility and rounded corners */}
                 <motion.div 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/60 pointer-events-auto"
-                    style={{
-                        maskImage: targetRect ? `radial-gradient(circle at ${targetRect.left + targetRect.width / 2}px ${targetRect.top + targetRect.height / 2}px, transparent ${Math.max(targetRect.width, targetRect.height) / 1.5}px, black ${Math.max(targetRect.width, targetRect.height) / 1.5 + 5}px)` : 'none',
-                        WebkitMaskImage: targetRect ? `radial-gradient(circle at ${targetRect.left + targetRect.width / 2}px ${targetRect.top + targetRect.height / 2}px, transparent ${Math.max(targetRect.width, targetRect.height) / 1.5}px, black ${Math.max(targetRect.width, targetRect.height) / 1.5 + 5}px)` : 'none',
-                    }}
+                    className="absolute inset-0 bg-black/60 pointer-events-auto cursor-default"
                     onClick={stopTour}
-                />
+                >
+                    <svg className="w-full h-full">
+                        <defs>
+                            <mask id="tour-mask">
+                                <rect width="100%" height="100%" fill="white" />
+                                {targetRect && (
+                                    <rect 
+                                        x={targetRect.left - 4} 
+                                        y={targetRect.top - 4} 
+                                        width={targetRect.width + 8} 
+                                        height={targetRect.height + 8} 
+                                        rx={8} 
+                                        fill="black" 
+                                    />
+                                )}
+                                {step.position === 'center' && !targetRect && (
+                                    <rect x="0" y="0" width="0" height="0" fill="black" />
+                                )}
+                            </mask>
+                        </defs>
+                        <rect width="100%" height="100%" fill="currentColor" mask="url(#tour-mask)" />
+                    </svg>
+                </motion.div>
 
                 {/* Tooltip */}
                 <motion.div
                     key={currentStep}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    className="absolute bg-white rounded-xl shadow-2xl p-6 pointer-events-auto border border-slate-200"
+                    initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                    className="absolute bg-white rounded-2xl shadow-[0_30px_70px_rgba(0,0,0,0.3)] p-6 sm:p-8 pointer-events-auto border border-slate-100 ring-1 ring-black/5"
                     style={getTooltipStyle()}
                 >
                     <button 
                         onClick={stopTour}
-                        className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
+                        className="absolute top-5 right-5 text-slate-300 hover:text-slate-500 transition-colors p-1"
+                        title={t('onboarding.finish')}
                     >
-                        <X size={20} />
+                        <X size={20} strokeWidth={2.5} />
                     </button>
 
-                    <p className="text-xs font-bold text-uib-blue uppercase tracking-widest mb-2">
-                        {t('onboarding.stepCounter', { current: currentStep + 1, total: steps.length })}
-                    </p>
+                    <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-sky-50 text-sky-600 rounded-lg mb-4">
+                        <span className="text-[10px] font-black uppercase tracking-widest">
+                            {t('onboarding.stepCounter', { current: currentStep + 1, total: steps.length })}
+                        </span>
+                    </div>
                     
-                    <h3 className="text-xl font-bold text-slate-900 mb-2 leading-tight">
+                    <h3 className="text-xl sm:text-2xl font-black text-slate-900 mb-3 leading-tight tracking-tight">
                         {t(step.titleKey)}
                     </h3>
                     
-                    <p className="text-sm text-slate-600 mb-6 leading-relaxed">
+                    <p className="text-sm sm:text-base text-slate-600 mb-8 leading-relaxed font-medium">
                         {t(step.contentKey)}
                     </p>
 
-                    <div className="flex items-center justify-between">
-                        <div className="flex gap-1">
+                    <div className="flex items-center justify-between mt-auto">
+                        <div className="flex gap-1.5">
                             {steps.map((_, i) => (
-                                <div 
+                                <button 
                                     key={i} 
-                                    className={`w-1.5 h-1.5 rounded-full transition-colors ${i === currentStep ? 'bg-uib-blue' : 'bg-slate-200'}`}
+                                    onClick={() => setCurrentStep(i)}
+                                    className={`w-2 h-2 rounded-full transition-all ${i === currentStep ? 'bg-uib-blue w-6' : 'bg-slate-200 hover:bg-slate-300'}`}
+                                    aria-label={`Go to step ${i + 1}`}
                                 />
                             ))}
                         </div>
 
-                        <div className="flex gap-2">
+                        <div className="flex items-center gap-3">
+                            {isFirst && (
+                                <button
+                                    onClick={stopTour}
+                                    className="px-4 py-2 text-xs font-bold text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-colors"
+                                >
+                                    {t('therapistDashboard.addPatientModal.cancelButton')}
+                                </button>
+                            )}
+                            
                             {!isFirst && (
                                 <button
                                     onClick={handlePrev}
-                                    className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                                    className="flex items-center justify-center p-2 text-slate-500 hover:bg-slate-100 rounded-xl transition-all font-bold group"
                                 >
-                                    <ChevronLeft size={20} />
+                                    <ChevronLeft size={22} className="group-hover:-translate-x-0.5 transition-transform" />
                                 </button>
                             )}
+                            
                             <button
                                 onClick={handleNext}
-                                className="flex items-center gap-2 px-4 py-2 bg-uib-blue text-white rounded-lg font-bold text-sm hover:bg-[#004C8C] transition-colors shadow-sm"
+                                className="flex items-center gap-2 px-6 py-2.5 bg-uib-blue text-white rounded-xl font-black text-sm hover:bg-[#004C8C] transition-all shadow-lg shadow-sky-100 hover:shadow-xl hover:-translate-y-0.5"
                             >
                                 {isLast ? t('onboarding.finish') : t('onboarding.next')}
-                                {!isLast && <ChevronRight size={16} />}
+                                {!isLast && <ChevronRight size={18} />}
                             </button>
                         </div>
                     </div>

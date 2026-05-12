@@ -530,7 +530,7 @@ export const TherapistDashboardPage: React.FC = () => {
   return (
     <>
       <Breadcrumbs items={[{ label: t('nav.therapistDashboard') }]} />
-      <div className="flex justify-between items-center mb-2">
+      <div id="onboarding-welcome" className="flex justify-between items-center mb-2">
           <PageTitle title={t('therapistDashboard.pageTitle')} />
           <button 
               onClick={() => startTour('therapist', undefined, true)}

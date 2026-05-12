@@ -656,7 +656,7 @@ export const TherapistDashboardPage: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
         {/* Phase Distribution Chart */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm col-span-1">
+        <div id="phase-distribution" className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm col-span-1">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">{t('therapistDashboard.charts.phaseDistribution')}</h3>
             <div className="h-48 w-full">
                 <ResponsiveContainer width="100%" height="100%">
@@ -747,7 +747,7 @@ export const TherapistDashboardPage: React.FC = () => {
       </div>
 
       {/* Patient Table (Consolidated) */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-10">
+      <div id="patient-table" className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-10">
           <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('therapistDashboard.myPatientsTitle')}</h3>
               <div className="flex w-full sm:w-auto space-x-2">

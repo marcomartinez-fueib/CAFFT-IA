@@ -1054,6 +1054,9 @@ export interface TranslationContent {
       step3: { title: string; content: string; };
       step4: { title: string; content: string; };
       step5: { title: string; content: string; };
+      step6: { title: string; content: string; };
+      step7: { title: string; content: string; };
+      step8: { title: string; content: string; };
     };
   };
   review?: {

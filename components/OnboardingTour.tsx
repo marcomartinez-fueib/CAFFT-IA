@@ -47,33 +47,51 @@ const PATIENT_STEPS: TourStep[] = [
 
 const THERAPIST_STEPS: TourStep[] = [
     {
-        targetId: 'therapist-stats',
+        targetId: 'onboarding-welcome',
         titleKey: 'onboarding.therapist.step1.title',
         contentKey: 'onboarding.therapist.step1.content',
-        position: 'bottom'
+        position: 'center'
     },
     {
-        targetId: 'add-patient-btn',
+        targetId: 'therapist-stats',
         titleKey: 'onboarding.therapist.step2.title',
         contentKey: 'onboarding.therapist.step2.content',
         position: 'bottom'
     },
     {
-        targetId: 'recent-activity',
+        targetId: 'phase-distribution',
         titleKey: 'onboarding.therapist.step3.title',
         contentKey: 'onboarding.therapist.step3.content',
-        position: 'top'
-    },
-    {
-        targetId: 'sidebar-nav',
-        titleKey: 'onboarding.therapist.step4.title',
-        contentKey: 'onboarding.therapist.step4.content',
         position: 'bottom'
     },
     {
-        targetId: 'help-button',
+        targetId: 'recent-activity',
+        titleKey: 'onboarding.therapist.step4.title',
+        contentKey: 'onboarding.therapist.step4.content',
+        position: 'top'
+    },
+    {
+        targetId: 'add-patient-btn',
         titleKey: 'onboarding.therapist.step5.title',
         contentKey: 'onboarding.therapist.step5.content',
+        position: 'bottom'
+    },
+    {
+        targetId: 'patient-table',
+        titleKey: 'onboarding.therapist.step6.title',
+        contentKey: 'onboarding.therapist.step6.content',
+        position: 'top'
+    },
+    {
+        targetId: 'ai-log',
+        titleKey: 'onboarding.therapist.step7.title',
+        contentKey: 'onboarding.therapist.step7.content',
+        position: 'top'
+    },
+    {
+        targetId: 'help-button',
+        titleKey: 'onboarding.therapist.step8.title',
+        contentKey: 'onboarding.therapist.step8.content',
         position: 'top'
     }
 ];

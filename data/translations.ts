@@ -759,11 +759,14 @@ const caTranslations: TranslationContent = {
             content: "Sempre que tinguis dubtes, pots consultar el nostre assistent IA al botó de la cantonada inferior dreta."
         },
         therapist: {
-            step1: { title: "Dashboard", content: "Aquí tens una visió general del progrés de tots els teus pacients de un cop d'ull." },
-            step2: { title: "Gestió de Pacients", content: "Pots afegir nous pacients o gestionar les seves dades des d'aquí." },
-            step3: { title: "Activitat Recent", content: "Monitoritza les últimes sessions realitzades pels teus pacients." },
-            step4: { title: "Navegació", content: "Utilitza el menú lateral per accedir a la llista completa de pacients i les seves notificacions." },
-            step5: { title: "Suport IA", content: "Tens l'assistent IA a mà per analitzar casos complexos o mètriques clíniques." }
+            step1: { title: "Benvingut al Panell Clínic", content: "Aquesta és la teva central de comandament per supervisar el progrés de tots els teus pacients de forma eficient." },
+            step2: { title: "Indicadors de Progrés (KPIs)", content: "Monitoritza en temps real les taxes d'èxit, la millora mitjana en el QPV-II i el temps total d'exposició de la teva cohort." },
+            step3: { title: "Distribució per Fases Clíniques", content: "Visualitza ràpidament en quina etapa del tractament es troba cada pacient per identificar colls d'ampolla." },
+            step4: { title: "Anàlisi de l'Activitat Diària", content: "Consulta la dinàmica de sessions i avaluacions dels darrers dies per assegurar l'adherència al programa." },
+            step5: { title: "Gestió de Pacients", content: "Afegeix nous pacients, genera codis d'accés i exporta dades per a investigació o ús clínic extern." },
+            step6: { title: "Llistat i Alertes Crítiques", content: "Accedeix a la fitxa detallada de cada pacient. El sistema ressaltarà automàticament aquells que requereixin una revisió urgent." },
+            step7: { title: "Consultoria IA Clínica", content: "Revisa les consultes que els pacients han fet a l'IA i utilitza l'assistent per analitzar mètriques complexes o rebre assessorament basat en l'evidència." },
+            step8: { title: "Assistència i Guies", content: "Tens sempre a mà l'assistent co-terapeuta per resoldre dubtes sobre el protocol o per accedir ràpidament a les guies clíniques." }
         }
     },
     review: {
@@ -2325,11 +2328,14 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
             content: "Siempre que tengas dudas, puedes consultar nuestro asistente IA en el botón de la esquina inferior derecha."
         },
         therapist: {
-            step1: { title: "Dashboard", content: "Aquí tienes una visión general del progreso de todos tus pacientes de un vistazo." },
-            step2: { title: "Gestión de Pacientes", content: "Puedes añadir nuevos pacientes o gestionar sus datos desde aquí." },
-            step3: { title: "Actividad Reciente", content: "Monitoriza las últimas sesiones realizadas por tus pacientes." },
-            step4: { title: "Navegación", content: "Utiliza el menú lateral para acceder a la lista completa de pacientes y sus notificaciones." },
-            step5: { title: "Soporte IA", content: "Tienes el asistente IA a mano para analizar casos complejos o métricas clínicas." }
+            step1: { title: "Bienvenido al Panel Clínico", content: "Esta es tu central de mando para supervisar el progreso de todos tus pacientes de forma eficiente." },
+            step2: { title: "Indicadores de Progreso (KPIs)", content: "Monitoriza en tiempo real las tasas de éxito, la mejora media en el QPV-II y el tiempo total de exposición de tu cohorte." },
+            step3: { title: "Distribución por Fases Clínicas", content: "Visualiza rápidamente en qué etapa del tratamiento se encuentra cada paciente para identificar cuellos de botella." },
+            step4: { title: "Análisis de la Actividad Diaria", content: "Consulta la dinámica de sesiones y evaluaciones de los últimos días para asegurar la adherencia al programa." },
+            step5: { title: "Gestión de Pacientes", content: "Añade nuevos pacientes, genera códigos de acceso y exporta datos para investigación o uso clínico externo." },
+            step6: { title: "Listado y Alertas Críticas", content: "Accede a la ficha detallada de cada paciente. El sistema resaltará automáticamente aquellos que requieran una revisión urgente." },
+            step7: { title: "Consultoría IA Clínica", content: "Revisa las consultas que los pacientes han hecho a la IA y utiliza al asistente para analizar métricas complejas o recibir asesoramiento basado en la evidencia." },
+            step8: { title: "Asistencia y Guías", content: "Tienes siempre a mano al asistente co-terapeuta para resolver dudas sobre el protocolo o para acceder rápidamente a las guías clínicas." }
         }
     },
     cafftIntroPage: {
@@ -3149,11 +3155,14 @@ const enTranslations: TranslationContent = {
             content: "Whenever you have doubts, you can consult our AI assistant with the button in the bottom right corner."
         },
         therapist: {
-            step1: { title: "Dashboard", content: "Here you have an overview of all your patients' progress at a glance." },
-            step2: { title: "Patient Management", content: "You can add new patients or manage their data from here." },
-            step3: { title: "Recent Activity", content: "Monitor the latest sessions performed by your patients." },
-            step4: { title: "Navigation", content: "Use the sidebar menu to access the full list of patients and their notifications." },
-            step5: { title: "AI Support", content: "You have the AI assistant at hand to analyze complex cases or clinical metrics." }
+            step1: { title: "Welcome to the Clinical Dashboard", content: "This is your command center to efficiently supervise the progress of all your patients." },
+            step2: { title: "Progress Indicators (KPIs)", content: "Monitor in real-time the success rates, average QPV-II improvement, and total exposure time of your cohort." },
+            step3: { title: "Clinical Phase Distribution", content: "Quickly visualize which treatment stage each patient is in to identify bottlenecks." },
+            step4: { title: "Daily Activity Analysis", content: "Check the dynamics of sessions and evaluations over the past few days to ensure program adherence." },
+            step5: { title: "Patient Management", content: "Add new patients, generate access codes, and export data for research or external clinical use." },
+            step6: { title: "Patient List & Critical Alerts", content: "Access each patient's detailed file. The system will automatically highlight those requiring urgent review." },
+            step7: { title: "Clinical AI Consultancy", content: "Review patient consultations with the AI and use the assistant to analyze complex metrics or receive evidence-based advice." },
+            step8: { title: "Support & Clinical Guides", content: "Always have the co-therapist assistant at hand to resolve protocol doubts or quickly access clinical guides." }
         }
     },
     cafftIntroPage: {

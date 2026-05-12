@@ -756,10 +756,6 @@ const caTranslations: TranslationContent = {
             content: "Fes un seguiment visual del teu progrés. Aquí veuràs com redueixes l'ansietat sessió rere sessió."
         },
         step5: {
-            title: "Centre d'Ajuda",
-            content: "Aquí trobaràs tota la documentació i vídeos de suport per resoldre els teus dubtes sobre el programa."
-        },
-        step6: {
             title: "Assistent Virtual",
             content: "Sempre que tinguis dubtes, pots consultar el nostre assistent IA al botó de la cantonada inferior dreta."
         },
@@ -768,8 +764,7 @@ const caTranslations: TranslationContent = {
             step2: { title: "Gestió de Pacients", content: "Pots afegir nous pacients o gestionar les seves dades des d'aquí." },
             step3: { title: "Activitat Recent", content: "Monitoritza les últimes sessions realitzades pels teus pacients." },
             step4: { title: "Navegació", content: "Utilitza el menú lateral per accedir a la llista completa de pacients i les seves notificacions." },
-            step5: { title: "Centre d'Ajuda", content: "Troba documentació clínica i guies d'usuari per resoldre dubtes ràpidament." },
-            step6: { title: "Suport IA", content: "Tens l'assistent IA a mà per analitzar casos complexos o mètriques clíniques." }
+            step5: { title: "Suport IA", content: "Tens l'assistent IA a mà per analitzar casos complexos o mètriques clíniques." }
         }
     },
     review: {
@@ -1101,8 +1096,8 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
     aiChat: {
         pageTitle: "Assistent IA",
         disclaimer: "Aquest és un assistent automàtic. La informació pot no ser exacta. En cas de dubte, consulta un professional.",
-        initialMessage: ["Hola! Sóc {assistantName}, el teu co-terapeuta. En què puc ajudar-te avui?", "Hola {username}! Sóc {assistantName}. Com van els teus ànims avui?", "Hola! Sóc {assistantName}. Estic aquí per ajudar-te amb la teva por a volar. Què necessites?"],
-        initialMessageCompleted: ["Hola, {username}! Sóc {assistantName}. He revisat el teu progrés i estic a punt per a les teves sessions d'exposició. Com et sents?", "Hola! Sóc {assistantName}. Vols que continuem amb les teves sessions d'exposició o prefereixes comentar algun dubte?", "Bones, {username}! Sóc {assistantName}. En què puc ajudar-te avui?"],
+        initialMessage: ["Hola! Sóc {assistantName}, el teu co-terapeuta. En què puc ajudar-te avui?", "Hola {username}! Sóc {assistantName}. Tens algun dubte o vols que comentem alguna cosa?", "Hola, sóc {assistantName}. Com et sents avui? Estic aquí per acompanyar-te."],
+        initialMessageCompleted: ["Hola, {username}! Sóc {assistantName}. He revisat el teu progrés i veig que vas molt bé. Què et preocupa ara mateix?", "Hola! Sóc {assistantName}. Vols que continuem amb les teves sessions d'exposició o prefereixes comentar algun dubte?", "Bones, {username}! Sóc {assistantName}. En què puc ajudar-te avui?"],
         inputPlaceholder: "Escriu aquí...",
         sendButton: "Enviar",
         systemInstruction: "Ets l'assistent expert del CAFFT 5.1 (recerca UIB). REGLA CRÍTICA: La conversa ha de ser NATURAL, FLUÏDA i HUMANA (ex: 'Hola {username}, tens algun dubte?'). Evita respondre com un manual d'instruccions o llistes de tasques repetitives. NO INSISTEIXIS en continuar l'exposició si l'usuari mostra malestar. REGLA D'OR: FES NOMÉS UNA PREGUNTA per resposta. No demanis informació que el sistema ja sap (vídeo, progrés, QPV-II). Alterna DIRECTIVITAT amb ORIENTACIÓ. REGLA DE VOCABULARI: Evita 'muleta' o 'cervell'. Utilitza 'recurs de seguretat', 'estratègia', 'aprenentatge', 'habituació' o 'regulació'. Pots usar [VISUAL:habituation] o [VISUAL:habituation_tutorial]. CONTEXT: {therapeuticContext}. ESTAT QPVII: {hasCompletedQPVII}.",
@@ -2260,8 +2255,8 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
     aiChat: {
         pageTitle: "Asistente IA",
         disclaimer: "Este es un asistente automático. La información puede no ser exacta. En caso de duda, consulta a un profesional.",
-        initialMessage: ["¡Hola! Soy {assistantName}, tu co-terapeuta. ¿En qué puedo ayudarte hoy?", "¡Hola {username}! Soy {assistantName}. ¿Cómo están tus ánimos hoy?", "¡Hola! Soy {assistantName}. Estoy aquí para ayudarte con tu miedo a volar. ¿Qué necesitas?"],
-        initialMessageCompleted: ["¡Hola, {username}! Soy {assistantName}. He revisado tu progreso y estoy listo para tus sesiones de exposición. ¿Cómo te sientes?", "¡Hola! Soy {assistantName}. ¿Quieres que continuemos con tus sesiones o prefieres comentar alguna duda?", "¡Buenas, {username}! Soy {assistantName}. ¿En qué puedo ayudarte hoy?"],
+        initialMessage: ["¡Hola! Soy {assistantName}, tu co-terapeuta. ¿En qué puedo ayudarte hoy?", "¡Hola {username}! Soy {assistantName}. ¿Tienes alguna duda o quieres que hablemos de algo?", "Hola, soy {assistantName}. ¿Cómo te sientes hoy? Estoy aquí para acompañarte."],
+        initialMessageCompleted: ["¡Hola, {username}! Soy {assistantName}. He revisado tu progreso y veo que vas muy bien. ¿Qué te preocupa en este momento?", "¡Hola! Soy {assistantName}. ¿Quieres continuar con tus sesiones de exposición o prefieres comentar alguna duda?", "¡Buenas, {username}! Soy {assistantName}. ¿En qué puedo ayudarte hoy?"],
         inputPlaceholder: "Escribe aquí...",
         sendButton: "Enviar",
         systemInstruction: "Eres el asistente experto del CAFFT 5.1 (investigación UIB). REGLA CRÍTICA: La conversación debe ser NATURAL, FLUIDA y HUMANA (ej: 'Hola {username}, ¿tienes alguna duda?'). Evita responder como un manual de instrucciones o listas de tareas repetitivas. NO INSISTAS en continuar la exposición si el usuario muestra malestar. REGLA DE ORO: HAZ SOLO UNA PREGUNTA por respuesta. No pidas información que el sistema ya conoce (vídeo, progreso, QPV-II). Alterna DIRECTIVIDAD con ORIENTACIÓN. REGLA DE VOCABULARIO: Evita 'muleta' o 'cerebro'. Usa 'recurso de seguridad', 'estrategia', 'aprendizaje', 'habituación' o 'regulación'. Puedes usar [VISUAL:habituation] o [VISUAL:habituation_tutorial]. CONTEXTO: {therapeuticContext}. ESTADO QPVII: {hasCompletedQPVII}.",
@@ -2327,10 +2322,6 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
             content: "Haz un seguimiento visual de tu progreso. Aquí verás cómo reduces la ansiedad sesión tras sesión."
         },
         step5: {
-            title: "Centro de Ayuda",
-            content: "Aquí encontrarás toda la documentación y vídeos de soporte para resolver tus dudas sobre el programa."
-        },
-        step6: {
             title: "Asistente Virtual",
             content: "Siempre que tengas dudas, puedes consultar nuestro asistente IA en el botón de la esquina inferior derecha."
         },
@@ -2339,8 +2330,7 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
             step2: { title: "Gestión de Pacientes", content: "Puedes añadir nuevos pacientes o gestionar sus datos desde aquí." },
             step3: { title: "Actividad Reciente", content: "Monitoriza las últimas sesiones realizadas por tus pacientes." },
             step4: { title: "Navegación", content: "Utiliza el menú lateral para acceder a la lista completa de pacientes y sus notificaciones." },
-            step5: { title: "Centro de Ayuda", content: "Encuentra documentación clínica y guías de usuario para resolver dudas rápidamente." },
-            step6: { title: "Soporte IA", content: "Tienes el asistente IA a mano para analizar casos complejos o métricas clínicas." }
+            step5: { title: "Soporte IA", content: "Tienes el asistente IA a mano para analizar casos complejos o métricas clínicas." }
         }
     },
     cafftIntroPage: {
@@ -3089,8 +3079,8 @@ const enTranslations: TranslationContent = {
     aiChat: {
         pageTitle: "AI Assistant",
         disclaimer: "This is an automated assistant. Information may not be accurate. If in doubt, consult a professional.",
-        initialMessage: ["Hi! I'm {assistantName}, your co-therapist. How can I help you today?", "Hello {username}! I'm {assistantName}. How are you feeling today?", "Hi! I'm {assistantName}. I'm here to help you with your fear of flying. What do you need?"],
-        initialMessageCompleted: ["Hello, {username}! I'm {assistantName}. I've reviewed your progress and I'm ready for your exposure sessions. How are you feeling?", "Hi! I'm {assistantName}. Should we continue with your exposure sessions or do you have any questions?", "Hello, {username}! I'm {assistantName}. How can I assist you today?"],
+        initialMessage: ["Hi! I'm {assistantName}, your co-therapist. How can I help you today?", "Hello {username}! I'm {assistantName}. Do you have any questions or would you like to talk about something?", "Hi, I'm {assistantName}. How are you feeling today? I'm here to support you."],
+        initialMessageCompleted: ["Hello, {username}! I'm {assistantName}. I've reviewed your progress and you're doing great. What's on your mind right now?", "Hi! I'm {assistantName}. Should we continue with your exposure sessions or do you have any questions?", "Hello, {username}! I'm {assistantName}. How can I assist you today?"],
         inputPlaceholder: "Type here...",
         sendButton: "Send",
         systemInstruction: "You are the CAFFT 5.1 expert assistant (UIB research). CRITICAL RULE: Conversation must be NATURAL, FLUID, and HUMAN (e.g., 'Hi {username}, do you have any questions?'). Avoid responding like an instruction manual or repetitive task lists. DO NOT INSIST on exposure if the user shows discomfort. GOLDEN RULE: ASK ONLY ONE QUESTION per turn. Do not ask for information the system already knows (current video, progress, or QPV-II status). Alternate DIRECTIVITY with ORIENTATION. VOCABULARY RULE: Avoid 'crutch' or 'brain'. Use 'safety resource', 'strategy', 'learning', 'habituation', or 'regulation'. You can use [VISUAL:habituation] or [VISUAL:habituation_tutorial]. CONTEXT: {therapeuticContext}. QPVII STATUS: {hasCompletedQPVII}.",
@@ -3156,10 +3146,6 @@ const enTranslations: TranslationContent = {
             content: "Track your progress visually. See how you reduce anxiety session after session."
         },
         step5: {
-            title: "Help Center",
-            content: "Here you will find all the documentation and support videos to solve your doubts about the program."
-        },
-        step6: {
             title: "Virtual Assistant",
             content: "Whenever you have doubts, you can consult our AI assistant with the button in the bottom right corner."
         },
@@ -3168,8 +3154,7 @@ const enTranslations: TranslationContent = {
             step2: { title: "Patient Management", content: "You can add new patients or manage their data from here." },
             step3: { title: "Recent Activity", content: "Monitor the latest sessions performed by your patients." },
             step4: { title: "Navigation", content: "Use the sidebar menu to access the full list of patients and their notifications." },
-            step5: { title: "Help Center", content: "Find clinical documentation and user guides to solve doubts quickly." },
-            step6: { title: "AI Support", content: "You have the AI assistant at hand to analyze complex cases or clinical metrics." }
+            step5: { title: "AI Support", content: "You have the AI assistant at hand to analyze complex cases or clinical metrics." }
         }
     },
     cafftIntroPage: {

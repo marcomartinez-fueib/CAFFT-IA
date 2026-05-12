@@ -38,15 +38,9 @@ const PATIENT_STEPS: TourStep[] = [
         position: 'bottom'
     },
     {
-        targetId: 'nav-help-center',
+        targetId: 'help-button',
         titleKey: 'onboarding.step5.title',
         contentKey: 'onboarding.step5.content',
-        position: 'bottom'
-    },
-    {
-        targetId: 'help-button',
-        titleKey: 'onboarding.step6.title',
-        contentKey: 'onboarding.step6.content',
         position: 'top'
     }
 ];
@@ -77,15 +71,9 @@ const THERAPIST_STEPS: TourStep[] = [
         position: 'right'
     },
     {
-        targetId: 'nav-help-center',
+        targetId: 'help-button',
         titleKey: 'onboarding.therapist.step5.title',
         contentKey: 'onboarding.therapist.step5.content',
-        position: 'bottom'
-    },
-    {
-        targetId: 'help-button',
-        titleKey: 'onboarding.therapist.step6.title',
-        contentKey: 'onboarding.therapist.step6.content',
         position: 'top'
     }
 ];

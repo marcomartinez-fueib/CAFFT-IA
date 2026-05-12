@@ -706,7 +706,6 @@ export interface TranslationContent {
     therapistNotifications: string;
     clinicalGuide?: string;
     scientificEvidence?: string;
-    helpCenter: string;
     addUser: string;
     addTherapist: string;
     save: string;
@@ -1049,14 +1048,12 @@ export interface TranslationContent {
     step3: { title: string; content: string; };
     step4: { title: string; content: string; };
     step5: { title: string; content: string; };
-    step6: { title: string; content: string; };
     therapist?: {
       step1: { title: string; content: string; };
       step2: { title: string; content: string; };
       step3: { title: string; content: string; };
       step4: { title: string; content: string; };
       step5: { title: string; content: string; };
-      step6: { title: string; content: string; };
     };
   };
   review?: {

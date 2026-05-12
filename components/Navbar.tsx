@@ -30,7 +30,6 @@ import {
   Users,
   Bell,
   MessageSquare,
-  LifeBuoy,
   Beaker,
   BookOpen
 } from 'lucide-react';
@@ -48,7 +47,6 @@ const navIcons: Record<string, React.ReactNode> = {
   'nav.scientificEvidence': <Beaker className="w-4 h-4 mr-2" />,
   'nav.settings': <Settings className="w-4 h-4 mr-2" />,
   'nav.feedback': <MessageSquare className="w-4 h-4 mr-2" />,
-  'nav.helpCenter': <LifeBuoy className="w-4 h-4 mr-2" />,
 };
 
 export const Navbar: React.FC = () => {
@@ -106,7 +104,6 @@ export const Navbar: React.FC = () => {
                 if (item.path === '/qpvii-evaluation') id = "nav-qpvii";
                 if (item.path === '/exposure') id = "nav-exposure";
                 if (item.path === '/evolution') id = "nav-evolution";
-                if (item.path === '/help-center') id = "nav-help-center";
 
                 return (
                     <NavLink key={item.path} id={id} to={item.path} className={linkClass}>
@@ -200,7 +197,6 @@ export const Navbar: React.FC = () => {
               if (item.path === '/qpvii-evaluation') id = "nav-qpvii-mobile";
               if (item.path === '/exposure') id = "nav-exposure-mobile";
               if (item.path === '/evolution') id = "nav-evolution-mobile";
-              if (item.path === '/help-center') id = "nav-help-center-mobile";
 
               return (
                 <NavLink

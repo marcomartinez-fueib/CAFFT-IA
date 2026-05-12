@@ -10,6 +10,7 @@ import { calculateQPVIIScores } from '../utils/qpviiScoring';
 import { THERAPEUTIC_KNOWLEDGE } from '../data/therapeuticKnowledge';
 import { ChatVisualizer } from '../components/ChatVisualizer';
 import { EvolutionChartDataPoint, UserExposureProgress, StoredUser } from '../types';
+import { EXPOSURE_VIDEOS } from '../constants.ts';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { motion, AnimatePresence } from 'motion/react';
@@ -63,6 +64,74 @@ export const ChatInterface: React.FC<{onCloseModal?: () => void; hideHeader?: bo
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState(currentUser?.assistantName || '');
   
+  const therapeuticContext = useMemo(() => {
+    if (!currentUser) return { contextText: '', therapistContext: '' };
+    
+    const results = getQPVIIResultsForUser(currentUser.id);
+    const allProgress = getAllUserExposureProgress().filter(p => p.userId === currentUser.id);
+    const latestProgress = allProgress.length > 0 ? [...allProgress].sort((a, b) => b.lastUpdated - a.lastUpdated)[0] : null;
+
+    let lastVideoInfo = "";
+    if (latestProgress && latestProgress.completedVideoIds.length > 0) {
+        const lastVideoId = latestProgress.completedVideoIds[latestProgress.completedVideoIds.length - 1];
+        const video = EXPOSURE_VIDEOS.find(v => v.id === lastVideoId);
+        if (video) {
+            lastVideoInfo = `\nÚLTIM VÍDEO SUPERAT: ${t(video.titleKey)} (${t(`evolution.scene_${video.relatedArea}`)})`;
+        }
+    } else if (latestProgress && latestProgress.videoSequence.length > 0) {
+        const currentVideoId = latestProgress.videoSequence[latestProgress.currentVideoIndex];
+        const video = EXPOSURE_VIDEOS.find(v => v.id === currentVideoId);
+        if (video) {
+            lastVideoInfo = `\nVÍDEO ACTUAL: ${t(video.titleKey)} (${t(`evolution.scene_${video.relatedArea}`)})`;
+        }
+    }
+
+    let momentKey = 'pre';
+    if (results.some(r => r.evaluationType === 'post')) {
+        momentKey = 'post';
+    } else if (allProgress.some(p => p.programCompleted)) {
+        momentKey = 'maintenance';
+    } else if (results.length > 0) {
+        momentKey = 'during';
+    }
+    
+    const contextText = t(`aiChat.moment.${momentKey}`) + lastVideoInfo;
+    
+    let therapistContext = '';
+    if (currentUser.role === 'therapist') {
+        const allUsers = getUsers();
+        const myPatients = (allUsers as StoredUser[]).filter(u => u.role === 'patient' && u.therapistId === currentUser.id);
+        
+        if (myPatients.length > 0) {
+            therapistContext = "\n\nDATOS CLÍNICOS DE TUS PACIENTES (Analiza estos datos para asesorar al terapeuta):\n";
+            myPatients.forEach(patient => {
+                const patientResults = getQPVIIResultsForUser(patient.id).sort((a, b) => a.timestamp - b.timestamp);
+                const patientProgress = getAllUserExposureProgress().filter(p => p.userId === patient.id).sort((a, b) => b.lastUpdated - a.lastUpdated);
+                
+                const lastResult = patientResults.length > 0 ? patientResults[patientResults.length - 1] : null;
+                const scores = lastResult?.scores ? 
+                  `Total: ${lastResult.scores.total} (Malestar: ${lastResult.scores.malestarGeneral}, Prep: ${lastResult.scores.subPreparatius}, Vic: ${lastResult.scores.subVicari}, Vol: ${lastResult.scores.subVol})` : 
+                  "Sin resultados";
+                  
+                let rciInfo = "RCI: No disponible (falten dades)";
+                if (patientResults.length >= 2) {
+                    const firstTotal = calculateQPVIIScores(patientResults[0].answers).total;
+                    const lastTotal = calculateQPVIIScores(patientResults[patientResults.length - 1].answers).total;
+                    const rciVal = (firstTotal - lastTotal) / 17.6;
+                    rciInfo = `RCI: ${rciVal.toFixed(2)} (${rciVal >= 1.96 ? 'Significatiu' : 'No significatiu'})`;
+                }
+
+                const progressSummary = patientProgress.length > 0 
+                    ? `${patientProgress.length} sessions, última: ${new Date(patientProgress[0].lastUpdated).toLocaleDateString()}`
+                    : "No hay sesiones.";
+                    
+                therapistContext += `- PACIENT: ${patient.username} (ID: ${patient.id})\n  * QPV-II actual: ${scores}\n  * ${rciInfo}\n  * Progrés: ${progressSummary}\n`;
+            });
+        }
+    }
+    return { contextText, therapistContext };
+  }, [currentUser, t]);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -154,54 +223,7 @@ export const ChatInterface: React.FC<{onCloseModal?: () => void; hideHeader?: bo
               setRciData(null);
           }
 
-          let momentKey = 'pre';
-          if (results.some(r => r.evaluationType === 'post')) {
-              momentKey = 'post';
-          } else if (allProgress.some(p => p.programCompleted)) {
-              momentKey = 'maintenance';
-          } else if (results.length > 0) {
-              momentKey = 'during';
-          }
-          
-          const contextText = t(`aiChat.moment.${momentKey}`);
-          
           const isTherapist = currentUser.role === 'therapist';
-          
-          let therapistContext = '';
-          if (isTherapist) {
-              const allUsers = getUsers();
-              const myPatients = (allUsers as StoredUser[]).filter(u => u.role === 'patient' && u.therapistId === currentUser.id);
-              
-              if (myPatients.length > 0) {
-                  therapistContext = "\n\nDATOS CLÍNICOS DE TUS PACIENTES (Analiza estos datos para asesorar al terapeuta):\n";
-                  myPatients.forEach(patient => {
-                      const patientResults = getQPVIIResultsForUser(patient.id).sort((a, b) => a.timestamp - b.timestamp);
-                      const patientProgress = getAllUserExposureProgress().filter(p => p.userId === patient.id).sort((a, b) => b.lastUpdated - a.lastUpdated);
-                      
-                      const lastResult = patientResults.length > 0 ? patientResults[patientResults.length - 1] : null;
-                      const scores = lastResult?.scores ? 
-                        `Total: ${lastResult.scores.total} (Malestar: ${lastResult.scores.malestarGeneral}, Prep: ${lastResult.scores.subPreparatius}, Vic: ${lastResult.scores.subVicari}, Vol: ${lastResult.scores.subVol})` : 
-                        "Sin resultados";
-                        
-                      // Calculate RCI if possible
-                      let rciInfo = "RCI: No disponible (falten dades)";
-                      if (patientResults.length >= 2) {
-                          const firstTotal = calculateQPVIIScores(patientResults[0].answers).total;
-                          const lastTotal = calculateQPVIIScores(patientResults[patientResults.length - 1].answers).total;
-                          const rciVal = (firstTotal - lastTotal) / 17.6;
-                          rciInfo = `RCI: ${rciVal.toFixed(2)} (${rciVal >= 1.96 ? 'Significatiu' : 'No significatiu'})`;
-                      }
-
-                      const progressSummary = patientProgress.length > 0 
-                          ? `${patientProgress.length} sessions, última: ${new Date(patientProgress[0].lastUpdated).toLocaleDateString()}`
-                          : "No hay sesiones.";
-                          
-                      therapistContext += `- PACIENT: ${patient.username} (ID: ${patient.id})\n  * QPV-II actual: ${scores}\n  * ${rciInfo}\n  * Progrés: ${progressSummary}\n`;
-                  });
-              } else {
-                  therapistContext = "\n\nNo tienes pacientes asignados actualmente.";
-              }
-          }
           
           // Documentation Knowledge Base
           const docsKnowledge = `
@@ -214,9 +236,9 @@ ${THERAPEUTIC_KNOWLEDGE.coreFeatures}
 `;
 
           const systemInstruction = isTherapist 
-            ? t('aiChat.therapistSystemInstruction', { username: currentUser.username }) + "\n\n" + docsKnowledge + therapistContext
+            ? t('aiChat.therapistSystemInstruction', { username: currentUser.username }) + "\n\n" + docsKnowledge + therapeuticContext.therapistContext
             : t('aiChat.systemInstruction', { 
-                therapeuticContext: contextText,
+                therapeuticContext: therapeuticContext.contextText,
                 assistantName: currentUser.assistantName || 'Bora',
                 username: currentUser.username || 'Pacient',
                 hasCompletedQPVII: results.length > 0 ? "SÍ" : "NO"
@@ -310,24 +332,8 @@ ${THERAPEUTIC_KNOWLEDGE.coreFeatures}
 
         // Get system instruction
         const isTherapist = currentUser.role === 'therapist';
-        let therapistContext = '';
-        if (isTherapist) {
-            const allUsers = getUsers();
-            const myPatients = (allUsers as StoredUser[]).filter(u => u.role === 'patient' && u.therapistId === currentUser.id);
-            if (myPatients.length > 0) {
-                therapistContext = "\n\nDATOS DE TUS PACIENTES:\n";
-                myPatients.forEach(patient => {
-                    const patientResults = getQPVIIResultsForUser(patient.id);
-                    const lastResult = patientResults.length > 0 ? patientResults[0] : null;
-                    const scores = lastResult?.scores ? `Total: ${lastResult.scores.total}` : "Sin resultados";
-                    therapistContext += `- ${patient.username}: QPV-II: ${scores}\n`;
-                });
-            }
-        }
 
-        const momentKey = qpviiData.length > 0 ? 'during' : 'pre';
         const hasQPVII = qpviiData.length > 0;
-        const contextText = t(`aiChat.moment.${momentKey}`);
 
         // Documentation Knowledge Base
         const docsKnowledge = `
@@ -340,9 +346,9 @@ ${THERAPEUTIC_KNOWLEDGE.coreFeatures}
 `;
 
         const systemInstruction = isTherapist 
-          ? t('aiChat.therapistSystemInstruction', { username: currentUser.username }) + "\n\n" + docsKnowledge + therapistContext
+          ? t('aiChat.therapistSystemInstruction', { username: currentUser.username }) + "\n\n" + docsKnowledge + therapeuticContext.therapistContext
           : t('aiChat.systemInstruction', { 
-              therapeuticContext: contextText,
+              therapeuticContext: therapeuticContext.contextText,
               assistantName: currentUser.assistantName || 'Bora',
               username: currentUser.username || 'Pacient',
               hasCompletedQPVII: hasQPVII ? "SÍ (ja ha realitzat el qüestionari inicial)" : "NO (encara ha de fer el qüestionari)"

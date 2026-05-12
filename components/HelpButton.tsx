@@ -31,7 +31,7 @@ export const HelpButton: React.FC<HelpButtonProps> = ({ onClick }) => {
         </span>
       </div>
       <span className="hidden sm:block font-display font-black text-sm uppercase tracking-widest pr-2">
-        {t('onboarding.step6.title')}
+        {t('onboarding.step5.title')}
       </span>
     </motion.button>
   );

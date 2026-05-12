@@ -224,22 +224,6 @@ export const OnboardingTour: React.FC = () => {
             top = targetRect.top - padding - 20;
             x = '-100%';
             y = '-100%';
-            
-            // Boundary check for being too far left
-            if (left - tooltipWidth < padding) {
-                left = padding + tooltipWidth;
-            }
-            // Boundary check for being too far up
-            if (top - estimatedHeight < padding) {
-                top = padding + estimatedHeight;
-            }
-
-            return {
-                top,
-                left,
-                transform: `translate(${x}, ${y})`,
-                width: tooltipWidth
-            };
         }
 
         // Horizontal Clamping
@@ -262,29 +246,40 @@ export const OnboardingTour: React.FC = () => {
             }
         }
 
-        // Vertical Clamping
-        if (y === '0%') {
-            if (top + estimatedHeight > viewportHeight - padding) {
-                top = targetRect.top - padding;
-                y = '-100%';
-            }
-        } else if (y === '-100%') {
-            if (top - estimatedHeight < padding) {
+        // Vertical Clamping - handle tooltip overflow
+        const actualTop = y === '-100%' ? top - estimatedHeight : (y === '0%' ? top : top - estimatedHeight / 2);
+        const actualBottom = actualTop + estimatedHeight;
+
+        if (actualBottom > viewportHeight - padding) {
+            if (y === '-100%') {
                 top = targetRect.bottom + padding;
                 y = '0%';
-            }
-        } else if (y === '-50%') {
-            const half = estimatedHeight / 2;
-            if (top - half < padding) {
-                top = padding + half;
-            } else if (top + half > viewportHeight - padding) {
-                top = viewportHeight - padding - half;
+            } else if (y === '0%') {
+                top = targetRect.top - padding - estimatedHeight;
+                y = '-100%';
             }
         }
 
+        if (actualTop < padding) {
+            if (y === '-100%') {
+                top = targetRect.bottom + padding;
+                y = '0%';
+            }
+        }
+
+// Final safety net - ensure tooltip stays within viewport
+        const finalLeft = Math.max(tooltipWidth / 2, Math.min(left, viewportWidth - tooltipWidth / 2));
+        let actualFinalTop = top;
+        if (y === '-100%') {
+            actualFinalTop = top - estimatedHeight;
+        } else if (y === '-50%') {
+            actualFinalTop = top - estimatedHeight / 2;
+        }
+        actualFinalTop = Math.max(padding, Math.min(actualFinalTop, viewportHeight - estimatedHeight - padding));
+
         return {
-            top,
-            left,
+            top: actualFinalTop,
+            left: finalLeft,
             transform: `translate(${x}, ${y})`,
             width: tooltipWidth
         };

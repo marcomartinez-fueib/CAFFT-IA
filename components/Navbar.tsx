@@ -70,7 +70,7 @@ export const Navbar: React.FC = () => {
   };
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `relative flex items-center h-full text-[8.5px] lg:text-[10px] xl:text-[12.5px] font-extrabold tracking-tighter lg:tracking-tight uppercase transition-all duration-300 group ${
+    `relative flex items-center h-full text-[10.5px] lg:text-[10.5px] xl:text-[12px] font-extrabold tracking-tighter lg:tracking-tight uppercase transition-all duration-300 group ${
       isActive
         ? 'text-uib-blue'
         : 'text-uib-darkGray hover:text-uib-blue'
@@ -99,7 +99,7 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex flex-1 items-center justify-start ml-2 lg:ml-8 xl:ml-12 space-x-0 overflow-hidden h-full">
+          <div className="hidden md:flex flex-1 items-center justify-start ml-2 lg:ml-2 xl:ml-2 space-x-0 overflow-hidden h-full">
             {mainNavItems.map((item) => {
                 let id = "";
                 if (item.path === '/cafft-intro') id = "nav-home";
@@ -126,12 +126,12 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* User & Actions group */}
-          <div className="hidden md:flex items-center space-x-1 lg:space-x-3 xl:space-x-5 flex-shrink-0 border-l border-gray-100 pl-2 lg:pl-4 xl:pl-6 h-full">
+          <div className="hidden min-[1024px]:flex items-center space-x-1 lg:space-x-3 xl:space-x-5 flex-shrink-0 border-l border-gray-100 pl-2 lg:pl-4 xl:pl-6 h-full">
             <div className="shrink-0 scale-90 lg:scale-100">
                 <LanguageSwitcher />
             </div>
             
-            <div className="h-8 w-px bg-slate-100 hidden lg:block mx-1"></div>
+            <div className="h-8 w-px bg-slate-100 hidden md:block mx-1"></div>
 
             {currentUser && (
               <div className="flex items-center group cursor-pointer">
@@ -160,7 +160,7 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Mobile menu button */}
-          <div className="flex items-center md:hidden">
+          <div className="flex items-center min-[1024px]:hidden">
             <div className="mr-1 sm:mr-4">
                 <LanguageSwitcher />
             </div>
@@ -176,7 +176,7 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 shadow-lg absolute w-full left-0 animate-fadeIn z-50">
+        <div className="min-[1024px]:hidden bg-white border-t border-gray-100 shadow-lg absolute w-full left-0 animate-fadeIn z-50">
           <div className="px-2 sm:px-4 pt-2 pb-6 space-y-1">
             {currentUser && (
               <div className="px-4 py-4 mb-2 bg-slate-50 rounded-xl flex items-center border border-slate-100 mx-2 mt-2">

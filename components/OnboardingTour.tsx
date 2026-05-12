@@ -68,7 +68,7 @@ const THERAPIST_STEPS: TourStep[] = [
         targetId: 'sidebar-nav',
         titleKey: 'onboarding.therapist.step4.title',
         contentKey: 'onboarding.therapist.step4.content',
-        position: 'right'
+        position: 'bottom'
     },
     {
         targetId: 'help-button',

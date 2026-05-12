@@ -123,19 +123,25 @@ export const OnboardingTour: React.FC = () => {
         }
 
         let element = document.getElementById(step.targetId);
+        // Fallback for mobile specific IDs
         if (!element) {
             element = document.getElementById(`${step.targetId}-mobile`);
+        }
+        // General search by attribute if ID fails
+        if (!element) {
+            element = document.querySelector(`[data-tour="${step.targetId}"]`) as HTMLElement;
         }
 
         if (element) {
             const rect = element.getBoundingClientRect();
             // Only update if dimensions have actually changed or it moved
-            if (rect.width > 0) {
+            // And ensure it's actually in the viewport (or we might get 0,0)
+            if (rect.width > 0 && rect.height > 0) {
                 setTargetRect(rect);
-            } else {
-                setTargetRect(null);
             }
         } else {
+            // If we're on a target step but can't find the element, reset to null
+            // This will show the tooltip in the center (safe fallback)
             setTargetRect(null);
         }
     };
@@ -151,31 +157,26 @@ export const OnboardingTour: React.FC = () => {
         }
 
         const scrollToTarget = () => {
-            let element = document.getElementById(step.targetId);
-            if (!element) {
-                element = document.getElementById(`${step.targetId}-mobile`);
-            }
-
+            let element = document.getElementById(step.targetId) || 
+                          document.getElementById(`${step.targetId}-mobile`) ||
+                          document.querySelector(`[data-tour="${step.targetId}"]`);
+            
             if (element) {
                 const rect = element.getBoundingClientRect();
-                const style = window.getComputedStyle(element);
-                const isFixed = style.position === 'fixed';
+                const isVisible = rect.top >= 60 && rect.bottom <= window.innerHeight - 60;
                 
-                // Only scroll if not already comfortably in view
-                const isVisible = rect.top >= 100 && rect.bottom <= window.innerHeight - 100;
-                
-                if (!isFixed && !isVisible) {
+                if (!isVisible) {
                     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
                 
-                updateTargetRect();
+                // Update rect after a short delay for scroll to finish
+                setTimeout(updateTargetRect, 300);
             }
         };
 
-        // Delay slightly for any transitions or data loading
         const timer = setTimeout(scrollToTarget, 100);
         return () => clearTimeout(timer);
-    }, [currentStep, isTourActive, steps]);
+    }, [currentStep, isTourActive]);
 
     // Handle continuous updates for layout changes/scrolling (without scrollIntoView)
     useEffect(() => {
@@ -332,7 +333,7 @@ export const OnboardingTour: React.FC = () => {
     return (
         <div className="fixed inset-0 z-[9999] pointer-events-none overflow-hidden h-full w-full">
             <AnimatePresence>
-                {/* Overlay backdrop with a hole using SVG mask for better cross-browser compatibility and rounded corners */}
+                {/* Overlay backdrop with a hole using SVG mask */}
                 <motion.div 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -341,55 +342,79 @@ export const OnboardingTour: React.FC = () => {
                 >
                     <svg className="w-full h-full">
                         <defs>
-                            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                                <feGaussianBlur stdDeviation="6" result="blur" />
+                            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                                <feGaussianBlur stdDeviation="15" result="blur" />
                                 <feComposite in="SourceGraphic" in2="blur" operator="over" />
                             </filter>
                             <mask id="tour-mask">
                                 <rect width="100%" height="100%" fill="white" />
                                 {targetRect && (
-                                    <rect 
-                                        x={targetRect.left - 6} 
-                                        y={targetRect.top - 6} 
-                                        width={targetRect.width + 12} 
-                                        height={targetRect.height + 12} 
-                                        rx={12} 
+                                    <motion.rect 
+                                        layout
+                                        x={targetRect.left - 8} 
+                                        y={targetRect.top - 8} 
+                                        width={targetRect.width + 16} 
+                                        height={targetRect.height + 16} 
+                                        rx={16} 
                                         fill="black" 
+                                        transition={{ type: 'spring', damping: 25, stiffness: 120 }}
                                     />
-                                )}
-                                {step.position === 'center' && !targetRect && (
-                                    <rect x="0" y="0" width="0" height="0" fill="black" />
                                 )}
                             </mask>
                         </defs>
                         
-                        {/* The backdrop overlay */}
-                        <rect width="100%" height="100%" fill="rgba(15, 23, 42, 0.85)" mask="url(#tour-mask)" />
+                        {/* The backdrop overlay - sophisticated gradient backdrop */}
+                        <rect width="100%" height="100%" fill="rgba(8, 12, 32, 0.78)" mask="url(#tour-mask)" />
                         
                         {/* The spotlight light effect (focus ring) */}
-                        {targetRect && (
-                            <motion.rect
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ 
-                                    opacity: [0.4, 0.7, 0.4],
-                                    scale: [1, 1.02, 1],
-                                }}
-                                transition={{
-                                    duration: 2,
-                                    repeat: Infinity,
-                                    ease: "easeInOut"
-                                }}
-                                x={targetRect.left - 8}
-                                y={targetRect.top - 8}
-                                width={targetRect.width + 16}
-                                height={targetRect.height + 16}
-                                rx={14}
-                                fill="none"
-                                stroke="white"
-                                strokeWidth="2"
-                                style={{ filter: 'url(#glow)' }}
-                            />
-                        )}
+                        <AnimatePresence mode="popLayout">
+                            {targetRect && (
+                                <motion.g
+                                    key="focus-ring"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                >
+                                    {/* Ultra-soft outer halo */}
+                                    <motion.rect
+                                        layout
+                                        x={targetRect.left - 20}
+                                        y={targetRect.top - 20}
+                                        width={targetRect.width + 40}
+                                        height={targetRect.height + 40}
+                                        rx={24}
+                                        fill="white"
+                                        fillOpacity={0.06}
+                                        style={{ filter: 'url(#glow)' }}
+                                        transition={{ type: 'spring', damping: 30, stiffness: 100 }}
+                                    />
+                                    
+                                    {/* Main focus ring with animated stroke */}
+                                    <motion.rect
+                                        layout
+                                        initial={{ opacity: 0 }}
+                                        animate={{ 
+                                            opacity: [0.5, 1, 0.5],
+                                            strokeWidth: [2, 3.5, 2]
+                                        }}
+                                        transition={{
+                                            layout: { type: 'spring', damping: 25, stiffness: 120 },
+                                            opacity: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+                                            strokeWidth: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                                        }}
+                                        x={targetRect.left - 10}
+                                        y={targetRect.top - 10}
+                                        width={targetRect.width + 20}
+                                        height={targetRect.height + 20}
+                                        rx={18}
+                                        fill="none"
+                                        stroke="rgba(255, 255, 255, 0.9)"
+                                        strokeWidth="2.5"
+                                        filter="drop-shadow(0 0 12px rgba(255,255,255,0.4))"
+                                    />
+                                </motion.g>
+                            )}
+                        </AnimatePresence>
                     </svg>
                 </motion.div>
 

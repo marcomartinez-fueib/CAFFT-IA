@@ -10,7 +10,7 @@ import { QPVIIUserResult, UserExposureProgress } from '../types';
  * @param headers The headers for the CSV file.
  * @returns A string in CSV format.
  */
-function convertToCSV(data: any[], headers: string[]): string {
+export function convertToCSV(data: any[], headers: string[]): string {
     const csvRows = [];
     csvRows.push(headers.join(','));
 
@@ -31,7 +31,7 @@ function convertToCSV(data: any[], headers: string[]): string {
  * @param csvString The CSV content.
  * @param filename The name of the file to download.
  */
-function downloadCSV(csvString: string, filename: string): void {
+export function downloadCSV(csvString: string, filename: string): void {
     const blob = new Blob([`\uFEFF${csvString}`], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     
@@ -276,4 +276,26 @@ export function exportDataToCSV(anonymize: boolean): void {
     const finalHeaders = [...baseHeaders, ...sceneHeaders];
     const csv = convertToCSV(allPatientRows, finalHeaders);
     downloadCSV(csv, `cafft_patient_summary_export_${new Date().toISOString().split('T')[0]}.csv`);
+}
+
+/**
+ * Exports AI Assistant consultation logs to a CSV file.
+ * @param consultations The array of AI consultations.
+ */
+export function exportAiLogsToCSV(consultations: any[]): void {
+    if (consultations.length === 0) {
+        alert('No AI consultation logs found to export.');
+        return;
+    }
+
+    const headers = ['userName', 'query', 'response', 'timestamp'];
+    
+    // Format timestamp for readability in CSV
+    const dataToExport = consultations.map(c => ({
+        ...c,
+        timestamp: new Date(c.timestamp).toISOString()
+    }));
+
+    const csv = convertToCSV(dataToExport, headers);
+    downloadCSV(csv, `cafft_ai_logs_export_${new Date().toISOString().split('T')[0]}.csv`);
 }

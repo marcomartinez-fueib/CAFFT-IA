@@ -25,7 +25,7 @@ import {
 } from '../../utils/localStorageDB';
 import { calculateQPVIIScores } from '../../utils/qpviiScoring';
 import { hashPassword } from '../../utils/hash';
-import { exportDataToCSV } from '../../utils/export';
+import { exportDataToCSV, exportAiLogsToCSV } from '../../utils/export';
 import { determineVideoSequence, isExposureFullyCompleted } from '../../utils/exposureUtils';
 import { getPatientStatus } from '../../utils/clinicalAnalysis';
 import { AVERAGE_VIDEO_DURATION_SECONDS } from '../../constants';
@@ -66,7 +66,8 @@ import {
     AlertCircle,
     UserMinus,
     MessageSquare,
-    Bot
+    Bot,
+    Download
 } from 'lucide-react';
 
 
@@ -112,6 +113,25 @@ const formatSeconds = (totalSeconds: number, t: (key: string) => string): string
     }
     const hours = (minutes / 60).toFixed(1);
     return `${hours} hr`;
+};
+
+const ExpandableText: React.FC<{ text: string, maxLength?: number }> = ({ text, maxLength = 180 }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    const { t } = useLanguage();
+
+    if (text.length <= maxLength) return <div className="leading-relaxed whitespace-pre-wrap">{text}</div>;
+
+    return (
+        <div className="leading-relaxed whitespace-pre-wrap">
+            {isExpanded ? text : `${text.substring(0, maxLength)}...`}
+            <button 
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="ml-2 text-uib-blue font-bold hover:underline focus:outline-none inline-flex items-center"
+            >
+                {isExpanded ? t('general.seeLess') : t('general.seeMore')}
+            </button>
+        </div>
+    );
 };
 
 
@@ -909,13 +929,24 @@ export const TherapistDashboardPage: React.FC = () => {
                   <Bot className="w-4 h-4 mr-2 text-uib-blue" />
                   {t('therapistDashboard.aiConsultationsTitle')}
               </h3>
-              <button 
-                  onClick={() => navigate('/chat')}
-                  className="text-[10px] font-black text-uib-blue uppercase tracking-widest hover:underline flex items-center"
-              >
-                  <MessageSquare className="w-3 h-3 mr-1" />
-                  {t('therapistDashboard.newConsultation')}
-              </button>
+              <div className="flex gap-2">
+                  {allData.consultations.length > 0 && (
+                      <button 
+                          onClick={() => exportAiLogsToCSV(allData.consultations)}
+                          className="text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-uib-blue flex items-center transition-colors px-3 py-1 bg-white border border-slate-100 rounded-lg shadow-sm"
+                      >
+                          <Download className="w-3 h-3 mr-1" />
+                          CSV
+                      </button>
+                  )}
+                  <button 
+                      onClick={() => navigate('/chat')}
+                      className="text-[10px] font-black text-uib-blue uppercase tracking-widest hover:underline flex items-center px-3 py-1 bg-white border border-slate-100 rounded-lg shadow-sm"
+                  >
+                      <MessageSquare className="w-3 h-3 mr-1" />
+                      {t('therapistDashboard.newConsultation')}
+                  </button>
+              </div>
           </div>
           <div className="p-6">
               {allData.consultations.length > 0 ? (
@@ -944,8 +975,8 @@ export const TherapistDashboardPage: React.FC = () => {
                                   <div className="w-6 h-6 rounded-full bg-uib-blue/10 flex items-center justify-center shrink-0">
                                       <Bot className="w-3 h-3 text-uib-blue" />
                                   </div>
-                                  <div className="p-3 bg-white rounded-lg border border-slate-100 text-xs text-slate-600 leading-relaxed max-h-24 overflow-y-auto w-full scrollbar-hide">
-                                      {consultation.response}
+                                  <div className="p-3 bg-white rounded-lg border border-slate-100 text-xs text-slate-600 leading-relaxed w-full">
+                                      <ExpandableText text={consultation.response} maxLength={150} />
                                   </div>
                               </div>
                           </div>

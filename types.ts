@@ -404,6 +404,7 @@ export interface AIChatContent {
   disclaimer: string;
   initialMessage: string | string[];
   initialMessageCompleted: string | string[];
+  initialMessageReturning?: string | string[];
   inputPlaceholder: string;
   sendButton: string;
   systemInstruction: string;
@@ -558,6 +559,7 @@ export interface TherapistDashboardContent {
   notificationsTitle: string;
   reminders: {
     sendReminderButton: string;
+    sendAllReminders?: string;
     reminderSentSuccess: string;
     inactivityBadge: string;
     abandonmentRisk?: string;
@@ -1046,6 +1048,7 @@ export interface TranslationContent {
     startManual: string;
     next: string;
     prev: string;
+    cancel?: string;
     finish: string;
     step1: { title: string; content: string; };
     step2: { title: string; content: string; };
@@ -1082,6 +1085,8 @@ export interface TranslationContent {
   feedback: FeedbackTranslations;
   general: {
     readMore: string;
+    seeMore?: string;
+    seeLess?: string;
     by: string;
     help: string;
     or: string;

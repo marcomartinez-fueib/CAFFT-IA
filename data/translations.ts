@@ -1362,6 +1362,8 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
     },
     general: {
         readMore: "Llegir més",
+        seeMore: "Veure més",
+        seeLess: "Veure menys",
         by: "per",
         help: "Ajuda",
         or: "o",
@@ -1530,7 +1532,6 @@ const esTranslations: TranslationContent = {
             items: [
                 "Eficacia demostrada en estudios científicos.",
                 "Accesibilidad desde cualquier lugar con Internet.",
-                "Anonimato y privacidad.",
                 "Control total del usuario sobre el ritmo del tratamiento.",
                 "Coste-efectividad en comparación con terapias tradicionales.",
                 "Disponibilidad 24/7.",
@@ -1604,13 +1605,6 @@ const esTranslations: TranslationContent = {
         changePasswordSuccess: "Contraseña cambiada con éxito.",
         changePasswordError: "La contraseña actual es incorrecta.",
         passwordMinLengthError: "La contraseña debe tener al menos 6 caracteres.",
-    },
-    aiChat: {
-        ...caTranslations.aiChat,
-        initialMessage: ["¡Hola! Soy {assistantName}, tu co-terapeuta. ¿En qué puedo ayudarte hoy?", "¡Hola {username}! Soy {assistantName}. ¿Tienes alguna duda o quieres que comentemos algo?", "Hola, soy {assistantName}. ¿Cómo te sientes hoy? Estoy aquí para acompañarte."],
-        initialMessageCompleted: ["¡Hola, {username}! Soy {assistantName}. He revisado tu progreso y veo que vas muy bien. ¿Qué te preocupa ahora mismo?", "¿Hola! Soy {assistantName}. ¿Quieres que continuemos con tus sesiones de exposición o prefieres comentar alguna duda?", "¡Buenas, {username}! Soy {assistantName}. ¿En qué puedo ayudarte hoy?"],
-        initialMessageReturning: ["¡Hola de nuevo, {username}! Se ha echado de menos tu constancia. ¿Cómo te sientes para retomar tus sesiones de exposición hoy?", "¡Hola {username}! Bienvenido/a de nuevo. Hace unos días que no te veíamos por aquí. ¿Quieres que continuemos por donde lo dejamos?", "¡Hola! Soy {assistantName}. Me alegra mucho volver a verte. ¿Estás listo/a para dar un pequeño paso más hoy?"],
-        inputPlaceholder: "Escribe aquí...",
     },
     profile: {
         ...caTranslations.profile,
@@ -2270,6 +2264,7 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
         disclaimer: "Este es un asistente automático. La información puede no ser exacta. En caso de duda, consulta a un profesional.",
         initialMessage: ["¡Hola! Soy {assistantName}, tu co-terapeuta. ¿En qué puedo ayudarte hoy?", "¡Hola {username}! Soy {assistantName}. ¿Tienes alguna duda o quieres que hablemos de algo?", "Hola, soy {assistantName}. ¿Cómo te sientes hoy? Estoy aquí para acompañarte."],
         initialMessageCompleted: ["¡Hola, {username}! Soy {assistantName}. He revisado tu progreso y veo que vas muy bien. ¿Qué te preocupa en este momento?", "¡Hola! Soy {assistantName}. ¿Quieres continuar con tus sesiones de exposición o prefieres comentar alguna duda?", "¡Buenas, {username}! Soy {assistantName}. ¿En qué puedo ayudarte hoy?"],
+        initialMessageReturning: ["¡Hola de nuevo, {username}! Se ha echado de menos tu constancia. ¿Cómo te sientes para retomar tus sesiones de exposición hoy?", "¡Hola {username}! Bienvenido/a de nuevo. Hace unos días que no te veíamos por aquí. ¿Quieres que continuemos por donde lo dejamos?", "¡Hola! Soy {assistantName}. Me alegra mucho volver a verte. ¿Estás listo/a para dar un pequeño paso más hoy?"],
         inputPlaceholder: "Escribe aquí...",
         sendButton: "Enviar",
         systemInstruction: "Eres el asistente experto del CAFFT 5.1 (investigación UIB). REGLA CRÍTICA: La conversación debe ser NATURAL, FLUIDA y HUMANA (ej: 'Hola {username}, ¿tienes alguna duda?'). Evita responder como un manual de instrucciones o listas de tareas repetitivas. NO INSISTAS en continuar la exposición si el usuario muestra malestar. REGLA DE ORO: HAZ SOLO UNA PREGUNTA por respuesta. No pidas información que el sistema ya conoce (vídeo, progreso, QPV-II). Alterna DIRECTIVIDAD con ORIENTACIÓN. REGLA DE VOCABULARIO: Evita 'muleta' o 'cerebro'. Usa 'recurso de seguridad', 'estrategia', 'aprendizaje', 'habituación' o 'regulación'. Puedes usar [VISUAL:habituation] o [VISUAL:habituation_tutorial]. CONTEXTO: {therapeuticContext}. ESTADO QPVII: {hasCompletedQPVII}.",
@@ -2392,6 +2387,8 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
     },
     general: {
         readMore: "Leer más",
+        seeMore: "Ver más",
+        seeLess: "Ver menos",
         by: "por",
         help: "Ayuda",
         or: "o",
@@ -3220,6 +3217,8 @@ const enTranslations: TranslationContent = {
     },
     general: {
         readMore: "Read more",
+        seeMore: "See more",
+        seeLess: "See less",
         by: "by",
         help: "Help",
         or: "or",

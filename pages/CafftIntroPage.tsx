@@ -33,13 +33,19 @@ export const CafftIntroPage: React.FC = () => {
 
   useEffect(() => {
     if (currentUser && !hasCompletedTour) {
+        // Wait for notification consent to be resolved before auto-starting the tour.
+        // The NotificationConsentManager modal appears on the same page and they would
+        // overlap if the tour started immediately. Once the modal is dismissed,
+        // updateUser() creates a new currentUser reference, re-triggering this effect.
+        if (!currentUser.notificationPreferences) return;
+
         const autoStartKey = `cafft_onboarding_autostart_done_${currentUser.id}`;
         if (localStorage.getItem(autoStartKey) === 'true') return;
 
         localStorage.setItem(autoStartKey, 'true');
         const timer = setTimeout(() => {
             startTour();
-        }, 1500);
+        }, 800);
         return () => clearTimeout(timer);
     }
   }, [currentUser, hasCompletedTour, startTour]);

@@ -9,6 +9,7 @@ import { SectionCard } from '../components/SectionCard';
 import { QPVIIScores, UserExposureProgress } from '../types';
 import { getUserExposureProgress, saveUserExposureProgress } from '../utils/localStorageDB';
 import { EXPOSURE_EXPLANATION_VIDEO_URL_BASE } from '../constants';
+import { resolveVideoUrl } from '../utils/videoUrl';
 
 // SVG Icons
 const PlayIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -46,7 +47,8 @@ export const ExposureExplanationPage: React.FC = () => {
 
   const getLocalizedVideoUrl = useCallback((basePath: string): string => {
     if (fallbackAttempted >= 1) return DEMO_VIDEO_URL;
-    return `${basePath}_${language}.mp4`;
+    const relativePath = `${basePath}_${language}.mp4`;
+    return resolveVideoUrl(relativePath);
   }, [language, fallbackAttempted]);
 
   const handleUseDemoVideo = () => {

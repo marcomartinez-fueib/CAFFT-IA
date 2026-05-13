@@ -12,6 +12,7 @@ import { determineVideoSequence, isExposureFullyCompleted } from '../utils/expos
 import { EXPOSURE_VIDEOS, CANONICAL_FLIGHT_STAGES_ORDER } from '../constants';
 import { FollowUpService } from '../services/followUpService.ts';
 import { ExposureSessionProgress } from '../components/ExposureSessionProgress';
+import { resolveVideoUrl } from '../utils/videoUrl';
 
 const PlayIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -99,7 +100,8 @@ export const ExposurePage: React.FC = () => {
       return CDN_FALLBACK_VIDEOS[attempt - 2] || CDN_FALLBACK_VIDEOS[0];
     }
     
-    return `${video.mp4Url}_${language}.mp4`;
+    const relativePath = `${video.mp4Url}_${language}.mp4`;
+    return resolveVideoUrl(relativePath);
   }, [language, usingDemoVideo, fallbackAttempted, CDN_FALLBACKS_BY_AREA, CDN_FALLBACK_VIDEOS]);
 
   const handleUseDemoVideo = () => {

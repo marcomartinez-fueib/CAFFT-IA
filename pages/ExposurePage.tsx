@@ -486,44 +486,49 @@ export const ExposurePage: React.FC = () => {
                 </div>
             </div>
             ) : (
-                <video
-                    ref={videoRef}
-                    key={`video-${videoSequence[currentVideoIndex].id}-${fallbackAttempted[videoSequence[currentVideoIndex].id] || 0}`}
-                    autoPlay
-                    playsInline
-                    controls
-                    crossOrigin="anonymous"
-                    className="w-full h-full object-cover pointer-events-none"
-                    onEnded={handleVideoNaturalEnd}
-                    onContextMenu={(e) => e.preventDefault()}
-                    onError={(e) => { 
-                      const videoElement = e.target as HTMLVideoElement;
-                      const error = videoElement.error;
-                      const videoSrc = videoElement.currentSrc || videoElement.src;
-                      const currentVideo = videoSequence[currentVideoIndex];
-                      
-                      const detailedMessage = `URL: ${videoSrc} | Error Code: ${error?.code || 'N/A'} | Message: ${error?.message || 'Not available'}`;
-                      console.error(`Video loading failed. ${detailedMessage}`);
+                 <div className="relative w-full h-full">
+                  <video
+                       ref={videoRef}
+                       key={`video-${videoSequence[currentVideoIndex].id}-${fallbackAttempted[videoSequence[currentVideoIndex].id] || 0}`}
+                       autoPlay
+                       playsInline
+                       controls={false}
+                       disablePictureInPicture
+                       controlsList="nodownload nofullscreen noremoteplayback"
+                       className="w-full h-full object-contain exposure-video"
+                       onEnded={handleVideoNaturalEnd}
+                       onContextMenu={(e) => e.preventDefault()}
+                        onError={(e) => { 
+                          const videoElement = e.target as HTMLVideoElement;
+                          const error = videoElement.error;
+                          const videoSrc = videoElement.currentSrc || videoElement.src;
+                          const currentVideo = videoSequence[currentVideoIndex];
+                          
+                          const detailedMessage = `URL: ${videoSrc} | Error Code: ${error?.code || 'N/A'} | Message: ${error?.message || 'Not available'}`;
+                          console.error(`Video loading failed. ${detailedMessage}`);
 
-                      // If we haven't tried falling back enough times for THIS video, try the next level
-                      const currentAttempt = fallbackAttempted[currentVideo?.id || ''] || 0;
-                      if (currentVideo && currentAttempt < 4) {
-                        console.log(`Attempting automatic CDN fallback (Level ${currentAttempt + 1}) for ${currentVideo.id}`);
-                        setFallbackAttempted(prev => ({ 
-                          ...prev, 
-                          [currentVideo.id]: currentAttempt + 1 
-                        }));
-                        // The source change in src={getLocalizedVideoUrl(...)} will trigger a reload
-                        return;
-                      }
-                      
-                      setVideoError(detailedMessage);
-                    }}
-                    src={getLocalizedVideoUrl(videoSequence[currentVideoIndex])}
-                >
-                    {t('exposure.videoTagNotSupported')}
-                </video>
-           )}
+                          // If we haven't tried falling back enough times for THIS video, try the next level
+                          const currentAttempt = fallbackAttempted[currentVideo?.id || ''] || 0;
+                          if (currentVideo && currentAttempt < 4) {
+                            console.log(`Attempting automatic CDN fallback (Level ${currentAttempt + 1}) for ${currentVideo.id}`);
+                            setFallbackAttempted(prev => ({ 
+                              ...prev, 
+                              [currentVideo.id]: currentAttempt + 1 
+                            }));
+                            // The source change in src={getLocalizedVideoUrl(...)} will trigger a reload
+                            return;
+                          }
+                          
+                          setVideoError(detailedMessage);
+                        }}
+                       src={getLocalizedVideoUrl(videoSequence[currentVideoIndex])}
+                   >
+                      {t('exposure.videoTagNotSupported')}
+                  </video>
+                  {/* Transparent overlay blocks ALL taps/clicks/swipes on the video */}
+                  <div className="absolute inset-0 z-10" aria-hidden="true" />
+                 </div>
+            )}
         </div>
       )}
 

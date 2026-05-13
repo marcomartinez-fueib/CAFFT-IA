@@ -221,7 +221,9 @@ export const OnboardingTour: React.FC = () => {
         const padding = 16;
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
-        const tooltipWidth = Math.min(320, viewportWidth - (padding * 2));
+        // Responsive width: wider on desktop, compact on mobile — avoids horizontal scroll
+        const maxWidth = viewportWidth >= 640 ? 420 : 320;
+        const tooltipWidth = Math.min(maxWidth, viewportWidth - (padding * 2));
         const estimatedHeight = 300;
 
         if (step.position === 'center' || !targetRect) {
@@ -249,20 +251,30 @@ export const OnboardingTour: React.FC = () => {
             left = targetCenterX;
             x = '-50%';
             y = '0%';
-            // Clamp top
+            // Clamp: if tooltip goes off bottom, flip to top
             if (top + estimatedHeight > viewportHeight - padding) {
                 top = targetRect.top - padding;
                 y = '-100%';
+                // Double-clamp: if flipped position also goes off top, center on screen
+                if (top - estimatedHeight < padding) {
+                    top = viewportHeight / 2;
+                    y = '-50%';
+                }
             }
         } else if (step.position === 'top') {
             top = targetRect.top - padding;
             left = targetCenterX;
             x = '-50%';
             y = '-100%';
-            // Clamp top
+            // Clamp: if tooltip goes off top, flip to bottom
             if (top - estimatedHeight < padding) {
                 top = targetRect.bottom + padding;
                 y = '0%';
+                // Double-clamp: if flipped position also goes off bottom, center on screen
+                if (top + estimatedHeight > viewportHeight - padding) {
+                    top = viewportHeight / 2;
+                    y = '-50%';
+                }
             }
         } else if (step.position === 'left') {
             top = targetCenterY;
@@ -276,15 +288,7 @@ export const OnboardingTour: React.FC = () => {
             y = '-50%';
         }
 
-        // Special handling for help buttons
-        if (step.targetId.includes('help-button')) {
-            left = targetRect.left - padding;
-            top = targetRect.top - padding;
-            x = '-100%';
-            y = '-100%';
-        }
-
-        // Final safety clamping
+        // Final safety clamping (horizontal)
         left = Math.max(padding, Math.min(left, viewportWidth - padding));
         if (x === '0%' && left + tooltipWidth > viewportWidth - padding) {
             left = viewportWidth - padding - tooltipWidth;

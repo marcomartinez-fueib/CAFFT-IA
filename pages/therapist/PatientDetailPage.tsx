@@ -18,13 +18,15 @@ import {
     SimulatedEmail,
     Recommendation,
     AnalyzedSession,
-    QPVIIScores
+    QPVIIScores,
+    AiConsultation
 } from '../../types';
 import { 
     findUserById, 
     getQPVIIResultsForUser, 
     getAllUserExposureProgress, 
     getSimulatedEmailsForPatient, 
+    getAiConsultationsForPatient,
     saveSimulatedEmail,
     toggleUserNotifications,
     toggleUserOnboarding
@@ -33,6 +35,7 @@ import { NotificationService } from '../../services/notificationService';
 import { calculateQPVIIScores } from '../../utils/qpviiScoring';
 import { determineVideoSequence, calculatePhaseScores, isExposureFullyCompleted } from '../../utils/exposureUtils';
 import { QpviiEvolutionChart } from '../../components/QpviiEvolutionChart';
+import { ExpandableText } from '../../components/ExpandableText';
 import { SessionDetailCard } from '../../components/therapist/SessionDetailCard';
 import { EXPOSURE_VIDEOS, AVERAGE_VIDEO_DURATION_SECONDS } from '../../constants';
 import { 
@@ -48,7 +51,8 @@ import {
     AtSignIcon, 
     ClockIcon, 
     CalendarIcon,
-    CompassIcon 
+    CompassIcon,
+    BotIcon as Bot
 } from 'lucide-react';
 import { generateClinicalRecommendations, calculateLinearRegressionSlope, getPatientStatus } from '../../utils/clinicalAnalysis';
 
@@ -114,6 +118,7 @@ export const PatientDetailPage: React.FC = () => {
     const [qpviiHistory, setQpviiHistory] = useState<QPVIIUserResult[]>([]);
     const [exposureSessions, setExposureSessions] = useState<UserExposureProgress[]>([]);
     const [simulatedEmails, setSimulatedEmails] = useState<SimulatedEmail[]>([]);
+    const [aiConsultations, setAiConsultations] = useState<AiConsultation[]>([]);
     const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
     
     const [loading, setLoading] = useState(true);
@@ -166,6 +171,8 @@ export const PatientDetailPage: React.FC = () => {
         setPatient(fullPatient);
         const emails = getSimulatedEmailsForPatient(patientId);
         setSimulatedEmails(emails);
+        const consultations = getAiConsultationsForPatient(patientId);
+        setAiConsultations(consultations);
         const recs = generateClinicalRecommendations(patientId, t);
         setRecommendations(recs);
         setLoading(false);
@@ -553,6 +560,30 @@ export const PatientDetailPage: React.FC = () => {
                                     </ul>
                                 ) : (
                                     <p className="text-gray-500 text-center py-4">{t('patientDetail.noEmailsSent')}</p>
+                                )}
+                            </div>
+
+                            <div className="pt-4 border-t border-slate-100">
+                                <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">{t('patientDetail.aiConsultationsTitleForPatient')}</h4>
+                                {aiConsultations.length > 0 ? (
+                                    <div className="space-y-3">
+                                        {aiConsultations.slice(0, 5).map(consultation => (
+                                            <div key={consultation.id} className="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                                                <div className="flex justify-between items-start mb-1">
+                                                    <p className="text-[10px] font-bold text-uib-blue truncate pr-2">{consultation.query}</p>
+                                                    <span className="text-[8px] text-slate-400 whitespace-nowrap">{new Date(consultation.timestamp).toLocaleDateString(getLocaleForDate())}</span>
+                                                </div>
+                                                <div className="text-xs text-slate-600 italic">
+                                                    <ExpandableText text={consultation.response} maxLength={80} />
+                                                </div>
+                                            </div>
+                                        ))}
+                                        {aiConsultations.length > 5 && (
+                                            <p className="text-[10px] text-center text-slate-400 font-bold uppercase tracking-widest">{t('therapistDashboard.moreConsultations', { count: aiConsultations.length - 5 })}</p>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <p className="text-slate-400 text-center py-4 text-xs italic">{t('patientDetail.noAiConsultationsForPatient')}</p>
                                 )}
                             </div>
 

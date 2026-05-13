@@ -115,26 +115,7 @@ const formatSeconds = (totalSeconds: number, t: (key: string) => string): string
     return `${hours} hr`;
 };
 
-const ExpandableText: React.FC<{ text: string, maxLength?: number }> = ({ text, maxLength = 180 }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
-    const { t } = useLanguage();
-
-    if (text.length <= maxLength) return <div className="leading-relaxed whitespace-pre-wrap">{text}</div>;
-
-    return (
-        <div className="leading-relaxed whitespace-pre-wrap">
-            {isExpanded ? text : `${text.substring(0, maxLength)}...`}
-            <button 
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="ml-2 text-uib-blue font-bold hover:underline focus:outline-none inline-flex items-center"
-            >
-                {isExpanded ? t('general.seeLess') : t('general.seeMore')}
-            </button>
-        </div>
-    );
-};
-
-
+import { ExpandableText } from '../../components/ExpandableText';
 import { useOnboarding } from '../../hooks/useOnboarding';
 
 export const TherapistDashboardPage: React.FC = () => {
@@ -950,8 +931,8 @@ export const TherapistDashboardPage: React.FC = () => {
           </div>
           <div className="p-6">
               {allData.consultations.length > 0 ? (
-                  <div className="space-y-4">
-                      {allData.consultations.slice(0, 5).map((consultation, idx) => (
+                  <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                      {allData.consultations.slice(0, 15).map((consultation, idx) => (
                           <div key={consultation.id || idx} className="p-4 rounded-xl border border-slate-100 bg-slate-50/50">
                               <div className="flex justify-between items-start mb-2">
                                   <div className="flex items-center space-x-2">
@@ -981,10 +962,10 @@ export const TherapistDashboardPage: React.FC = () => {
                               </div>
                           </div>
                       ))}
-                      {allData.consultations.length > 5 && (
-                          <div className="pt-2 text-center">
+                      {allData.consultations.length > 15 && (
+                          <div className="pt-2 text-center pb-2">
                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                   {t('therapistDashboard.moreConsultations', { count: allData.consultations.length - 5 })}
+                                   {t('therapistDashboard.moreConsultations', { count: allData.consultations.length - 15 })}
                                </p>
                           </div>
                       )}

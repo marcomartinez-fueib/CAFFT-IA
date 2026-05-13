@@ -51,10 +51,10 @@ const formatSeconds = (totalSeconds: number, t: (key: string) => string): string
     if (totalSeconds < 60) return `0 ${t('common.time.minutes')}`;
     const minutes = Math.floor(totalSeconds / 60);
     if (minutes < 60) {
-        return `${minutes} ${t('common.time.minutes')}`;
+        return `${minutes} ${minutes === 1 ? t('common.time.minute') : t('common.time.minutes')}`;
     }
     const hours = (minutes / 60).toFixed(1);
-    return `${hours} hr`;
+    return `${hours} ${t('common.time.hours')}`;
 };
 
 const timeAgo = (timestamp: number | null, t: (key: any, options?: any) => string) => {

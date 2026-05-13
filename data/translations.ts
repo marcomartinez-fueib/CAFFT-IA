@@ -229,6 +229,7 @@ const caTranslations: TranslationContent = {
             seconds: "segons",
             session: "sessió",
             sessions: "sessions",
+            none: "Cap",
         }
     },
     informedConsent: {
@@ -1406,6 +1407,7 @@ const esTranslations: TranslationContent = {
             seconds: "segundos",
             session: "sesión",
             sessions: "sesiones",
+            none: "Ninguno",
         }
     },
     progress: {
@@ -2481,6 +2483,7 @@ const enTranslations: TranslationContent = {
             seconds: "secs",
             session: "session",
             sessions: "sessions",
+            none: "None",
         }
     },
     home: {

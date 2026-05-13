@@ -109,10 +109,10 @@ const formatSeconds = (totalSeconds: number, t: (key: string) => string): string
     if (totalSeconds < 60) return `0 ${t('common.time.minutes')}`;
     const minutes = Math.floor(totalSeconds / 60);
     if (minutes < 60) {
-        return `${minutes} ${t('common.time.minutes')}`;
+        return `${minutes} ${minutes === 1 ? t('common.time.minute') : t('common.time.minutes')}`;
     }
     const hours = (minutes / 60).toFixed(1);
-    return `${hours} hr`;
+    return `${hours} ${t('common.time.hours')}`;
 };
 
 import { ExpandableText } from '../../components/ExpandableText';
@@ -304,7 +304,7 @@ export const TherapistDashboardPage: React.FC = () => {
         }
     });
 
-    const avgImprovement = improvementScores.length > 0 ? (improvementScores.reduce((a,b) => a+b, 0) / improvementScores.length).toFixed(1) : 'N/A';
+    const avgImprovement = improvementScores.length > 0 ? (improvementScores.reduce((a,b) => a+b, 0) / improvementScores.length).toFixed(1) : t('general.none');
     const totalExposureTimeCalc = exposureTimes.reduce((a, b) => a + b, 0);
     const avgExposureTime = exposureTimes.length > 0 ? formatSeconds(totalExposureTimeCalc / exposureTimes.length, t) : t('common.time.none');
 

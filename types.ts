@@ -640,7 +640,7 @@ export interface InformedConsentContent {
   genderOther: string;
   occupation: string;
   occupationStudent: string;
-  occupationPTAGS: string;
+  occupationPTGAS: string;
   occupationPDI: string;
   occupationOther: string;
   source: string;

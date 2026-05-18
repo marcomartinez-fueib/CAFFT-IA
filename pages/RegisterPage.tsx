@@ -181,7 +181,7 @@ export const RegisterPage: React.FC = () => {
               >
                 <option value="">{t('informedConsent.select')}</option>
                 <option value="student">{t('informedConsent.occupationStudent')}</option>
-                <option value="PTAGS">{t('informedConsent.occupationPTAGS')}</option>
+                <option value="PTGAS">{t('informedConsent.occupationPTGAS')}</option>
                 <option value="PDI">{t('informedConsent.occupationPDI')}</option>
                 <option value="other">{t('informedConsent.occupationOther')}</option>
               </select>

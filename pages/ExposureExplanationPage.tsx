@@ -42,22 +42,13 @@ export const ExposureExplanationPage: React.FC = () => {
     return null;
   }
   
-  const [fallbackAttempted, setFallbackAttempted] = useState(0);
-  const DEMO_VIDEO_URL = "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-
+  // Served from the same origin as the app, under <base>/videos_cafft/.
+  // No external CDN fallback: the deployment's `default-src 'self'` CSP blocks
+  // third-party media.
   const getLocalizedVideoUrl = useCallback((basePath: string): string => {
-    if (fallbackAttempted >= 1) return DEMO_VIDEO_URL;
     const relativePath = `${basePath}_${language}.mp4`;
     return resolveVideoUrl(relativePath);
-  }, [language, fallbackAttempted]);
-
-  const handleUseDemoVideo = () => {
-    setVideoError(null);
-    if (videoRef.current) {
-        videoRef.current.src = DEMO_VIDEO_URL;
-        videoRef.current.play().catch(e => console.warn("Video play failed:", e));
-    }
-  };
+  }, [language]);
 
   const handleProceed = () => {
     const progress = getUserExposureProgress(currentUser.id, qpviiTimestamp);
@@ -204,14 +195,8 @@ export const ExposureExplanationPage: React.FC = () => {
                     <p className="font-bold text-lg">{t('exposure.videoLoadErrorTitle')}</p>
                     <p className="mt-2 text-sm">{t('exposure.videoLoadErrorBody')}</p>
                     <div className="mt-6 flex flex-wrap justify-center gap-3">
-                        <button 
-                            onClick={handleUseDemoVideo} 
-                            className="px-5 py-2 bg-uib-blue text-white rounded-md text-xs font-bold hover:bg-[#004C8C] shadow-sm uppercase"
-                        >
-                            {t('exposure.testWithDemoVideoButton') || 'Provar amb Vídeo Demo'}
-                        </button>
-                        <button 
-                            onClick={() => navigate('/exposure', { state: { qpviiTimestamp, scores } })} 
+                        <button
+                            onClick={() => navigate('/exposure', { state: { qpviiTimestamp, scores } })}
                             className="px-5 py-2 bg-green-600 text-white rounded-md text-xs font-bold hover:bg-green-700 shadow-sm uppercase"
                         >
                             {t('exposure.simulateViewingButton') || 'Continuar sense vídeo'}
@@ -227,10 +212,6 @@ export const ExposureExplanationPage: React.FC = () => {
                   className="w-full h-full"
                   onError={(e) => {
                       console.error("Video load error:", e);
-                      if (fallbackAttempted < 1) {
-                        setFallbackAttempted(prev => prev + 1);
-                        return;
-                      }
                       setVideoError(t('exposure.videoLoadErrorBody'));
                   }}
                 >

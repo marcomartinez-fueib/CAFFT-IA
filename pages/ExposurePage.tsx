@@ -59,56 +59,19 @@ export const ExposurePage: React.FC = () => {
   const [explanationShown, setExplanationShown] = useState<boolean>(false); 
   const [isConfirmingLogout, setIsConfirmingLogout] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
-  const [usingDemoVideo, setUsingDemoVideo] = useState(false);
 
-  const videoRef = useRef<HTMLVideoElement>(null); 
+  const videoRef = useRef<HTMLVideoElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const DEMO_VIDEO_URL = "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-  
-  // CDN Fallback URLs - using stable GTV sample bucket which is more reliable than mixkit
-  const CDN_FALLBACK_VIDEOS = [
-    "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
-    "https://www.w3schools.com/html/mov_bbb.mp4",
-    "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-    "https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
-  ];
-
-  const CDN_FALLBACKS_BY_AREA: Record<string, string> = {
-    takeoff: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-    inflight: "https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
-    landing: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-    preparation: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-    boarding: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-    accidents: "https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" 
-  };
-
-  const [fallbackAttempted, setFallbackAttempted] = useState<Record<string, number>>({});
-
+  // Exposure videos are served from the same origin as the app, under
+  // <base>/videos_cafft/. There is deliberately no external CDN fallback: the
+  // deployment runs under a `default-src 'self'` CSP that blocks third-party
+  // media, and unrelated stand-in footage would undermine the exposure therapy.
   const getLocalizedVideoUrl = useCallback((video: ExposureVideo): string => {
-    const attempt = fallbackAttempted[video.id] || 0;
-    
-    if (usingDemoVideo || attempt >= 4) {
-      return CDN_FALLBACK_VIDEOS[2]; // BigBuckBunny
-    }
-    
-    if (attempt === 1) {
-      return CDN_FALLBACKS_BY_AREA[video.relatedArea] || CDN_FALLBACK_VIDEOS[0];
-    }
-
-    if (attempt >= 2) {
-      return CDN_FALLBACK_VIDEOS[attempt - 2] || CDN_FALLBACK_VIDEOS[0];
-    }
-    
     const relativePath = `${video.mp4Url}_${language}.mp4`;
     return resolveVideoUrl(relativePath);
-  }, [language, usingDemoVideo, fallbackAttempted, CDN_FALLBACKS_BY_AREA, CDN_FALLBACK_VIDEOS]);
+  }, [language]);
 
-  const handleUseDemoVideo = () => {
-    setUsingDemoVideo(true);
-    setVideoError(null);
-  };
-  
   useEffect(() => {
     if (isVideoPlayerModalOpen && modalRef.current && !videoError) {
       const playVideoAndRequestFullscreen = async () => {
@@ -465,14 +428,8 @@ export const ExposurePage: React.FC = () => {
                 </div>
                 <p className="text-xs mt-3">{t('exposure.videoLoadErrorChecklist')}</p>
                 <div className="text-center mt-6 flex flex-wrap justify-center gap-3">
-                    <button 
-                        onClick={handleUseDemoVideo} 
-                        className="px-5 py-2.5 bg-uib-blue text-white rounded-md text-sm font-bold hover:bg-[#004C8C] shadow-sm transition-colors uppercase"
-                    >
-                      {t('exposure.testWithDemoVideoButton') || 'Provar amb Vídeo Demo'}
-                    </button>
-                    <button 
-                        onClick={handleSimulateVideoCompletion} 
+                    <button
+                        onClick={handleSimulateVideoCompletion}
                         className="px-5 py-2.5 bg-green-600 text-white rounded-md text-sm font-bold hover:bg-green-700 shadow-sm transition-colors uppercase"
                     >
                       {t('exposure.simulateViewingButton') || 'Simular Visualització'}
@@ -489,7 +446,7 @@ export const ExposurePage: React.FC = () => {
                  <div className="relative w-full h-full">
                   <video
                        ref={videoRef}
-                       key={`video-${videoSequence[currentVideoIndex].id}-${fallbackAttempted[videoSequence[currentVideoIndex].id] || 0}`}
+                       key={`video-${videoSequence[currentVideoIndex].id}-${language}`}
                        autoPlay
                        playsInline
                        controls={false}
@@ -498,27 +455,14 @@ export const ExposurePage: React.FC = () => {
                        className="w-full h-full object-contain exposure-video"
                        onEnded={handleVideoNaturalEnd}
                        onContextMenu={(e) => e.preventDefault()}
-                        onError={(e) => { 
+                        onError={(e) => {
                           const videoElement = e.target as HTMLVideoElement;
                           const error = videoElement.error;
                           const videoSrc = videoElement.currentSrc || videoElement.src;
-                          const currentVideo = videoSequence[currentVideoIndex];
-                          
+
                           const detailedMessage = `URL: ${videoSrc} | Error Code: ${error?.code || 'N/A'} | Message: ${error?.message || 'Not available'}`;
                           console.error(`Video loading failed. ${detailedMessage}`);
 
-                          // If we haven't tried falling back enough times for THIS video, try the next level
-                          const currentAttempt = fallbackAttempted[currentVideo?.id || ''] || 0;
-                          if (currentVideo && currentAttempt < 4) {
-                            console.log(`Attempting automatic CDN fallback (Level ${currentAttempt + 1}) for ${currentVideo.id}`);
-                            setFallbackAttempted(prev => ({ 
-                              ...prev, 
-                              [currentVideo.id]: currentAttempt + 1 
-                            }));
-                            // The source change in src={getLocalizedVideoUrl(...)} will trigger a reload
-                            return;
-                          }
-                          
                           setVideoError(detailedMessage);
                         }}
                        src={getLocalizedVideoUrl(videoSequence[currentVideoIndex])}

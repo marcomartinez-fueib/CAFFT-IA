@@ -1,0 +1,67 @@
+# ============================================================================
+#  CAFFT-IA  —  https://pausat.uib.es/cafft/
+# ============================================================================
+#
+#  Lives at /data/apps/cafft/ on the server. Bring it up with:
+#      cd /data/apps/cafft && docker compose up -d
+#
+#  CAFFT is served by its own nginx container. Traefik routes
+#  Host(`pausat.uib.es`) && PathPrefix(`/cafft`) here; everything else on that
+#  host keeps going to pausat-pro-nginx-1. PAUSAT's containers, image and config
+#  are never modified by this deployment.
+#
+#  Directory layout on the server:
+#      /data/apps/cafft/docker-compose.yml
+#      /data/apps/cafft/nginx/cafft.conf
+#      /data/apps/cafft/web/cafft/            the built app
+#      /data/apps/cafft/videos/               the mp4 assets
+#      /data/apps/cafft/secrets/gemini-key.conf
+# ============================================================================
+
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: cafft-nginx
+    restart: unless-stopped
+
+    volumes:
+      - ./nginx/cafft.conf:/etc/nginx/conf.d/default.conf:ro
+
+      # NOTE: `web` is mounted, not `web/cafft`. deploy.sh replaces the whole
+      # app directory in one atomic rename, and a bind mount follows the inode
+      # it was given at container start — mounting web/cafft directly would
+      # leave the container serving the old, already-unlinked directory after
+      # every deploy. Mounting the parent keeps the swap visible.
+      - ./web:/var/www/cafft-site:ro
+
+      - ./videos:/srv/cafft/videos:ro
+      - ./secrets/gemini-key.conf:/etc/nginx/private/cafft-gemini-key.conf:ro
+
+    networks: [edge]
+
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=edge
+
+      # Two routers, same rule, one per entrypoint — mirroring how the pausat
+      # stack does it. Priority is explicit rather than relying on Traefik's
+      # default (longest rule wins), so this keeps beating the plain
+      # Host(`pausat.uib.es`) router even if that rule grows later.
+      - traefik.http.routers.cafft.rule=Host(`pausat.uib.es`) && PathPrefix(`/cafft`)
+      - traefik.http.routers.cafft.entrypoints=web
+      - traefik.http.routers.cafft.priority=100
+      - traefik.http.routers.cafft.service=cafft
+
+      # tls=true with no certResolver: the pausat.uib.es certificate is already
+      # declared in edge/dynamic/pausat.yml and is selected by SNI.
+      - traefik.http.routers.cafft-tls.rule=Host(`pausat.uib.es`) && PathPrefix(`/cafft`)
+      - traefik.http.routers.cafft-tls.entrypoints=websecure
+      - traefik.http.routers.cafft-tls.priority=100
+      - traefik.http.routers.cafft-tls.tls=true
+      - traefik.http.routers.cafft-tls.service=cafft
+
+      - traefik.http.services.cafft.loadbalancer.server.port=80
+
+networks:
+  edge:
+    external: true

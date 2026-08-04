@@ -1,30 +1,33 @@
 /**
- * Resolves video asset URLs based on the deployment environment.
+ * Resolves video asset URLs.
  *
- * DEVELOPMENT (Google AI Studio / local Vite dev server):
- *   Videos are served from public/videos_cafft/ via the Vite dev server.
- *   Relative paths like `videos_cafft/ev001_ca.mp4` resolve correctly.
+ * Videos are served from the same origin as the app, under
+ * `<base>/videos_cafft/`. On the on-premise deployment that is
+ * `https://pausat.uib.es/cafft/videos_cafft/...`; in dev it is served from
+ * `public/videos_cafft/` by the Vite dev server.
  *
- * PRODUCTION (Vercel):
- *   Videos are hosted as flat release assets on GitHub Releases.
- *   The filename is extracted from the relative path and appended to VITE_VIDEO_BASE_URL.
- *   Set VITE_VIDEO_BASE_URL in Vercel environment variables:
- *   VITE_VIDEO_BASE_URL=https://github.com/marcomartinez-fueib/CAFFT-IA/releases/download/v1.0.0-videos
+ * Keeping them same-origin is required by the deployment's
+ * Content-Security-Policy (`default-src 'self'`, which `media-src` falls back
+ * to) and keeps the clinical video content in-house.
  *
- *   Example: "videos_cafft/ev001_ca.mp4" → "https://.../v1.0.0-videos/ev001_ca.mp4"
+ * `VITE_VIDEO_BASE_URL` can still point the app at an external origin (for
+ * example a CDN). Leave it unset for the on-premise deployment — an external
+ * origin will be blocked by CSP unless `media-src` is widened to match.
  *
  * @param relativePath - Path relative to the video root (e.g. "videos_cafft/ev001_ca.mp4")
  * @returns The full URL to use as the video source
  */
 export function resolveVideoUrl(relativePath: string): string {
-  const base = import.meta.env.VITE_VIDEO_BASE_URL || '';
+  const externalBase = import.meta.env.VITE_VIDEO_BASE_URL || '';
 
-  if (base) {
-    // GitHub Release assets are flat — extract just the filename, no directory prefix
+  if (externalBase) {
+    // Flat external stores (e.g. GitHub Release assets) have no directory
+    // structure — use just the filename.
     const fileName = relativePath.split('/').pop() || relativePath;
-    const cleanBase = base.replace(/\/+$/, '');
-    return `${cleanBase}/${fileName}`;
+    return `${externalBase.replace(/\/+$/, '')}/${fileName}`;
   }
 
-  return relativePath;
+  // Prefix the app's base path so the URL resolves the same regardless of which
+  // route the user is on. import.meta.env.BASE_URL always ends with "/".
+  return `${import.meta.env.BASE_URL}${relativePath.replace(/^\/+/, '')}`;
 }

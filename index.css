@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Styles below were previously inlined in index.html via a <style> element.
+ * They live here so the deployment can run under a strict
+ * `style-src 'self'` Content-Security-Policy, which forbids inline styles.
+ */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Montserrat Variable', 'Montserrat', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 1rem);
+}
+
+::selection {
+  background-color: #00263e;
+  color: white;
+}
+
+strong {
+  font-weight: 800;
+  color: #00263e;
+}
+
+/* Force-hide ALL native video controls across browsers */
+video::-webkit-media-controls,
+video::-webkit-media-controls-enclosure,
+video::-webkit-media-controls-panel,
+video::-webkit-media-controls-play-button,
+video::-webkit-media-controls-start-playback-button,
+video::-webkit-media-controls-pause-button,
+video::-webkit-media-controls-rewind-button,
+video::-webkit-media-controls-return-to-realtime-button,
+video::-webkit-media-controls-timeline,
+video::-webkit-media-controls-current-time-display,
+video::-webkit-media-controls-time-remaining-display,
+video::-webkit-media-controls-seek-back-button,
+video::-webkit-media-controls-seek-forward-button,
+video::-webkit-media-controls-fullscreen-button,
+video::-webkit-media-controls-overflow-button,
+video::-webkit-media-controls-mute-button,
+video::-webkit-media-controls-volume-slider,
+video::-webkit-media-controls-toggle-closed-captions-button,
+video::-webkit-media-controls-closed-captions-container,
+video::-webkit-media-controls-wireless-playback-container,
+video::-webkit-media-controls-remaining-duration-display,
+video::-webkit-media-controls-airplay-button,
+video::-webkit-media-controls-picture-in-picture-button,
+video::-moz-media-controls {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+/* iOS Safari: hide inline playback controls overlay */
+video::-webkit-media-controls-overlay-play-button {
+  display: none !important;
+}
+
+/* Ensure the video element itself has no default appearance */
+video.exposure-video {
+  -webkit-user-modify: read-only;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  outline: none;
+}
+
+/* Block pointer events on the video itself — the overlay handles interaction */
+video.exposure-video {
+  pointer-events: none;
+}

@@ -8,8 +8,15 @@ import { SectionCard } from '../components/SectionCard';
 import { useOnboarding } from '../hooks/useOnboarding';
 import { Sparkles } from 'lucide-react';
 import { getQPVIIResultsForUser, getUserExposureProgress } from '../utils/localStorageDB';
+import { resolveVideoUrl } from '../utils/videoUrl';
 
-const CAFFT_VIDEO_EMBED_ID = "jeVD9fmMYHE"; // YouTube Video ID
+// Self-hosted programme presentation video, served from the same origin as the
+// app under <base>/videos_cafft/. Previously a YouTube embed; the deployment
+// runs under a `default-src 'self'` CSP that blocks third-party frames and
+// media, and keeping it in-house avoids sending patients to YouTube.
+// Expects cafft_presentation.mp4 and cafft_presentation_poster.jpg.
+const CAFFT_VIDEO_SRC = resolveVideoUrl('videos_cafft/cafft_presentation.mp4');
+const CAFFT_VIDEO_POSTER = resolveVideoUrl('videos_cafft/cafft_presentation_poster.jpg');
 
 // SVG Icons
 const PlayIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -96,8 +103,8 @@ export const CafftIntroPage: React.FC = () => {
             className="relative aspect-video w-full max-w-2xl mx-auto bg-black rounded-lg shadow-xl overflow-hidden cursor-pointer group"
             onClick={openVideoModal}
           >
-            <img 
-              src={`https://img.youtube.com/vi/${CAFFT_VIDEO_EMBED_ID}/mqdefault.jpg`} 
+            <img
+              src={CAFFT_VIDEO_POSTER}
               alt={t('cafftIntroPage.videoTitle')}
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
@@ -139,14 +146,19 @@ export const CafftIntroPage: React.FC = () => {
               <XMarkIcon className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
             <div className="w-full h-full bg-black rounded-lg overflow-hidden">
-              <iframe
-                src={`https://www.youtube.com/embed/${CAFFT_VIDEO_EMBED_ID}?autoplay=1`}
-                title="YouTube video player"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
+              {/* Informational video: unlike the exposure videos, the patient is
+                  free to pause and seek, so native controls stay enabled. */}
+              <video
+                src={CAFFT_VIDEO_SRC}
+                poster={CAFFT_VIDEO_POSTER}
+                title={t('cafftIntroPage.videoTitle')}
+                controls
+                autoPlay
+                playsInline
                 className="w-full h-full"
-              ></iframe>
+              >
+                {t('exposure.videoTagNotSupported')}
+              </video>
             </div>
           </div>
         </div>

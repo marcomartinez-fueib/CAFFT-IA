@@ -1,4 +1,24 @@
-# CAFFT 5.1 - Local Functional Version
+# CAFFT 5.1
+
+**Deploying to the UIB server?** See
+[`docs/deploy/DEPLOYMENT.md`](docs/deploy/DEPLOYMENT.md) for the on-premise
+deployment at <https://pausat.uib.es/cafft/>.
+
+**Running locally?** `npm install && npm run dev`, then open
+<http://localhost:3000/cafft/> (note the `/cafft/` path — it is the app's base
+path). Copy `.env.example` to `.env.local` and set `GEMINI_API_KEY` to enable
+the AI features. Video files go in `public/videos_cafft/`; see
+[`PLACE_VIDEOS_HERE.txt`](public/videos_cafft/PLACE_VIDEOS_HERE.txt) for the
+expected filenames.
+
+---
+
+## Older notes: running from a plain static server
+
+> The instructions below predate the Vite build setup and are kept only for
+> reference. They describe opening the project through a bare static server,
+> which no longer works on its own — the TypeScript sources need to be built
+> first. Use `npm run dev` instead.
 
 Hello! I understand you've been having trouble running this application locally. I sincerely apologize for the frustration this has caused. The following updated instructions are designed to be as clear and simple as possible to get you up and running to test the exposure videos.
 

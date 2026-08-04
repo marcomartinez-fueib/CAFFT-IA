@@ -5,123 +5,16 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UIB CAFFT 5.1 Program</title>
+  <!-- Vite rewrites this to <base>/favicon.svg at build time. -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  
-  <!-- Google Fonts: Montserrat (UIB Corporate Font) & Space Grotesk (Display) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Montserrat', 'sans-serif'],
-            display: ['Space Grotesk', 'sans-serif'],
-            body: ['Inter', 'sans-serif'],
-          },
-          colors: {
-            uib: {
-              blue: '#00263E', // Pantone 282 (Blau Institucional)
-              accent: '#0072CE', // Pantone 2935 (Blau Vibrant)
-              red: '#BA0C2F', // PMS 186
-              black: '#111111',
-              warmGray: '#A7A596', // PMS 402
-              lightGray: '#F2F2F2',
-              darkGray: '#333333',
-            }
-          }
-        }
-      }
-    }
-  </script>
-  
-  <style>
-    html {
-      scroll-behavior: smooth;
-    }
-    body {
-      font-family: 'Montserrat', sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      text-rendering: optimizeLegibility;
-    }
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none; /* IE and Edge */
-      scrollbar-width: none; /* Firefox */
-    }
-    .safe-area-bottom {
-      padding-bottom: env(safe-area-inset-bottom, 1rem);
-    }
-    ::selection {
-      background-color: #00263E;
-      color: white;
-    }
-    strong {
-      font-weight: 800;
-      color: #00263E;
-    }
 
-    /* Force-hide ALL native video controls across browsers */
-    video::-webkit-media-controls,
-    video::-webkit-media-controls-enclosure,
-    video::-webkit-media-controls-panel,
-    video::-webkit-media-controls-play-button,
-    video::-webkit-media-controls-start-playback-button,
-    video::-webkit-media-controls-pause-button,
-    video::-webkit-media-controls-rewind-button,
-    video::-webkit-media-controls-return-to-realtime-button,
-    video::-webkit-media-controls-timeline,
-    video::-webkit-media-controls-current-time-display,
-    video::-webkit-media-controls-time-remaining-display,
-    video::-webkit-media-controls-seek-back-button,
-    video::-webkit-media-controls-seek-forward-button,
-    video::-webkit-media-controls-fullscreen-button,
-    video::-webkit-media-controls-overflow-button,
-    video::-webkit-media-controls-mute-button,
-    video::-webkit-media-controls-volume-slider,
-    video::-webkit-media-controls-toggle-closed-captions-button,
-    video::-webkit-media-controls-closed-captions-container,
-    video::-webkit-media-controls-wireless-playback-container,
-    video::-webkit-media-controls-remaining-duration-display,
-    video::-webkit-media-controls-airplay-button,
-    video::-webkit-media-controls-picture-in-picture-button,
-    video::-moz-media-controls {
-      display: none !important;
-      visibility: hidden !important;
-      opacity: 0 !important;
-      pointer-events: none !important;
-      -webkit-appearance: none !important;
-      appearance: none !important;
-    }
-
-    /* iOS Safari: hide inline playback controls overlay */
-    video::-webkit-media-controls-overlay-play-button {
-      display: none !important;
-    }
-
-    /* Ensure the video element itself has no default appearance */
-    video.exposure-video {
-      -webkit-user-modify: read-only;
-      user-select: none;
-      -webkit-user-select: none;
-      -webkit-touch-callout: none;
-      outline: none;
-    }
-
-    /* Block pointer events on the video itself — the overlay handles interaction */
-    video.exposure-video {
-      pointer-events: none;
-    }
-  </style>
-
-  <link rel="stylesheet" href="/index.css">
+  <!--
+    Fonts (Montserrat, Space Grotesk, Inter), the Tailwind stylesheet and all
+    custom CSS are bundled from index.tsx / index.css. Nothing is loaded from a
+    CDN at runtime, so the app satisfies a strict
+    `script-src 'self'; style-src 'self'` Content-Security-Policy.
+    Tailwind theme tokens live in tailwind.config.js.
+  -->
 </head>
 <body class="bg-white text-uib-black h-full selection:bg-uib-blue selection:text-white">
   <div id="root" class="h-full"></div>

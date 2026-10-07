@@ -11,6 +11,13 @@ the AI features. Video files go in `public/videos_cafft/`; see
 [`PLACE_VIDEOS_HERE.txt`](public/videos_cafft/PLACE_VIDEOS_HERE.txt) for the
 expected filenames.
 
+**The API** (`server/`, work in progress — see
+[`docs/backend/PLAN.md`](docs/backend/PLAN.md)) needs Node 24 or newer. Run it
+alongside the app with `npm --prefix server install && npm run dev:api`; Vite
+forwards `/cafft/api/*` to it. Create a local login with
+`npm --prefix server run create-admin -- --username admin --email admin@example.test`.
+Its tests run with `npm run test:api`.
+
 ---
 
 ## Older notes: running from a plain static server

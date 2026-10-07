@@ -7,6 +7,11 @@ directory of files onto the server and starting one small container.
 The one moving part is the Gemini proxy, which exists so the API key never
 reaches the browser.
 
+> **In progress:** a backend (`server/`, see `docs/backend/PLAN.md`) is being
+> added. It already deploys as a second container, `cafft-api` — see
+> [Step 6](#step-6--the-api-container) — but the app does not use it yet, so
+> the paragraph above still describes where patient data lives today.
+
 ---
 
 ## How this fits on the server
@@ -211,6 +216,67 @@ hatch. The intro-page presentation video has no such fallback: without
 `cafft_presentation.mp4` its modal opens black.
 
 ---
+
+## Step 6 — The API container
+
+`cafft-api` runs `server/` with Node 24 and keeps its SQLite database in
+`/data/apps/cafft/data/`. It is on a private compose network with cafft-nginx
+only; nginx forwards `/cafft/api/*` to it. It has no Traefik labels and
+publishes no port.
+
+One-time setup, after Step 2 has uploaded the new `docker-compose.yml` and
+`cafft.conf`:
+
+```bash
+cd /data/apps/cafft
+sudo mkdir -p api data backups
+# The image runs as uid 1000 (`node`). Without this the API cannot create its
+# database and exits on start.
+sudo chown 1000:1000 data backups
+```
+
+`deploy.sh` then uploads `server/` to `/data/apps/cafft/api/` and runs
+`docker compose up -d --build api` on every deploy. After the first deploy,
+restart nginx once so it picks up the new `location /cafft/api/`:
+
+```bash
+cd /data/apps/cafft && docker compose restart nginx
+curl -s https://pausat.uib.es/cafft/api/health      # {"status":"ok"}
+```
+
+The app ships no accounts. Create the first superadmin; it prompts for the
+password without echoing it:
+
+```bash
+cd /data/apps/cafft && docker compose exec api node src/cli/create-admin.ts \
+  --username <name> --email <address>
+```
+
+**Backups.** The API snapshots the database to
+`/data/apps/cafft/backups/cafft-YYYY-MM-DD.db` every time it starts (before
+running migrations) and once a day after that, and deletes snapshots older than
+30 days. For an extra one on demand:
+
+```bash
+docker compose exec api node src/cli/backup.ts
+```
+
+To restore, stop the API, put a snapshot in place of the database, and start it
+again. Remove the `-wal`/`-shm` files: they belong to the database being
+replaced.
+
+```bash
+cd /data/apps/cafft
+docker compose stop api
+sudo cp backups/cafft-2026-10-07.db data/cafft.db
+sudo rm -f data/cafft.db-wal data/cafft.db-shm
+sudo chown 1000:1000 data/cafft.db
+docker compose start api
+```
+
+If nginx returns 502 for `/cafft/api/*`, the API is down: `docker compose logs api`.
+The rest of the site keeps working, because nginx resolves `api` per request
+instead of at start-up.
 
 ## Verification
 

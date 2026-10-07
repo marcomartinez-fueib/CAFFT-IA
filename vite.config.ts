@@ -11,6 +11,7 @@ export default defineConfig(({ mode }) => {
     // Override with BASE_PATH=/ for a root deployment.
     const base = process.env.BASE_PATH || env.BASE_PATH || '/cafft/';
     const genaiPath = `${base}genai`;
+    const apiPath = `${base}api`;
 
     return {
       base,
@@ -26,6 +27,13 @@ export default defineConfig(({ mode }) => {
             changeOrigin: true,
             rewrite: (p) => p.slice(genaiPath.length),
             headers: geminiKey ? { 'x-goog-api-key': geminiKey } : undefined,
+          },
+          // The CAFFT API (server/, `npm run dev:api`), mirroring the nginx
+          // location that strips the prefix in production. The Origin header
+          // is passed through untouched for the API's CSRF check.
+          [apiPath]: {
+            target: 'http://127.0.0.1:3001',
+            rewrite: (p) => p.slice(apiPath.length),
           },
         },
       },

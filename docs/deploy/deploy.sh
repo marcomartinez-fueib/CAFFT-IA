@@ -13,6 +13,7 @@
 #   CAFFT_SSH_TARGET   ssh destination, e.g. marco@pausat.uib.es
 #   CAFFT_APP_DIR      where the built app lives on the server
 #   CAFFT_VIDEO_DIR    where the mp4 assets live on the server
+#   CAFFT_STACK_DIR    the directory holding docker-compose.yml on the server
 #   CAFFT_SUDO         set to "sudo" if the deploy user cannot write those dirs
 #
 # The app is uploaded to a temporary directory and swapped into place, so a
@@ -28,6 +29,8 @@ set -euo pipefail
 SSH_TARGET="${CAFFT_SSH_TARGET:-}"
 APP_DIR="${CAFFT_APP_DIR:-/data/apps/cafft/web/cafft}"
 VIDEO_DIR="${CAFFT_VIDEO_DIR:-/data/apps/cafft/videos}"
+STACK_DIR="${CAFFT_STACK_DIR:-/data/apps/cafft}"
+API_DIR="$STACK_DIR/api"
 SUDO="${CAFFT_SUDO:-}"
 
 WITH_VIDEOS=0
@@ -83,10 +86,17 @@ if [[ "$BLOCKED" -ne 0 ]]; then
 fi
 echo "  none found"
 
+# The API runs its TypeScript sources directly, so there is nothing to build —
+# but its tests must pass before it ships.
+echo "==> testing the API (server/)"
+npm --prefix server ci
+npm --prefix server test
+
 if [[ "$DRY_RUN" -eq 1 ]]; then
   echo
   echo "==> dry run, nothing uploaded. Would deploy:"
   echo "      app    -> $SSH_TARGET:$APP_DIR"
+  echo "      api    -> $SSH_TARGET:$API_DIR (then: docker compose up -d --build api)"
   [[ "$WITH_VIDEOS" -eq 1 ]] && echo "      videos -> $SSH_TARGET:$VIDEO_DIR"
   du -sh dist
   exit 0
@@ -122,6 +132,36 @@ tar czf - -C dist --exclude=videos_cafft . \
       $SUDO rm -rf \"\$OLD\"
     "
 echo "  app uploaded"
+
+# ---------------------------------------------------------------------------
+# 2b. Upload the API and restart it
+# ---------------------------------------------------------------------------
+# Same staging-and-swap as the app. The database and its backups live in
+# $STACK_DIR/data and $STACK_DIR/backups, outside the API directory, so they
+# are never touched here. The API backs the database up every time it starts,
+# before running migrations, so each deploy leaves a snapshot of the data as it
+# was before the new code touched it.
+echo "==> uploading the API to $SSH_TARGET:$API_DIR"
+
+tar czf - -C server --exclude=node_modules --exclude=data --exclude=test --exclude=.env . \
+  | ssh "$SSH_TARGET" "
+      set -eu
+      API='$API_DIR'
+      STAGING=\"\$(dirname \"\$API\")/.cafft-api-deploy-\$\$\"
+      OLD=\"\$(dirname \"\$API\")/.cafft-api-old-\$\$\"
+
+      $SUDO mkdir -p \"\$STAGING\"
+      $SUDO tar xzf - -C \"\$STAGING\"
+      if [ -d \"\$API\" ]; then
+        $SUDO mv \"\$API\" \"\$OLD\"
+      fi
+      $SUDO mv \"\$STAGING\" \"\$API\"
+      $SUDO rm -rf \"\$OLD\"
+
+      cd '$STACK_DIR'
+      $SUDO docker compose up -d --build api
+    "
+echo "  api uploaded and restarted"
 
 # ---------------------------------------------------------------------------
 # 3. Upload the videos (only with --videos)
@@ -161,6 +201,9 @@ fi
 echo "==> verifying https://pausat.uib.es/cafft/"
 CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://pausat.uib.es/cafft/)
 echo "  GET /cafft/ -> HTTP $CODE"
+
+HCODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://pausat.uib.es/cafft/api/health)
+echo "  GET /cafft/api/health -> HTTP $HCODE"
 
 ASSET=$(grep -oE 'src="/cafft/assets/[^"]+"' dist/index.html | head -1 | sed 's/src="//;s/"//')
 if [[ -n "$ASSET" ]]; then

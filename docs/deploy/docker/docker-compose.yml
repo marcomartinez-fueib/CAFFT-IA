@@ -16,6 +16,9 @@
 #      /data/apps/cafft/web/cafft/            the built app
 #      /data/apps/cafft/videos/               the mp4 assets
 #      /data/apps/cafft/secrets/gemini-key.conf
+#      /data/apps/cafft/api/                  the API sources (server/ in the repo)
+#      /data/apps/cafft/data/                 the SQLite database   — owned by uid 1000
+#      /data/apps/cafft/backups/              daily database snapshots — owned by uid 1000
 # ============================================================================
 
 services:
@@ -37,7 +40,7 @@ services:
       - ./videos:/srv/cafft/videos:ro
       - ./secrets/gemini-key.conf:/etc/nginx/private/cafft-gemini-key.conf:ro
 
-    networks: [edge]
+    networks: [edge, cafft]
 
     labels:
       - traefik.enable=true
@@ -62,6 +65,31 @@ services:
 
       - traefik.http.services.cafft.loadbalancer.server.port=80
 
+  api:
+    build: ./api
+    image: cafft-api
+    container_name: cafft-api
+    restart: unless-stopped
+
+    environment:
+      PUBLIC_ORIGIN: https://pausat.uib.es
+      COOKIE_PATH: /cafft
+      DB_PATH: /data/cafft.db
+      BACKUP_DIR: /backups
+      BACKUP_KEEP_DAYS: "30"
+
+    volumes:
+      # The image runs as uid 1000 (`node`): both directories must be
+      # writable by it — see docs/deploy/DEPLOYMENT.md.
+      - ./data:/data
+      - ./backups:/backups
+
+    # Not on `edge` and no Traefik labels: only cafft-nginx can reach the API,
+    # which is what lets it trust X-Forwarded-For and keeps every request
+    # same-origin under /cafft/.
+    networks: [cafft]
+
 networks:
   edge:
     external: true
+  cafft: {}

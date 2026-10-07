@@ -7,7 +7,7 @@ import { useUI } from '../hooks/useUI';
 import { PageTitle } from '../components/PageTitle';
 import { SectionCard } from '../components/SectionCard';
 import { ExposureVideo, QPVIIScores, VideoDiscomfortRating, UserExposureProgress, ExposureSceneKey, QPVIIAnswers } from '../types';
-import { saveUserExposureProgress, getUserExposureProgress, getQPVIIResultsForUser, getCircularReplacer } from '../utils/localStorageDB';
+import { saveUserExposureProgress, getUserExposureProgress, getQPVIIResultsForUser } from '../services/dataStore';
 import { determineVideoSequence, isExposureFullyCompleted } from '../utils/exposureUtils';
 import { EXPOSURE_VIDEOS, CANONICAL_FLIGHT_STAGES_ORDER } from '../constants';
 import { FollowUpService } from '../services/followUpService.ts';
@@ -126,8 +126,8 @@ export const ExposurePage: React.FC = () => {
   const stateAnswers = state.answers as QPVIIAnswers | undefined;
   
   // Use stringified versions for dependency comparison to avoid object/array reference issues
-  const reviewScenesStr = reviewScenes ? JSON.stringify(reviewScenes, getCircularReplacer()) : null;
-  const scoresStr = stateScores ? JSON.stringify(stateScores, getCircularReplacer()) : null;
+  const reviewScenesStr = reviewScenes ? JSON.stringify(reviewScenes) : null;
+  const scoresStr = stateScores ? JSON.stringify(stateScores) : null;
 
   useEffect(() => {
     if (reviewScenes && reviewScenes.length > 0 && reviewSessionTimestamp) {

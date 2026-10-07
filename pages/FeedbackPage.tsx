@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { Star, MessageSquare, AlertCircle, Lightbulb, Users, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
-import { saveFeedback, getAllFeedback } from '../utils/localStorageDB';
+import { saveFeedback, fetchTestimonials } from '../services/dataStore';
 import { Feedback } from '../types';
 import { PageTitle } from '../components/PageTitle';
 import { SectionCard } from '../components/SectionCard';
@@ -21,32 +21,26 @@ export const FeedbackPage: React.FC = () => {
   const [testimonials, setTestimonials] = useState<Feedback[]>([]);
 
   useEffect(() => {
-    const feedback = getAllFeedback();
-    const sortedTestimonials = feedback
-      .filter(f => f.type === 'testimonial')
-      .sort((a, b) => b.timestamp - a.timestamp)
-      .slice(0, 5);
-    setTestimonials(sortedTestimonials);
+    let cancelled = false;
+    // The server returns the 5 latest testimonials, newest first.
+    fetchTestimonials().then(list => { if (!cancelled) setTestimonials(list); });
+    return () => { cancelled = true; };
   }, [success]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
 
-    const feedback: Feedback = {
-      id: Math.random().toString(36).substring(2, 9),
-      userId: currentUser?.id || 'guest',
+    // Author and role are taken from the session on the server; the name is
+    // only used for guests.
+    const saved = await saveFeedback({
+      id: crypto.randomUUID(),
       username: currentUser?.username || t('feedback.anonymousUser'),
-      userType: currentUser ? (currentUser.role === 'therapist' ? 'therapist' : 'patient') : 'guest',
       type,
       rating,
       comment,
-      timestamp: Date.now(),
-      status: 'new'
-    };
-
-    const saved = saveFeedback(feedback);
+    });
     
     if (saved) {
       setSuccess(true);

@@ -1,5 +1,5 @@
 
-import { getUsers, getAllQPVIIResults, getAllUserExposureProgress } from './localStorageDB';
+import { getUsers, getAllQPVIIResults, getAllUserExposureProgress } from '../services/dataStore';
 import { EXPOSURE_VIDEOS, CANONICAL_FLIGHT_STAGES_ORDER } from '../constants';
 import { determineVideoSequence, isExposureFullyCompleted } from './exposureUtils';
 import { QPVIIUserResult, UserExposureProgress } from '../types';

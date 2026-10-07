@@ -9,11 +9,11 @@ import { StoredUser } from '../../types';
 import { 
     getUsers,
     getTherapistsForManager,
-    saveUser,
+    createUser,
+    syncStore,
     toggleUserNotifications,
     toggleUserOnboarding
-} from '../../utils/localStorageDB';
-import { hashPassword } from '../../utils/hash';
+} from '../../services/dataStore';
 
 // Icons
 const UsersIcon = (props: React.SVGProps<SVGSVGElement>) => <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-2.253 9.527 9.527 0 0 0-1.25-1.25A9.37 9.37 0 0 0 19.5 9.372a9.337 9.337 0 0 0-2.253-4.121m-4.5 1.25a9.37 9.37 0 0 1-1.25-1.25A9.337 9.337 0 0 1 9.372 19.5a9.37 9.37 0 0 1-1.25-1.25m-1.25-1.25a9.37 9.37 0 0 0-1.25-1.25A9.337 9.337 0 0 0 4.5 9.372a9.37 9.37 0 0 0-1.25 1.25m3.5-6.128a9.37 9.37 0 0 1 1.25-1.25A9.337 9.337 0 0 1 9.372 4.5a9.37 9.37 0 0 1 1.25 1.25m7.5 0a9.37 9.37 0 0 0 1.25-1.25A9.337 9.337 0 0 0 19.5 4.5a9.37 9.37 0 0 0 1.25 1.25M4.5 19.5a9.37 9.37 0 0 1 1.25-1.25A9.337 9.337 0 0 1 9.372 15a9.37 9.37 0 0 1 1.25 1.25m-4.5 0a9.37 9.37 0 0 0 1.25-1.25A9.337 9.337 0 0 0 4.5 15a9.37 9.37 0 0 0-1.25 1.25m6.75-3.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Z" /></svg>;
@@ -44,13 +44,23 @@ export const ManagerDashboardPage: React.FC = () => {
     const [newTherapistData, setNewTherapistData] = useState({ username: '', email: '', password: '' });
     const [error, setError] = useState<string | null>(null);
 
-    const fetchData = useCallback(() => {
+    const readData = useCallback(() => {
         if (currentUser) {
-            const users = getUsers();
-            setAllUsers(users);
+            setAllUsers(getUsers());
             setTherapists(getTherapistsForManager(currentUser.id));
         }
     }, [currentUser]);
+
+    // Show what is in memory at once, then refresh from the server.
+    const fetchData = useCallback(async () => {
+        readData();
+        try {
+            await syncStore();
+        } catch (e) {
+            console.error('[ManagerDashboard] sync failed:', e);
+        }
+        readData();
+    }, [readData]);
 
     useEffect(() => {
         fetchData();
@@ -68,39 +78,31 @@ export const ManagerDashboardPage: React.FC = () => {
             return;
         }
         setError(null);
-        try {
-            const hashedPassword = await hashPassword(newTherapistData.password);
-            const newTherapist: StoredUser = {
-                id: crypto.randomUUID(),
-                username: newTherapistData.username,
-                email: newTherapistData.email,
-                hashedPassword,
-                consentGiven: true,
-                role: 'therapist',
-                managerId: currentUser.id
-            };
-            const success = saveUser(newTherapist);
-            if (!success) {
-                setError(t('auth.usernameTakenError'));
-                return;
-            }
-            fetchData();
-            setAddTherapistModalOpen(false);
-            setNewTherapistData({ username: '', email: '', password: '' });
-        } catch (e) {
-            setError(t('auth.registrationFailedError'));
+        // The server assigns the new therapist to this manager.
+        const result = await createUser({
+            role: 'therapist',
+            username: newTherapistData.username,
+            email: newTherapistData.email,
+            password: newTherapistData.password,
+        });
+        if (result.errorKey) {
+            setError(t(result.errorKey));
+            return;
+        }
+        readData();
+        setAddTherapistModalOpen(false);
+        setNewTherapistData({ username: '', email: '', password: '' });
+    };
+
+    const handleToggleNotifications = async (userId: string) => {
+        if (await toggleUserNotifications(userId)) {
+            readData();
         }
     };
 
-    const handleToggleNotifications = (userId: string) => {
-        if (toggleUserNotifications(userId)) {
-            fetchData();
-        }
-    };
-
-    const handleToggleOnboarding = (userId: string) => {
-        if (toggleUserOnboarding(userId)) {
-            fetchData();
+    const handleToggleOnboarding = async (userId: string) => {
+        if (await toggleUserOnboarding(userId)) {
+            readData();
         }
     };
 

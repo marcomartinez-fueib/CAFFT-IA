@@ -1,6 +1,6 @@
 import { User, UserExposureProgress } from '../types.ts';
 import { NotificationService } from './notificationService.ts';
-import { getAllUserExposureProgress, saveUser } from '../utils/localStorageDB.ts';
+import { getAllUserExposureProgress } from './dataStore.ts';
 
 /**
  * Service to analyze patient progress and send personalized follow-up notifications.
@@ -37,7 +37,7 @@ export class FollowUpService {
     // 4. Reduced Fear (SUDs improvement)
     else if (latestProgress.discomfortRatings.length >= 3 && !sentFollowUps.includes('reducedFear')) {
        // Look for improvement: compare first rating with latest
-       const ratings = latestProgress.discomfortRatings.sort((a, b) => a.videoTimestamp - b.videoTimestamp);
+       const ratings = [...latestProgress.discomfortRatings].sort((a, b) => a.videoTimestamp - b.videoTimestamp);
        const firstRating = ratings[0].rating;
        const latestRating = ratings[ratings.length - 1].rating;
        

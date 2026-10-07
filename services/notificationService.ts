@@ -1,6 +1,5 @@
 
 import { NotificationPreferences, User } from '../types.ts';
-import { saveUser, findUserById } from '../utils/localStorageDB.ts';
 
 export class NotificationService {
   private static STORAGE_KEY = 'cafft_notification_token';
@@ -52,28 +51,6 @@ export class NotificationService {
       startTime: '09:00',
       endTime: '21:00',
     };
-  }
-
-  static async updatePreferences(userId: string, prefs: Partial<NotificationPreferences>): Promise<boolean> {
-    const user = findUserById(userId);
-    if (!user) return false;
-
-    const currentPrefs = user.notificationPreferences || this.getDefaultPreferences();
-    const updatedPrefs = { ...currentPrefs, ...prefs };
-
-    // If enabling for the first time or re-enabling, record consent date
-    if (updatedPrefs.enabled && !currentPrefs.enabled) {
-        updatedPrefs.consentDate = Date.now();
-    } else if (!updatedPrefs.enabled) {
-        updatedPrefs.consentDate = undefined;
-    }
-
-    const updatedUser = {
-      ...user,
-      notificationPreferences: updatedPrefs,
-    };
-
-    return saveUser(updatedUser);
   }
 
   static canSendNotification(user: User, type: keyof Omit<NotificationPreferences, 'enabled' | 'frequency' | 'startTime' | 'endTime' | 'consentDate'>): boolean {

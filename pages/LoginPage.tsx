@@ -6,7 +6,7 @@ import { useAuth } from '../hooks/useAuth.tsx';
 import { useLanguage } from '../hooks/useLanguage.tsx';
 import { PageTitle } from '../components/PageTitle.tsx';
 import { SectionCard } from '../components/SectionCard.tsx';
-import { hasQPVIIResults } from '../utils/localStorageDB.ts'; // Import from DB utils
+import { hasQPVIIResults } from '../services/dataStore.ts'; // Import from DB utils
 
 export const LoginPage: React.FC = () => {
   const { login, currentUser } = useAuth();

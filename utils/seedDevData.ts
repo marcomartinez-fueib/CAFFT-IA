@@ -1,7 +1,20 @@
 
-import { StoredUser, QPVIIScores, UserExposureProgress, VideoDiscomfortRating, QPVIIAnswers } from '../types';
-import { saveUser, saveQPVIIResultForUser, saveUserExposureProgress, findUserByUsername } from './localStorageDB';
-import { hashPassword } from './hash';
+import { StoredUser, QPVIIScores, VideoDiscomfortRating, QPVIIAnswers, User } from '../types';
+import {
+    createUser,
+    deletePatientData,
+    flushWrites,
+    getUsers,
+    saveQPVIIResultForUser,
+    saveUserExposureProgress,
+    syncStore,
+} from '../services/dataStore';
+
+// Development only (pages/dev/DevToolsPage.tsx). Runs as the logged-in
+// superadmin through the normal API, which lets superadmin write clinical
+// records on a patient's behalf for exactly this purpose.
+
+const SEED_PASSWORD = 'clauacces';
 
 const addDays = (date: Date, days: number): Date => {
   const result = new Date(date);
@@ -13,19 +26,21 @@ const toISODateString = (date: Date): string => {
     return date.toISOString().split('T')[0];
 };
 
-const createPatient = async (username: string, email: string, therapistId: string): Promise<StoredUser> => {
-    const hashedPassword = await hashPassword('clauacces'); // All simulated users have the same simple password
-    const user: StoredUser = {
-        id: crypto.randomUUID(),
-        username,
-        email,
-        hashedPassword,
-        consentGiven: true,
-        role: 'patient',
-        therapistId,
-    };
-    saveUser(user);
-    return user;
+const create = async (role: User['role'], username: string, email: string, assignment: { therapistId?: string; managerId?: string } = {}): Promise<StoredUser> => {
+    const result = await createUser({ role, username, email, password: SEED_PASSWORD, ...assignment });
+    if (result.errorKey) throw new Error(`Could not create ${role} '${username}': ${result.errorKey}`);
+    return result.user!;
+};
+
+const createPatient = (username: string, email: string, therapistId: string) =>
+    create('patient', username, email, { therapistId });
+
+/** Deletes every user except the superadmin running the tool, with all their data. */
+export const deleteAllOtherUsers = async (selfId: string) => {
+    await syncStore();
+    for (const user of getUsers()) {
+        if (user.id !== selfId) await deletePatientData(user.id);
+    }
 };
 
 const createQPVII = (user: StoredUser, scores: QPVIIScores, date: Date, type: 'pre' | 'post' = 'pre', originalTimestamp?: number): number => {
@@ -72,49 +87,9 @@ const createExposureSession = (user: StoredUser, qpviiTimestamp: number, ratings
 };
 
 export const seedSimulatedPatients = async () => {
-    // 1. Seed Superadmin
-    const superadminPassword = await hashPassword('clauacces');
-    const superadmin: StoredUser = {
-        id: 'superadmin-001',
-        username: 'admin',
-        email: 'admin@uib.es',
-        hashedPassword: superadminPassword,
-        consentGiven: true,
-        role: 'superadmin',
-    };
-    saveUser(superadmin);
-
-    // 2. Seed Manager
-    const managerPassword = await hashPassword('clauacces');
-    const manager: StoredUser = {
-        id: 'manager-001',
-        username: 'gestor',
-        email: 'gestor@uib.es',
-        hashedPassword: managerPassword,
-        consentGiven: true,
-        role: 'manager',
-    };
-    saveUser(manager);
-
-    // 3. Seed Therapist (terapeuta) assigned to manager
-    let therapist = findUserByUsername('terapeuta');
-    if (!therapist) {
-        const hashedPassword = await hashPassword('clauacces');
-        therapist = {
-            id: 'therapist-terapeuta-001',
-            username: 'terapeuta',
-            email: 'terapeuta@uib.es',
-            hashedPassword,
-            consentGiven: true,
-            role: 'therapist',
-            managerId: manager.id,
-        };
-        saveUser(therapist);
-    } else {
-        // Ensure therapist is linked to manager for testing
-        therapist.managerId = manager.id;
-        saveUser(therapist);
-    }
+    // 1. Manager, and a therapist assigned to them.
+    const manager = await create('manager', 'gestor', 'gestor@uib.es');
+    const therapist = await create('therapist', 'terapeuta', 'terapeuta@uib.es', { managerId: manager.id });
 
     const therapistId = therapist.id;
     const today = new Date();
@@ -173,4 +148,7 @@ export const seedSimulatedPatients = async () => {
     const lauraPostScores: QPVIIScores = { total: 95, malestarGeneral: 4, subPreparatius: 35, subVicari: 25, subVol: 31 };
     createQPVII(laura, lauraPostScores, addDays(today, -5), 'post', lauraPreTimestamp);
 
+
+    // The clinical records above were queued; make sure they reached the server.
+    await flushWrites();
 };

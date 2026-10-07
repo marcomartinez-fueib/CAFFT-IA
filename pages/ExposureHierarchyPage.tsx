@@ -8,7 +8,7 @@ import { PageTitle } from '../components/PageTitle';
 import { SectionCard } from '../components/SectionCard';
 import { ExposureVideo, QPVIIScores, ExposureSceneKey, QPVIIAnswers } from '../types';
 import { EXPOSURE_VIDEOS } from '../constants';
-import { getUserExposureProgress, saveUserExposureProgress } from '../utils/localStorageDB'; 
+import { getUserExposureProgress, saveUserExposureProgress } from '../services/dataStore'; 
 import { determineVideoSequence, calculatePhaseScores } from '../utils/exposureUtils';
 
 // --- Icons for visual feedback ---

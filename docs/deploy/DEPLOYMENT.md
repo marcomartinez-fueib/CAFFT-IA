@@ -1,16 +1,12 @@
 # Deploying CAFFT-IA to https://pausat.uib.es/cafft/
 
-CAFFT-IA is a static single-page app. There is no backend and no database — all
-patient data lives in the browser's `localStorage`. Deploying it means copying a
-directory of files onto the server and starting one small container.
+CAFFT-IA is a single-page app backed by a small API (`server/`, see
+`docs/backend/PLAN.md`) that keeps accounts and clinical data in SQLite.
+Deploying it means copying the built app onto the server and running two
+containers: `cafft-nginx` serves the app and proxies to `cafft-api`.
 
-The one moving part is the Gemini proxy, which exists so the API key never
-reaches the browser.
-
-> **In progress:** a backend (`server/`, see `docs/backend/PLAN.md`) is being
-> added. It already deploys as a second container, `cafft-api` — see
-> [Step 6](#step-6--the-api-container) — but the app does not use it yet, so
-> the paragraph above still describes where patient data lives today.
+nginx also proxies Gemini, so the API key never reaches the browser, and only
+for logged-in users.
 
 ---
 
@@ -359,25 +355,20 @@ This is not expected: the one code path in `motion` that injects a stylesheet
 
 ## Security notes
 
-**The Gemini proxy is unauthenticated.** Moving the key server-side stops it
-being stolen from the JS bundle, but the app has no server-side login — so anyone
-who finds `/cafft/genai/` can spend the project's Gemini quota. `cafft.conf`
-enables `limit_req` at 20 requests/minute per IP as a backstop. If the quota
-matters, put the app behind the university SSO or an IP allow-list.
+**The Gemini proxy requires a session.** nginx checks the session cookie with
+the API (`auth_request` to `/auth/check`) before forwarding to Google, so only
+logged-in users can spend the project's Gemini quota. `cafft.conf` also keeps
+`limit_req` at 20 requests/minute per IP. If the API is down, the AI chat stops
+working too.
 
-**All patient data lives in the browser.** `localStorage` means clinical data is
-per-device and per-browser, is not backed up, is lost when a patient clears their
-browser data, and is visible to anyone with access to that device or to any
-script running on the origin. That is a property of the application, not of this
-deployment, but it should be understood before the app is used with real
-patients.
+**Patient data lives in the API's SQLite database**, on the server, in
+`/data/apps/cafft/data/`, with daily snapshots in `/data/apps/cafft/backups/`
+(see [Step 6](#step-6--the-api-container)). The browser keeps only a copy in
+memory while the app is open, plus the language preference in `localStorage`.
 
-**The build ships default credentials and an unprotected dev route.**
-`hooks/useAuth.tsx` seeds `testuser`/`password` and `terapeuta`/`clauacces` on
-every load without checking `import.meta.env.DEV`, and `App.tsx` registers
-`/dev/tools` outside any `ProtectedRoute`. Because all state is per-browser, this
-is not a remote compromise — but a patient who reaches `#/dev/tools` can
-irreversibly wipe their own clinical history, and there is no backup.
+**There are no built-in accounts.** The first superadmin is created with
+`create-admin` (Step 6). The `/dev/tools` page exists only in development
+builds and needs a superadmin session.
 
 ---
 

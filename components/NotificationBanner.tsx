@@ -2,7 +2,7 @@
 import React from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../hooks/useLanguage';
-import { getDaysSinceLastActivity } from '../utils/localStorageDB';
+import { getDaysSinceLastActivity } from '../services/dataStore';
 
 export const NotificationBanner: React.FC = () => {
     const { currentUser } = useAuth();

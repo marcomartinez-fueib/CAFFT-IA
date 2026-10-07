@@ -10,18 +10,17 @@ import {
     getUsers,
     getAllQPVIIResults,
     getAllUserExposureProgress,
-    saveUser, 
+    createUser,
+    syncStore,
     deletePatientData, 
     resetPatientPassword, 
     toggleUserNotifications,
-    toggleUserOnboarding,
-    generatePatientCode
-} from '../../utils/localStorageDB';
+    toggleUserOnboarding
+} from '../../services/dataStore';
 import { calculateQPVIIScores } from '../../utils/qpviiScoring';
 import { determineVideoSequence } from '../../utils/exposureUtils';
 import { getPatientStatus } from '../../utils/clinicalAnalysis';
 import { AVERAGE_VIDEO_DURATION_SECONDS } from '../../constants';
-import { hashPassword } from '../../utils/hash';
 
 // --- Icons ---
 const ViewIcon = (props: React.SVGProps<SVGSVGElement>) => <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639l4.418-6.313a1.012 1.012 0 0 1 1.634 0l1.832 2.614a.5.5 0 0 0 .822 0l1.832-2.614a1.012 1.012 0 0 1 1.634 0l4.418 6.313a1.012 1.012 0 0 1 0 .639l-4.418 6.313a1.012 1.012 0 0 1-1.634 0l-1.832-2.614a.5.5 0 0 0-.822 0l-1.832-2.614a1.012 1.012 0 0 1-1.634 0l-4.418-6.313Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>;
@@ -96,7 +95,7 @@ export const TherapistPatientsPage: React.FC = () => {
     const [passwordCopied, setPasswordCopied] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchAllData = useCallback(() => {
+    const readAllData = useCallback(() => {
         if (currentUser) {
             setAllData({
                 users: getUsers(),
@@ -106,9 +105,12 @@ export const TherapistPatientsPage: React.FC = () => {
         }
     }, [currentUser]);
 
+    // Show what is in memory at once, then refresh from the server so the
+    // patients' latest activity appears.
     useEffect(() => {
-        fetchAllData();
-    }, [fetchAllData, location]);
+        readAllData();
+        syncStore().then(readAllData, e => console.error('[TherapistPatients] sync failed:', e));
+    }, [readAllData, location]);
 
     const enrichedPatients = useMemo(() => {
         if (!currentUser) return [];
@@ -176,28 +178,19 @@ export const TherapistPatientsPage: React.FC = () => {
           return;
         }
         setError(null);
-        try {
-            const hashedPassword = await hashPassword(newPatientData.password);
-            const newPatient: StoredUser = {
-              id: crypto.randomUUID(),
-              patientCode: generatePatientCode(),
-              username: newPatientData.username,
-              email: newPatientData.email,
-              hashedPassword,
-              consentGiven: true, 
-              role: 'patient',
-              therapistId: currentUser.id,
-            };
-            const success = saveUser(newPatient);
-            if (!success) {
-              setError(t('auth.usernameTakenError'));
-              return;
-            }
-            fetchAllData();
-            setAddModalOpen(false);
-        } catch (e) {
-            setError(t('auth.registrationFailedError'));
+        // The server assigns the patient to this therapist and generates the patient code.
+        const result = await createUser({
+            role: 'patient',
+            username: newPatientData.username,
+            email: newPatientData.email,
+            password: newPatientData.password,
+        });
+        if (result.errorKey) {
+            setError(t(result.errorKey));
+            return;
         }
+        readAllData();
+        setAddModalOpen(false);
     };
 
     const handleOpenDeleteModal = (patient: any) => {
@@ -205,10 +198,9 @@ export const TherapistPatientsPage: React.FC = () => {
         setDeleteModalOpen(true);
     };
 
-    const handleDeletePatient = () => {
+    const handleDeletePatient = async () => {
         if (patientToProcess) {
-          deletePatientData(patientToProcess.id);
-          fetchAllData();
+          if (await deletePatientData(patientToProcess.id)) readAllData();
           setDeleteModalOpen(false);
           setPatientToProcess(null);
         }
@@ -230,15 +222,15 @@ export const TherapistPatientsPage: React.FC = () => {
         setTimeout(() => setPasswordCopied(false), 2000);
     };
 
-    const handleToggleNotifications = (userId: string) => {
-        if (toggleUserNotifications(userId)) {
-            fetchAllData();
+    const handleToggleNotifications = async (userId: string) => {
+        if (await toggleUserNotifications(userId)) {
+            readAllData();
         }
     };
 
-    const handleToggleOnboarding = (userId: string) => {
-        if (toggleUserOnboarding(userId)) {
-            fetchAllData();
+    const handleToggleOnboarding = async (userId: string) => {
+        if (await toggleUserOnboarding(userId)) {
+            readAllData();
         }
     };
 

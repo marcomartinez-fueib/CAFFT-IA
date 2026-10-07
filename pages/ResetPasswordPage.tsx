@@ -27,7 +27,7 @@ export const ResetPasswordPage: React.FC = () => {
       setError(t('auth.fillAllFieldsError'));
       return;
     }
-     if (newPassword.length < 6) {
+     if (newPassword.length < 8) {
       setError(t('auth.passwordMinLengthError'));
       return;
     }

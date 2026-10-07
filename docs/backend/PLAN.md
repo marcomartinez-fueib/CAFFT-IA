@@ -1,6 +1,6 @@
 # CAFFT-IA — Plan de backend con persistencia
 
-Estado: **en curso** (fases 0 y 1-servidor hechas, ver §12) · Última revisión: 2026-10-07
+Estado: **en curso** (fases 0–4 hechas; quedan email y operación, ver §12) · Última revisión: 2026-10-07
 
 ## 1. Punto de partida
 
@@ -297,28 +297,28 @@ en el cliente.
 
 ## 8. Cambios en el frontend
 
-1. **Nuevo cliente `services/api.ts`**: `fetch` con `credentials: 'same-origin'`,
-   base `import.meta.env.BASE_URL + 'api'`, manejo uniforme de errores y de 401
-   (redirige a login).
-2. **`utils/localStorageDB.ts` → `services/db.ts`** con las mismas funciones
-   pero **asíncronas** y respaldadas por la API. Mantener nombres y firmas
-   (salvo el `Promise`) minimiza el cambio en las páginas.
-3. **Adaptar las llamadas**. Son síncronas hoy, así que cada página pasa a
-   cargar en `useEffect` con estado de carga. Volumen aproximado de llamadas fuera
-   de `localStorageDB.ts`: `saveUser` 17, `getUserExposureProgress` 13,
-   `getQPVIIResultsForUser` 13, `getAllUserExposureProgress` 12, `getUsers` 11,
-   `findUserById` 11, `saveUserExposureProgress` 10, resto ≤ 6. Las páginas de
-   terapeuta pasan a usar los endpoints de *overview*.
-4. **`hooks/useAuth.tsx`**: eliminar el sembrado de usuarios; arrancar con
-   `GET /auth/me`; `login` llama a la API y conserva en el cliente la lógica de
-   redirección actual (sesión de repaso → sesión estándar → QPV-II nuevo →
-   celebración → intro), alimentada con datos de la API.
-5. **Sigue en `localStorage`** solo lo que es preferencia del dispositivo:
-   idioma (`cafft_language`) y los auto-arranques de vídeos de intro.
-6. **`/dev/tools`**: registrar la ruta solo si `import.meta.env.DEV`, o
-   protegerla para superadmin. `utils/seedDevData.ts` pasa a ser un script del
-   servidor (`npm run seed:dev`).
-7. **Eliminar** `utils/hash.ts` del cliente: el hash lo hace el servidor.
+Implementado así (difiere del plan inicial, que proponía hacer asíncronas todas
+las páginas):
+
+- **`services/api.ts`**: `fetch` same-origin a `<base>api`, errores como
+  `ApiError` y evento `cafft:session-expired` ante un 401 a mitad de sesión.
+- **`services/dataStore.ts`** sustituye a `utils/localStorageDB.ts` con los
+  mismos nombres de función. Al iniciar sesión, `GET /sync` carga en memoria todo
+  lo que el usuario puede ver. Las **lecturas** siguen siendo síncronas, así que
+  el flujo del paciente (QPV-II, jerarquía, exposición...) apenas cambió. Las
+  **escrituras clínicas** actualizan la memoria y se envían en una cola
+  secuencial con reintentos; todas son idempotentes en el servidor. Las
+  **operaciones de cuenta** (crear, borrar, contraseña temporal, *toggles*) son
+  asíncronas porque la página necesita la respuesta.
+- Las páginas de staff llaman a `syncStore()` al montarse para ver la última
+  actividad de sus pacientes. `syncStore()` espera a que la cola se vacíe, así
+  una recarga no puede deshacer escrituras pendientes.
+- `SyncStatusBanner` avisa si alguna escritura no se pudo guardar y pide
+  confirmación antes de cerrar la pestaña con escrituras pendientes.
+- En `localStorage` solo quedan preferencias del dispositivo: idioma y
+  auto-arranque de los vídeos de introducción.
+- No hizo falta el endpoint *overview* (§7): `/sync` ya devuelve los datos
+  filtrados por permisos.
 
 ## 9. Puesta en marcha de datos
 
@@ -364,23 +364,31 @@ conversaciones a Gemini) queda aplazada por decisión del equipo.
 
 Cada fase se puede desplegar sola sin romper la anterior.
 
-La API se despliega desde la fase 0, pero el frontend la empieza a usar todo
-de golpe al final de la fase 2: hasta entonces los usuarios del servidor y los
-de `localStorage` no se ven entre sí, así que la rama `feat/backend` no se
-fusiona a `dev` antes de eso.
+Las fases 1b–4 se hicieron en un solo bloque (decisión del 2026-10-07): los
+usuarios, los datos clínicos y los recordatorios estaban demasiado acoplados
+para migrarlos por separado sin código de transición desechable.
 
 | Fase | Contenido | Estado |
 |---|---|---|
 | **0. Esqueleto** | `server/` con Fastify + `node:sqlite`, migración `001_init`, `/health`, Dockerfile, servicio en compose, `location /cafft/api/` en nginx, proxy en Vite, backups diarios, `deploy.sh`. | ✅ Hecho |
 | **1a. Autenticación (servidor)** | login/logout/me/check/register/change-password, scrypt, sesiones en BD, bloqueo por cuenta + rate limit por IP, comprobación de `Origin`, `audit_log`, `create-admin`. | ✅ Hecho |
-| **1b. Autenticación (frontend)** | `services/api.ts`; `useAuth` contra la API; quitar sembrado y `utils/hash.ts`; mínimo de contraseña 6 → 8 en las páginas y traducciones; nueva traducción `auth.tooManyAttemptsError`; `/dev/tools` solo en desarrollo; `auth_request` en `/cafft/genai/`. | Pendiente |
-| **2. Usuarios y roles** | CRUD de usuarios con reglas de §6, dashboards de terapeuta/gestor/superadmin, endpoints *overview*. | Pendiente |
-| **3. Datos clínicos** | QPV-II y progreso de exposición; adaptar páginas del flujo del paciente (QPV-II, jerarquía, exposición, última sesión, evolución, celebración). | Pendiente |
-| **4. Resto** | Consultas IA, emails simulados, recordatorios, feedback, flags de onboarding. Eliminar `localStorageDB.ts`. | Pendiente |
+| **1b. Autenticación (frontend)** | `services/api.ts`; `useAuth` contra la API; quitar sembrado y `utils/hash.ts`; mínimo de contraseña 6 → 8 en las páginas y traducciones; nueva traducción `auth.tooManyAttemptsError`; `/dev/tools` solo en desarrollo y para superadmin; `auth_request` en `/cafft/genai/`. | ✅ Hecho |
+| **2. Usuarios y roles** | Alta, baja, contraseña temporal y *toggles* con las reglas de §6; dashboards de terapeuta, gestor y superadmin. | ✅ Hecho |
+| **3. Datos clínicos** | QPV-II y progreso de exposición en el servidor; el flujo del paciente lee de memoria y escribe en cola (ver §8). | ✅ Hecho |
+| **4. Resto** | Consultas IA, emails simulados, recordatorios de inactividad (decididos en el servidor), feedback, tours de onboarding en la cuenta. `localStorageDB.ts` eliminado. | ✅ Hecho |
 | **5. Email** | Envío SMTP real: restablecer contraseña por enlace con token de un solo uso, invitaciones y recordatorios. | Pendiente |
 | **6. Operación** | Probar una restauración en el servidor, primer despliegue y alta del superadmin. | Pendiente |
 
 ## 13. Pruebas
+
+Hecho: 26 tests de API (`npm run test:api`) y un recorrido e2e en Chromium
+contra el stack real (nginx con `cafft.conf` + API + build con base `/cafft/`):
+login por la UI, QPV-II guardado en el servidor y visto desde un segundo
+navegador, sesión que sobrevive a una recarga, panel del terapeuta, proxy de
+Gemini cerrado sin sesión y logout. **No cubierto en e2e:** la sesión de
+exposición con vídeos (el entorno de prueba no tenía los mp4).
+
+Plan original:
 
 - **API**: Vitest + `fastify.inject` contra una BD SQLite en memoria. Prioridad:
   matriz de autorización (cada rol contra datos propios, ajenos y de su

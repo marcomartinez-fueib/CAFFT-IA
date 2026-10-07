@@ -5,7 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { PageTitle } from '../components/PageTitle';
 import { SectionCard } from '../components/SectionCard';
 import { UserExposureProgress } from '../types';
-import { getUserExposureProgress } from '../utils/localStorageDB';
+import { getUserExposureProgress } from '../services/dataStore';
 
 const CheckListIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>

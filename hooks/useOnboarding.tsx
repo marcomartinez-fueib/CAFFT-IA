@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState } from 'react';
-import { findUserById } from '../utils/localStorageDB';
+import { findUserById, completeOnboardingTour } from '../services/dataStore';
 
 interface OnboardingContextType {
     isTourActive: boolean;
@@ -28,8 +28,8 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             return true;
         }
 
-        const key = `cafft_onboarding_completed_${role}_${userId}`;
-        const completed = localStorage.getItem(key) === 'true';
+        // Stored on the account, so a tour seen on one device is not shown again on another.
+        const completed = (user?.onboardingCompleted ?? []).includes(role);
         setHasCompletedTour(completed);
         return completed;
     };
@@ -56,8 +56,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         setIsTourActive(false);
         setHasCompletedTour(true);
         if (currentUserId) {
-            const key = `cafft_onboarding_completed_${tourType}_${currentUserId}`;
-            localStorage.setItem(key, 'true');
+            void completeOnboardingTour(tourType);
         }
     };
 

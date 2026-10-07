@@ -8,7 +8,7 @@ import { QpviiForm } from '../components/QpviiForm.tsx';
 import { QpviiResultsDisplay } from '../components/QpviiResultsDisplay.tsx';
 import { QPVIIAnswers, QPVIIScores } from '../types.ts';
 import { calculateQPVIIScores } from '../utils/qpviiScoring.ts';
-import { saveQPVIIResultForUser, getQPVIIResultsForUser, getUserExposureProgress } from '../utils/localStorageDB.ts';
+import { saveQPVIIResultForUser, getQPVIIResultsForUser, getUserExposureProgress } from '../services/dataStore.ts';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { determineVideoSequence, isExposureFullyCompleted } from '../utils/exposureUtils.ts';
 

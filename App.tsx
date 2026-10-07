@@ -35,6 +35,7 @@ import { OnboardingProvider } from './hooks/useOnboarding.tsx';
 import { OnboardingTour } from './components/OnboardingTour.tsx';
 import { ReminderCheck } from './components/ReminderCheck.tsx';
 import { NotificationBanner } from './components/NotificationBanner.tsx';
+import { SyncStatusBanner } from './components/SyncStatusBanner.tsx';
 import { NotificationConsentManager } from './components/NotificationConsentManager.tsx';
 import { PatientProgressIndicator } from './components/PatientProgressIndicator.tsx';
 
@@ -62,6 +63,7 @@ const MainLayout: React.FC = () => {
     <div className="flex flex-col min-h-screen bg-slate-50 overflow-x-hidden">
       <Navbar />
       <PatientProgressIndicator />
+      <SyncStatusBanner />
       <NotificationBanner />
       <NotificationConsentManager />
       <main className="flex-grow">
@@ -161,8 +163,8 @@ const App: React.FC = () => {
                 <Route path="dashboard" element={<SuperadminDashboardPage />} />
               </Route>
 
-              {/* Developer Tools Route */}
-              <Route path="/dev/tools" element={<DevToolsPage />} />
+              {/* Developer tools: development builds only. */}
+              {import.meta.env.DEV && <Route path="/dev/tools" element={<DevToolsPage />} />}
 
               {/* Fallback Route */}
               <Route path="*" element={<HomePage />} />

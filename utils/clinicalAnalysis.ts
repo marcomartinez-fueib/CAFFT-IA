@@ -9,7 +9,7 @@ import {
 } from '../types';
 import {
   getAllUserExposureProgress,
-} from './localStorageDB';
+} from '../services/dataStore';
 import { EXPOSURE_VIDEOS } from '../constants';
 import { calculateQPVIIScores } from './qpviiScoring';
 import { determineVideoSequence, isExposureFullyCompleted } from './exposureUtils';

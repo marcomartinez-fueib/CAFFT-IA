@@ -1,7 +1,9 @@
 
 import React, { useState } from 'react';
-import { seedSimulatedPatients } from '../../utils/seedDevData';
-import { deleteAllUserData } from '../../utils/localStorageDB';
+import { Navigate } from 'react-router-dom';
+import { seedSimulatedPatients, deleteAllOtherUsers } from '../../utils/seedDevData';
+import { getSyncStatus } from '../../services/dataStore';
+import { useAuth } from '../../hooks/useAuth';
 
 const BrainIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
@@ -10,22 +12,31 @@ const BrainIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 
+// Only registered in development builds (App.tsx), and only usable by a
+// logged-in superadmin: seeding goes through the real API.
 export const DevToolsPage: React.FC = () => {
+    const { currentUser, loading: authLoading } = useAuth();
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
+
+    if (authLoading) return null;
+    if (currentUser?.role !== 'superadmin') return <Navigate to="/login" replace />;
 
     const handleSeedData = async () => {
         setLoading(true);
         setMessage('Clearing existing data...');
         await new Promise(res => setTimeout(res, 500)); // give time for message to render
-        deleteAllUserData();
+        await deleteAllOtherUsers(currentUser.id);
         
         setMessage('Seeding 5 simulated patients...');
         await new Promise(res => setTimeout(res, 500));
         try {
+            const failedBefore = getSyncStatus().failed;
             await seedSimulatedPatients();
+            const failed = getSyncStatus().failed - failedBefore;
+            if (failed > 0) throw new Error(`${failed} clinical record(s) were not saved; see the console.`);
             setMessage(`Seeding complete! Hierarchy created:
-- Superadmin: admin / clauacces
+- Superadmin: ${currentUser.username} (you)
 - Manager: gestor / clauacces
 - Therapist: terapeuta / clauacces
 Patients created for terapeuta: Anna, Marc, Carla, Pau, Laura.`);
@@ -46,7 +57,7 @@ Patients created for terapeuta: Anna, Marc, Carla, Pau, Laura.`);
                 <div className="bg-gray-800 p-8 rounded-lg border border-gray-700 shadow-xl">
                     <h2 className="text-2xl font-semibold mb-3 text-sky-300">Seed Simulated Patient Data</h2>
                     <p className="text-sm text-gray-400 mb-6">
-                        Clicking this button will <strong className="text-amber-400">delete all existing user data</strong> from local storage and create 5 new simulated patient profiles based on the clinical archetypes described in the research PDF.
+                        Clicking this button will <strong className="text-amber-400">delete every user except you</strong>, with all their data, from the server and create 5 new simulated patient profiles based on the clinical archetypes described in the research PDF.
                     </p>
                     <button
                         onClick={handleSeedData}

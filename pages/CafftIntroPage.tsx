@@ -7,7 +7,7 @@ import { PageTitle } from '../components/PageTitle';
 import { SectionCard } from '../components/SectionCard';
 import { useOnboarding } from '../hooks/useOnboarding';
 import { Sparkles } from 'lucide-react';
-import { getQPVIIResultsForUser, getUserExposureProgress } from '../utils/localStorageDB';
+import { getQPVIIResultsForUser, getUserExposureProgress } from '../services/dataStore';
 import { resolveVideoUrl } from '../utils/videoUrl';
 
 // Self-hosted programme presentation video, served from the same origin as the

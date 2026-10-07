@@ -213,6 +213,8 @@ const caTranslations: TranslationContent = {
     appName: "CAFFT",
     appNameShort: "CAFFT",
     common: {
+        syncFailed: "No s'han pogut desar alguns canvis. Comprova la connexió; si el problema continua, avisa el teu terapeuta.",
+        dismiss: "Tancar",
         time: {
             ago: "fa {val} {unit}",
             year: "any",
@@ -515,7 +517,8 @@ const caTranslations: TranslationContent = {
         changePasswordButton: "Canviar Contrasenya",
         changePasswordSuccess: "Contrasenya canviada amb èxit.",
         changePasswordError: "La contrasenya actual és incorrecta.",
-        passwordMinLengthError: "La contrasenya ha de tenir almenys 6 caràcters.",
+        passwordMinLengthError: "La contrasenya ha de tenir almenys 8 caràcters.",
+        tooManyAttemptsError: "Massa intents fallits. Torna-ho a provar d'aquí a 15 minuts.",
     },
     privacyPolicy: {
         title: "Política de Privacitat",
@@ -1390,6 +1393,8 @@ const esTranslations: TranslationContent = {
     appNameShort: "CAFFT",
     common: {
         ...caTranslations.common,
+        syncFailed: "No se han podido guardar algunos cambios. Comprueba la conexión; si el problema continúa, avisa a tu terapeuta.",
+        dismiss: "Cerrar",
         time: {
             ...caTranslations.common.time,
             ago: "hace {val} {unit}",
@@ -1608,7 +1613,8 @@ const esTranslations: TranslationContent = {
         changePasswordButton: "Cambiar Contraseña",
         changePasswordSuccess: "Contraseña cambiada con éxito.",
         changePasswordError: "La contraseña actual es incorrecta.",
-        passwordMinLengthError: "La contraseña debe tener al menos 6 caracteres.",
+        passwordMinLengthError: "La contraseña debe tener al menos 8 caracteres.",
+        tooManyAttemptsError: "Demasiados intentos fallidos. Vuelve a intentarlo dentro de 15 minutos.",
     },
     profile: {
         ...caTranslations.profile,
@@ -2466,6 +2472,8 @@ const enTranslations: TranslationContent = {
     appNameShort: "CAFFT",
     common: {
         ...caTranslations.common,
+        syncFailed: "Some changes could not be saved. Check your connection; if the problem continues, tell your therapist.",
+        dismiss: "Dismiss",
         time: {
             ...caTranslations.common.time,
             ago: "{val} {unit} ago",
@@ -2885,7 +2893,8 @@ const enTranslations: TranslationContent = {
         changePasswordButton: "Change Password",
         changePasswordSuccess: "Password changed successfully.",
         changePasswordError: "Current password is incorrect.",
-        passwordMinLengthError: "Password must be at least 6 characters.",
+        passwordMinLengthError: "Password must be at least 8 characters.",
+        tooManyAttemptsError: "Too many failed attempts. Try again in 15 minutes.",
     },
     profile: {
         ...caTranslations.profile,

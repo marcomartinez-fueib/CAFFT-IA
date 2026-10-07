@@ -7,6 +7,8 @@ import { resolveSession, SESSION_COOKIE } from './sessions.ts';
 import type { UserRow } from './users.ts';
 import { healthRoutes } from './routes/health.ts';
 import { authRoutes } from './routes/auth.ts';
+import { meRoutes, userRoutes } from './routes/users.ts';
+import { dataRoutes, feedbackRoutes } from './routes/data.ts';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -72,6 +74,10 @@ export async function buildApp(config: Config, db: Db): Promise<FastifyInstance>
 
   await app.register(healthRoutes);
   await app.register(authRoutes, { prefix: '/auth' });
+  await app.register(userRoutes, { prefix: '/users' });
+  await app.register(meRoutes, { prefix: '/me' });
+  await app.register(dataRoutes);
+  await app.register(feedbackRoutes, { prefix: '/feedback' });
 
   return app;
 }

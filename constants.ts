@@ -105,17 +105,6 @@ export const PHASE_SPECIFIC_ITEMS: Record<ExposureSceneKey, number[]> = {
   psychoed: [], // Psychoeducation doesn't have QPV items
 };
 
-export const LOCAL_STORAGE_KEYS = {
-  USERS: 'cafftAppUsers',
-  QPVII_RESULTS: 'cafftAppQPVIIResults',
-  CURRENT_USER: 'cafftAppCurrentUser',
-  LAST_VISITED_PATH_PREFIX: 'cafftAppLastPath_', 
-  USER_EXPOSURE_PROGRESS: 'cafftAppUserExposureProgress',
-  SIMULATED_EMAILS: 'cafftAppSimulatedEmails',
-  FEEDBACK: 'cafftAppFeedback',
-  AI_CONSULTATIONS: 'cafftAppAiConsultations',
-};
-
 // Defines the fixed order of categories for the exposure hierarchy.
 export const CANONICAL_FLIGHT_STAGES_ORDER: ExposureSceneKey[] = [
   'preparation',

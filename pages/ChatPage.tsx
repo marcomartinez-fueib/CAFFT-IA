@@ -11,7 +11,7 @@ import {
     getUsers, 
     saveAiConsultation,
     getDaysSinceLastActivity
-} from '../utils/localStorageDB.ts';
+} from '../services/dataStore.ts';
 import { calculateQPVIIScores } from '../utils/qpviiScoring';
 import { THERAPEUTIC_KNOWLEDGE } from '../data/therapeuticKnowledge';
 import { ChatVisualizer } from '../components/ChatVisualizer';
@@ -402,7 +402,7 @@ ${THERAPEUTIC_KNOWLEDGE.coreFeatures}
 
         // Log consultation
         saveAiConsultation({
-            id: `ai_${Date.now()}`,
+            id: crypto.randomUUID(),
             userId: currentUser.id,
             userName: currentUser.username,
             userRole: currentUser.role as 'patient' | 'therapist',

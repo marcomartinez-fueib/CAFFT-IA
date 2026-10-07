@@ -45,10 +45,13 @@ export interface User {
   onboardingEnabled?: boolean;
 }
 
+// A user as the API returns it (server/src/users.ts, toApiUser). The password
+// hash never leaves the server.
 export interface StoredUser extends Omit<User, 'email'> {
   email: string;
   patientCode?: string;
-  hashedPassword: string;
+  mustChangePassword?: boolean;
+  onboardingCompleted?: string[]; // tours finished: 'patient' | 'therapist'
   therapistId?: string; // For patients
   managerId?: string;   // For therapists
   assistantName?: string;
@@ -67,7 +70,7 @@ export interface AuthContextType {
   currentUser: User | null;
   login: (username: string, passwordAttempt: string) => Promise<{ success: boolean; redirect?: { path: string; state?: any }; errorKey?: string }>;
   register: (username: string, email: string, passwordAttempt: string, consent: boolean, informedConsentMetadata?: InformedConsentMetadata) => Promise<{ success: boolean; errorKey?: string }>;
-  logout: () => void;
+  logout: () => Promise<void>;
   loading: boolean;
   requestPasswordReset: (email: string) => Promise<{ success: boolean; errorKey?: string; messageKey?: string }>;
   resetPassword: (token: string, newPassword: string) => Promise<{ success: boolean; errorKey?: string; messageKey?: string }>;
@@ -666,6 +669,8 @@ export interface TranslationContent {
   appName: string;
   appNameShort: string;
   common: {
+    syncFailed: string;
+    dismiss: string;
     time: {
       ago: string;
       year: string;
@@ -881,6 +886,7 @@ export interface TranslationContent {
     changePasswordSuccess: string;
     changePasswordError: string;
     passwordMinLengthError: string;
+    tooManyAttemptsError: string;
   };
   privacyPolicy: {
     title: string;

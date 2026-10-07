@@ -12,19 +12,18 @@ import {
     getQPVIIResultsForUser, 
     getAllQPVIIResults,
     getAllUserExposureProgress,
-    saveUser, 
+    createUser,
+    syncStore,
     deletePatientData, 
     resetPatientPassword, 
     saveSimulatedEmail,
     toggleUserNotifications,
     getAiConsultationsByUserIds,
     toggleUserOnboarding,
-    generatePatientCode,
     getDaysSinceLastActivity,
     sendAdherenceRemindersToAllInactive
-} from '../../utils/localStorageDB';
+} from '../../services/dataStore';
 import { calculateQPVIIScores } from '../../utils/qpviiScoring';
-import { hashPassword } from '../../utils/hash';
 import { exportDataToCSV, exportAiLogsToCSV } from '../../utils/export';
 import { determineVideoSequence, isExposureFullyCompleted } from '../../utils/exposureUtils';
 import { getPatientStatus } from '../../utils/clinicalAnalysis';
@@ -170,7 +169,7 @@ export const TherapistDashboardPage: React.FC = () => {
   const [invitationContent, setInvitationContent] = useState<{subject: string, body: string} | null>(null);
   const [inviteCopied, setInviteCopied] = useState(false);
 
-  const fetchAllData = useCallback(() => {
+  const readAllData = useCallback(() => {
     if (currentUser) {
         const patients = getUsers().filter(u => u.role === 'patient');
         const patientIds = patients.map(p => p.id);
@@ -184,9 +183,12 @@ export const TherapistDashboardPage: React.FC = () => {
     }
   }, [currentUser]);
 
+  // Show what is in memory at once, then refresh from the server so the
+  // patients' latest activity appears.
   useEffect(() => {
-    fetchAllData();
-  }, [fetchAllData, location]);
+    readAllData();
+    syncStore().then(readAllData, e => console.error('[TherapistDashboard] sync failed:', e));
+  }, [readAllData, location]);
 
   const { dashboardStats, phaseDistribution, activityData, patientsWithStats } = useMemo(() => {
     const defaultData = { 
@@ -368,9 +370,9 @@ export const TherapistDashboardPage: React.FC = () => {
     ) : [];
   }, [patientsWithStats, dashboardStats]);
 
-  const handleSendAllReminders = () => {
+  const handleSendAllReminders = async () => {
     if (!currentUser) return;
-    const count = sendAdherenceRemindersToAllInactive(
+    const count = await sendAdherenceRemindersToAllInactive(
         currentUser.id,
         3, // threshold
         t('aiChat.reminder.emailSubject'),
@@ -379,7 +381,7 @@ export const TherapistDashboardPage: React.FC = () => {
     
     if (count > 0) {
         alert(t('therapistDashboard.reminders.reminderSentSuccess') + ` (${count})`);
-        fetchAllData();
+        readAllData();
     } else {
         alert(t('therapistDashboard.noPatients') + " " + t('nav.help')); // Or just a generic "nothing to send"
     }
@@ -400,23 +402,19 @@ export const TherapistDashboardPage: React.FC = () => {
     }
     setError(null);
     try {
-        const hashedPassword = await hashPassword(newPatientData.password);
-        const newPatient: StoredUser = {
-          id: crypto.randomUUID(),
-          patientCode: generatePatientCode(),
+        // The server assigns the patient to this therapist and generates the patient code.
+        const result = await createUser({
+          role: 'patient',
           username: newPatientData.username,
           email: newPatientData.email,
-          hashedPassword,
-          consentGiven: true, 
-          role: 'patient',
-          therapistId: currentUser.id,
-        };
-        const success = saveUser(newPatient);
-        if (!success) {
-          setError(t('auth.usernameTakenError'));
+          password: newPatientData.password,
+        });
+        if (result.errorKey) {
+          setError(t(result.errorKey));
           return;
         }
-        fetchAllData();
+        const newPatient = result.user!;
+        readAllData();
         const subject = t('therapistDashboard.inviteEmail.subject');
         const body = t('therapistDashboard.inviteEmail.body', { patientName: newPatient.username, therapistName: currentUser.username, username: newPatient.username, password: newPatientData.password });
         const invite = { subject, body };
@@ -435,10 +433,9 @@ export const TherapistDashboardPage: React.FC = () => {
     setDeleteModalOpen(true);
   };
 
-  const handleDeletePatient = () => {
+  const handleDeletePatient = async () => {
     if (patientToProcess) {
-      deletePatientData(patientToProcess.id);
-      fetchAllData();
+      if (await deletePatientData(patientToProcess.id)) readAllData();
       setDeleteModalOpen(false);
       setPatientToProcess(null);
     }
@@ -501,26 +498,22 @@ export const TherapistDashboardPage: React.FC = () => {
         timestamp: Date.now()
     });
 
-    // Update patient's last reminder date
-    const updatedUser = { ...patient, lastReminderSentDate: Date.now() };
-    saveUser(updatedUser as StoredUser);
-    
-    // Refresh data
-    fetchAllData();
+    // saveSimulatedEmail stamps the patient's last reminder date for a sent reminder.
+    readAllData();
     
     // Simple alert for feedback
     alert(t('therapistDashboard.reminders.reminderSentSuccess'));
   };
 
-  const handleToggleNotifications = (userId: string) => {
-    if (toggleUserNotifications(userId)) {
-        fetchAllData();
+  const handleToggleNotifications = async (userId: string) => {
+    if (await toggleUserNotifications(userId)) {
+        readAllData();
     }
   };
 
-  const handleToggleOnboarding = (userId: string) => {
-    if (toggleUserOnboarding(userId)) {
-        fetchAllData();
+  const handleToggleOnboarding = async (userId: string) => {
+    if (await toggleUserOnboarding(userId)) {
+        readAllData();
     }
   };
 

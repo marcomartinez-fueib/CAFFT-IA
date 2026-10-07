@@ -5,7 +5,7 @@ import { useAuth } from '../hooks/useAuth.tsx';
 import { useLanguage } from '../hooks/useLanguage.tsx';
 import { PageTitle } from '../components/PageTitle.tsx';
 import { SectionCard } from '../components/SectionCard.tsx';
-import { getQPVIIResultsForUser } from '../utils/localStorageDB.ts';
+import { getQPVIIResultsForUser } from '../services/dataStore.ts';
 import { QPVIIUserResult } from '../types.ts';
 import { NotificationSettings } from '../components/NotificationSettings.tsx';
 
@@ -49,7 +49,7 @@ export const ProfilePage: React.FC = () => {
       setPasswordError(t('auth.fillAllFieldsError'));
       return;
     }
-    if (newPassword.length < 6) {
+    if (newPassword.length < 8) {
       setPasswordError(t('auth.passwordMinLengthError'));
       return;
     }

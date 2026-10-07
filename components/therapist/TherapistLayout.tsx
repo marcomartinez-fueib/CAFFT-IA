@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
+import { SyncStatusBanner } from '../SyncStatusBanner';
 import { Menu, X } from 'lucide-react';
 
 export const TherapistLayout: React.FC = () => {
@@ -41,6 +42,8 @@ export const TherapistLayout: React.FC = () => {
 
           <div className="w-10" /> {/* Spacer */}
         </header>
+
+        <SyncStatusBanner />
 
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50 scrollbar-hide">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">

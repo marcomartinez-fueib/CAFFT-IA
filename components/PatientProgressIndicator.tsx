@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { useAuth } from '../hooks/useAuth.tsx';
 import { useLanguage } from '../hooks/useLanguage.tsx';
-import { getQPVIIResultsForUser, getAllUserExposureProgress } from '../utils/localStorageDB.ts';
+import { getQPVIIResultsForUser, getAllUserExposureProgress } from '../services/dataStore.ts';
 import { Check, CircleDot, PlayCircle } from 'lucide-react';
 
 export const PatientProgressIndicator: React.FC = () => {

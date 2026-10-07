@@ -8,12 +8,12 @@ import { Breadcrumbs } from '../../components/Breadcrumbs';
 import { StoredUser, Language } from '../../types';
 import { 
     getUsers, 
-    saveUser, 
+    createUser,
+    syncStore,
     deletePatientData,
     toggleUserNotifications,
     toggleUserOnboarding
-} from '../../utils/localStorageDB';
-import { hashPassword } from '../../utils/hash';
+} from '../../services/dataStore';
 
 // --- Icons ---
 const UsersIcon = (props: React.SVGProps<SVGSVGElement>) => <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-2.253 9.527 9.527 0 0 0-1.25-1.25A9.37 9.37 0 0 0 19.5 9.372a9.337 9.337 0 0 0-2.253-4.121m-4.5 1.25a9.37 9.37 0 0 1-1.25-1.25A9.337 9.337 0 0 1 9.372 19.5a9.37 9.37 0 0 1-1.25-1.25m-1.25-1.25a9.37 9.37 0 0 0-1.25-1.25A9.337 9.337 0 0 0 4.5 9.372a9.37 9.37 0 0 0-1.25 1.25m3.5-6.128a9.37 9.37 0 0 1 1.25-1.25A9.337 9.337 0 0 1 9.372 4.5a9.37 9.37 0 0 1 1.25 1.25m7.5 0a9.37 9.37 0 0 0 1.25-1.25A9.337 9.337 0 0 0 19.5 4.5a9.37 9.37 0 0 0 1.25 1.25M4.5 19.5a9.37 9.37 0 0 1 1.25-1.25A9.337 9.337 0 0 1 9.372 15a9.37 9.37 0 0 1 1.25 1.25m-4.5 0a9.37 9.37 0 0 0 1.25-1.25A9.337 9.337 0 0 0 4.5 15a9.37 9.37 0 0 0-1.25 1.25m6.75-3.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Z" /></svg>;
@@ -45,13 +45,15 @@ export const SuperadminDashboardPage: React.FC = () => {
     const [newUserData, setNewUserData] = useState({ username: '', email: '', password: '', role: 'therapist' as StoredUser['role'], managerId: '' });
     const [error, setError] = useState<string | null>(null);
 
-    const fetchUsers = useCallback(() => {
+    const readUsers = useCallback(() => {
         setUsers(getUsers());
     }, []);
 
+    // Show what is in memory at once, then refresh from the server.
     useEffect(() => {
-        fetchUsers();
-    }, [fetchUsers]);
+        readUsers();
+        syncStore().then(readUsers, e => console.error('[SuperadminDashboard] sync failed:', e));
+    }, [readUsers]);
 
     const stats = useMemo(() => {
         const managers = users.filter(u => u.role === 'manager').length;
@@ -68,46 +70,37 @@ export const SuperadminDashboardPage: React.FC = () => {
             return;
         }
         setError(null);
-        try {
-            const hashedPassword = await hashPassword(newUserData.password);
-            const newUser: StoredUser = {
-                id: crypto.randomUUID(),
-                username: newUserData.username,
-                email: newUserData.email,
-                hashedPassword,
-                consentGiven: true,
-                role: newUserData.role,
-                managerId: newUserData.role === 'therapist' ? newUserData.managerId : undefined
-            };
-            const success = saveUser(newUser);
-            if (!success) {
-                setError(t('auth.usernameTakenError'));
-                return;
-            }
-            fetchUsers();
-            setIsAddModalOpen(false);
-            setNewUserData({ username: '', email: '', password: '', role: 'therapist', managerId: '' });
-        } catch (e) {
-            setError(t('auth.registrationFailedError'));
+        const result = await createUser({
+            role: newUserData.role,
+            username: newUserData.username,
+            email: newUserData.email,
+            password: newUserData.password,
+            managerId: newUserData.role === 'therapist' && newUserData.managerId ? newUserData.managerId : undefined,
+        });
+        if (result.errorKey) {
+            setError(t(result.errorKey));
+            return;
         }
+        readUsers();
+        setIsAddModalOpen(false);
+        setNewUserData({ username: '', email: '', password: '', role: 'therapist', managerId: '' });
     };
 
-    const handleDeleteUser = (userId: string) => {
+    const handleDeleteUser = async (userId: string) => {
         if (window.confirm(t('therapistDashboard.deletePatientModal.confirmationText'))) {
-            deletePatientData(userId); // Reusing patient data delete because it handles user removal too
-            fetchUsers();
+            if (await deletePatientData(userId)) readUsers();
         }
     };
 
-    const handleToggleNotifications = (userId: string) => {
-        if (toggleUserNotifications(userId)) {
-            fetchUsers();
+    const handleToggleNotifications = async (userId: string) => {
+        if (await toggleUserNotifications(userId)) {
+            readUsers();
         }
     };
 
-    const handleToggleOnboarding = (userId: string) => {
-        if (toggleUserOnboarding(userId)) {
-            fetchUsers();
+    const handleToggleOnboarding = async (userId: string) => {
+        if (await toggleUserOnboarding(userId)) {
+            readUsers();
         }
     };
 

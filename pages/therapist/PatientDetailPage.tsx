@@ -29,8 +29,9 @@ import {
     getAiConsultationsForPatient,
     saveSimulatedEmail,
     toggleUserNotifications,
-    toggleUserOnboarding
-} from '../../utils/localStorageDB';
+    toggleUserOnboarding,
+    syncStore,
+} from '../../services/dataStore';
 import { NotificationService } from '../../services/notificationService';
 import { calculateQPVIIScores } from '../../utils/qpviiScoring';
 import { determineVideoSequence, calculatePhaseScores, isExposureFullyCompleted } from '../../utils/exposureUtils';
@@ -139,43 +140,52 @@ export const PatientDetailPage: React.FC = () => {
             navigate('/therapist/dashboard');
             return;
         }
-        const user = findUserById(patientId);
-        if (!user || user.role !== 'patient') {
-            console.error(`Patient with ID ${patientId} not found or is not a patient.`);
-            navigate(currentUser.role === 'manager' ? '/manager/dashboard' : '/therapist/dashboard');
-            return;
-        }
+        // Render from memory at once, then again with the server's latest.
+        let cancelled = false;
+        load();
+        syncStore().then(() => { if (!cancelled) load(); }, e => console.error('[PatientDetail] sync failed:', e));
+        return () => { cancelled = true; };
 
-        // Security check: If therapist, must be their patient. If manager, must be their therapist's patient.
-        if (currentUser.role === 'therapist' && user.therapistId !== currentUser.id) {
-            navigate('/therapist/dashboard');
-            return;
-        }
-        if (currentUser.role === 'manager') {
-            const therapist = findUserById(user.therapistId || '');
-            if (!therapist || therapist.managerId !== currentUser.id) {
-                navigate('/manager/dashboard');
+        function load() {
+            if (!patientId || !currentUser) return;
+            const user = findUserById(patientId);
+            if (!user || user.role !== 'patient') {
+                console.error(`Patient with ID ${patientId} not found or is not a patient.`);
+                navigate(currentUser.role === 'manager' ? '/manager/dashboard' : '/therapist/dashboard');
                 return;
             }
-        }
 
-        const qpvii = getQPVIIResultsForUser(patientId);
-        setQpviiHistory(qpvii);
-        const progress = getAllUserExposureProgress().filter(p => p.userId === patientId);
-        setExposureSessions(progress);
+            // Security check: If therapist, must be their patient. If manager, must be their therapist's patient.
+            if (currentUser.role === 'therapist' && user.therapistId !== currentUser.id) {
+                navigate('/therapist/dashboard');
+                return;
+            }
+            if (currentUser.role === 'manager') {
+                const therapist = findUserById(user.therapistId || '');
+                if (!therapist || therapist.managerId !== currentUser.id) {
+                    navigate('/manager/dashboard');
+                    return;
+                }
+            }
+
+            const qpvii = getQPVIIResultsForUser(patientId);
+            setQpviiHistory(qpvii);
+            const progress = getAllUserExposureProgress().filter(p => p.userId === patientId);
+            setExposureSessions(progress);
         
-        const fullPatient: Patient = {
-            ...(user as Patient),
-            status: getPatientStatus(patientId, qpvii, progress).status
-        };
-        setPatient(fullPatient);
-        const emails = getSimulatedEmailsForPatient(patientId);
-        setSimulatedEmails(emails);
-        const consultations = getAiConsultationsForPatient(patientId);
-        setAiConsultations(consultations);
-        const recs = generateClinicalRecommendations(patientId, t);
-        setRecommendations(recs);
-        setLoading(false);
+            const fullPatient: Patient = {
+                ...(user as Patient),
+                status: getPatientStatus(patientId, qpvii, progress).status
+            };
+            setPatient(fullPatient);
+            const emails = getSimulatedEmailsForPatient(patientId);
+            setSimulatedEmails(emails);
+            const consultations = getAiConsultationsForPatient(patientId);
+            setAiConsultations(consultations);
+            const recs = generateClinicalRecommendations(patientId, t);
+            setRecommendations(recs);
+            setLoading(false);
+        }
     }, [patientId, navigate, t]);
 
     const { analyzedSessions, totalExposureForAllSessions, totalUniqueDays, totalSequencesBySession } = useMemo(() => {
@@ -293,15 +303,15 @@ export const PatientDetailPage: React.FC = () => {
         setSendingPush(false);
     };
 
-    const handleToggleNotifications = () => {
-        if (patientId && toggleUserNotifications(patientId)) {
+    const handleToggleNotifications = async () => {
+        if (patientId && await toggleUserNotifications(patientId)) {
             const user = findUserById(patientId);
             if (user) setPatient({ ...patient, ...user } as Patient);
         }
     };
 
-    const handleToggleOnboarding = () => {
-        if (patientId && toggleUserOnboarding(patientId)) {
+    const handleToggleOnboarding = async () => {
+        if (patientId && await toggleUserOnboarding(patientId)) {
             const user = findUserById(patientId);
             if (user) setPatient({ ...patient, ...user } as Patient);
         }

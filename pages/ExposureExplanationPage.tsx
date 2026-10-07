@@ -7,7 +7,7 @@ import { useAuth } from '../hooks/useAuth';
 import { PageTitle } from '../components/PageTitle';
 import { SectionCard } from '../components/SectionCard';
 import { QPVIIScores, UserExposureProgress } from '../types';
-import { getUserExposureProgress, saveUserExposureProgress } from '../utils/localStorageDB';
+import { getUserExposureProgress, saveUserExposureProgress } from '../services/dataStore';
 import { EXPOSURE_EXPLANATION_VIDEO_URL_BASE } from '../constants';
 import { resolveVideoUrl } from '../utils/videoUrl';
 

@@ -13,7 +13,7 @@ import {
     ExposureSceneKey,
     SceneDiscomfortChartDataPoint
 } from '../types';
-import { getQPVIIResultsForUser, getAllUserExposureProgress } from '../utils/localStorageDB';
+import { getQPVIIResultsForUser, getAllUserExposureProgress } from '../services/dataStore';
 import { calculateQPVIIScores } from '../utils/qpviiScoring';
 import { QpviiEvolutionChart } from '../components/QpviiEvolutionChart';
 import { SceneChartTooltip } from '../components/SceneChartTooltip';

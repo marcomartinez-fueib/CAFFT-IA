@@ -4,7 +4,7 @@ import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
 import { PageTitle } from '../components/PageTitle';
 import { SectionCard } from '../components/SectionCard';
-import { getUserExposureProgress, saveUserExposureProgress, getQPVIIResultsForUser } from '../utils/localStorageDB';
+import { getUserExposureProgress, saveUserExposureProgress, getQPVIIResultsForUser } from '../services/dataStore';
 import { UserExposureProgress } from '../types';
 
 // Star Icon SVG

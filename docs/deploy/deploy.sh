@@ -205,7 +205,14 @@ echo "  GET /cafft/ -> HTTP $CODE"
 # Check the body, not just the status: until nginx has the /cafft/api/ location
 # (a first deploy, before `docker compose up -d`), the app's catch-all answers
 # this path with index.html and a misleading 200.
-HEALTH=$(curl -s --max-time 20 https://pausat.uib.es/cafft/api/health || true)
+# The API was just recreated: give it up to ~30 s to come up (nginx answers
+# 502 with an HTML page meanwhile).
+HEALTH=""
+for _ in $(seq 1 15); do
+  HEALTH=$(curl -s --max-time 10 https://pausat.uib.es/cafft/api/health || true)
+  [[ "$HEALTH" == *'"status":"ok"'* ]] && break
+  sleep 2
+done
 if [[ "$HEALTH" == *'"status":"ok"'* ]]; then
   echo "  GET /cafft/api/health -> ok"
 else

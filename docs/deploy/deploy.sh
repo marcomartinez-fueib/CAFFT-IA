@@ -202,8 +202,17 @@ echo "==> verifying https://pausat.uib.es/cafft/"
 CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://pausat.uib.es/cafft/)
 echo "  GET /cafft/ -> HTTP $CODE"
 
-HCODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://pausat.uib.es/cafft/api/health)
-echo "  GET /cafft/api/health -> HTTP $HCODE"
+# Check the body, not just the status: until nginx has the /cafft/api/ location
+# (a first deploy, before `docker compose up -d`), the app's catch-all answers
+# this path with index.html and a misleading 200.
+HEALTH=$(curl -s --max-time 20 https://pausat.uib.es/cafft/api/health || true)
+if [[ "$HEALTH" == *'"status":"ok"'* ]]; then
+  echo "  GET /cafft/api/health -> ok"
+else
+  echo "  GET /cafft/api/health -> NOT the API (got: ${HEALTH:0:60}...)" >&2
+  echo "  If this is the first deploy with the API, run on the server:" >&2
+  echo "    cd /data/apps/cafft && docker compose up -d" >&2
+fi
 
 ASSET=$(grep -oE 'src="/cafft/assets/[^"]+"' dist/index.html | head -1 | sed 's/src="//;s/"//')
 if [[ -n "$ASSET" ]]; then

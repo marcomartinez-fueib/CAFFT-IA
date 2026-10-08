@@ -32,7 +32,8 @@ export function loadConfig(overrides: Partial<Config> = {}): Config {
     cookiePath: env('COOKIE_PATH', '/cafft'),
     cookieSecure: env('COOKIE_SECURE', 'true') !== 'false',
     sessionTtlMs: Number(env('SESSION_TTL_DAYS', '14')) * 24 * 60 * 60 * 1000,
-    backupDir: env('BACKUP_DIR', './data/backups'),
+    // Unlike the other settings, an explicitly empty BACKUP_DIR means "off".
+    backupDir: process.env.BACKUP_DIR ?? './data/backups',
     backupKeepDays: Number(env('BACKUP_KEEP_DAYS', '30')),
     appUrl: env('APP_URL', 'http://localhost:3000/cafft/'),
     mailTransport: env('MAIL_TRANSPORT', 'log') === 'graph' ? 'graph' : 'log',

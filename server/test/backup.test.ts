@@ -21,3 +21,17 @@ test('backup snapshots the database and prunes old snapshots', async () => {
   copy.close();
   assert.deepEqual(readdirSync(dir).sort(), [file.split('/').pop(), 'unrelated.txt'].sort());
 });
+
+test('BACKUP_DIR set to empty disables backups; unset uses the default', async () => {
+  const { loadConfig } = await import('../src/config.ts');
+  const saved = process.env.BACKUP_DIR;
+  try {
+    process.env.BACKUP_DIR = '';
+    assert.equal(loadConfig().backupDir, '');
+    delete process.env.BACKUP_DIR;
+    assert.equal(loadConfig().backupDir, './data/backups');
+  } finally {
+    if (saved === undefined) delete process.env.BACKUP_DIR;
+    else process.env.BACKUP_DIR = saved;
+  }
+});

@@ -1,6 +1,6 @@
 # CAFFT-IA — Plan de backend con persistencia
 
-Estado: **en curso** (fases 0–5 hechas; queda la puesta en marcha, ver §12) · Última revisión: 2026-10-08
+Estado: **en producción** desde el 2026-10-08 (falta activar el correo por Graph, ver §12) · Última revisión: 2026-10-08
 
 ## 1. Punto de partida
 
@@ -377,7 +377,7 @@ para migrarlos por separado sin código de transición desechable.
 | **3. Datos clínicos** | QPV-II y progreso de exposición en el servidor; el flujo del paciente lee de memoria y escribe en cola (ver §8). | ✅ Hecho |
 | **4. Resto** | Consultas IA, emails simulados, recordatorios de inactividad (decididos en el servidor), feedback, tours de onboarding en la cuenta. `localStorageDB.ts` eliminado. | ✅ Hecho |
 | **5. Email** | Envío por Microsoft Graph con cola persistente y reintentos; restablecer contraseña (enlace de 1 h); altas sin contraseña con invitación (enlace de 7 días, reenviable); recordatorios reales solo a quien aceptó notificaciones. | ✅ Hecho |
-| **6. Operación** | Primer despliegue, alta del superadmin, credenciales de Graph (IT de la fundació, ver `DEPLOYMENT.md` Step 7) y probar una restauración en el servidor. | Pendiente |
+| **6. Operación** | Desplegado en pausat.uib.es el 2026-10-08; superadmin creado; restauración probada sobre una copia en el servidor. **Pendiente:** credenciales de Graph de la IT de la fundació (`DEPLOYMENT.md` Step 7); hasta entonces el correo va al log. | ✅ Hecho (salvo Graph) |
 
 ## 13. Pruebas
 

@@ -142,16 +142,23 @@ test('the outbox retries with backoff and eventually gives up', async () => {
   assert.equal(await processOutbox(db, new LogTransport(() => {})), 0);
 });
 
+test("the outbox keeps the relay's answer, for tracing a message with the UIB", async () => {
+  const { db } = await makeApp();
+  db.prepare("INSERT INTO outbound_mail (to_address, subject, body, kind, created_at, next_attempt_at) VALUES ('x@example.test', 's', 'b', 'reminder', 0, 0)").run();
+  await processOutbox(db, { send: async () => '250 2.0.0 Ok: queued as 4j0lXx0RC1zYl8DT' });
+  assert.equal(db.prepare('SELECT relay_response FROM outbound_mail').get()!.relay_response, '250 2.0.0 Ok: queued as 4j0lXx0RC1zYl8DT');
+});
+
 test('SmtpTransport talks to the relay as B4B does: port 25, STARTTLS required, short timeouts, one connection', async () => {
   let options: Parameters<CreateTransport>[0] | undefined;
   const sent: Record<string, unknown>[] = [];
   const create: CreateTransport = (o) => {
     options = o;
-    return { sendMail: async (mail) => { sent.push(mail); return {}; } };
+    return { sendMail: async (mail) => { sent.push(mail); return { response: '250 2.0.0 Ok: queued as ABC123' }; } };
   };
 
   const smtp = new SmtpTransport({ host: 'smtp.uib.es', port: 25, requireTls: true, from: 'CAFFT <cafft@uib.es>' }, create);
-  await smtp.send({ to: 'pacient@example.test', subject: 'Hola', body: 'Text' });
+  assert.equal(await smtp.send({ to: 'pacient@example.test', subject: 'Hola', body: 'Text' }), '250 2.0.0 Ok: queued as ABC123');
 
   assert.deepEqual(options, {
     host: 'smtp.uib.es',

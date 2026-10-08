@@ -1,6 +1,10 @@
-/** Delivers one message. Throws on failure; the outbox decides about retries. */
+/**
+ * Delivers one message and returns what the server answered, if anything
+ * (for SMTP, the relay's queue id). Throws on failure; the outbox decides
+ * about retries.
+ */
 export interface MailTransport {
-  send(message: { to: string; subject: string; body: string }): Promise<void>;
+  send(message: { to: string; subject: string; body: string }): Promise<string | void>;
 }
 
 /**
@@ -41,7 +45,7 @@ export type CreateTransport = (options: {
   socketTimeout: number;
   pool: boolean;
   maxConnections: number;
-}) => { sendMail(mail: Record<string, unknown>): Promise<unknown> };
+}) => { sendMail(mail: Record<string, unknown>): Promise<{ response?: string } | unknown> };
 
 /**
  * SMTP through the UIB relay, configured as B4B and PAUSAT do from the same
@@ -78,8 +82,8 @@ export class SmtpTransport implements MailTransport {
     });
   }
 
-  async send(message: { to: string; subject: string; body: string }): Promise<void> {
-    await this.smtp.sendMail({
+  async send(message: { to: string; subject: string; body: string }): Promise<string | void> {
+    const info = await this.smtp.sendMail({
       from: this.from,
       to: message.to,
       subject: message.subject,
@@ -88,5 +92,6 @@ export class SmtpTransport implements MailTransport {
       // side from replying to us.
       headers: { 'Auto-Submitted': 'auto-generated' },
     });
+    return (info as { response?: string } | undefined)?.response;
   }
 }

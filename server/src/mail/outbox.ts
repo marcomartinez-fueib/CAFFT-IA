@@ -41,8 +41,12 @@ export async function processOutbox(db: Db, transport: MailTransport, log: (msg:
   let sent = 0;
   for (const mail of due) {
     try {
-      await transport.send({ to: mail.to_address, subject: mail.subject, body: mail.body });
-      db.prepare('UPDATE outbound_mail SET sent_at = ?, attempts = attempts + 1, last_error = NULL WHERE id = ?').run(Date.now(), mail.id);
+      const response = await transport.send({ to: mail.to_address, subject: mail.subject, body: mail.body });
+      db.prepare('UPDATE outbound_mail SET sent_at = ?, attempts = attempts + 1, last_error = NULL, relay_response = ? WHERE id = ?').run(
+        Date.now(),
+        typeof response === 'string' ? response.slice(0, 500) : null,
+        mail.id,
+      );
       sent++;
     } catch (err) {
       const attempts = mail.attempts + 1;

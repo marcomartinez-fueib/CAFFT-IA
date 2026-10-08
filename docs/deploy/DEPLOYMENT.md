@@ -318,6 +318,16 @@ then marked failed. To see what has not gone out:
 docker compose exec api node -e "const {DatabaseSync}=require('node:sqlite'); console.table(new DatabaseSync('/data/cafft.db',{readOnly:true}).prepare('SELECT id, to_address, kind, attempts, last_error FROM outbound_mail WHERE sent_at IS NULL').all())"
 ```
 
+**When a message was accepted but never arrived**, the API cannot see further:
+the relay's answer is the last thing it knows. It keeps that answer, which
+carries the relay's queue id (`250 2.0.0 Ok: queued as …`). Give the queue id,
+the time and the recipient to the UIB's IT service so they can trace it in the
+relay's logs:
+
+```bash
+docker compose exec api node -e "const {DatabaseSync}=require('node:sqlite'); console.table(new DatabaseSync('/data/cafft.db',{readOnly:true}).prepare(\"SELECT id, to_address, kind, datetime(sent_at/1000,'unixepoch') AS sent_utc, relay_response FROM outbound_mail WHERE sent_at IS NOT NULL ORDER BY id DESC LIMIT 20\").all())"
+```
+
 Reminder emails only go to patients who accepted notifications in the app.
 Everyone else's reminders are still recorded in their history, so therapists
 see them, but they are not delivered.

@@ -19,6 +19,7 @@
 #      /data/apps/cafft/api/                  the API sources (server/ in the repo)
 #      /data/apps/cafft/data/                 the SQLite database   — owned by uid 1000
 #      /data/apps/cafft/backups/              daily database snapshots — owned by uid 1000
+#      /data/apps/cafft/secrets/mail.env      Microsoft Graph credentials for email
 # ============================================================================
 
 services:
@@ -77,6 +78,14 @@ services:
       DB_PATH: /data/cafft.db
       BACKUP_DIR: /backups
       BACKUP_KEEP_DAYS: "30"
+      APP_URL: https://pausat.uib.es/cafft/
+
+    # Microsoft Graph credentials for sending email (MAIL_TRANSPORT=graph and
+    # the GRAPH_* / MAIL_FROM settings). Kept out of this file because it holds
+    # a secret; see docs/deploy/DEPLOYMENT.md. Without it, mail is only logged.
+    env_file:
+      - path: ./secrets/mail.env
+        required: false
 
     volumes:
       # The image runs as uid 1000 (`node`): both directories must be

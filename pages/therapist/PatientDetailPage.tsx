@@ -31,6 +31,7 @@ import {
     toggleUserNotifications,
     toggleUserOnboarding,
     syncStore,
+    resendInvitation,
 } from '../../services/dataStore';
 import { NotificationService } from '../../services/notificationService';
 import { calculateQPVIIScores } from '../../utils/qpviiScoring';
@@ -286,6 +287,17 @@ export const PatientDetailPage: React.FC = () => {
         return (first - last) / sDiff;
     }, [qpviiHistory]);
 
+    const [resendingInvite, setResendingInvite] = useState(false);
+
+    const handleResendInvitation = async () => {
+        if (!patient) return;
+        setResendingInvite(true);
+        const sent = await resendInvitation(patient.id);
+        setResendingInvite(false);
+        alert(sent ? t('common.invitationResent', { email: patient.email }) : t('common.invitationResendFailed'));
+        if (sent && patientId) setSimulatedEmails(getSimulatedEmailsForPatient(patientId));
+    };
+
     const handleSendPush = async () => {
         if (!patient || !patient.notificationPreferences?.enabled) return;
         
@@ -393,6 +405,18 @@ export const PatientDetailPage: React.FC = () => {
                         <BellIcon className={`w-4 h-4 shrink-0 ${sendingPush ? 'animate-bounce' : 'group-hover:rotate-12 transition-transform'}`} />
                         <span>{sendingPush ? t('auth.loading') : t('therapistDashboard.reminders.sendReminderButton')}</span>
                     </button>
+
+                    {/* Until the patient has logged in once, their invitation may have expired or been lost. */}
+                    {currentUser?.role === 'therapist' && !patient.lastLoginDate && (
+                        <button
+                            onClick={handleResendInvitation}
+                            disabled={resendingInvite}
+                            className="flex-1 md:flex-none flex items-center justify-center space-x-2 px-4 py-2 bg-white text-uib-blue border border-uib-blue rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-sky-50 disabled:opacity-50 transition-all whitespace-nowrap"
+                        >
+                            <SendIcon className="w-4 h-4 shrink-0" />
+                            <span>{resendingInvite ? t('auth.loading') : t('common.resendInvitation')}</span>
+                        </button>
+                    )}
                 </div>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

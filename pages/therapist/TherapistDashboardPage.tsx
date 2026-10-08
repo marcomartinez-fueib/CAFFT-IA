@@ -160,14 +160,12 @@ export const TherapistDashboardPage: React.FC = () => {
   const [isInviteModalOpen, setInviteModalOpen] = useState(false);
 
   const [patientToProcess, setPatientToProcess] = useState<Patient | StoredUser | null>(null);
-  const [newPatientData, setNewPatientData] = useState({ username: '', email: '', password: '' });
+  const [newPatientData, setNewPatientData] = useState({ username: '', email: '' });
   const [newPassword, setNewPassword] = useState('');
   const [passwordCopied, setPasswordCopied] = useState(false);
   const [anonymizeExport, setAnonymizeExport] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [invitationContent, setInvitationContent] = useState<{subject: string, body: string} | null>(null);
-  const [inviteCopied, setInviteCopied] = useState(false);
 
   const readAllData = useCallback(() => {
     if (currentUser) {
@@ -390,36 +388,33 @@ export const TherapistDashboardPage: React.FC = () => {
   
   const handleOpenAddModal = () => {
     setError(null);
-    setNewPatientData({ username: '', email: '', password: '' });
+    setNewPatientData({ username: '', email: '' });
     setAddModalOpen(true);
   };
 
   const handleAddPatient = async () => {
     if (!currentUser) return;
-    if (!newPatientData.username || !newPatientData.email || !newPatientData.password) {
+    if (!newPatientData.username || !newPatientData.email) {
       setError(t('auth.fillAllFieldsError'));
       return;
     }
     setError(null);
     try {
-        // The server assigns the patient to this therapist and generates the patient code.
+        // The server assigns the patient to this therapist, generates the
+        // patient code, and emails them an invitation to choose a password.
         const result = await createUser({
           role: 'patient',
           username: newPatientData.username,
           email: newPatientData.email,
-          password: newPatientData.password,
         });
         if (result.errorKey) {
           setError(t(result.errorKey));
           return;
         }
         const newPatient = result.user!;
+        // Reload so the invitation the server recorded shows in the history.
+        await syncStore();
         readAllData();
-        const subject = t('therapistDashboard.inviteEmail.subject');
-        const body = t('therapistDashboard.inviteEmail.body', { patientName: newPatient.username, therapistName: currentUser.username, username: newPatient.username, password: newPatientData.password });
-        const invite = { subject, body };
-        setInvitationContent(invite);
-        saveSimulatedEmail({ id: crypto.randomUUID(), patientId: newPatient.id, type: 'invitation', subject, body, status: 'generated', timestamp: Date.now() });
         setPatientToProcess(newPatient);
         setAddModalOpen(false);
         setInviteModalOpen(true);
@@ -464,22 +459,6 @@ export const TherapistDashboardPage: React.FC = () => {
   const handleExportData = () => {
     exportDataToCSV(anonymizeExport);
     setExportModalOpen(false);
-  };
-
-  const handleSendInviteEmail = () => {
-    if (patientToProcess && invitationContent) {
-        const mailtoLink = `mailto:${patientToProcess.email}?subject=${encodeURIComponent(invitationContent.subject)}&body=${encodeURIComponent(invitationContent.body)}`;
-        window.location.href = mailtoLink;
-    }
-  };
-
-  const handleCopyInvite = () => {
-    if(invitationContent){
-        const fullContent = `Subject: ${invitationContent.subject}\n\n${invitationContent.body}`;
-        navigator.clipboard.writeText(fullContent);
-        setInviteCopied(true);
-        setTimeout(() => setInviteCopied(false), 2000);
-    }
   };
 
   const handleSendReminder = (patient: any) => {
@@ -990,10 +969,7 @@ export const TherapistDashboardPage: React.FC = () => {
                 <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{t('therapistDashboard.addPatientModal.emailLabel')}</label>
                 <input type="email" value={newPatientData.email} onChange={(e) => setNewPatientData({...newPatientData, email: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all" />
               </div>
-              <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{t('therapistDashboard.addPatientModal.passwordLabel')}</label>
-                <input type="password" value={newPatientData.password} onChange={(e) => setNewPatientData({...newPatientData, password: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all" />
-              </div>
+              <p className="text-xs text-slate-500 leading-relaxed">{t('common.invitationNote')}</p>
             </div>
             <div className="mt-8 flex gap-3 pb-8 sm:pb-0">
               <button onClick={() => setAddModalOpen(false)} className="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors uppercase text-xs tracking-widest">{t('therapistDashboard.addPatientModal.cancelButton')}</button>
@@ -1003,47 +979,23 @@ export const TherapistDashboardPage: React.FC = () => {
         </div>
       )}
 
-      {isInviteModalOpen && patientToProcess && invitationContent && (
+      {isInviteModalOpen && patientToProcess && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-          <div className="bg-white p-6 sm:p-8 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-2xl border border-slate-100 flex flex-col h-auto max-h-[90vh] overflow-y-auto">
+          <div className="bg-white p-6 sm:p-8 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-md border border-slate-100">
             <div className="sm:hidden flex justify-center pb-4">
               <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
             </div>
-            <h3 className="text-xl font-black text-slate-900 mb-2 uppercase tracking-tight">{t('therapistDashboard.inviteModal.title')}</h3>
-            <p className="text-sm text-slate-500 mb-6">{t('therapistDashboard.inviteModal.subtitle', { username: (patientToProcess as any).username })}</p>
-            
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-8">
-               <div className="mb-4">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('therapistDashboard.inviteEmail.subject')}</p>
-                  <p className="text-sm font-bold text-slate-800">{invitationContent.subject}</p>
-               </div>
-               <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('therapistDashboard.inviteEmail.bodyLabel')}</p>
-                  <p className="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">{invitationContent.body}</p>
-               </div>
+            <div className="flex items-center gap-3 mb-4">
+              <SendIcon className="w-6 h-6 text-sky-600 flex-shrink-0" />
+              <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">{t('therapistDashboard.inviteModal.title')}</h3>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-8 sm:pb-0">
-               <button 
-                  onClick={handleCopyInvite} 
-                  className={`flex items-center justify-center px-4 py-3 rounded-xl font-bold transition-all uppercase text-xs tracking-widest border border-slate-200 ${inviteCopied ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
-               >
-                  {inviteCopied ? t('therapistDashboard.inviteModal.copied') : t('therapistDashboard.inviteModal.copy')}
-               </button>
-               <button 
-                  onClick={handleSendInviteEmail} 
-                  className="flex items-center justify-center px-4 py-3 bg-sky-600 text-white rounded-xl font-bold hover:bg-sky-700 transition-all uppercase text-xs tracking-widest shadow-lg shadow-sky-200"
-               >
-                  <SendIcon className="w-4 h-4 mr-2" />
-                  {t('therapistDashboard.inviteModal.sendEmail')}
-               </button>
-               <button 
-                  onClick={() => setInviteModalOpen(false)} 
-                  className="sm:col-span-2 mt-2 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors uppercase text-xs tracking-widest"
-               >
-                  {t('therapistDashboard.inviteModal.done')}
-               </button>
-            </div>
+            <p className="text-sm text-slate-600 mb-8 leading-relaxed">{t('common.invitationSent', { email: patientToProcess.email })}</p>
+            <button
+              onClick={() => setInviteModalOpen(false)}
+              className="w-full px-4 py-3 bg-sky-600 text-white rounded-xl font-bold hover:bg-sky-700 transition-colors uppercase text-xs tracking-widest mb-8 sm:mb-0"
+            >
+              {t('therapistDashboard.inviteModal.done')}
+            </button>
           </div>
         </div>
       )}

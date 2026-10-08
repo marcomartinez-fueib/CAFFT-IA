@@ -42,7 +42,7 @@ export const SuperadminDashboardPage: React.FC = () => {
     const [users, setUsers] = useState<StoredUser[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [newUserData, setNewUserData] = useState({ username: '', email: '', password: '', role: 'therapist' as StoredUser['role'], managerId: '' });
+    const [newUserData, setNewUserData] = useState({ username: '', email: '', role: 'therapist' as StoredUser['role'], managerId: '' });
     const [error, setError] = useState<string | null>(null);
 
     const readUsers = useCallback(() => {
@@ -65,7 +65,7 @@ export const SuperadminDashboardPage: React.FC = () => {
     const managers = useMemo(() => users.filter(u => u.role === 'manager'), [users]);
 
     const handleAddUser = async () => {
-        if (!newUserData.username || !newUserData.email || !newUserData.password) {
+        if (!newUserData.username || !newUserData.email) {
             setError(t('auth.fillAllFieldsError'));
             return;
         }
@@ -74,7 +74,6 @@ export const SuperadminDashboardPage: React.FC = () => {
             role: newUserData.role,
             username: newUserData.username,
             email: newUserData.email,
-            password: newUserData.password,
             managerId: newUserData.role === 'therapist' && newUserData.managerId ? newUserData.managerId : undefined,
         });
         if (result.errorKey) {
@@ -83,7 +82,8 @@ export const SuperadminDashboardPage: React.FC = () => {
         }
         readUsers();
         setIsAddModalOpen(false);
-        setNewUserData({ username: '', email: '', password: '', role: 'therapist', managerId: '' });
+        alert(t('common.invitationSent', { email: newUserData.email }));
+        setNewUserData({ username: '', email: '', role: 'therapist', managerId: '' });
     };
 
     const handleDeleteUser = async (userId: string) => {
@@ -229,15 +229,7 @@ export const SuperadminDashboardPage: React.FC = () => {
                                     onChange={e => setNewUserData({...newUserData, email: e.target.value})}
                                 />
                             </div>
-                            <div>
-                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('superadminDashboard.form.password')}</label>
-                                <input 
-                                    type="password" 
-                                    className="w-full px-4 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 outline-none"
-                                    value={newUserData.password}
-                                    onChange={e => setNewUserData({...newUserData, password: e.target.value})}
-                                />
-                            </div>
+                            <p className="text-xs text-slate-500 leading-relaxed">{t('common.invitationNote')}</p>
                             <div>
                                 <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('superadminDashboard.form.role')}</label>
                                 <select 

@@ -215,6 +215,11 @@ const caTranslations: TranslationContent = {
     common: {
         syncFailed: "No s'han pogut desar alguns canvis. Comprova la connexió; si el problema continua, avisa el teu terapeuta.",
         dismiss: "Tancar",
+        invitationNote: "Rebrà un correu amb un enllaç per triar la seva contrasenya.",
+        invitationSent: "Hem enviat una invitació a {email} amb un enllaç per triar la contrasenya. L'enllaç és vàlid durant 7 dies.",
+        resendInvitation: "Reenviar invitació",
+        invitationResent: "Hem enviat un enllaç nou a {email}. L'anterior ja no funciona.",
+        invitationResendFailed: "No s'ha pogut enviar la invitació. Torna-ho a provar més tard.",
         time: {
             ago: "fa {val} {unit}",
             year: "any",
@@ -1395,6 +1400,11 @@ const esTranslations: TranslationContent = {
         ...caTranslations.common,
         syncFailed: "No se han podido guardar algunos cambios. Comprueba la conexión; si el problema continúa, avisa a tu terapeuta.",
         dismiss: "Cerrar",
+        invitationNote: "Recibirá un correo con un enlace para elegir su contraseña.",
+        invitationSent: "Hemos enviado una invitación a {email} con un enlace para elegir la contraseña. El enlace es válido durante 7 días.",
+        resendInvitation: "Reenviar invitación",
+        invitationResent: "Hemos enviado un enlace nuevo a {email}. El anterior ya no funciona.",
+        invitationResendFailed: "No se ha podido enviar la invitación. Inténtalo de nuevo más tarde.",
         time: {
             ...caTranslations.common.time,
             ago: "hace {val} {unit}",
@@ -2474,6 +2484,11 @@ const enTranslations: TranslationContent = {
         ...caTranslations.common,
         syncFailed: "Some changes could not be saved. Check your connection; if the problem continues, tell your therapist.",
         dismiss: "Dismiss",
+        invitationNote: "They will receive an email with a link to choose their password.",
+        invitationSent: "We have sent an invitation to {email} with a link to choose a password. The link is valid for 7 days.",
+        resendInvitation: "Resend invitation",
+        invitationResent: "We have sent a new link to {email}. The previous one no longer works.",
+        invitationResendFailed: "The invitation could not be sent. Please try again later.",
         time: {
             ...caTranslations.common.time,
             ago: "{val} {unit} ago",

@@ -175,16 +175,32 @@ export interface CreateUserResult {
 }
 
 /** Errors come back as translation keys (auth.usernameTakenError, ...). */
+/** The interface language, for emails the server writes (useLanguage keeps it here). */
+export function uiLanguage(): 'ca' | 'es' | 'en' {
+  try {
+    const lang = localStorage.getItem('cafft_language');
+    if (lang === 'ca' || lang === 'es' || lang === 'en') return lang;
+  } catch {
+    // Storage unavailable: fall through to the default.
+  }
+  return 'ca';
+}
+
+/**
+ * Without `password`, the server emails the new user an invitation link to
+ * choose one, written in the current interface language.
+ */
 export async function createUser(input: {
   role: User['role'];
   username: string;
   email: string;
-  password: string;
+  password?: string;
   therapistId?: string;
   managerId?: string;
 }): Promise<CreateUserResult> {
   try {
-    const { user } = await api<{ user: StoredUser }>('POST', '/users', input);
+    const body = input.password ? input : { ...input, language: uiLanguage() };
+    const { user } = await api<{ user: StoredUser }>('POST', '/users', body);
     replaceUser(user);
     return { user, errorKey: null };
   } catch (err) {
@@ -219,6 +235,19 @@ export async function deletePatientData(userId: string): Promise<boolean> {
     emails: state.emails.filter((e) => e.patientId !== userId),
   };
   return true;
+}
+
+/** Emails the user a fresh invitation link (the previous one stops working). */
+export async function resendInvitation(userId: string): Promise<boolean> {
+  try {
+    await api('POST', `/users/${encodeURIComponent(userId)}/invite`, { language: uiLanguage() });
+    // The server records the invitation in the patient's email history.
+    await syncStore();
+    return true;
+  } catch (err) {
+    console.error('[dataStore] resendInvitation:', err);
+    return false;
+  }
 }
 
 /** Sets a new random password on the server and returns it, or null on failure. */

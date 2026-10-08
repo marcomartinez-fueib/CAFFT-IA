@@ -3,8 +3,20 @@ import { requireAuth } from '../app.ts';
 import { canWriteClinical, visibleUser, visibleUsers } from '../access.ts';
 import { transaction } from '../db.ts';
 import { consultationsFor, emailsFor, lastActivityAt, progressFor, qpviiFor } from '../records.ts';
-import { toApiUser } from '../users.ts';
+import { toApiUser, type UserRow } from '../users.ts';
+import { enqueueMail } from '../mail/outbox.ts';
 import * as S from '../schemas.ts';
+
+/**
+ * Reminder emails go only to patients who said yes in the notification
+ * consent dialog and have not switched reminders off. Everyone else's
+ * reminders are still recorded in their history, just not delivered.
+ */
+function wantsReminderEmails(patient: UserRow): boolean {
+  if (!patient.notification_prefs) return false;
+  const prefs = JSON.parse(patient.notification_prefs) as { enabled?: boolean; reminders?: boolean };
+  return prefs.enabled === true && prefs.reminders !== false;
+}
 
 const NOT_FOUND = { error: 'notFound' };
 const FORBIDDEN = { error: 'forbidden' };
@@ -249,6 +261,7 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
           .run(b.id, b.patientId, b.type, b.subject, b.body, b.status, b.timestamp);
         if (inserted.changes > 0 && b.type === 'reminder' && b.status === 'sent') {
           db.prepare('UPDATE users SET last_reminder_at = ?, updated_at = ? WHERE id = ?').run(b.timestamp, Date.now(), b.patientId);
+          if (wantsReminderEmails(patient)) enqueueMail(db, { to: patient.email, subject: b.subject, body: b.body, kind: 'reminder' });
         }
       });
       return reply.code(204).send();
@@ -295,15 +308,17 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
         if (lastActivity === null) continue;
         if (Math.floor((now - lastActivity) / (24 * 60 * 60 * 1000)) < thresholdDays) continue;
 
+        const body = bodyTemplate.replaceAll('{username}', patient.username);
         transaction(db, () => {
           db.prepare("INSERT INTO emails (id, patient_id, type, subject, body, status, timestamp) VALUES (?, ?, 'reminder', ?, ?, 'sent', ?)").run(
             `rem_${now}_${patient.id}`,
             patient.id,
             subject,
-            bodyTemplate.replaceAll('{username}', patient.username),
+            body,
             now,
           );
           db.prepare('UPDATE users SET last_reminder_at = ?, updated_at = ? WHERE id = ?').run(now, now, patient.id);
+          if (wantsReminderEmails(patient)) enqueueMail(db, { to: patient.email, subject, body, kind: 'reminder' });
         });
         sent.push(patient.id);
       }

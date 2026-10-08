@@ -3,7 +3,11 @@ import { requireAuth } from '../app.ts';
 import { audit } from '../audit.ts';
 import { hashPassword, MIN_PASSWORD_LENGTH, verifyAgainstDummy, verifyPassword } from '../passwords.ts';
 import { createSession, deleteOtherSessions, deleteSession, SESSION_COOKIE } from '../sessions.ts';
-import { createUser, findUserByUsername, toApiUser } from '../users.ts';
+import { createUser, findUserByUsername, toApiUser, type UserRow } from '../users.ts';
+import { transaction } from '../db.ts';
+import { enqueueMail } from '../mail/outbox.ts';
+import { asLang, LANGS, passwordResetMail, setPasswordLink } from '../mail/templates.ts';
+import { consumePasswordToken, issuePasswordToken } from '../passwordTokens.ts';
 
 // Error values are the client's translation keys (data/translations.ts), so
 // the UI can show them as it does today.
@@ -15,6 +19,7 @@ const ERR = {
   passwordTooShort: 'auth.passwordMinLengthError',
   changePassword: 'auth.changePasswordError',
   tooManyAttempts: 'auth.tooManyAttemptsError',
+  invalidToken: 'auth.invalidOrExpiredTokenError',
 } as const;
 
 // Per-account lockout, on top of the per-IP rate limit, so that a password
@@ -209,6 +214,68 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       deleteOtherSessions(db, user.id, req.sessionToken!);
       audit(db, { actorId: user.id, action: 'password.change', ip: req.ip });
 
+      return reply.code(204).send();
+    },
+  );
+
+  // Always 204, whether or not the address belongs to an account, so the
+  // endpoint cannot be used to find out who is registered.
+  app.post<{ Body: { email: string; language?: string } }>(
+    '/password-reset',
+    {
+      config: { rateLimit: { max: 5, timeWindow: '1 minute' } },
+      schema: {
+        body: {
+          type: 'object',
+          required: ['email'],
+          additionalProperties: false,
+          properties: { email: { type: 'string', maxLength: 254 }, language: { enum: [...LANGS] } },
+        },
+      },
+    },
+    async (req, reply) => {
+      const user = db.prepare('SELECT * FROM users WHERE email = ?').get(req.body.email.trim()) as unknown as UserRow | undefined;
+      if (user) {
+        transaction(db, () => {
+          const token = issuePasswordToken(db, user.id, 'reset');
+          const mail = passwordResetMail(asLang(req.body.language), user.username, setPasswordLink(config.appUrl, token));
+          enqueueMail(db, { to: user.email, ...mail, kind: 'password_reset' });
+          audit(db, { actorId: null, action: 'password.reset.requested', targetId: user.id, ip: req.ip });
+        });
+      }
+      return reply.code(204).send();
+    },
+  );
+
+  // Completes both a password reset and an invitation: the link is the same kind.
+  app.post<{ Body: { token: string; password: string } }>(
+    '/password-reset/confirm',
+    {
+      config: { rateLimit: LOGIN_RATE_LIMIT },
+      schema: {
+        body: {
+          type: 'object',
+          required: ['token', 'password'],
+          additionalProperties: false,
+          properties: { token: { type: 'string', minLength: 1, maxLength: 128 }, password: passwordSchema },
+        },
+      },
+    },
+    async (req, reply) => {
+      const { token, password } = req.body;
+      if (password.length < MIN_PASSWORD_LENGTH) return reply.code(400).send({ error: ERR.passwordTooShort });
+      const passwordHash = await hashPassword(password);
+
+      const result = transaction(db, () => {
+        const claim = consumePasswordToken(db, token);
+        if (!claim) return null;
+        db.prepare('UPDATE users SET password_hash = ?, must_change_password = 0, updated_at = ? WHERE id = ?').run(passwordHash, Date.now(), claim.userId);
+        // Whoever held a session with the old password is logged out.
+        deleteOtherSessions(db, claim.userId);
+        audit(db, { actorId: claim.userId, action: claim.purpose === 'invite' ? 'invitation.accepted' : 'password.reset', ip: req.ip });
+        return claim;
+      });
+      if (!result) return reply.code(400).send({ error: ERR.invalidToken });
       return reply.code(204).send();
     },
   );

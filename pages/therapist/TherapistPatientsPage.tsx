@@ -90,7 +90,7 @@ export const TherapistPatientsPage: React.FC = () => {
     const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
     const [isResetModalOpen, setResetModalOpen] = useState(false);
     const [patientToProcess, setPatientToProcess] = useState<Patient | StoredUser | null>(null);
-    const [newPatientData, setNewPatientData] = useState({ username: '', email: '', password: '' });
+    const [newPatientData, setNewPatientData] = useState({ username: '', email: '' });
     const [newPassword, setNewPassword] = useState('');
     const [passwordCopied, setPasswordCopied] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -167,23 +167,23 @@ export const TherapistPatientsPage: React.FC = () => {
 
     const handleOpenAddModal = () => {
         setError(null);
-        setNewPatientData({ username: '', email: '', password: '' });
+        setNewPatientData({ username: '', email: '' });
         setAddModalOpen(true);
     };
 
     const handleAddPatient = async () => {
         if (!currentUser) return;
-        if (!newPatientData.username || !newPatientData.email || !newPatientData.password) {
+        if (!newPatientData.username || !newPatientData.email) {
           setError(t('auth.fillAllFieldsError'));
           return;
         }
         setError(null);
-        // The server assigns the patient to this therapist and generates the patient code.
+        // The server assigns the patient to this therapist, generates the
+        // patient code, and emails them an invitation to choose a password.
         const result = await createUser({
             role: 'patient',
             username: newPatientData.username,
             email: newPatientData.email,
-            password: newPatientData.password,
         });
         if (result.errorKey) {
             setError(t(result.errorKey));
@@ -191,6 +191,7 @@ export const TherapistPatientsPage: React.FC = () => {
         }
         readAllData();
         setAddModalOpen(false);
+        alert(t('common.invitationSent', { email: newPatientData.email }));
     };
 
     const handleOpenDeleteModal = (patient: any) => {
@@ -387,10 +388,7 @@ export const TherapistPatientsPage: React.FC = () => {
                                 <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{t('therapistDashboard.addPatientModal.emailLabel')}</label>
                                 <input type="email" value={newPatientData.email} onChange={(e) => setNewPatientData({...newPatientData, email: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all" />
                             </div>
-                            <div>
-                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{t('therapistDashboard.addPatientModal.passwordLabel')}</label>
-                                <input type="password" value={newPatientData.password} onChange={(e) => setNewPatientData({...newPatientData, password: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all" />
-                            </div>
+                            <p className="text-xs text-slate-500 leading-relaxed">{t('common.invitationNote')}</p>
                         </div>
                         <div className="mt-8 flex gap-3 pb-8 sm:pb-0">
                             <button onClick={() => setAddModalOpen(false)} className="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors uppercase text-xs tracking-widest font-black leading-none">{t('therapistDashboard.addPatientModal.cancelButton')}</button>

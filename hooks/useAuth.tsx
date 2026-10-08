@@ -8,6 +8,7 @@ import {
     updateOwnUser,
     getQPVIIResultsForUser,
     getAllUserExposureProgress,
+    uiLanguage,
 } from '../services/dataStore.ts';
 import { determineVideoSequence, isExposureFullyCompleted } from '../utils/exposureUtils.ts';
 import { EXPOSURE_VIDEOS, CANONICAL_FLIGHT_STAGES_ORDER } from '../constants.ts';
@@ -232,21 +233,33 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, [currentUser]);
 
+  // The server answers the same whether or not the address has an account,
+  // so the message never reveals who is registered.
   const requestPasswordReset = useCallback(async (email: string): Promise<{ success: boolean; errorKey?: string; messageKey?: string }> => {
     setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000)); 
-    setLoading(false);
-    return { success: true, messageKey: 'auth.resetLinkSentSuccess' };
+    try {
+      await api('POST', '/auth/password-reset', { email, language: uiLanguage() });
+      return { success: true, messageKey: 'auth.resetLinkSentSuccess' };
+    } catch (err) {
+      console.error('[auth] requestPasswordReset:', err);
+      return { success: false, errorKey: 'auth.resetLinkSentError' };
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  // Also completes an invitation: both emails carry the same kind of link.
   const resetPassword = useCallback(async (token: string, newPassword: string): Promise<{ success: boolean; errorKey?: string; messageKey?: string }> => {
     setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000)); 
-    setLoading(false);
-    if (token === "valid_token_from_email_simulation") { 
-        return { success: true, messageKey: 'auth.passwordResetSuccess' };
+    try {
+      await api('POST', '/auth/password-reset/confirm', { token, password: newPassword });
+      return { success: true, messageKey: 'auth.passwordResetSuccess' };
+    } catch (err) {
+      const code = err instanceof ApiError ? err.code : '';
+      return { success: false, errorKey: code.startsWith('auth.') ? code : 'auth.passwordResetError' };
+    } finally {
+      setLoading(false);
     }
-    return { success: false, errorKey: 'auth.invalidOrExpiredTokenError' };
   }, []);
 
   const changePassword = useCallback(async (currentPassword: string, newPassword: string): Promise<{ success: boolean; errorKey?: string; messageKey?: string }> => {

@@ -671,6 +671,11 @@ export interface TranslationContent {
   common: {
     syncFailed: string;
     dismiss: string;
+    invitationNote: string;
+    invitationSent: string;
+    resendInvitation: string;
+    invitationResent: string;
+    invitationResendFailed: string;
     time: {
       ago: string;
       year: string;

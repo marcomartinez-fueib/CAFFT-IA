@@ -1,12 +1,17 @@
-import { randomInt } from 'node:crypto';
+import { randomBytes, randomInt } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
+import type { Config } from '../config.ts';
+import type { Db } from '../db.ts';
+import { enqueueMail } from '../mail/outbox.ts';
+import { asLang, invitationMail, LANGS, setPasswordLink } from '../mail/templates.ts';
+import { issuePasswordToken } from '../passwordTokens.ts';
 import { requireAuth } from '../app.ts';
 import { audit } from '../audit.ts';
 import { canAdminister, visibleUser } from '../access.ts';
 import { transaction } from '../db.ts';
 import { hashPassword, MIN_PASSWORD_LENGTH } from '../passwords.ts';
 import { deleteOtherSessions } from '../sessions.ts';
-import { createUser, findUserById, toApiUser, type Role } from '../users.ts';
+import { createUser, findUserById, toApiUser, type Role, type UserRow } from '../users.ts';
 import * as S from '../schemas.ts';
 
 const ERR = {
@@ -29,23 +34,45 @@ const CREATABLE: Record<Role, Role[]> = {
 
 const TEMP_PASSWORD_ALPHABET = 'abcdefghjkmnpqrstuvwxyz23456789';
 
+/**
+ * Emails the user a single-use link (7 days) to choose their password. For
+ * patients it is also recorded in their email history, which therapists see.
+ * Call inside a transaction.
+ */
+function sendInvitation(db: Db, config: Config, target: UserRow, invitedBy: UserRow, language: string | undefined): void {
+  const token = issuePasswordToken(db, target.id, 'invite');
+  const mail = invitationMail(asLang(language), target.username, invitedBy.username, setPasswordLink(config.appUrl, token));
+  enqueueMail(db, { to: target.email, ...mail, kind: 'invitation' });
+  if (target.role === 'patient') {
+    // The recorded copy leaves the link out: it is a credential.
+    db.prepare("INSERT INTO emails (id, patient_id, type, subject, body, status, timestamp) VALUES (?, ?, 'invitation', ?, ?, 'sent', ?)").run(
+      `inv_${randomBytes(8).toString('hex')}`,
+      target.id,
+      mail.subject,
+      mail.body.replace(/https?:\/\/\S+/g, '[…]'),
+      Date.now(),
+    );
+  }
+}
+
 function temporaryPassword(): string {
   return Array.from({ length: 10 }, () => TEMP_PASSWORD_ALPHABET[randomInt(TEMP_PASSWORD_ALPHABET.length)]).join('');
 }
 
 export async function userRoutes(app: FastifyInstance): Promise<void> {
-  const { db } = app;
+  const { db, config } = app;
   app.addHook('preHandler', requireAuth);
 
+  // Without a password, the new user gets an invitation email to choose one.
   app.post<{
-    Body: { role: Role; username: string; email: string; password: string; therapistId?: string; managerId?: string };
+    Body: { role: Role; username: string; email: string; password?: string; therapistId?: string; managerId?: string; language?: string };
   }>(
     '/',
     {
       schema: {
         body: {
           type: 'object',
-          required: ['role', 'username', 'email', 'password'],
+          required: ['role', 'username', 'email'],
           additionalProperties: false,
           properties: {
             role: { enum: ['patient', 'therapist', 'manager', 'superadmin'] },
@@ -54,17 +81,18 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
             password: S.password,
             therapistId: S.uuid,
             managerId: S.uuid,
+            language: { enum: [...LANGS] },
           },
         },
       },
     },
     async (req, reply) => {
       const actor = req.user!;
-      const { role, username, email, password } = req.body;
+      const { role, username, email, password, language } = req.body;
       let { therapistId, managerId } = req.body;
 
       if (!CREATABLE[actor.role].includes(role)) return reply.code(403).send(FORBIDDEN);
-      if (password.length < MIN_PASSWORD_LENGTH) return reply.code(400).send({ error: ERR.passwordTooShort });
+      if (password !== undefined && password.length < MIN_PASSWORD_LENGTH) return reply.code(400).send({ error: ERR.passwordTooShort });
 
       if (actor.role === 'therapist') therapistId = actor.id;
       if (actor.role === 'manager') managerId = actor.id;
@@ -75,20 +103,21 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
       if (therapistId && findUserById(db, therapistId)?.role !== 'therapist') return reply.code(400).send({ error: 'invalidTherapist' });
       if (managerId && findUserById(db, managerId)?.role !== 'manager') return reply.code(400).send({ error: 'invalidManager' });
 
-      const result = createUser(db, {
-        role,
-        username,
-        email,
-        passwordHash: await hashPassword(password),
-        consentGiven: true,
-        therapistId,
-        managerId,
+      // An invited user's initial password is random and never revealed: the
+      // account is only usable once they follow the link.
+      const passwordHash = await hashPassword(password ?? randomBytes(32).toString('base64url'));
+
+      const result = transaction(db, () => {
+        const created = createUser(db, { role, username, email, passwordHash, consentGiven: true, therapistId, managerId });
+        if (!created.ok) return created;
+        if (password === undefined) sendInvitation(db, config, created.user, actor, language);
+        audit(db, { actorId: actor.id, action: `user.create.${role}`, targetId: created.user.id, ip: req.ip });
+        return created;
       });
       if (!result.ok) {
         return reply.code(409).send({ error: result.conflict === 'username' ? ERR.usernameTaken : ERR.emailTaken });
       }
-      audit(db, { actorId: actor.id, action: `user.create.${role}`, targetId: result.user.id, ip: req.ip });
-      return reply.code(201).send({ user: toApiUser(result.user) });
+      return reply.code(201).send({ user: toApiUser(result.user), invitationSent: password === undefined });
     },
   );
 
@@ -171,6 +200,29 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
     reply.header('Cache-Control', 'no-store');
     return { temporaryPassword: password };
   });
+
+  // A fresh invitation link, e.g. when the first one expired. Whoever may
+  // administer the account may resend it, and a manager for their therapists.
+  app.post<{ Params: { id: string }; Body: { language?: string } }>(
+    '/:id/invite',
+    {
+      config: { rateLimit: { max: 10, timeWindow: '1 minute' } },
+      schema: { body: { type: 'object', additionalProperties: false, properties: { language: { enum: [...LANGS] } } } },
+    },
+    async (req, reply) => {
+      const actor = req.user!;
+      const target = visibleUser(db, actor, req.params.id);
+      if (!target) return reply.code(404).send(NOT_FOUND);
+      const managesThem = actor.role === 'manager' && target.manager_id === actor.id;
+      if (!canAdminister(actor, target) && !managesThem) return reply.code(403).send(FORBIDDEN);
+
+      transaction(db, () => {
+        sendInvitation(db, config, target, actor, req.body?.language);
+        audit(db, { actorId: actor.id, action: 'invitation.sent', targetId: target.id, ip: req.ip });
+      });
+      return reply.code(204).send();
+    },
+  );
 
   // Staff switch these for the users they can see; anyone for themselves.
   for (const [path, column] of [

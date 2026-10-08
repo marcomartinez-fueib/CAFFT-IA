@@ -41,7 +41,7 @@ export const ManagerDashboardPage: React.FC = () => {
     const [therapists, setTherapists] = useState<StoredUser[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [isAddTherapistModalOpen, setAddTherapistModalOpen] = useState(false);
-    const [newTherapistData, setNewTherapistData] = useState({ username: '', email: '', password: '' });
+    const [newTherapistData, setNewTherapistData] = useState({ username: '', email: '' });
     const [error, setError] = useState<string | null>(null);
 
     const readData = useCallback(() => {
@@ -73,17 +73,17 @@ export const ManagerDashboardPage: React.FC = () => {
 
     const handleAddTherapist = async () => {
         if (!currentUser) return;
-        if (!newTherapistData.username || !newTherapistData.email || !newTherapistData.password) {
+        if (!newTherapistData.username || !newTherapistData.email) {
             setError(t('auth.fillAllFieldsError'));
             return;
         }
         setError(null);
-        // The server assigns the new therapist to this manager.
+        // The server assigns the new therapist to this manager and emails
+        // them an invitation to choose a password.
         const result = await createUser({
             role: 'therapist',
             username: newTherapistData.username,
             email: newTherapistData.email,
-            password: newTherapistData.password,
         });
         if (result.errorKey) {
             setError(t(result.errorKey));
@@ -91,7 +91,8 @@ export const ManagerDashboardPage: React.FC = () => {
         }
         readData();
         setAddTherapistModalOpen(false);
-        setNewTherapistData({ username: '', email: '', password: '' });
+        alert(t('common.invitationSent', { email: newTherapistData.email }));
+        setNewTherapistData({ username: '', email: '' });
     };
 
     const handleToggleNotifications = async (userId: string) => {
@@ -212,15 +213,7 @@ export const ManagerDashboardPage: React.FC = () => {
                                     onChange={e => setNewTherapistData({...newTherapistData, email: e.target.value})}
                                 />
                             </div>
-                            <div>
-                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('superadminDashboard.form.password')}</label>
-                                <input 
-                                    type="password" 
-                                    className="w-full px-4 py-2 rounded-xl border border-slate-200"
-                                    value={newTherapistData.password}
-                                    onChange={e => setNewTherapistData({...newTherapistData, password: e.target.value})}
-                                />
-                            </div>
+                            <p className="text-xs text-slate-500 leading-relaxed">{t('common.invitationNote')}</p>
                         </div>
                         <div className="p-6 bg-slate-50 flex justify-end space-x-2">
                             <button onClick={() => setAddTherapistModalOpen(false)} className="px-4 py-2 text-sm font-bold text-slate-500">{t('nav.cancel')}</button>

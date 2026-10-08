@@ -1,6 +1,6 @@
 # CAFFT-IA — Plan de backend con persistencia
 
-Estado: **en curso** (fases 0–4 hechas; quedan email y operación, ver §12) · Última revisión: 2026-10-07
+Estado: **en curso** (fases 0–5 hechas; queda la puesta en marcha, ver §12) · Última revisión: 2026-10-08
 
 ## 1. Punto de partida
 
@@ -376,8 +376,8 @@ para migrarlos por separado sin código de transición desechable.
 | **2. Usuarios y roles** | Alta, baja, contraseña temporal y *toggles* con las reglas de §6; dashboards de terapeuta, gestor y superadmin. | ✅ Hecho |
 | **3. Datos clínicos** | QPV-II y progreso de exposición en el servidor; el flujo del paciente lee de memoria y escribe en cola (ver §8). | ✅ Hecho |
 | **4. Resto** | Consultas IA, emails simulados, recordatorios de inactividad (decididos en el servidor), feedback, tours de onboarding en la cuenta. `localStorageDB.ts` eliminado. | ✅ Hecho |
-| **5. Email** | Envío SMTP real: restablecer contraseña por enlace con token de un solo uso, invitaciones y recordatorios. | Pendiente |
-| **6. Operación** | Probar una restauración en el servidor, primer despliegue y alta del superadmin. | Pendiente |
+| **5. Email** | Envío por Microsoft Graph con cola persistente y reintentos; restablecer contraseña (enlace de 1 h); altas sin contraseña con invitación (enlace de 7 días, reenviable); recordatorios reales solo a quien aceptó notificaciones. | ✅ Hecho |
+| **6. Operación** | Primer despliegue, alta del superadmin, credenciales de Graph (IT de la fundació, ver `DEPLOYMENT.md` Step 7) y probar una restauración en el servidor. | Pendiente |
 
 ## 13. Pruebas
 
@@ -402,8 +402,11 @@ Plan original:
 1. No hay pacientes reales: BD vacía, sin importación.
 2. La UIB no exige SSO.
 3. Copias de seguridad dentro del servidor.
-4. El envío real de emails es necesario (fase 5), por SMTP autenticado de una
-   cuenta institucional del dominio fueib.org. Pendiente: saber si es Microsoft
-   365 o Google Workspace y que se cree la cuenta (p. ej. `no-reply@fueib.org`).
+4. El envío real de emails es necesario (fase 5), desde una cuenta de
+   fueib.org (Microsoft 365) mediante **Microsoft Graph**, no SMTP: Exchange
+   Online desactiva por defecto SMTP AUTH con contraseña a finales de
+   diciembre de 2026.
+7. Las invitaciones llevan un enlace para que el usuario elija su contraseña;
+   quien da de alta ya no la fija, y ninguna contraseña viaja por email.
 5. La consulta al DPD queda aplazada.
 6. Contraseñas de 8 caracteres como mínimo (antes 6 en la app).

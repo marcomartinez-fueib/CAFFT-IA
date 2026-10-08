@@ -1,8 +1,8 @@
 -- Real email delivery (phase 5).
 
 -- Outbox: business changes enqueue mail in the same transaction; a worker in
--- the API process delivers it and retries with backoff. A Microsoft Graph
--- outage therefore delays mail instead of failing the request or losing it.
+-- the API process delivers it and retries with backoff. A relay outage
+-- therefore delays mail instead of failing the request or losing it.
 CREATE TABLE outbound_mail (
   id              INTEGER PRIMARY KEY,
   to_address      TEXT NOT NULL,

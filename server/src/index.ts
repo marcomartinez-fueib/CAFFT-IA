@@ -4,7 +4,8 @@ import { buildApp } from './app.ts';
 import { purgeExpiredSessions } from './sessions.ts';
 import { backupDatabase } from './backup.ts';
 import { processOutbox } from './mail/outbox.ts';
-import { GraphTransport, LogTransport, type MailTransport } from './mail/transport.ts';
+import nodemailer from 'nodemailer';
+import { LogTransport, SmtpTransport, type CreateTransport, type MailTransport } from './mail/transport.ts';
 
 const config = loadConfig();
 const db = openDb(config.dbPath, { migrate: false });
@@ -35,16 +36,16 @@ if (config.backupDir) {
   setInterval(runBackup, 24 * 60 * 60 * 1000).unref();
 }
 
-// Mail: deliver the outbox every 30 s. One run at a time, so a slow Graph
-// call cannot make two runs send the same message.
+// Mail: deliver the outbox every 30 s. One run at a time, so a slow relay
+// cannot make two runs send the same message.
 let transport: MailTransport;
-if (config.mailTransport === 'graph') {
-  const missing = Object.entries(config.graph).filter(([, v]) => !v).map(([k]) => k);
-  if (missing.length) throw new Error(`MAIL_TRANSPORT=graph but missing: ${missing.join(', ')}`);
-  transport = new GraphTransport(config.graph);
+if (config.smtp.host) {
+  if (!config.smtp.from) throw new Error('SMTP_HOST is set but MAIL_FROM is missing');
+  transport = new SmtpTransport(config.smtp, nodemailer.createTransport as unknown as CreateTransport);
+  app.log.info({ host: config.smtp.host, port: config.smtp.port, from: config.smtp.from }, 'mail goes out through SMTP');
 } else {
   transport = new LogTransport((msg) => app.log.info(msg));
-  app.log.warn('MAIL_TRANSPORT=log: emails are written to this log, not sent');
+  app.log.warn('no SMTP_HOST: emails are written to this log, not sent');
 }
 let delivering = false;
 setInterval(async () => {

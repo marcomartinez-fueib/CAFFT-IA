@@ -274,69 +274,49 @@ If nginx returns 502 for `/cafft/api/*`, the API is down: `docker compose logs a
 The rest of the site keeps working, because nginx resolves `api` per request
 instead of at start-up.
 
-## Step 7 — Email through Microsoft Graph
+## Step 7 — Email through the UIB relay
 
 The API sends password-reset links, invitations to new users and reminders
-from a fueib.org mailbox through Microsoft Graph. It does not use SMTP: Exchange
-Online disables SMTP AUTH with a password by default from the end of December
-2026.
+through the university's SMTP relay, configured exactly as B4B and PAUSAT do
+from this same server:
 
-Until this step is done the API runs with `MAIL_TRANSPORT=log`: emails are
-written to `docker compose logs api` instead of being sent. Everything else
-works, but new users cannot set their password unless you copy the link from
-the log for them.
+| Setting | Value |
+|---|---|
+| Relay | `smtp.uib.es`, port 25 |
+| Encryption | STARTTLS, required: nothing is sent if the relay does not offer it |
+| Authentication | none: the relay accepts mail by the server's IP (`130.206.30.73`) |
+| Sender | `CAFFT <cafft@uib.es>` |
 
-**What the fundació's Microsoft 365 administrator has to do:**
+All of it is in `docker-compose.yml` (`SMTP_HOST`, `SMTP_PORT`, `MAIL_FROM`);
+there is no secret to install. Because the relay trusts the IP, mail only goes
+out from this server: in development, without `SMTP_HOST`, emails are printed to
+the API log instead.
 
-1. Create the sending mailbox, e.g. `no-reply@fueib.org` (a shared mailbox is
-   enough; it needs no licence).
-2. In Entra ID, register an application (e.g. "CAFFT mail"). Under *API
-   permissions* add **Microsoft Graph → Application permissions → Mail.Send**
-   and grant admin consent. Under *Certificates & secrets* create a client
-   secret and note its expiry date.
-3. Restrict the app to that one mailbox, so it cannot send as anyone else.
-   Without this, Mail.Send applies to every mailbox in the tenant. In Exchange
-   Online PowerShell, create a mail-enabled security group containing only the
-   sending mailbox, then:
+**The `cafft@uib.es` mailbox.** The relay sends as that address whether or not
+the mailbox exists. It should exist and accept mail, or bounces (mistyped or dead
+addresses) are lost and nobody finds out. Ask the UIB's IT service for it, and
+while at it check that the relay signs with DKIM for `uib.es` — B4B asked for the
+same in `docs/peticion-a-redes-uib.md` of that repository, because unsigned mail
+from the relay was landing in spam.
 
-   ```powershell
-   New-ApplicationAccessPolicy -AppId <client-id> -PolicyScopeGroupId <group> `
-     -AccessRight RestrictAccess -Description "CAFFT may only send as no-reply"
-   ```
-
-   (Exchange's newer *RBAC for Applications* achieves the same; either works.)
-4. Hand over the tenant ID, the client ID and the client secret.
-
-**On the server**, put them in `/data/apps/cafft/secrets/mail.env`:
+**Testing delivery.** Use *Forgot your password?* on the login page with your
+own account's address; the email should arrive within a minute. Or, on the
+server:
 
 ```bash
-sudo tee /data/apps/cafft/secrets/mail.env >/dev/null <<'ENV'
-MAIL_TRANSPORT=graph
-GRAPH_TENANT_ID=<tenant id>
-GRAPH_CLIENT_ID=<client id>
-GRAPH_CLIENT_SECRET=<client secret>
-MAIL_FROM=no-reply@fueib.org
-ENV
-sudo chmod 600 /data/apps/cafft/secrets/mail.env
-cd /data/apps/cafft && docker compose up -d api
+cd /data/apps/cafft
+docker compose logs api | grep -E "mail goes out|mail [0-9]+ failed"
 ```
 
-The API refuses to start if `MAIL_TRANSPORT=graph` is set without all four
-values. To test, use *Forgot your password?* on the login page with your own
-account's address; the email should arrive within a minute.
-
 **How delivery works.** Emails go into a queue in the database
-(`outbound_mail`) and are sent every 30 seconds. If Graph fails, they are
-retried after 1 min, 5 min, 30 min, 2 h and 6 h, then marked failed. To see
-what has not gone out:
+(`outbound_mail`) and are sent every 30 seconds over one reused connection. The
+client waits at most 10 s to connect and to be greeted, and 20 s for the rest.
+If the relay fails, emails are retried after 1 min, 5 min, 30 min, 2 h and 6 h,
+then marked failed. To see what has not gone out:
 
 ```bash
 docker compose exec api node -e "const {DatabaseSync}=require('node:sqlite'); console.table(new DatabaseSync('/data/cafft.db',{readOnly:true}).prepare('SELECT id, to_address, kind, attempts, last_error FROM outbound_mail WHERE sent_at IS NULL').all())"
 ```
-
-**When the client secret expires**, Graph answers 401 and every email fails.
-Create a new secret in Entra ID, update `mail.env`, and run
-`docker compose up -d api`. Put the expiry date in a calendar.
 
 Reminder emails only go to patients who accepted notifications in the app.
 Everyone else's reminders are still recorded in their history, so therapists

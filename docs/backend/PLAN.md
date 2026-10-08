@@ -1,6 +1,6 @@
 # CAFFT-IA — Plan de backend con persistencia
 
-Estado: **en producción** desde el 2026-10-08 (falta activar el correo por Graph, ver §12) · Última revisión: 2026-10-08
+Estado: **en producción** desde el 2026-10-08 (correo por el relé de la UIB, ver §12) · Última revisión: 2026-10-08
 
 ## 1. Punto de partida
 
@@ -376,8 +376,8 @@ para migrarlos por separado sin código de transición desechable.
 | **2. Usuarios y roles** | Alta, baja, contraseña temporal y *toggles* con las reglas de §6; dashboards de terapeuta, gestor y superadmin. | ✅ Hecho |
 | **3. Datos clínicos** | QPV-II y progreso de exposición en el servidor; el flujo del paciente lee de memoria y escribe en cola (ver §8). | ✅ Hecho |
 | **4. Resto** | Consultas IA, emails simulados, recordatorios de inactividad (decididos en el servidor), feedback, tours de onboarding en la cuenta. `localStorageDB.ts` eliminado. | ✅ Hecho |
-| **5. Email** | Envío por Microsoft Graph con cola persistente y reintentos; restablecer contraseña (enlace de 1 h); altas sin contraseña con invitación (enlace de 7 días, reenviable); recordatorios reales solo a quien aceptó notificaciones. | ✅ Hecho |
-| **6. Operación** | Desplegado en pausat.uib.es el 2026-10-08; superadmin creado; restauración probada sobre una copia en el servidor. **Pendiente:** credenciales de Graph de la IT de la fundació (`DEPLOYMENT.md` Step 7); hasta entonces el correo va al log. | ✅ Hecho (salvo Graph) |
+| **5. Email** | Envío por SMTP con el relé de la UIB (`smtp.uib.es:25`, STARTTLS, sin autenticación, como B4B y PAUSAT) con cola persistente y reintentos; restablecer contraseña (enlace de 1 h); altas sin contraseña con invitación (enlace de 7 días, reenviable); recordatorios reales solo a quien aceptó notificaciones. | ✅ Hecho |
+| **6. Operación** | Desplegado en pausat.uib.es el 2026-10-08; superadmin creado; restauración probada sobre una copia en el servidor. Correo por el relé de la UIB desde el mismo servidor. **Pendiente:** pedir a informática de la UIB el buzón `cafft@uib.es` (rebotes) y confirmar DKIM. | ✅ Hecho |
 
 ## 13. Pruebas
 
@@ -402,11 +402,10 @@ Plan original:
 1. No hay pacientes reales: BD vacía, sin importación.
 2. La UIB no exige SSO.
 3. Copias de seguridad dentro del servidor.
-4. El envío real de emails es necesario (fase 5), desde una cuenta de
-   fueib.org (Microsoft 365) mediante **Microsoft Graph**, no SMTP: Exchange
-   Online desactiva por defecto SMTP AUTH con contraseña a finales de
-   diciembre de 2026.
-7. Las invitaciones llevan un enlace para que el usuario elija su contraseña;
-   quien da de alta ya no la fija, y ninguna contraseña viaja por email.
+4. El envío real de emails es necesario (fase 5). Se hace por el relé SMTP de
+   la UIB (`smtp.uib.es:25`, STARTTLS, sin autenticación, admite por la IP del
+   servidor), igual que B4B y PAUSAT, con remitente `CAFFT <cafft@uib.es>`
+   (2026-10-08). Sustituye a la primera opción, Microsoft Graph con una cuenta
+   de fueib.org, que habría necesitado una app en Entra ID.
 5. La consulta al DPD queda aplazada.
 6. Contraseñas de 8 caracteres como mínimo (antes 6 en la app).

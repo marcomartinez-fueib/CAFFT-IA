@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import type { FastifyInstance } from 'fastify';
 import { login, makeApp, ORIGIN, seedUser } from './helpers.ts';
 import { processOutbox } from '../src/mail/outbox.ts';
-import { GraphTransport, LogTransport } from '../src/mail/transport.ts';
+import { LogTransport, SmtpTransport, type CreateTransport } from '../src/mail/transport.ts';
 import type { Db } from '../src/db.ts';
 
 const post = (app: FastifyInstance, url: string, payload: object, cookie?: string) =>
@@ -142,35 +142,63 @@ test('the outbox retries with backoff and eventually gives up', async () => {
   assert.equal(await processOutbox(db, new LogTransport(() => {})), 0);
 });
 
-test('GraphTransport: client-credentials token, cached, and the sendMail call', async () => {
-  const calls: { url: string; init: RequestInit }[] = [];
-  const fakeFetch = (async (url: string, init: RequestInit) => {
-    calls.push({ url, init });
-    if (url.includes('/oauth2/')) return new Response(JSON.stringify({ access_token: 'tok', expires_in: 3600 }), { status: 200 });
-    return new Response(null, { status: 202 });
-  }) as unknown as typeof fetch;
+test('SmtpTransport talks to the relay as B4B does: port 25, STARTTLS required, short timeouts, one connection', async () => {
+  let options: Parameters<CreateTransport>[0] | undefined;
+  const sent: Record<string, unknown>[] = [];
+  const create: CreateTransport = (o) => {
+    options = o;
+    return { sendMail: async (mail) => { sent.push(mail); return {}; } };
+  };
 
-  const graph = new GraphTransport({ tenantId: 'tid', clientId: 'cid', clientSecret: 'sec', sender: 'no-reply@fueib.org' }, fakeFetch);
-  await graph.send({ to: 'a@example.test', subject: 'S', body: 'B' });
-  await graph.send({ to: 'b@example.test', subject: 'S', body: 'B' });
+  const smtp = new SmtpTransport({ host: 'smtp.uib.es', port: 25, requireTls: true, from: 'CAFFT <cafft@uib.es>' }, create);
+  await smtp.send({ to: 'pacient@example.test', subject: 'Hola', body: 'Text' });
 
-  assert.equal(calls.filter((c) => c.url.includes('/oauth2/')).length, 1); // token reused
-  assert.equal(calls[0].url, 'https://login.microsoftonline.com/tid/oauth2/v2.0/token');
-  assert.ok(String(calls[0].init.body).includes('grant_type=client_credentials'));
-
-  const send = calls[1];
-  assert.equal(send.url, 'https://graph.microsoft.com/v1.0/users/no-reply%40fueib.org/sendMail');
-  assert.equal((send.init.headers as Record<string, string>).Authorization, 'Bearer tok');
-  const payload = JSON.parse(String(send.init.body));
-  assert.deepEqual(payload.message.toRecipients, [{ emailAddress: { address: 'a@example.test' } }]);
-  assert.equal(payload.saveToSentItems, false);
+  assert.deepEqual(options, {
+    host: 'smtp.uib.es',
+    port: 25,
+    secure: false,
+    requireTLS: true,
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 20_000,
+    pool: true,
+    maxConnections: 1,
+  });
+  assert.deepEqual(sent, [
+    {
+      from: 'CAFFT <cafft@uib.es>',
+      to: 'pacient@example.test',
+      subject: 'Hola',
+      text: 'Text',
+      headers: { 'Auto-Submitted': 'auto-generated' },
+    },
+  ]);
 });
 
-test('GraphTransport surfaces Graph errors so the outbox retries', async () => {
-  const fakeFetch = (async (url: string) =>
-    url.includes('/oauth2/')
-      ? new Response(JSON.stringify({ access_token: 'tok', expires_in: 3600 }), { status: 200 })
-      : new Response('{"error":{"code":"ErrorAccessDenied"}}', { status: 403 })) as unknown as typeof fetch;
-  const graph = new GraphTransport({ tenantId: 't', clientId: 'c', clientSecret: 's', sender: 'x@fueib.org' }, fakeFetch);
-  await assert.rejects(graph.send({ to: 'a@example.test', subject: 'S', body: 'B' }), /403.*ErrorAccessDenied/);
+test('SmtpTransport surfaces relay errors so the outbox retries', async () => {
+  const create: CreateTransport = () => ({
+    sendMail: async () => { throw new Error('connect ETIMEDOUT smtp.uib.es:25'); },
+  });
+  const smtp = new SmtpTransport({ host: 'smtp.uib.es', port: 25, requireTls: true, from: 'CAFFT <cafft@uib.es>' }, create);
+  await assert.rejects(smtp.send({ to: 'a@example.test', subject: 'S', body: 'B' }), /ETIMEDOUT/);
+});
+
+test('SMTP settings: host turns it on, STARTTLS defaults to required, port defaults to 25', async () => {
+  const { loadConfig } = await import('../src/config.ts');
+  const keys = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_STARTTLS', 'MAIL_FROM'] as const;
+  const saved = Object.fromEntries(keys.map((k) => [k, process.env[k]]));
+  try {
+    for (const k of keys) delete process.env[k];
+    assert.equal(loadConfig().smtp.host, '');
+    process.env.SMTP_HOST = 'smtp.uib.es';
+    process.env.MAIL_FROM = 'CAFFT <cafft@uib.es>';
+    assert.deepEqual(loadConfig().smtp, { host: 'smtp.uib.es', port: 25, requireTls: true, from: 'CAFFT <cafft@uib.es>' });
+    process.env.SMTP_STARTTLS = 'false';
+    assert.equal(loadConfig().smtp.requireTls, false);
+  } finally {
+    for (const k of keys) {
+      if (saved[k] === undefined) delete process.env[k];
+      else process.env[k] = saved[k];
+    }
+  }
 });

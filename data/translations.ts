@@ -1369,7 +1369,12 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
         successMessage: "Gràcies pel teu feedback! Ens ajuda a millorar CAFFT.",
         errorMessage: "Hi ha hagut un error en enviar el feedback. Torna-ho a provar.",
         recentTestimonialsTitle: "Testimonis Recents",
-        anonymousUser: "Usuari en pràctiques"
+        anonymousUser: "Usuari en pràctiques",
+        contactLabel: "Correu de contacte (opcional)",
+        contactPlaceholder: "Si vols que et responguem",
+        contextNotice: "Amb el missatge enviem la pàgina on ets, l'idioma i el tipus de dispositiu, per poder entendre millor el que ens expliques.",
+        openButton: "Feedback",
+        closeButton: "Tancar"
     },
     general: {
         readMore: "Llegir més",
@@ -2405,7 +2410,12 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
         successMessage: "¡Gracias por tu feedback! Nos ayuda a mejorar CAFFT.",
         errorMessage: "Hubo un error al enviar el feedback. Inténtalo de nuevo.",
         recentTestimonialsTitle: "Testimonios Recientes",
-        anonymousUser: "Usuario en prácticas"
+        anonymousUser: "Usuario en prácticas",
+        contactLabel: "Correo de contacto (opcional)",
+        contactPlaceholder: "Si quieres que te respondamos",
+        contextNotice: "Con el mensaje enviamos la página en la que estás, el idioma y el tipo de dispositivo, para entender mejor lo que nos cuentas.",
+        openButton: "Feedback",
+        closeButton: "Cerrar"
     },
     general: {
         readMore: "Leer más",
@@ -3246,7 +3256,12 @@ const enTranslations: TranslationContent = {
         successMessage: "Thanks for your feedback! It helps us improve CAFFT.",
         errorMessage: "An error occurred while sending feedback. Please try again.",
         recentTestimonialsTitle: "Recent Testimonials",
-        anonymousUser: "User in training"
+        anonymousUser: "User in training",
+        contactLabel: "Contact email (optional)",
+        contactPlaceholder: "If you would like a reply",
+        contextNotice: "Along with your message we send the page you are on, the language and your device type, so we can better understand what you tell us.",
+        openButton: "Feedback",
+        closeButton: "Close"
     },
     general: {
         readMore: "Read more",

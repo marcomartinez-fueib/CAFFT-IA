@@ -209,3 +209,46 @@ test('SMTP settings: host turns it on, STARTTLS defaults to required, port defau
     }
   }
 });
+
+test('feedback is stored with its context and mailed to the team once', async () => {
+  const { app, db } = await makeApp();
+  await seedUser(db, 'patient', 'opinaire');
+  const cookie = await login(app, 'opinaire');
+  const feedback = {
+    id: 'fb1',
+    username: 'ignored',
+    type: 'bug',
+    rating: 2,
+    comment: 'El vídeo no arrenca\nen el mòbil',
+    contact: 'opinaire@example.test',
+    page: '/exposure',
+    language: 'ca',
+    viewport: '390x844',
+  };
+  const send = () =>
+    app.inject({ method: 'POST', url: '/feedback', headers: { origin: ORIGIN, cookie, 'user-agent': 'TestPhone/1.0' }, payload: feedback });
+  assert.equal((await send()).statusCode, 204);
+  assert.equal((await send()).statusCode, 204); // retry: no second row or mail
+
+  const row = db.prepare('SELECT username, page, contact, language, user_agent, viewport FROM feedback').get() as Record<string, string>;
+  assert.deepEqual({ ...row }, { username: 'opinaire', page: '/exposure', contact: 'opinaire@example.test', language: 'ca', user_agent: 'TestPhone/1.0', viewport: '390x844' });
+
+  const transport = new LogTransport(() => {});
+  await processOutbox(db, transport);
+  assert.equal(transport.sent.length, 1);
+  const [mail] = transport.sent;
+  assert.equal(mail.to, 'salutmental@fueib.org');
+  assert.equal(mail.subject, 'CAFFT feedback · Error / problema: El vídeo no arrenca');
+  for (const s of ['en el mòbil', 'opinaire (paciente)', 'Contacto: opinaire@example.test', 'Página: /exposure', 'TestPhone/1.0', '390x844']) {
+    assert.ok(mail.body.includes(s), s);
+  }
+});
+
+test('feedback rejects a blank comment or a malformed contact', async () => {
+  const { app, db } = await makeApp();
+  const base = { id: 'fb2', username: 'Anònim', type: 'other', rating: 3, comment: 'Hola' };
+  assert.equal((await post(app, '/feedback', { ...base, comment: '   ' })).statusCode, 400);
+  assert.equal((await post(app, '/feedback', { ...base, contact: 'no-és-un-correu' })).statusCode, 400);
+  assert.equal((await post(app, '/feedback', { ...base, contact: '' })).statusCode, 204);
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM outbound_mail').get()!.n, 1);
+});

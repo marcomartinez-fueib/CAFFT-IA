@@ -54,3 +54,55 @@ export function invitationMail(lang: Lang, username: string, invitedBy: string, 
   }[lang];
   return { subject: t.subject, body: `${t.body}\n\n${SIGNATURE[lang]}` };
 }
+
+const FEEDBACK_TYPES: Record<string, string> = {
+  bug: 'Error / problema',
+  improvement: 'Mejora sugerida',
+  testimonial: 'Testimonio / experiencia',
+  other: 'Otro',
+};
+
+const USER_TYPES: Record<string, string> = {
+  patient: 'paciente',
+  therapist: 'terapeuta',
+  manager: 'gestor',
+  superadmin: 'superadmin',
+  guest: 'sin sesión',
+};
+
+/**
+ * Notice to the CAFFT team about new feedback. Always in Spanish: it goes to
+ * the team, not to the user who wrote it.
+ */
+export function feedbackMail(f: {
+  type: string;
+  rating: number;
+  comment: string;
+  username: string;
+  userType: string;
+  contact: string | null;
+  page: string | null;
+  language: string | null;
+  userAgent: string | null;
+  viewport: string | null;
+  at: Date;
+}): { subject: string; body: string } {
+  const type = FEEDBACK_TYPES[f.type] ?? f.type;
+  const firstLine = f.comment.trim().split('\n')[0];
+  const excerpt = firstLine.length > 60 ? `${firstLine.slice(0, 57)}...` : firstLine;
+  const lines = [
+    `Tipo: ${type}`,
+    `Valoración: ${'★'.repeat(f.rating)}${'☆'.repeat(5 - f.rating)} (${f.rating}/5)`,
+    `Usuario: ${f.username} (${USER_TYPES[f.userType] ?? f.userType})`,
+    `Contacto: ${f.contact || 'no indicado'}`,
+    `Página: ${f.page || 'desconocida'}`,
+    `Idioma: ${f.language || 'desconocido'}`,
+    `Pantalla: ${f.viewport || 'desconocida'}`,
+    `Navegador: ${f.userAgent || 'desconocido'}`,
+    `Fecha: ${f.at.toLocaleString('es-ES', { timeZone: 'Europe/Madrid' })}`,
+  ];
+  return {
+    subject: `CAFFT feedback · ${type}: ${excerpt}`,
+    body: `${f.comment.trim()}\n\n—\n${lines.join('\n')}\n\nEnviado desde el formulario de feedback de CAFFT.`,
+  };
+}

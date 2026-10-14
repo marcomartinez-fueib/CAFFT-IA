@@ -5,6 +5,7 @@ import { transaction } from '../db.ts';
 import { consultationsFor, emailsFor, lastActivityAt, progressFor, qpviiFor } from '../records.ts';
 import { toApiUser, type UserRow } from '../users.ts';
 import { enqueueMail } from '../mail/outbox.ts';
+import { feedbackMail } from '../mail/templates.ts';
 import * as S from '../schemas.ts';
 
 /**
@@ -364,7 +365,19 @@ export async function feedbackRoutes(app: FastifyInstance): Promise<void> {
     };
   });
 
-  app.post<{ Body: { id: string; username: string; type: string; rating: number; comment: string } }>(
+  app.post<{
+    Body: {
+      id: string;
+      username: string;
+      type: string;
+      rating: number;
+      comment: string;
+      contact?: string;
+      page?: string;
+      language?: string;
+      viewport?: string;
+    };
+  }>(
     '/',
     {
       config: { rateLimit: { max: 5, timeWindow: '1 minute' } },
@@ -378,7 +391,11 @@ export async function feedbackRoutes(app: FastifyInstance): Promise<void> {
             username: S.shortText(64),
             type: { enum: ['bug', 'improvement', 'testimonial', 'other'] },
             rating: { type: 'integer', minimum: 1, maximum: 5 },
-            comment: S.shortText(5000),
+            comment: { type: 'string', minLength: 1, maxLength: 5000, pattern: '\\S' },
+            contact: { anyOf: [S.email, { const: '' }] },
+            page: S.shortText(200),
+            language: S.shortText(8),
+            viewport: S.shortText(20),
           },
         },
       },
@@ -388,9 +405,35 @@ export async function feedbackRoutes(app: FastifyInstance): Promise<void> {
       const user = req.user;
       // Identity comes from the session, never from the body.
       const userType = !user ? 'guest' : user.role === 'therapist' ? 'therapist' : 'patient';
-      db.prepare(
-        "INSERT OR IGNORE INTO feedback (id, user_id, username, user_type, type, rating, comment, status, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, 'new', ?)",
-      ).run(b.id, user?.id ?? null, user ? user.username : b.username, userType, b.type, b.rating, b.comment, Date.now());
+      const username = user ? user.username : b.username;
+      const userAgent = req.headers['user-agent']?.slice(0, 500) ?? null;
+      const now = Date.now();
+      transaction(db, () => {
+        const { changes } = db
+          .prepare(
+            `INSERT OR IGNORE INTO feedback
+               (id, user_id, username, user_type, type, rating, comment, status, timestamp, page, contact, language, user_agent, viewport)
+             VALUES (?, ?, ?, ?, ?, ?, ?, 'new', ?, ?, ?, ?, ?, ?)`,
+          )
+          .run(b.id, user?.id ?? null, username, userType, b.type, b.rating, b.comment, now,
+            b.page || null, b.contact || null, b.language || null, userAgent, b.viewport || null);
+        // A retried submission (same id) is stored and mailed only once.
+        if (changes === 0 || !app.config.feedbackTo) return;
+        const mail = feedbackMail({
+          type: b.type,
+          rating: b.rating,
+          comment: b.comment,
+          username,
+          userType: user?.role ?? 'guest',
+          contact: b.contact || null,
+          page: b.page || null,
+          language: b.language || null,
+          userAgent,
+          viewport: b.viewport || null,
+          at: new Date(now),
+        });
+        enqueueMail(db, { to: app.config.feedbackTo, ...mail, kind: 'feedback' });
+      });
       return reply.code(204).send();
     },
   );

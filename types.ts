@@ -1276,6 +1276,11 @@ export interface FeedbackTranslations {
   errorMessage: string;
   recentTestimonialsTitle: string;
   anonymousUser: string;
+  contactLabel: string;
+  contactPlaceholder: string;
+  contextNotice: string;
+  openButton: string;
+  closeButton: string;
 }
 
 export interface AnalyzedSession {

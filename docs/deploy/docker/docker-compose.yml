@@ -85,6 +85,8 @@ services:
       SMTP_HOST: smtp.uib.es
       SMTP_PORT: "25"
       MAIL_FROM: "CAFFT <cafft@uib.es>"
+      # Feedback from the in-app form is stored and mailed here.
+      FEEDBACK_TO: salutmental@fueib.org
 
     volumes:
       # The image runs as uid 1000 (`node`): both directories must be

@@ -1,7 +1,7 @@
 import type { Db } from '../db.ts';
 import type { MailTransport } from './transport.ts';
 
-export type MailKind = 'password_reset' | 'invitation' | 'reminder';
+export type MailKind = 'password_reset' | 'invitation' | 'reminder' | 'feedback';
 
 /** Call inside the transaction that makes the change the mail is about. */
 export function enqueueMail(db: Db, mail: { to: string; subject: string; body: string; kind: MailKind }): void {

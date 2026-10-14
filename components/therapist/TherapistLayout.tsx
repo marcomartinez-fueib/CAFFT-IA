@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { SyncStatusBanner } from '../SyncStatusBanner';
+import { FeedbackLauncher } from '../FeedbackForm';
 import { Menu, X } from 'lucide-react';
 
 export const TherapistLayout: React.FC = () => {
@@ -51,6 +52,8 @@ export const TherapistLayout: React.FC = () => {
           </div>
         </main>
       </div>
+
+      <FeedbackLauncher />
     </div>
   );
 };

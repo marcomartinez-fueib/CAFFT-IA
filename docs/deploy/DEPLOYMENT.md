@@ -276,7 +276,8 @@ instead of at start-up.
 
 ## Step 7 — Email through the UIB relay
 
-The API sends password-reset links, invitations to new users and reminders
+The API sends password-reset links, invitations to new users, reminders and
+the feedback users leave in the app (to `FEEDBACK_TO`, `salutmental@fueib.org`)
 through the university's SMTP relay, configured exactly as B4B and PAUSAT do
 from this same server:
 

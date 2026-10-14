@@ -490,7 +490,16 @@ export async function fetchTestimonials(): Promise<Feedback[]> {
 }
 
 /** The server takes the author's identity from the session, not from `feedback`. */
-export async function saveFeedback(feedback: Pick<Feedback, 'id' | 'username' | 'type' | 'rating' | 'comment'>): Promise<boolean> {
+export async function saveFeedback(
+  feedback: Pick<Feedback, 'id' | 'username' | 'type' | 'rating' | 'comment'> & {
+    /** Optional email for a reply; '' when left blank. */
+    contact: string;
+    /** Context for the team: route, app language and window size. */
+    page: string;
+    language: string;
+    viewport: string;
+  },
+): Promise<boolean> {
   try {
     await api('POST', '/feedback', feedback);
     return true;

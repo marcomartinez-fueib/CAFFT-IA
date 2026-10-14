@@ -16,6 +16,8 @@ export interface Config {
    * log, which is what development and tests want.
    */
   smtp: { host: string; port: number; requireTls: boolean; from: string };
+  /** Where feedback sent from the app is mailed. Empty disables the mail; it is still stored. */
+  feedbackTo: string;
   /** Disables request logging; used by tests. */
   logger: boolean;
 }
@@ -46,6 +48,8 @@ export function loadConfig(overrides: Partial<Config> = {}): Config {
       requireTls: env('SMTP_STARTTLS', 'true') !== 'false',
       from: env('MAIL_FROM', ''),
     },
+    // Like BACKUP_DIR, an explicitly empty FEEDBACK_TO means "off".
+    feedbackTo: process.env.FEEDBACK_TO ?? 'salutmental@fueib.org',
     logger: true,
     ...overrides,
   };

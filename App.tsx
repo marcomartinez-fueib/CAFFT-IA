@@ -30,6 +30,7 @@ import { ReviewSelectionPage } from './pages/ReviewSelectionPage.tsx';
 import { LastSessionPage } from './pages/LastSessionPage.tsx';
 import { ProfilePage } from './pages/ProfilePage.tsx';
 import { FeedbackPage } from './pages/FeedbackPage.tsx';
+import { FeedbackLauncher } from './components/FeedbackForm.tsx';
 import { HelpCenterPage } from './pages/HelpCenterPage.tsx';
 import { OnboardingProvider } from './hooks/useOnboarding.tsx';
 import { OnboardingTour } from './components/OnboardingTour.tsx';
@@ -69,6 +70,7 @@ const MainLayout: React.FC = () => {
       <main className="flex-grow">
         <Outlet />
       </main>
+      <FeedbackLauncher />
       {!isAssistantHidden && (
         <>
           <HelpButton onClick={toggleAssistant} />

@@ -432,9 +432,10 @@ export const HelpCenterPage: React.FC = () => {
             <button 
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="w-12 h-12 bg-white text-uib-blue rounded-full shadow-2xl flex items-center justify-center hover:bg-slate-50 transition-colors border border-slate-100"
-              title="Tornar a dalt"
+              title={t('common.backToTop')}
+              aria-label={t('common.backToTop')}
             >
-              <ArrowRight className="w-5 h-5 -rotate-90" />
+              <ArrowRight className="w-5 h-5 -rotate-90" aria-hidden="true" />
             </button>
           </motion.div>
         )}

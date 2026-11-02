@@ -419,6 +419,7 @@ export interface AIChatContent {
     noSessions: string;
     sessionsSummary: string;
   };
+  supportSubtitle?: string;
   assistantNameTitle: string;
   assistantNamePlaceholder: string;
   genderNeutralSuggestions: string[];
@@ -499,6 +500,14 @@ export interface TherapistDashboardContent {
     toggleNotificationsOff: string;
     toggleTourOn: string;
     toggleTourOff: string;
+    notificationsOnFor?: string;
+    notificationsOffFor?: string;
+    tourOnFor?: string;
+    tourOffFor?: string;
+    viewPatient?: string;
+    resetPatientPassword?: string;
+    deletePatient?: string;
+    remindPatient?: string;
   };
   patient_status: {
     new: string;
@@ -557,6 +566,7 @@ export interface TherapistDashboardContent {
     copyButton: string;
     copiedButton: string;
     closeButton: string;
+    failed?: string;
   };
   exportDataModal: {
     title: string;
@@ -691,6 +701,8 @@ export interface TranslationContent {
     syncFailed: string;
     dismiss: string;
     close?: string;
+    openMenu?: string;
+    backToTop?: string;
     invitationNote: string;
     invitationSent: string;
     resendInvitation: string;
@@ -1086,6 +1098,7 @@ export interface TranslationContent {
   };
   onboarding?: {
     stepCounter: string;
+    goToStep?: string;
     startManual: string;
     next: string;
     prev: string;

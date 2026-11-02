@@ -383,15 +383,17 @@ export const PatientDetailPage: React.FC = () => {
                             onClick={handleToggleNotifications}
                             className={`p-2 rounded-xl border transition-all ${patient.notificationPreferences?.enabled !== false ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-200 opacity-50'}`}
                             title={patient.notificationPreferences?.enabled !== false ? t('therapistDashboard.tooltips.toggleNotificationsOff') : t('therapistDashboard.tooltips.toggleNotificationsOn')}
+                            aria-label={t(patient.notificationPreferences?.enabled !== false ? 'therapistDashboard.tooltips.notificationsOffFor' : 'therapistDashboard.tooltips.notificationsOnFor', { name: patient.username })}
                         >
-                            <BellIcon className="w-5 h-5" />
+                            <BellIcon className="w-5 h-5" aria-hidden="true" />
                         </button>
-                        <button 
+                        <button
                             onClick={handleToggleOnboarding}
                             className={`p-2 rounded-xl border transition-all ${patient.onboardingEnabled !== false ? 'bg-sky-50 text-sky-600 border-sky-100' : 'bg-slate-50 text-slate-400 border-slate-200 opacity-50'}`}
                             title={patient.onboardingEnabled !== false ? t('therapistDashboard.tooltips.toggleTourOff') : t('therapistDashboard.tooltips.toggleTourOn')}
+                            aria-label={t(patient.onboardingEnabled !== false ? 'therapistDashboard.tooltips.tourOffFor' : 'therapistDashboard.tooltips.tourOnFor', { name: patient.username })}
                         >
-                            <CompassIcon className="w-5 h-5" />
+                            <CompassIcon className="w-5 h-5" aria-hidden="true" />
                         </button>
                     </div>
                     

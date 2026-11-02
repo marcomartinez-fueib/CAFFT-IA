@@ -141,7 +141,7 @@ export const CafftIntroPage: React.FC = () => {
             <button
               onClick={closeVideoModal}
               className="absolute -top-3 -right-3 sm:top-2 sm:right-2 z-10 p-2 bg-white rounded-full text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-uib-blue"
-              aria-label="Close video"
+              aria-label={t('common.close')}
             >
               <XMarkIcon className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>

@@ -68,8 +68,9 @@ export const Sidebar: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                 <button 
                     onClick={onClose}
                     className="p-2 text-slate-400 hover:text-white"
+                    aria-label={t('common.close')}
                 >
-                    <X className="w-6 h-6" />
+                    <X className="w-6 h-6" aria-hidden="true" />
                 </button>
             </div>
 

@@ -337,8 +337,9 @@ export const TherapistPatientsPage: React.FC = () => {
                                                 onClick={() => handleToggleNotifications(patient.id)}
                                                 className={`p-2 rounded-lg transition-all border ${patient.notificationPreferences?.enabled !== false ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-300 border-slate-100 opacity-50'}`}
                                                 title={patient.notificationPreferences?.enabled !== false ? t('therapistDashboard.tooltips.toggleNotificationsOff') : t('therapistDashboard.tooltips.toggleNotificationsOn')}
+                                                aria-label={t(patient.notificationPreferences?.enabled !== false ? 'therapistDashboard.tooltips.notificationsOffFor' : 'therapistDashboard.tooltips.notificationsOnFor', { name: patient.username })}
                                             >
-                                                <BellIcon className="w-5 h-5 mx-auto" />
+                                                <BellIcon className="w-5 h-5 mx-auto" aria-hidden="true" />
                                             </button>
                                         </td>
                                         <td className="px-6 py-4 text-center">
@@ -346,15 +347,16 @@ export const TherapistPatientsPage: React.FC = () => {
                                                 onClick={() => handleToggleOnboarding(patient.id)}
                                                 className={`p-2 rounded-lg transition-all border ${patient.onboardingEnabled !== false ? 'bg-sky-50 text-sky-600 border-sky-100' : 'bg-slate-50 text-slate-300 border-slate-100 opacity-50'}`}
                                                 title={patient.onboardingEnabled !== false ? t('therapistDashboard.tooltips.toggleTourOff') : t('therapistDashboard.tooltips.toggleTourOn')}
+                                                aria-label={t(patient.onboardingEnabled !== false ? 'therapistDashboard.tooltips.tourOffFor' : 'therapistDashboard.tooltips.tourOnFor', { name: patient.username })}
                                             >
-                                                <CompassIcon className="w-5 h-5 mx-auto" />
+                                                <CompassIcon className="w-5 h-5 mx-auto" aria-hidden="true" />
                                             </button>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center space-x-3">
-                                                <button onClick={() => navigate(`/therapist/patient/${patient.id}`)} className="p-2 text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"><ViewIcon className="w-5 h-5"/></button>
-                                                <button onClick={() => handleOpenResetModal(patient)} className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"><ResetIcon className="w-5 h-5"/></button>
-                                                <button onClick={() => handleOpenDeleteModal(patient)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><DeleteIcon className="w-5 h-5"/></button>
+                                                <button onClick={() => navigate(`/therapist/patient/${patient.id}`)} className="p-2 text-sky-600 hover:bg-sky-50 rounded-lg transition-colors" title={t('therapistDashboard.actionOptions.viewDetails')} aria-label={t('therapistDashboard.tooltips.viewPatient', { name: patient.username })}><ViewIcon className="w-5 h-5" aria-hidden="true"/></button>
+                                                <button onClick={() => handleOpenResetModal(patient)} className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title={t('therapistDashboard.actionOptions.resetPassword')} aria-label={t('therapistDashboard.tooltips.resetPatientPassword', { name: patient.username })}><ResetIcon className="w-5 h-5" aria-hidden="true"/></button>
+                                                <button onClick={() => handleOpenDeleteModal(patient)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title={t('therapistDashboard.actionOptions.deletePatient')} aria-label={t('therapistDashboard.tooltips.deletePatient', { name: patient.username })}><DeleteIcon className="w-5 h-5" aria-hidden="true"/></button>
                                             </div>
                                         </td>
                                     </tr>

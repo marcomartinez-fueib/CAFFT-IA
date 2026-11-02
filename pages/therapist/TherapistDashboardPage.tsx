@@ -444,7 +444,7 @@ export const TherapistDashboardPage: React.FC = () => {
         setPasswordCopied(false);
         setResetModalOpen(true);
     } else {
-        alert('Failed to reset password.');
+        alert(t('therapistDashboard.resetPasswordModal.failed'));
     }
   };
 
@@ -628,15 +628,17 @@ export const TherapistDashboardPage: React.FC = () => {
                                 onClick={() => navigate(`/therapist/patient/${patient.id}`)}
                                 className="p-2 bg-white text-slate-600 hover:text-sky-600 rounded-lg shadow-sm border border-slate-200 transition-colors"
                                 title={t('therapistDashboard.actionOptions.viewDetails')}
+                                aria-label={t('therapistDashboard.tooltips.viewPatient', { name: patient.username })}
                             >
-                                <ViewIcon className="w-4 h-4" />
+                                <ViewIcon className="w-4 h-4" aria-hidden="true" />
                             </button>
-                            <button 
+                            <button
                                 onClick={() => handleSendReminder(patient)}
                                 className="p-2 bg-white text-slate-600 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-200 transition-colors"
                                 title={t('therapistDashboard.table.remind')}
+                                aria-label={t('therapistDashboard.tooltips.remindPatient', { name: patient.username })}
                             >
-                                <SendIcon className="w-4 h-4" />
+                                <SendIcon className="w-4 h-4" aria-hidden="true" />
                             </button>
                         </div>
                     </div>
@@ -755,15 +757,16 @@ export const TherapistDashboardPage: React.FC = () => {
                   <button 
                     onClick={handleSendAllReminders}
                     className="p-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition-colors shadow-sm"
-                    title={t('therapistDashboard.reminders.sendReminderButton')}
+                    title={t('therapistDashboard.reminders.sendAllReminders')}
+                    aria-label={t('therapistDashboard.reminders.sendAllReminders')}
                   >
-                        <BellIcon className="w-5 h-5"/>
+                        <BellIcon className="w-5 h-5" aria-hidden="true"/>
                   </button>
-                  <button id="add-patient-btn" onClick={handleOpenAddModal} className="p-2 bg-sky-500 text-white rounded-xl hover:bg-sky-600 transition-colors shadow-sm">
-                      <AddUserIcon className="w-5 h-5"/>
+                  <button id="add-patient-btn" onClick={handleOpenAddModal} className="p-2 bg-sky-500 text-white rounded-xl hover:bg-sky-600 transition-colors shadow-sm" title={t('therapistDashboard.addPatientButton')} aria-label={t('therapistDashboard.addPatientButton')}>
+                      <AddUserIcon className="w-5 h-5" aria-hidden="true"/>
                   </button>
-                  <button onClick={handleOpenExportModal} className="p-2 bg-slate-800 text-white rounded-xl hover:bg-slate-900 transition-colors shadow-sm">
-                      <ExportIcon className="w-5 h-5"/>
+                  <button onClick={handleOpenExportModal} className="p-2 bg-slate-800 text-white rounded-xl hover:bg-slate-900 transition-colors shadow-sm" title={t('therapistDashboard.exportDataModal.title')} aria-label={t('therapistDashboard.exportDataModal.title')}>
+                      <ExportIcon className="w-5 h-5" aria-hidden="true"/>
                   </button>
               </div>
           </div>
@@ -820,8 +823,9 @@ export const TherapistDashboardPage: React.FC = () => {
                                       onClick={() => handleToggleNotifications(patient.id)}
                                       className={`p-2 rounded-lg transition-all border ${patient.notificationPreferences?.enabled !== false ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-300 border-slate-100 opacity-50'}`}
                                       title={patient.notificationPreferences?.enabled !== false ? t('therapistDashboard.tooltips.toggleNotificationsOff') : t('therapistDashboard.tooltips.toggleNotificationsOn')}
+                                      aria-label={t(patient.notificationPreferences?.enabled !== false ? 'therapistDashboard.tooltips.notificationsOffFor' : 'therapistDashboard.tooltips.notificationsOnFor', { name: patient.username })}
                                   >
-                                      <BellIcon className="w-5 h-5 mx-auto" />
+                                      <BellIcon className="w-5 h-5 mx-auto" aria-hidden="true" />
                                   </button>
                               </td>
                               <td className="px-6 py-4 text-center">
@@ -829,32 +833,36 @@ export const TherapistDashboardPage: React.FC = () => {
                                       onClick={() => handleToggleOnboarding(patient.id)}
                                       className={`p-2 rounded-lg transition-all border ${patient.onboardingEnabled !== false ? 'bg-sky-50 text-sky-600 border-sky-100' : 'bg-slate-50 text-slate-300 border-slate-100 opacity-50'}`}
                                       title={patient.onboardingEnabled !== false ? t('therapistDashboard.tooltips.toggleTourOff') : t('therapistDashboard.tooltips.toggleTourOn')}
+                                      aria-label={t(patient.onboardingEnabled !== false ? 'therapistDashboard.tooltips.tourOffFor' : 'therapistDashboard.tooltips.tourOnFor', { name: patient.username })}
                                   >
-                                      <CompassIcon className="w-5 h-5 mx-auto" />
+                                      <CompassIcon className="w-5 h-5 mx-auto" aria-hidden="true" />
                                   </button>
                               </td>
                               <td className="px-6 py-4 text-right">
                                   <div className="flex justify-end space-x-1">
-                                      <button 
-                                        onClick={() => navigate(`/therapist/patient/${patient.id}`)} 
+                                      <button
+                                        onClick={() => navigate(`/therapist/patient/${patient.id}`)}
                                         className="p-2 text-sky-600 hover:bg-sky-50 rounded-lg"
                                         title={t('therapistDashboard.actionOptions.viewDetails')}
+                                        aria-label={t('therapistDashboard.tooltips.viewPatient', { name: patient.username })}
                                       >
-                                          <ViewIcon className="w-5 h-5"/>
+                                          <ViewIcon className="w-5 h-5" aria-hidden="true"/>
                                       </button>
-                                      <button 
-                                        onClick={() => handleOpenResetModal(patient as any)} 
+                                      <button
+                                        onClick={() => handleOpenResetModal(patient as any)}
                                         className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg"
                                         title={t('therapistDashboard.actionOptions.resetPassword')}
+                                        aria-label={t('therapistDashboard.tooltips.resetPatientPassword', { name: patient.username })}
                                       >
-                                          <ResetIcon className="w-5 h-5"/>
+                                          <ResetIcon className="w-5 h-5" aria-hidden="true"/>
                                       </button>
-                                      <button 
-                                        onClick={() => handleOpenDeleteModal(patient as any)} 
+                                      <button
+                                        onClick={() => handleOpenDeleteModal(patient as any)}
                                         className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg"
-                                        title={t('therapistDashboard.actionOptions.delete')}
+                                        title={t('therapistDashboard.actionOptions.deletePatient')}
+                                        aria-label={t('therapistDashboard.tooltips.deletePatient', { name: patient.username })}
                                       >
-                                          <DeleteIcon className="w-5 h-5"/>
+                                          <DeleteIcon className="w-5 h-5" aria-hidden="true"/>
                                       </button>
                                   </div>
                               </td>

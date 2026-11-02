@@ -10,6 +10,8 @@ import { ExposureVideo, QPVIIScores, ExposureSceneKey, QPVIIAnswers } from '../t
 import { EXPOSURE_VIDEOS } from '../constants';
 import { getUserExposureProgress, saveUserExposureProgress } from '../services/dataStore'; 
 import { determineVideoSequence, calculatePhaseScores } from '../utils/exposureUtils';
+import { currentPlanFor } from '../utils/currentPlan';
+import { StepGuardCard } from '../components/StepGuardCard';
 
 // --- Icons for visual feedback ---
 const CheckCircleIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -42,6 +44,7 @@ export const ExposureHierarchyPage: React.FC = () => {
   const [qpviiScores, setQpviiScores] = useState<QPVIIScores | null>(null);
   const [qpviiAnswers, setQpviiAnswers] = useState<QPVIIAnswers | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [needsQpvii, setNeedsQpvii] = useState(false);
   const [completedVideoIdsInHierarchy, setCompletedVideoIdsInHierarchy] = useState<string[]>([]);
   const [currentVideoIndexInHierarchy, setCurrentVideoIndexInHierarchy] = useState<number>(0);
 
@@ -52,7 +55,9 @@ export const ExposureHierarchyPage: React.FC = () => {
       return;
     }
 
-    const state = location.state as { qpviiTimestamp: number, scores: QPVIIScores, answers: QPVIIAnswers };
+    // A direct link or a reload arrives without navigation state.
+    const navState = location.state as { qpviiTimestamp?: number, scores?: QPVIIScores, answers?: QPVIIAnswers } | null;
+    const state = navState?.qpviiTimestamp && navState.scores ? navState : currentPlanFor(currentUser.id);
     if (state && state.qpviiTimestamp && state.scores) {
       const currentQpviiTimestamp = state.qpviiTimestamp;
       setQpviiTimestamp(currentQpviiTimestamp);
@@ -70,10 +75,11 @@ export const ExposureHierarchyPage: React.FC = () => {
         // If so, we overwrite with fresh logic to correct any stale/legacy sequences (e.g. Sum-based).
         const hasStarted = progress.currentVideoIndex > 0 || (progress.completedVideoIds && progress.completedVideoIds.length > 0);
 
+        const storedIsCurrent = JSON.stringify(progress.videoSequence) === JSON.stringify(freshSequence.map(v => v.id));
         if (!hasStarted) {
             setVideoSequence(freshSequence);
-            // Persist the corrected sequence
-            saveUserExposureProgress(
+            // Persist the corrected sequence (only when it changed: a visit is not activity)
+            if (!storedIsCurrent) saveUserExposureProgress(
                 currentUser.id,
                 currentQpviiTimestamp,
                 freshSequence.map(v => v.id),
@@ -115,8 +121,7 @@ export const ExposureHierarchyPage: React.FC = () => {
       }
 
     } else {
-      // If essential state is missing, redirect
-      navigate('/qpvii-evaluation', {state: {message: t("qpvii.allFieldsRequiredError") + " (missing state for hierarchy)"}});
+      setNeedsQpvii(true);
     }
     setIsLoading(false);
   }, [currentUser, location, navigate, t]);
@@ -127,6 +132,10 @@ export const ExposureHierarchyPage: React.FC = () => {
       navigate('/exposure', { state: { qpviiTimestamp, scores: qpviiScores, answers: qpviiAnswers } });
     }
   };
+
+  if (needsQpvii) {
+    return <StepGuardCard pageTitle={t('exposureHierarchy.pageTitle')} />;
+  }
 
   if (isLoading || !currentUser) {
     return <div className="container mx-auto p-8 text-center">{t('auth.loading')}</div>;

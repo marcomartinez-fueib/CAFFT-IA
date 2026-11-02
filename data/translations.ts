@@ -633,8 +633,10 @@ const caTranslations: TranslationContent = {
         finishExposureSessionButton: "Finalitzar Sessió d'Exposició",
         reviewSessionTitle: "Sessió de Repàs",
         finishReviewButton: "Finalitzar Repàs",
-        logoutButton: "Sortir i guardar el progrés",
-        logoutWarning: "La teva darrera valoració de malestar ha estat alta ({current}). Perquè la teràpia sigui efectiva i el teu cervell s'habituï, és crucial no interrompre l'exposició quan l'ansietat és elevada. Et recomanem continuar fins que el malestar disminueixi almenys a la meitat de la puntuació màxima (baixar de {max} a {target} o menys). L'objectiu òptim d'habituació és arribar a un nivell de 2. Vols sortir igualment?",
+        pauseButton: "Fer una pausa",
+        pauseWarning: "El seu darrer malestar ha estat {current}. Si pot, és millor no aturar-se amb el malestar alt: repetir el vídeo ara ajuda que baixi. Si necessita parar, pot fer una pausa i la propera vegada continuarà per aquest mateix vídeo.",
+        pauseConfirm: "Fer la pausa",
+        restartingSequence: "Tornarà a començar la seqüència pel primer vídeo.",
         continueExposure: "Continuar Exposició",
         videoLoadErrorTitle: "Error de Càrrega del Vídeo",
         videoLoadErrorBody: "No s'ha pogut carregar el vídeo. Comprovi la connexió a Internet i torni-ho a provar d'aquí a un moment.",
@@ -1397,7 +1399,27 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
             superadmin: "Superadmin",
             patient: "Pacient"
         }
-    }
+    },
+    sessionEnd: {
+        pausedTitle: "Ha fet una pausa",
+        pausedIntro: "La sessió s'ha desat. Quan torni, continuarà per on ho ha deixat.",
+        summaryTitle: "Què ha fet en aquesta sessió",
+        videosRated: "Vídeos vistos i valorats: {count}",
+        videosPassed: "Vídeos superats (malestar de 2 o menys): {count}",
+        discomfortChange: "Malestar: del {first} al {last} (escala d'1 a 9)",
+        duration: "Durada: {minutes} min",
+        encouragement: "Cada exposició compta, encara que el malestar no hagi baixat del tot. Les reculades i els avenços lents formen part de l'aprenentatge.",
+        nextTitle: "La propera sessió",
+        nextText: "Es recomanen 2 o 3 sessions per setmana. Intenti no deixar passar més de 2 dies entre una sessió i la següent.",
+        homeButton: "Tornar a l'inici",
+        evolutionButton: "Veure La Meva Evolució",
+        noSession: "No hi ha cap sessió recent per resumir.",
+    },
+    stepGuard: {
+        title: "Primer cal fer un pas previ",
+        needsQpvii: "Per preparar la seva jerarquia d'exposició, primer ha de respondre el qüestionari QPV-II. Amb les seves respostes, l'aplicació ordena els vídeos de menys a més malestar.",
+        goToQpvii: "Respondre el QPV-II",
+    },
 };
 
 const esTranslations: TranslationContent = {
@@ -2188,8 +2210,10 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
         finishExposureSessionButton: "Finalizar Sesión de Exposición",
         reviewSessionTitle: "Sesión de Repaso",
         finishReviewButton: "Finalizar Repaso",
-        logoutButton: "Salir y guardar el progreso",
-        logoutWarning: "Tu última valoración de malestar ha sido alta ({current}). Para que la terapia sea efectiva y tu cerebro se habitúe, es crucial no interrumpir la exposición cuando la ansiedad es elevada. Te recomendamos continuar hasta que el malestar disminuya al menos a la mitad de la puntuación máxima (bajar de {max} a {target} o menos). El objetivo óptimo de habituación es llegar a un nivel de 2. ¿Quieres salir igualmente?",
+        pauseButton: "Hacer una pausa",
+        pauseWarning: "Su último malestar ha sido {current}. Si puede, es mejor no detenerse con el malestar alto: repetir el vídeo ahora ayuda a que baje. Si necesita parar, puede hacer una pausa y la próxima vez continuará por este mismo vídeo.",
+        pauseConfirm: "Hacer la pausa",
+        restartingSequence: "Volverá a empezar la secuencia por el primer vídeo.",
         continueExposure: "Continuar Exposición",
         videoLoadErrorTitle: "Error de Carga del Vídeo",
         videoLoadErrorBody: "No se ha podido cargar el vídeo. Compruebe la conexión a Internet y vuelva a intentarlo en un momento.",
@@ -2511,6 +2535,26 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
         reviewDoneButtonTooltip: "Ya ha hecho el repaso",
         evaluationButton: "Evaluación Final",
         evaluationButtonTooltip: "Haga el QPV-II para ver su progreso final",
+    },
+    sessionEnd: {
+        pausedTitle: "Ha hecho una pausa",
+        pausedIntro: "La sesión se ha guardado. Cuando vuelva, continuará por donde lo dejó.",
+        summaryTitle: "Qué ha hecho en esta sesión",
+        videosRated: "Vídeos vistos y valorados: {count}",
+        videosPassed: "Vídeos superados (malestar de 2 o menos): {count}",
+        discomfortChange: "Malestar: de {first} a {last} (escala de 1 a 9)",
+        duration: "Duración: {minutes} min",
+        encouragement: "Cada exposición cuenta, aunque el malestar no haya bajado del todo. Los retrocesos y los avances lentos forman parte del aprendizaje.",
+        nextTitle: "La próxima sesión",
+        nextText: "Se recomiendan 2 o 3 sesiones por semana. Intente no dejar pasar más de 2 días entre una sesión y la siguiente.",
+        homeButton: "Volver al inicio",
+        evolutionButton: "Ver Mi Evolución",
+        noSession: "No hay ninguna sesión reciente que resumir.",
+    },
+    stepGuard: {
+        title: "Antes hay que hacer un paso previo",
+        needsQpvii: "Para preparar su jerarquía de exposición, primero tiene que responder el cuestionario QPV-II. Con sus respuestas, la aplicación ordena los vídeos de menos a más malestar.",
+        goToQpvii: "Responder el QPV-II",
     },
 };
 
@@ -3060,8 +3104,10 @@ const enTranslations: TranslationContent = {
         finishExposureSessionButton: "Finish Exposure Session",
         reviewSessionTitle: "Review Session",
         finishReviewButton: "Finish Review",
-        logoutButton: "Logout and save progress",
-        logoutWarning: "Your last discomfort rating was high ({current}). For the therapy to be effective and for your brain to habituate, it is crucial not to interrupt the exposure when anxiety is high. We recommend continuing until the discomfort decreases to at least half of the maximum score (down from {max} to {target} or less). The optimal habituation goal is to reach a level of 2. Do you want to exit anyway?",
+        pauseButton: "Take a break",
+        pauseWarning: "Your last discomfort rating was {current}. If you can, it is better not to stop while the discomfort is high: repeating the video now helps it come down. If you need to stop, you can take a break and next time you will continue with this same video.",
+        pauseConfirm: "Take the break",
+        restartingSequence: "The sequence will start again from the first video.",
         continueExposure: "Continue Exposure",
         videoLoadErrorTitle: "Video Loading Error",
         videoLoadErrorBody: "The video could not be loaded. Please check your internet connection and try again in a moment.",
@@ -3616,7 +3662,27 @@ The treatment is based on **Pure Exposure**. We use realistic videos that simula
             faqTitle: "Frequently Asked Questions (FAQs)",
             faqText: "- **Does it work for complete avoiders?** Yes, it helps them habituate before the real flight.\n- **Is Virtual Reality better?** Evidence indicates that CAFFT is equally effective and much more affordable and portable.\n- **Can it be used autonomously?** Yes, **self-applied** versions have shown similar results with minimal therapist follow-up.",
         }
-    }
+    },
+    sessionEnd: {
+        pausedTitle: "You have taken a break",
+        pausedIntro: "Your session has been saved. When you come back, you will continue where you left off.",
+        summaryTitle: "What you did in this session",
+        videosRated: "Videos watched and rated: {count}",
+        videosPassed: "Videos passed (discomfort of 2 or less): {count}",
+        discomfortChange: "Discomfort: from {first} to {last} (1 to 9 scale)",
+        duration: "Duration: {minutes} min",
+        encouragement: "Every exposure counts, even if the discomfort has not come all the way down. Setbacks and slow progress are part of learning.",
+        nextTitle: "Your next session",
+        nextText: "2 or 3 sessions a week are recommended. Try not to let more than 2 days go by between one session and the next.",
+        homeButton: "Back to home",
+        evolutionButton: "See My Evolution",
+        noSession: "There is no recent session to summarise.",
+    },
+    stepGuard: {
+        title: "There is a step to complete first",
+        needsQpvii: "To prepare your exposure hierarchy, you first need to answer the QPV-II questionnaire. Your answers are used to order the videos from least to most discomfort.",
+        goToQpvii: "Answer the QPV-II",
+    },
 };
 
 export const translations: Translations = {

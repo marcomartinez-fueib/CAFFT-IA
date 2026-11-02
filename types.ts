@@ -317,8 +317,10 @@ export interface ExposurePageContent {
   finishExposureSessionButton: string;
   reviewSessionTitle?: string;
   finishReviewButton?: string;
-  logoutButton?: string;
-  logoutWarning?: string;
+  pauseButton: string;
+  pauseWarning: string;
+  pauseConfirm: string;
+  restartingSequence: string;
   continueExposure?: string;
   videoLoadErrorTitle?: string;
   videoLoadErrorBody?: string;
@@ -1095,6 +1097,26 @@ export interface TranslationContent {
   exposureExplanation: ExposureExplanationContent;
   celebration: CelebrationPageContent;
   lastSession: LastSessionPageContent;
+  sessionEnd: {
+    pausedTitle: string;
+    pausedIntro: string;
+    summaryTitle: string;
+    videosRated: string;
+    videosPassed: string;
+    discomfortChange: string;
+    duration: string;
+    encouragement: string;
+    nextTitle: string;
+    nextText: string;
+    homeButton: string;
+    evolutionButton: string;
+    noSession: string;
+  };
+  stepGuard: {
+    title: string;
+    needsQpvii: string;
+    goToQpvii: string;
+  };
   aiChat: AIChatContent;
   therapistDashboard: TherapistDashboardContent;
   managerDashboard: ManagerDashboardContent;

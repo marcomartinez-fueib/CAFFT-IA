@@ -7,12 +7,13 @@ import { useUI } from '../hooks/useUI';
 import { PageTitle } from '../components/PageTitle';
 import { SectionCard } from '../components/SectionCard';
 import { ExposureVideo, QPVIIScores, VideoDiscomfortRating, UserExposureProgress, ExposureSceneKey, QPVIIAnswers } from '../types';
-import { saveUserExposureProgress, getUserExposureProgress, getQPVIIResultsForUser } from '../services/dataStore';
+import { saveUserExposureProgress, getUserExposureProgress, getQPVIIResultsForUser, recordExposureActivity, endExposureSession } from '../services/dataStore';
 import { determineVideoSequence, isExposureFullyCompleted } from '../utils/exposureUtils';
 import { EXPOSURE_VIDEOS, CANONICAL_FLIGHT_STAGES_ORDER } from '../constants';
 import { FollowUpService } from '../services/followUpService.ts';
 import { ExposureSessionProgress } from '../components/ExposureSessionProgress';
 import { resolveVideoUrl } from '../utils/videoUrl';
+import { showsTestControls } from '../utils/testMode';
 
 const PlayIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -33,7 +34,7 @@ interface FeedbackMessage {
 
 export const ExposurePage: React.FC = () => {
   const { t, language } = useLanguage();
-  const { currentUser, logout, updateUser } = useAuth();
+  const { currentUser, updateUser } = useAuth();
   const { setAssistantHidden } = useUI();
   const location = useLocation();
   const navigate = useNavigate();
@@ -57,7 +58,7 @@ export const ExposurePage: React.FC = () => {
   const [discomfortRatingError, setDiscomfortRatingError] = useState<string | null>(null);
   const [userFeedbackMessage, setUserFeedbackMessage] = useState<FeedbackMessage | null>(null);
   const [explanationShown, setExplanationShown] = useState<boolean>(false); 
-  const [isConfirmingLogout, setIsConfirmingLogout] = useState(false);
+  const [isConfirmingPause, setIsConfirmingPause] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -203,22 +204,6 @@ export const ExposurePage: React.FC = () => {
         setCurrentVideoIndex(progress.currentVideoIndex);
         setCompletedVideoIds(progress.completedVideoIds);
         setAllDiscomfortRatings(progress.discomfortRatings || []);
-        
-        // Update lastUpdated to reflect current session activity
-        const isReview = !!reviewScenes && reviewScenes.length > 0;
-        saveUserExposureProgress(
-          currentUser.id, 
-          timestampToUse, 
-          progress.videoSequence, 
-          progress.currentVideoIndex, 
-          progress.completedVideoIds, 
-          progress.discomfortRatings || [], 
-          true, // explanationShown is true here
-          progress.programCompleted || false, 
-          isReview, 
-          originalQpviiTimestamp || null, 
-          false
-        );
       } else {
          if (seq.length > 0) saveUserExposureProgress(currentUser.id, timestampToUse, seq.map(s=>s.id), 0, [], [], false, false); 
          navigate('/exposure-explanation', { state: { qpviiTimestamp: timestampToUse, scores: scoresToUse }, replace: true });
@@ -275,21 +260,12 @@ export const ExposurePage: React.FC = () => {
       if (nextVideoIdx >= videoSequence.length) justCompletedSequence = true;
       else feedback = { text: t('exposure.progressionMessageSuccess'), type: 'success' };
     } else {
-      const ratingsForThisVideo = updatedRatings.filter(r => r.id === currentVideoForRating.id);
-      const maxForThisVideo = Math.max(...ratingsForThisVideo.map(r => r.rating), 0);
-      const targetForThisVideo = Math.ceil(maxForThisVideo / 2);
-      
-      feedback = { 
-        text: t('exposure.progressionMessageRetry', { 
-          current: selectedDiscomfortRating, 
-          max: maxForThisVideo, 
-          target: targetForThisVideo 
-        }), 
-        type: 'warning' 
-      };
+      feedback = { text: t('exposure.progressionMessageRetry', { current: selectedDiscomfortRating }), type: 'warning' };
     }
     
     saveUserExposureProgress(currentUser.id, timestampForRecord, videoSequence.map(v => v.id), nextVideoIdx, updatedCompletedVideoIds, updatedRatings, explanationShown, justCompletedSequence, isReview, originalQpviiTimestamp, false);
+    recordExposureActivity(currentUser.id, timestampForRecord, isReview, newRating.videoTimestamp);
+    if (justCompletedSequence) endExposureSession(currentUser.id, timestampForRecord, 'completed');
 
     // Check for follow-up notifications based on progress
     if (!isReview) {
@@ -331,19 +307,26 @@ export const ExposurePage: React.FC = () => {
       setCurrentVideoIndex(0);
       setCompletedVideoIds([]);
       setAllDiscomfortRatings([]);
-      setUserFeedbackMessage({text: "Restarting sequence.", type: 'info'});
+      setUserFeedbackMessage({text: t('exposure.restartingSequence'), type: 'info'});
       saveUserExposureProgress(currentUser.id, timestampForRecord, videoSequence.map(v => v.id), 0, [], [], explanationShown, false, !!reviewScenes, originalQpviiTimestamp);
   };
   
-  const executeLogout = () => {
-    logout();
-    navigate('/');
+  // «Fer una pausa» closes the session and shows its summary; the patient
+  // stays logged in. With nothing rated in this session there is nothing to
+  // summarise, so it goes home.
+  const executePause = () => {
+    const state = location.state as any || {};
+    const timestampForRecord = state.reviewScenes ? state.reviewSessionTimestamp : qpviiTimestampForExposure;
+    const ended = currentUser ? endExposureSession(currentUser.id, timestampForRecord ?? null, 'pause') : null;
+    if (ended) navigate('/session-end', { state: { sessionId: ended.id } });
+    else navigate('/');
   };
 
-  const handleLogout = () => {
-    const lastRating = allDiscomfortRatings.length > 0 ? allDiscomfortRatings[allDiscomfortRatings.length - 1] : null;
-    if (lastRating && lastRating.rating > 2) setIsConfirmingLogout(true);
-    else executeLogout();
+  const lastRating = allDiscomfortRatings.length > 0 ? allDiscomfortRatings[allDiscomfortRatings.length - 1] : null;
+
+  const handlePause = () => {
+    if (lastRating && lastRating.rating > 2) setIsConfirmingPause(true);
+    else executePause();
   };
 
   if (isLoading || videoSequence.length === 0) {
@@ -391,25 +374,16 @@ export const ExposurePage: React.FC = () => {
             </>
         )}
         <div className="mt-12 pt-6 border-t border-gray-200">
-          {!isConfirmingLogout ? (
-            <button onClick={handleLogout} className="py-2 px-4 border border-red-500 text-red-600 rounded-lg shadow-sm text-sm font-medium hover:bg-red-50">{t('exposure.logoutButton')}</button>
+          {!isConfirmingPause ? (
+            <button onClick={handlePause} className="py-2 px-4 border border-slate-400 text-slate-700 rounded-lg shadow-sm text-sm font-medium hover:bg-slate-50">{t('exposure.pauseButton')}</button>
           ) : (
-            <div className="p-4 rounded-lg bg-amber-50 border border-amber-300 text-center">
+            <div className="p-4 rounded-lg bg-amber-50 border border-amber-300 text-center" role="status">
                 <p className="text-sm text-amber-800 font-semibold">
-                  {(() => {
-                    const currentRating = allDiscomfortRatings[allDiscomfortRatings.length - 1]?.rating || 0;
-                    const maxRatingInSession = Math.max(...allDiscomfortRatings.map(r => r.rating), 0);
-                    const halfMax = Math.ceil(maxRatingInSession / 2);
-                    return t('exposure.logoutWarning', { 
-                      current: currentRating, 
-                      max: maxRatingInSession, 
-                      target: halfMax 
-                    });
-                  })()}
+                  {t('exposure.pauseWarning', { current: lastRating?.rating ?? 0 })}
                 </p>
-                <div className="mt-4 flex justify-center gap-4">
-                    <button onClick={executeLogout} className="px-5 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700">{t('general.confirmExit')}</button>
-                    <button onClick={() => setIsConfirmingLogout(false)} className="px-5 py-2 bg-gray-200 text-gray-800 rounded-md text-sm font-medium hover:bg-gray-300">{t('exposure.continueExposure')}</button>
+                <div className="mt-4 flex flex-wrap justify-center gap-4">
+                    <button onClick={() => setIsConfirmingPause(false)} className="px-5 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700">{t('exposure.continueExposure')}</button>
+                    <button onClick={executePause} className="px-5 py-2 bg-gray-200 text-gray-800 rounded-md text-sm font-medium hover:bg-gray-300">{t('exposure.pauseConfirm')}</button>
                 </div>
             </div>
           )}
@@ -422,18 +396,22 @@ export const ExposurePage: React.FC = () => {
             <div className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg relative max-w-lg text-left shadow-lg m-4 cursor-default" role="alert">
                 <strong className="font-bold text-lg">{t('exposure.videoLoadErrorTitle')}</strong>
                 <p className="mt-2 text-sm">{t('exposure.videoLoadErrorBody')}</p>
-                <div className="mt-3 bg-red-200 text-red-900 text-xs font-mono p-2 rounded break-words">
-                  <p className="font-semibold">{t('general.errorDetails')}:</p>
-                  <p>{videoError}</p>
-                </div>
                 <p className="text-xs mt-3">{t('exposure.videoLoadErrorChecklist')}</p>
+                {showsTestControls(currentUser) && (
+                  <div className="mt-3 bg-red-200 text-red-900 text-xs font-mono p-2 rounded break-words">
+                    <p className="font-semibold">{t('general.errorDetails')}:</p>
+                    <p>{videoError}</p>
+                  </div>
+                )}
                 <div className="text-center mt-6 flex flex-wrap justify-center gap-3">
-                    <button
-                        onClick={handleSimulateVideoCompletion}
-                        className="px-5 py-2.5 bg-green-600 text-white rounded-md text-sm font-bold hover:bg-green-700 shadow-sm transition-colors uppercase"
-                    >
-                      {t('exposure.simulateViewingButton') || 'Simular Visualització'}
-                    </button>
+                    {showsTestControls(currentUser) && (
+                      <button
+                          onClick={handleSimulateVideoCompletion}
+                          className="px-5 py-2.5 bg-green-600 text-white rounded-md text-sm font-bold hover:bg-green-700 shadow-sm transition-colors uppercase"
+                      >
+                        {t('exposure.simulateViewingButton')}
+                      </button>
+                    )}
                     <button 
                         onClick={handleVideoPlayerCloseInteraction} 
                         className="px-5 py-2.5 bg-gray-200 text-gray-800 rounded-md text-sm font-bold hover:bg-gray-300 shadow-sm transition-colors uppercase"
@@ -483,7 +461,7 @@ export const ExposurePage: React.FC = () => {
                   <p className="text-sm text-slate-600 mb-6">{t('exposure.discomfortRatingInstruction', { videoTitle: t(currentVideoForRating.titleKey) })}</p>
                    <div className="my-8">
                     <div className="text-center mb-4"><span className="text-6xl font-bold text-uib-blue">{selectedDiscomfortRating}</span></div>
-                    <input type="range" min="1" max="10" step="1" value={selectedDiscomfortRating || 5} onChange={(e) => { setSelectedDiscomfortRating(Number(e.target.value)); setDiscomfortRatingError(null); }} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-uib-blue"/>
+                    <input type="range" min="1" max="9" step="1" value={selectedDiscomfortRating || 5} aria-label={t('exposure.discomfortRatingModalTitle')} aria-valuetext={String(selectedDiscomfortRating ?? 5)} onChange={(e) => { setSelectedDiscomfortRating(Number(e.target.value)); setDiscomfortRatingError(null); }} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-uib-blue"/>
                     <div className="flex justify-between text-xs text-slate-500 mt-2 px-1"><span>{t('exposure.discomfortRatingMinLabel')}</span><span>{t('exposure.discomfortRatingMaxLabel')}</span></div>
                   </div>
                   {discomfortRatingError && <p className="text-red-600 text-sm mt-4 text-center">{discomfortRatingError}</p>}

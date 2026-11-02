@@ -220,6 +220,7 @@ const caTranslations: TranslationContent = {
         resendInvitation: "Reenviar invitació",
         invitationResent: "Hem enviat un enllaç nou a {email}. L'anterior ja no funciona.",
         invitationResendFailed: "No s'ha pogut enviar la invitació. Torna-ho a provar més tard.",
+        viewSource: "Veure la font",
         time: {
             ago: "fa {val} {unit}",
             year: "any",
@@ -1410,6 +1411,7 @@ const esTranslations: TranslationContent = {
         resendInvitation: "Reenviar invitación",
         invitationResent: "Hemos enviado un enlace nuevo a {email}. El anterior ya no funciona.",
         invitationResendFailed: "No se ha podido enviar la invitación. Inténtalo de nuevo más tarde.",
+        viewSource: "Ver la fuente",
         time: {
             ...caTranslations.common.time,
             ago: "hace {val} {unit}",
@@ -2521,6 +2523,7 @@ const enTranslations: TranslationContent = {
         resendInvitation: "Resend invitation",
         invitationResent: "We have sent a new link to {email}. The previous one no longer works.",
         invitationResendFailed: "The invitation could not be sent. Please try again later.",
+        viewSource: "View source",
         time: {
             ...caTranslations.common.time,
             ago: "{val} {unit} ago",

@@ -7,13 +7,16 @@ import { PostTreatmentGuidelines } from '../components/PostTreatmentGuidelines';
 import { 
     QPVIIUserResult, 
     UserExposureProgress, 
+    ExposureSession,
+    VideoDiscomfortRating,
     EvolutionChartDataPoint, 
     QpviiLineConfig, 
     ExposureVideo,
     ExposureSceneKey,
     SceneDiscomfortChartDataPoint
 } from '../types';
-import { getQPVIIResultsForUser, getAllUserExposureProgress } from '../services/dataStore';
+import { getQPVIIResultsForUser, getAllUserExposureProgress, getExposureSessionsForUser } from '../services/dataStore';
+import { ratingsInSession } from '../utils/sessions';
 import { calculateQPVIIScores } from '../utils/qpviiScoring';
 import { QpviiEvolutionChart } from '../components/QpviiEvolutionChart';
 import { SceneChartTooltip } from '../components/SceneChartTooltip';
@@ -59,7 +62,7 @@ const sceneTranslationKeys: Record<ExposureSceneKey, string> = {
 const CustomizedDot = (props: any) => {
     const { cx, cy, payload } = props;
     const value = payload.rating;
-    const ratio = value / 10;
+    const ratio = value / 9;
     let fill = '#10B981';
     if (ratio >= 0.7) fill = '#EF4444';
     else if (ratio >= 0.4) fill = '#F59E0B';
@@ -82,6 +85,11 @@ const HabituationGradient = () => (
   </defs>
 );
 
+interface SessionView {
+  session: ExposureSession;
+  ratings: VideoDiscomfortRating[]; // oldest first
+}
+
 export const EvolutionPage: React.FC = () => {
   const { currentUser, logout } = useAuth();
   const { t, language } = useLanguage();
@@ -91,6 +99,7 @@ export const EvolutionPage: React.FC = () => {
   // Raw Data State
   const [rawQpviiHistory, setRawQpviiHistory] = useState<QPVIIUserResult[]>([]);
   const [rawExposureSessions, setRawExposureSessions] = useState<UserExposureProgress[]>([]);
+  const [rawSittings, setRawSittings] = useState<ExposureSession[]>([]);
   
   // Context/Nav State
   const fromExposureCompletion = location.state?.fromExposureCompletion;
@@ -114,6 +123,7 @@ export const EvolutionPage: React.FC = () => {
     
     setRawQpviiHistory(allQpviiHistory);
     setRawExposureSessions(allProgressForUser);
+    setRawSittings(getExposureSessionsForUser(currentUser.id));
   }, [currentUser]);
 
     const consolidatedQpviiData: EvolutionChartDataPoint[] = useMemo(() => {
@@ -178,9 +188,20 @@ export const EvolutionPage: React.FC = () => {
         };
     }, [rawQpviiHistory]);
 
-    // 2. Derive Display Data (Computation) - Optimized with useMemo
+    // A session is a sitting of practice (see ExposureSession), not a progress
+  // record: a whole treatment cycle used to show up as a single session.
+  const sittings: SessionView[] = useMemo(() => rawSittings
+    .map(session => {
+      const progress = rawExposureSessions.find(p => p.qpviiTimestamp === session.qpviiTimestamp);
+      return { session, ratings: ratingsInSession(session, progress) };
+    })
+    .filter(view => view.ratings.length > 0)
+    .sort((a, b) => a.session.startedAt - b.session.startedAt), [rawSittings, rawExposureSessions]);
+
+  // 2. Derive Display Data (Computation) - Optimized with useMemo
     const { 
         filteredExposureSessions, 
+        debriefProgress,
         showSessionDebrief, 
         showProgramCompleteCard, 
         isCurrentHierarchyCompleted,
@@ -189,7 +210,8 @@ export const EvolutionPage: React.FC = () => {
     } = useMemo(() => {
         
         // --- Session Filtering Logic ---
-        let sessions = [];
+        let sessions: SessionView[] = [];
+        let debriefProgress: UserExposureProgress | null = null;
         let isDebrief = false;
         let isCompleteCard = false;
         let isCompleted = false;
@@ -201,7 +223,8 @@ export const EvolutionPage: React.FC = () => {
             isDebrief = true;
             activeTimestamp = qpviiTimestamp;
             const sessionProgress = rawExposureSessions.find(p => p.qpviiTimestamp === qpviiTimestamp);
-            sessions = sessionProgress ? [sessionProgress] : [];
+            debriefProgress = sessionProgress ?? null;
+            sessions = sittings.filter(v => v.session.qpviiTimestamp === qpviiTimestamp).reverse();
 
             if (sessionProgress) {
                 origTimestamp = sessionProgress.isReview ? sessionProgress.originalQpviiTimestamp || qpviiTimestamp : qpviiTimestamp;
@@ -215,7 +238,7 @@ export const EvolutionPage: React.FC = () => {
             }
         } else {
             // MODE 2: Full Evolution
-            sessions = [...rawExposureSessions].sort((a, b) => (b.qpviiTimestamp || b.lastUpdated) - (a.qpviiTimestamp || a.lastUpdated));
+            sessions = [...sittings].reverse();
             
             if (fromFullCycleCompletion && qpviiTimestamp) {
                 isCompleteCard = true;
@@ -234,6 +257,7 @@ export const EvolutionPage: React.FC = () => {
 
         return {
             filteredExposureSessions: sessions,
+            debriefProgress,
             showSessionDebrief: isDebrief,
             showProgramCompleteCard: isCompleteCard,
             isCurrentHierarchyCompleted: isCompleted,
@@ -241,7 +265,7 @@ export const EvolutionPage: React.FC = () => {
             originalTimestampForDebrief: origTimestamp
         };
 
-    }, [rawQpviiHistory, rawExposureSessions, fromExposureCompletion, fromFullCycleCompletion, qpviiTimestamp]);
+    }, [rawQpviiHistory, rawExposureSessions, sittings, fromExposureCompletion, fromFullCycleCompletion, qpviiTimestamp]);
 
 
   const handleFinishProgram = () => {
@@ -283,7 +307,7 @@ export const EvolutionPage: React.FC = () => {
 
   const handleResumeSession = () => {
     if (activeSessionTimestamp) {
-        const progress = filteredExposureSessions.length > 0 ? filteredExposureSessions[0] : null;
+        const progress = debriefProgress;
         const scores = rawQpviiHistory.find(r => r.timestamp === (progress?.originalQpviiTimestamp || activeSessionTimestamp))?.scores;
 
         if (progress?.isReview) {
@@ -317,11 +341,11 @@ export const EvolutionPage: React.FC = () => {
     return <p>{t('auth.loading')}</p>; 
   }
   
-  const processSceneDataForChart = (sessionProgress: UserExposureProgress): Record<ExposureSceneKey, SceneDiscomfortChartDataPoint[]> => {
+  const processSceneDataForChart = (sessionRatings: VideoDiscomfortRating[]): Record<ExposureSceneKey, SceneDiscomfortChartDataPoint[]> => {
     const sceneData: Record<string, SceneDiscomfortChartDataPoint[]> = {};
     const sceneInstanceCounters: Record<string, number> = {};
 
-    const sortedRatings = [...(sessionProgress.discomfortRatings || [])].sort((a, b) => a.videoTimestamp - b.videoTimestamp);
+    const sortedRatings = [...sessionRatings].sort((a, b) => a.videoTimestamp - b.videoTimestamp);
 
     sortedRatings.forEach(rating => {
         const videoInfo = EXPOSURE_VIDEOS.find(v => v.id === (rating.id || (rating as any).videoId));
@@ -367,41 +391,27 @@ export const EvolutionPage: React.FC = () => {
     return { label: t('evolution.slopeStable'), color: 'text-blue-600', bg: 'bg-blue-50' };
   };
 
-  const SessionDetailCardInternal: React.FC<{ progress: UserExposureProgress }> = ({ progress }) => {
+  const SessionDetailCardInternal: React.FC<{ view: SessionView; index: number }> = ({ view, index }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const locale = getLocaleForDate();
-    let sessionDateStr: string;
-    let title: string;
-
-    if (progress.isReview) {
-      sessionDateStr = new Date(progress.lastUpdated).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' });
-      const baseTitle = t('evolution.sessionDate', { date: sessionDateStr });
-      title = `${baseTitle} (${t('evolution.reviewSessionLabel')})`;
-    } else {
-      const qpviiResult = rawQpviiHistory.find(q => q.timestamp === progress.qpviiTimestamp);
-      
-      // FIX: Use lastUpdated to show when the exposure ACTUALLY happened, 
-      // but keep qpviiResult date as fallback for standard sessions if lastUpdated is missing (legacy)
-      const displayDate = progress.lastUpdated || (qpviiResult ? new Date(qpviiResult.date + 'T00:00:00').getTime() : Date.now());
-      
-      sessionDateStr = new Date(displayDate).toLocaleDateString(locale, { 
-        year: 'numeric', 
-        month: 'long', 
+    const { session } = view;
+    const sessionDateStr = new Date(session.startedAt).toLocaleDateString(locale, {
+        year: 'numeric',
+        month: 'long',
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit'
-      });
-      
-      title = t('evolution.sessionDate', { date: sessionDateStr });
-    }
+    });
+    const baseTitle = `${index}. ${t('evolution.sessionDate', { date: sessionDateStr })}`;
+    const title = session.isReview ? `${baseTitle} (${t('evolution.reviewSessionLabel')})` : baseTitle;
 
-    const ratings = progress.discomfortRatings.map(r => r.rating);
+    const ratings = view.ratings.map(r => r.rating);
     const avgDiscomfort = ratings.length > 0 ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1) : 'N/A';
     const slope = calculateHabituationSlope(ratings);
     const slopeInfo = getSlopeLabel(slope);
-    const videosWatchedCount = progress.completedVideoIds.length;
+    const videosWatchedCount = ratings.length;
 
-    const sceneChartsData = processSceneDataForChart(progress);
+    const sceneChartsData = processSceneDataForChart(view.ratings);
 
     return (
       <div className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm transition-all hover:shadow-md">
@@ -418,7 +428,7 @@ export const EvolutionPage: React.FC = () => {
               </div>
               <div className="flex items-center text-xs text-uib-darkGray">
                 <span className="font-bold mr-1">{t('evolution.averageDiscomfort')}:</span>
-                {avgDiscomfort}/10
+                {avgDiscomfort}/9
               </div>
               <div className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${slopeInfo.bg} ${slopeInfo.color}`}>
                 {t('evolution.habituationSlope')}: {slopeInfo.label} ({slope.toFixed(2)})
@@ -464,8 +474,8 @@ export const EvolutionPage: React.FC = () => {
                                 hide
                               />
                               <YAxis 
-                                domain={[0, 10]} 
-                                ticks={[0, 2, 4, 6, 8, 10]} 
+                                domain={[1, 9]} 
+                                ticks={[1, 3, 5, 7, 9]} 
                                 tick={{ fontSize: 9, fill: '#94a3b8' }} 
                                 axisLine={false}
                                 tickLine={false}
@@ -500,159 +510,59 @@ export const EvolutionPage: React.FC = () => {
   };
 
 
-  // --- Global Calculations ---
-  const globalStats = useMemo(() => {
-    if (rawExposureSessions.length === 0) return null;
-    
-    const totalVideos = rawExposureSessions.reduce((acc, s) => acc + s.completedVideoIds.length, 0);
-    const allRatings = rawExposureSessions.flatMap(s => s.discomfortRatings.map(r => r.rating));
-    const avgDiscomfort = allRatings.length > 0 ? (allRatings.reduce((a, b) => a + b, 0) / allRatings.length) : 0;
-    
-    // Global habituation slope (average slope across sessions weighted by ratings count)
-    const sessionSlopes = rawExposureSessions.map(s => {
-      const ratings = s.discomfortRatings.map(r => r.rating);
-      return ratings.length >= 2 ? calculateHabituationSlope(ratings) : 0;
-    });
-    const avgSlope = sessionSlopes.length > 0 ? (sessionSlopes.reduce((a, b) => a + b, 0) / sessionSlopes.length) : 0;
-    
-    return {
-      totalSessions: rawExposureSessions.length,
-      totalVideos,
-      avgDiscomfort,
-      avgSlope
-    };
-  }, [rawExposureSessions]);
-
-  const globalTrendData = useMemo(() => {
-    if (rawExposureSessions.length < 2) return [];
-    
-    // Group by session index, and average discomfort per scene category
-    return rawExposureSessions.sort((a,b) => a.lastUpdated - b.lastUpdated).map((session, index) => {
-      const sceneDiscomforts: Record<string, number[]> = {};
-      
-      session.discomfortRatings.forEach(rating => {
-        const video = EXPOSURE_VIDEOS.find(v => v.id === (rating.id || (rating as any).videoId));
-        if (video) {
-          if (!sceneDiscomforts[video.relatedArea]) sceneDiscomforts[video.relatedArea] = [];
-          sceneDiscomforts[video.relatedArea].push(rating.rating);
-        }
-      });
-      
-      const point: any = { sessionIndex: index + 1 };
-      Object.keys(sceneDiscomforts).forEach(scene => {
-        const avg = sceneDiscomforts[scene].reduce((a, b) => a + b, 0) / sceneDiscomforts[scene].length;
-        point[scene] = parseFloat(avg.toFixed(1));
-      });
-      
-      return point;
-    });
-  }, [rawExposureSessions, EXPOSURE_VIDEOS]);
-
-  const habituationProgressData = useMemo(() => {
-    if (rawExposureSessions.length === 0) return [];
-    
-    return rawExposureSessions.sort((a,b) => a.lastUpdated - b.lastUpdated).map((session, index) => {
-      const ratings = session.discomfortRatings.map(r => r.rating);
-      const startRating = ratings.length > 0 ? ratings[0] : 0;
-      const endRating = ratings.length > 1 ? ratings[ratings.length - 1] : startRating;
-      const reduction = Math.max(0, startRating - endRating);
-      
-      return {
-        sessionIndex: index + 1,
-        reduction: parseFloat(reduction.toFixed(1)),
-        avg: parseFloat((ratings.reduce((a,b) => a+b, 0) / ratings.length || 0).toFixed(1))
-      };
-    });
-  }, [rawExposureSessions]);
-
-  const sceneColors: Record<string, string> = {
-    landing: '#EF4444', 
-    preparation: '#F59E0B',
-    takeoff: '#10B981',
-    inflight: '#3B82F6',
-    boarding: '#6366F1',
-    accidents: '#8B5CF6',
-    psychoed: '#A7A596'
-  };
-
-  const GlobalTrendDot = (props: any) => {
-    const { cx, cy, value } = props;
-    if (value === undefined) return null;
-    const ratio = value / 10;
-    let fill = '#10B981';
-    if (ratio >= 0.7) fill = '#EF4444';
-    else if (ratio >= 0.4) fill = '#F59E0B';
-    
-    return (
-        <circle cx={cx} cy={cy} r={3} fill={fill} strokeWidth={1} stroke="#fff" />
-    );
-  };
-
-  // Intensity color helper based on scale (0-10 for discomfort, 0-45 for QPV)
-  const getIntensityColor = (value: number, max: number = 10) => {
+  // Traffic-light colour for a value on a scale (1-9 for discomfort, 0-45 for QPV-II subscales)
+  const getIntensityColor = (value: number, max: number = 9) => {
     const ratio = value / max;
     if (ratio >= 0.7) return '#EF4444'; // Red-500
     if (ratio >= 0.4) return '#F59E0B'; // Amber-500
     return '#10B981'; // Emerald-500
   };
 
-  // Aggregated habituation per scene type
-  const sceneAggregatedData = useMemo(() => {
-    const data: Record<string, { ratings: number[], count: number }> = {};
-    
-    rawExposureSessions.forEach(session => {
-        session.discomfortRatings.forEach(rating => {
-            const video = EXPOSURE_VIDEOS.find(v => v.id === (rating.id || (rating as any).videoId));
-            if (video) {
-                if (!data[video.relatedArea]) data[video.relatedArea] = { ratings: [], count: 0 };
-                data[video.relatedArea].ratings.push(rating.rating);
-                data[video.relatedArea].count++;
-            }
-        });
-    });
+  // --- Global Calculations ---
+  const globalStats = useMemo(() => {
+    if (sittings.length === 0) return null;
 
-    return Object.keys(data).map(sceneKey => {
-        const ratings = data[sceneKey].ratings;
-        const avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
-        const slope = calculateHabituationSlope(ratings);
-        return {
-            scene: sceneKey,
-            name: t(sceneTranslationKeys[sceneKey as ExposureSceneKey] || sceneKey),
-            avg: parseFloat(avg.toFixed(1)),
-            slope,
-            slopeLabel: getSlopeLabel(slope).label,
-            color: getIntensityColor(avg)
-        };
-    }).sort((a, b) => b.avg - a.avg);
-  }, [rawExposureSessions, EXPOSURE_VIDEOS, t]);
+    const totalVideos = rawExposureSessions.reduce((acc, s) => acc + s.completedVideoIds.length, 0);
+    const allRatings = sittings.flatMap(v => v.ratings.map(r => r.rating));
+    const avgDiscomfort = allRatings.length > 0 ? (allRatings.reduce((a, b) => a + b, 0) / allRatings.length) : 0;
+
+    // Global habituation slope (average of the per-session slopes)
+    const sessionSlopes = sittings.map(v => {
+      const ratings = v.ratings.map(r => r.rating);
+      return ratings.length >= 2 ? calculateHabituationSlope(ratings) : 0;
+    });
+    const avgSlope = sessionSlopes.length > 0 ? (sessionSlopes.reduce((a, b) => a + b, 0) / sessionSlopes.length) : 0;
+
+    return {
+      totalSessions: sittings.length,
+      totalVideos,
+      avgDiscomfort,
+      avgSlope
+    };
+  }, [sittings, rawExposureSessions]);
 
   // Individual habituation curves per scene
   const sceneEvolutionData = useMemo(() => {
      const sceneData: Record<string, { sessionIndex: number, rating: number, date: string }[]> = {};
      
-     // Sort sessions by lastUpdated to ensure chronological order
-     const sortedSessions = [...rawExposureSessions].sort((a, b) => 
-       a.lastUpdated - b.lastUpdated
-     );
-     
-     sortedSessions.forEach((session, sIdx) => {
-        session.discomfortRatings.forEach(rating => {
+     sittings.forEach((view, sIdx) => {
+        view.ratings.forEach(rating => {
             const video = EXPOSURE_VIDEOS.find(v => v.id === (rating.id || (rating as any).videoId));
             if (video) {
                 if (!sceneData[video.relatedArea]) sceneData[video.relatedArea] = [];
                 sceneData[video.relatedArea].push({
                     sessionIndex: sIdx + 1,
                     rating: rating.rating,
-                    date: new Date(session.lastUpdated).toLocaleDateString()
+                    date: new Date(view.session.startedAt).toLocaleDateString()
                 });
             }
         });
      });
      
      return sceneData;
-  }, [rawExposureSessions, EXPOSURE_VIDEOS]);
+  }, [sittings]);
 
-  const hasEnoughDataForTrends = rawExposureSessions.length >= 2;
+  const hasEnoughDataForTrends = sittings.length >= 2;
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -757,7 +667,7 @@ export const EvolutionPage: React.FC = () => {
                     <span className="text-[10px] font-black text-blue-100 uppercase tracking-widest mb-2 block">{t('evolution.globalHabituation')}</span>
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex flex-col">
-                        <span className="text-4xl font-black">{Math.min(10, Math.max(0, Math.abs(globalStats.avgSlope) * 10)).toFixed(1)}/10</span>
+                        <span className="text-4xl font-black">{Math.min(10, Math.max(0, Math.abs(globalStats.avgSlope) * 10)).toFixed(1)}</span>
                         <span className="text-[10px] text-blue-100 font-bold uppercase mt-1">{t('evolution.habituationStrength')}</span>
                       </div>
                       <div className="flex flex-col items-end">
@@ -798,8 +708,8 @@ export const EvolutionPage: React.FC = () => {
                                           tick={{ fontSize: 9, fill: '#94a3b8' }}
                                       />
                                       <YAxis 
-                                          domain={[0, 10]} 
-                                          ticks={[0, 2, 4, 6, 8, 10]} 
+                                          domain={[1, 9]} 
+                                          ticks={[1, 3, 5, 7, 9]} 
                                           axisLine={false} 
                                           tickLine={false} 
                                           tick={{ fontSize: 9, fill: '#94a3b8' }} 
@@ -917,8 +827,8 @@ export const EvolutionPage: React.FC = () => {
           <p className="text-gray-600 p-4 text-center">{t('evolution.noExposureData')}</p>
         ) : (
           <div className="space-y-6">
-            {filteredExposureSessions.map(progress => (
-              <SessionDetailCardInternal key={`${progress.qpviiTimestamp || 0}-${progress.lastUpdated}`} progress={progress} />
+            {filteredExposureSessions.map(view => (
+              <SessionDetailCardInternal key={view.session.id} view={view} index={sittings.indexOf(view) + 1} />
             ))}
           </div>
         )}

@@ -46,6 +46,20 @@ const empty = (): StoreState => ({ users: [], qpvii: [], progress: [], sessions:
 
 let state: StoreState = empty();
 
+// Components that show data derived from the store (the progress bar, for
+// one) subscribe here to refresh when it changes, without a page reload.
+const storeListeners = new Set<() => void>();
+
+function setState(next: StoreState): void {
+  state = next;
+  storeListeners.forEach((listener) => listener());
+}
+
+export function subscribeStore(listener: () => void): () => void {
+  storeListeners.add(listener);
+  return () => storeListeners.delete(listener);
+}
+
 /**
  * Every getter returns a copy. localStorageDB.ts parsed fresh objects on each
  * read, so pages were free to sort or mutate what they got back; handing out
@@ -62,11 +76,11 @@ const copy = <T,>(value: T): T => structuredClone(value);
  */
 export async function syncStore(): Promise<void> {
   await flushWrites();
-  state = await api<StoreState>('GET', '/sync');
+  setState(await api<StoreState>('GET', '/sync'));
 }
 
 export function clearStore(): void {
-  state = empty();
+  setState(empty());
 }
 
 // --- Write queue ---------------------------------------------------------------
@@ -159,7 +173,7 @@ export function getPatientsForTherapist(therapistId: string): StoredUser[] {
 
 function replaceUser(user: StoredUser): void {
   const i = state.users.findIndex((u) => u.id === user.id);
-  state = { ...state, users: i === -1 ? [...state.users, user] : state.users.map((u) => (u.id === user.id ? user : u)) };
+  setState({ ...state, users: i === -1 ? [...state.users, user] : state.users.map((u) => (u.id === user.id ? user : u)) });
 }
 
 function patchCachedUser(userId: string, patch: Partial<StoredUser>): void {
@@ -229,14 +243,14 @@ export async function deletePatientData(userId: string): Promise<boolean> {
     console.error('[dataStore] deletePatientData:', err);
     return false;
   }
-  state = {
+  setState({
     users: state.users.filter((u) => u.id !== userId),
     qpvii: state.qpvii.filter((r) => r.userId !== userId),
     progress: state.progress.filter((p) => p.userId !== userId),
     sessions: state.sessions.filter((s) => s.userId !== userId),
     consultations: state.consultations.filter((c) => c.userId !== userId),
     emails: state.emails.filter((e) => e.patientId !== userId),
-  };
+  });
   return true;
 }
 
@@ -317,10 +331,10 @@ export function saveQPVIIResultForUser(
   originalQpviiTimestamp?: number,
 ): boolean {
   const result: QPVIIUserResult = copy({ userId, formName, date, timestamp, scores, answers, evaluationType, originalQpviiTimestamp });
-  state = {
+  setState({
     ...state,
     qpvii: [...state.qpvii.filter((r) => !(r.userId === userId && r.timestamp === timestamp)), result],
-  };
+  });
   patchCachedUser(userId, { lastAssessmentDate: Math.max(findUserById(userId)?.lastAssessmentDate ?? 0, timestamp) });
 
   enqueue('QPV-II result', () => api('PUT', '/qpvii', result));
@@ -373,10 +387,10 @@ export function saveUserExposureProgress(
     originalQpviiTimestamp: originalQpviiTimestamp ?? old?.originalQpviiTimestamp,
   });
 
-  state = {
+  setState({
     ...state,
     progress: old ? state.progress.map((p) => (p === old ? record : p)) : [...state.progress, record],
-  };
+  });
 
   enqueue('exposure progress', () => api('PUT', '/exposure', record));
   return true;
@@ -410,7 +424,7 @@ export function getOpenExposureSession(userId: string, qpviiTimestamp: number | 
 }
 
 function putSession(session: ExposureSession): void {
-  state = { ...state, sessions: [...state.sessions.filter((s) => s.id !== session.id), session] };
+  setState({ ...state, sessions: [...state.sessions.filter((s) => s.id !== session.id), session] });
   const saved = copy(session);
   enqueue('exposure session', () => api('PUT', '/exposure-sessions', saved));
 }
@@ -470,7 +484,7 @@ export function getSimulatedEmailsForPatient(patientId: string): SimulatedEmail[
 
 export function saveSimulatedEmail(email: SimulatedEmail): boolean {
   email = copy(email);
-  state = { ...state, emails: [...state.emails.filter((e) => e.id !== email.id), email] };
+  setState({ ...state, emails: [...state.emails.filter((e) => e.id !== email.id), email] });
   if (email.type === 'reminder' && email.status === 'sent') {
     patchCachedUser(email.patientId, { lastReminderSentDate: email.timestamp });
   }
@@ -523,7 +537,7 @@ export function getAllAiConsultations(): AiConsultation[] {
 
 export function saveAiConsultation(consultation: AiConsultation): boolean {
   consultation = copy(consultation);
-  state = { ...state, consultations: [...state.consultations.filter((c) => c.id !== consultation.id), consultation] };
+  setState({ ...state, consultations: [...state.consultations.filter((c) => c.id !== consultation.id), consultation] });
   enqueue('AI consultation', () => api('POST', '/ai-consultations', consultation));
   return true;
 }

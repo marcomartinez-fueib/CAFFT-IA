@@ -159,8 +159,9 @@ export const SessionDetailCard: React.FC<SessionDetailCardProps> = ({ session, t
                                                 dy={10}
                                             />
                                             <YAxis 
-                                                domain={[0, 10]} 
-                                                axisLine={false} 
+                                                domain={[1, 9]}
+                                                ticks={[1, 3, 5, 7, 9]}
+                                                axisLine={false}
                                                 tickLine={false} 
                                                 tick={{fontSize: 10, fill: '#cbd5e1', fontWeight: 800}}
                                                 width={25}

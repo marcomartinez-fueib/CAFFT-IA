@@ -36,6 +36,7 @@ import {
 } from '../../services/dataStore';
 import { NotificationService } from '../../services/notificationService';
 import { calculateQPVIIScores } from '../../utils/qpviiScoring';
+import { computeRci } from '../../utils/rci';
 import { determineVideoSequence, calculatePhaseScores, isExposureFullyCompleted } from '../../utils/exposureUtils';
 import { QpviiEvolutionChart } from '../../components/QpviiEvolutionChart';
 import { ExpandableText } from '../../components/ExpandableText';
@@ -279,13 +280,12 @@ export const PatientDetailPage: React.FC = () => {
         };
     }, [qpviiHistory]);
 
-    const rciValue = useMemo(() => {
+    const rciInfo = useMemo(() => {
         if (qpviiHistory.length < 2) return null;
         const sorted = [...qpviiHistory].sort((a, b) => a.timestamp - b.timestamp);
-        const first = calculateQPVIIScores(sorted[0].answers).total;
-        const last = calculateQPVIIScores(sorted[sorted.length - 1].answers).total;
-        const sDiff = 17.6; // Updated based on QPV-II psychometric studies (SD ≈ 50, Sdiff ≈ 17.6)
-        return (first - last) / sDiff;
+        const pre = calculateQPVIIScores(sorted[0].answers).total;
+        const post = calculateQPVIIScores(sorted[sorted.length - 1].answers).total;
+        return { ...computeRci(pre, post), pre, post };
     }, [qpviiHistory]);
 
     const [resendingInvite, setResendingInvite] = useState(false);
@@ -391,15 +391,17 @@ export const PatientDetailPage: React.FC = () => {
                             onClick={handleToggleNotifications}
                             className={`p-2 rounded-xl border transition-all ${patient.notificationPreferences?.enabled !== false ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-200 opacity-50'}`}
                             title={patient.notificationPreferences?.enabled !== false ? t('therapistDashboard.tooltips.toggleNotificationsOff') : t('therapistDashboard.tooltips.toggleNotificationsOn')}
+                            aria-label={t(patient.notificationPreferences?.enabled !== false ? 'therapistDashboard.tooltips.notificationsOffFor' : 'therapistDashboard.tooltips.notificationsOnFor', { name: patient.username })}
                         >
-                            <BellIcon className="w-5 h-5" />
+                            <BellIcon className="w-5 h-5" aria-hidden="true" />
                         </button>
-                        <button 
+                        <button
                             onClick={handleToggleOnboarding}
                             className={`p-2 rounded-xl border transition-all ${patient.onboardingEnabled !== false ? 'bg-sky-50 text-sky-600 border-sky-100' : 'bg-slate-50 text-slate-400 border-slate-200 opacity-50'}`}
                             title={patient.onboardingEnabled !== false ? t('therapistDashboard.tooltips.toggleTourOff') : t('therapistDashboard.tooltips.toggleTourOn')}
+                            aria-label={t(patient.onboardingEnabled !== false ? 'therapistDashboard.tooltips.tourOffFor' : 'therapistDashboard.tooltips.tourOnFor', { name: patient.username })}
                         >
-                            <CompassIcon className="w-5 h-5" />
+                            <CompassIcon className="w-5 h-5" aria-hidden="true" />
                         </button>
                         <button
                             onClick={handleToggleTestAccount}
@@ -462,27 +464,25 @@ export const PatientDetailPage: React.FC = () => {
                                     ))}
                                 </div>
 
-                                {rciValue !== null && (
-                                    <div className={`mb-6 p-4 rounded-lg border flex items-center ${Math.abs(rciValue) >= 1.96 ? 'bg-green-50 border-green-200' : 'bg-sky-50 border-sky-200'}`}>
-                                        <div className={`w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0 ${Math.abs(rciValue) >= 1.96 ? 'bg-green-600 text-white' : 'bg-sky-600 text-white'}`}>
-                                            <span className="font-black text-lg">{rciValue.toFixed(1)}</span>
+                                {rciInfo !== null && (
+                                    <div className={`mb-6 p-4 rounded-lg border flex items-center ${rciInfo.direction === 'improvement' ? 'bg-green-50 border-green-200' : rciInfo.direction === 'deterioration' ? 'bg-red-50 border-red-200' : 'bg-slate-50 border-slate-200'}`}>
+                                        <div className={`w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0 text-white ${rciInfo.direction === 'improvement' ? 'bg-green-600' : rciInfo.direction === 'deterioration' ? 'bg-uib-red' : 'bg-slate-500'}`}>
+                                            <span className="font-black text-lg">{rciInfo.value.toFixed(1)}</span>
                                         </div>
                                         <div className="flex-grow">
-                                            <h4 className="font-bold text-uib-black flex items-center uppercase tracking-wide text-xs">
+                                            <h4 className="font-bold text-uib-black flex flex-wrap items-center uppercase tracking-wide text-xs">
                                                 {t('evolution.rciTitle')}
-                                                {Math.abs(rciValue) >= 1.96 && (
-                                                    <span className="ml-2 px-2 py-0.5 bg-green-600 text-white text-[10px] rounded-full font-black">SIG.</span>
-                                                )}
+                                                <span className={`ml-2 px-2 py-0.5 text-[10px] rounded-full font-black ${rciInfo.direction === 'improvement' ? 'bg-green-600 text-white' : rciInfo.direction === 'deterioration' ? 'bg-uib-red text-white' : 'bg-slate-200 text-slate-700'}`}>
+                                                    {t(`evolution.rciDirection.${rciInfo.direction}`)}
+                                                </span>
                                             </h4>
                                             <p className="text-xs text-gray-700 mt-1 font-medium leading-relaxed">{t('evolution.rciExplanation')}</p>
-                                            {qpviiHistory.length >= 2 && (
-                                                <p className="text-[10px] text-gray-500 mt-2 font-mono bg-white inline-block px-2 py-0.5 rounded border border-gray-100">
-                                                    {t('evolution.rciMathInfo', { 
-                                                        pre: calculateQPVIIScores(qpviiHistory.sort((a,b)=>a.timestamp-b.timestamp)[0].answers).total.toFixed(1),
-                                                        post: calculateQPVIIScores(qpviiHistory.sort((a,b)=>a.timestamp-b.timestamp)[qpviiHistory.length-1].answers).total.toFixed(1)
-                                                    })}
-                                                </p>
-                                            )}
+                                            <p className="text-[10px] text-gray-500 mt-2 font-mono bg-white inline-block px-2 py-0.5 rounded border border-gray-100">
+                                                {t('evolution.rciMathInfo', {
+                                                    pre: rciInfo.pre.toFixed(1),
+                                                    post: rciInfo.post.toFixed(1)
+                                                })}
+                                            </p>
                                         </div>
                                     </div>
                                 )}

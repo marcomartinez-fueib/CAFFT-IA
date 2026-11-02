@@ -176,6 +176,7 @@ export interface HelpModalTranslatedStrings {
   searchPlaceholder: string;
   closeButton: string;
   disclaimer: string;
+  disclaimerTitle?: string;
   needMoreHelp: string;
   noResultsTitle: string;
   noResultsText: string;
@@ -416,6 +417,12 @@ export interface AIChatContent {
   systemInstruction: string;
   therapistSystemInstruction?: string;
   therapistInitialMessage?: string;
+  patientContext?: {
+    rciUnavailable: string;
+    noSessions: string;
+    sessionsSummary: string;
+  };
+  supportSubtitle?: string;
   assistantNameTitle: string;
   assistantNamePlaceholder: string;
   genderNeutralSuggestions: string[];
@@ -496,6 +503,14 @@ export interface TherapistDashboardContent {
     toggleNotificationsOff: string;
     toggleTourOn: string;
     toggleTourOff: string;
+    notificationsOnFor?: string;
+    notificationsOffFor?: string;
+    tourOnFor?: string;
+    tourOffFor?: string;
+    viewPatient?: string;
+    resetPatientPassword?: string;
+    deletePatient?: string;
+    remindPatient?: string;
   };
   patient_status: {
     new: string;
@@ -554,6 +569,7 @@ export interface TherapistDashboardContent {
     copyButton: string;
     copiedButton: string;
     closeButton: string;
+    failed?: string;
   };
   exportDataModal: {
     title: string;
@@ -563,6 +579,17 @@ export interface TherapistDashboardContent {
     cancelButton: string;
   };
   notificationsTitle: string;
+  notificationsPage?: {
+    intro: string;
+    empty: string;
+    date: string;
+    patient: string;
+    type: string;
+    subject: string;
+    status: string;
+    statusSent: string;
+    statusGenerated: string;
+  };
   reminders: {
     sendReminderButton: string;
     sendAllReminders?: string;
@@ -678,6 +705,9 @@ export interface TranslationContent {
   common: {
     syncFailed: string;
     dismiss: string;
+    close?: string;
+    openMenu?: string;
+    backToTop?: string;
     invitationNote: string;
     invitationSent: string;
     resendInvitation: string;
@@ -820,6 +850,7 @@ export interface TranslationContent {
     q3: string;
     q4: string;
     noVideos: string;
+    watchVideo?: string;
   };
   cafftIntroPage: {
     title: string;
@@ -960,6 +991,8 @@ export interface TranslationContent {
     notificationConsentExplain: string;
     acceptButton: string;
     declineButton: string;
+    notificationPrivacyNote?: string;
+    notificationsEnabledMessage?: string;
   };
   exposureHierarchy: {
     pageTitle: string;
@@ -1053,6 +1086,11 @@ export interface TranslationContent {
     rciStatusSignificant?: string;
     rciStatusNotSignificant?: string;
     rciLabel?: string;
+    rciDirection?: {
+      improvement: string;
+      deterioration: string;
+      none: string;
+    };
     prePostComparisonTitle?: string;
     differenceLabel?: string;
     rciMissingDataMessage?: string;
@@ -1065,6 +1103,7 @@ export interface TranslationContent {
   };
   onboarding?: {
     stepCounter: string;
+    goToStep?: string;
     startManual: string;
     next: string;
     prev: string;

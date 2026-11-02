@@ -163,15 +163,17 @@ export const ManagerDashboardPage: React.FC = () => {
                                                     onClick={() => handleToggleNotifications(th.id)}
                                                     className={`p-1.5 rounded-lg border transition-all ${th.notificationPreferences?.enabled !== false ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-300 border-slate-100'}`}
                                                     title={th.notificationPreferences?.enabled !== false ? t('therapistDashboard.tooltips.toggleNotificationsOff') : t('therapistDashboard.tooltips.toggleNotificationsOn')}
+                                                    aria-label={t(th.notificationPreferences?.enabled !== false ? 'therapistDashboard.tooltips.notificationsOffFor' : 'therapistDashboard.tooltips.notificationsOnFor', { name: th.username })}
                                                 >
-                                                    <BellIcon className="w-4 h-4" />
+                                                    <BellIcon className="w-4 h-4" aria-hidden="true" />
                                                 </button>
-                                                <button 
+                                                <button
                                                     onClick={() => handleToggleOnboarding(th.id)}
                                                     className={`p-1.5 rounded-lg border transition-all ${th.onboardingEnabled !== false ? 'bg-sky-50 text-sky-600 border-sky-100' : 'bg-slate-50 text-slate-300 border-slate-100'}`}
                                                     title={th.onboardingEnabled !== false ? t('therapistDashboard.tooltips.toggleTourOff') : t('therapistDashboard.tooltips.toggleTourOn')}
+                                                    aria-label={t(th.onboardingEnabled !== false ? 'therapistDashboard.tooltips.tourOffFor' : 'therapistDashboard.tooltips.tourOnFor', { name: th.username })}
                                                 >
-                                                    <MapIcon className="w-4 h-4" />
+                                                    <MapIcon className="w-4 h-4" aria-hidden="true" />
                                                 </button>
                                             </div>
                                         </td>

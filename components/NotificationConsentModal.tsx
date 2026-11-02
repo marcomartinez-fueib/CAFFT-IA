@@ -70,15 +70,16 @@ export const NotificationConsentModal: React.FC<NotificationConsentModalProps> =
               </div>
 
               <p className="mt-6 text-[10px] text-center text-slate-400 font-medium uppercase tracking-widest leading-loose max-w-[80%] mx-auto">
-                No compartirem mai les teves dades clíniques. Notificacions segures i respectuoses.
+                {t('profile.notificationPrivacyNote')}
               </p>
             </div>
 
             <button
               onClick={onDecline}
+              aria-label={t('common.close')}
               className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-full transition-colors"
             >
-              <X size={20} />
+              <X size={20} aria-hidden="true" />
             </button>
           </motion.div>
         </div>

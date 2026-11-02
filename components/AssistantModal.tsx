@@ -52,7 +52,7 @@ export const AssistantModal: React.FC<AssistantModalProps> = ({ isOpen, onClose 
                 </h2>
                 <p className="text-[8px] sm:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] leading-none mt-1 sm:mt-1.5 flex items-center gap-1 sm:gap-1.5">
                     <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-green-500 animate-pulse" />
-                    Asistent de Suport CAFFT
+                    {t('aiChat.supportSubtitle')}
                 </p>
              </div>
           </div>

@@ -1,11 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth.tsx';
+import { useLanguage } from '../hooks/useLanguage.tsx';
 import { NotificationConsentModal } from './NotificationConsentModal.tsx';
 import { NotificationService } from '../services/notificationService.ts';
 
 export const NotificationConsentManager: React.FC = () => {
   const { currentUser, updateUser } = useAuth();
+  const { t } = useLanguage();
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
@@ -35,7 +37,7 @@ export const NotificationConsentManager: React.FC = () => {
     if (permission === 'granted') {
         NotificationService.sendNotification(
             'CAFFT 5.1',
-            'Notificacions activades amb èxit. Gràcies per la teva confiança!'
+            t('profile.notificationsEnabledMessage')
         );
     }
   };

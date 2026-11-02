@@ -14,7 +14,8 @@ import {
 } from '../services/dataStore.ts';
 import { calculateQPVIIScores } from '../utils/qpviiScoring';
 import { THERAPEUTIC_KNOWLEDGE } from '../data/therapeuticKnowledge';
-import { ChatVisualizer } from '../components/ChatVisualizer';
+import { ChatVisualizer, ChatRciData } from '../components/ChatVisualizer';
+import { computeRci } from '../utils/rci';
 import { EvolutionChartDataPoint, UserExposureProgress, StoredUser } from '../types';
 import { EXPOSURE_VIDEOS } from '../constants.ts';
 import ReactMarkdown from 'react-markdown';
@@ -62,7 +63,7 @@ export const ChatInterface: React.FC<{onCloseModal?: () => void; hideHeader?: bo
   const [messages, setMessages] = useState<Message[]>([]);
   const [qpviiData, setQpviiData] = useState<EvolutionChartDataPoint[]>([]);
   const [exposureData, setExposureData] = useState<UserExposureProgress[]>([]);
-  const [rciData, setRciData] = useState<{value: number, isSignificant: boolean, improvement: number, improvementPercent: string} | null>(null);
+  const [rciData, setRciData] = useState<ChatRciData | null>(null);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -119,17 +120,17 @@ export const ChatInterface: React.FC<{onCloseModal?: () => void; hideHeader?: bo
                   `Total: ${lastResult.scores.total} (Malestar: ${lastResult.scores.malestarGeneral}, Prep: ${lastResult.scores.subPreparatius}, Vic: ${lastResult.scores.subVicari}, Vol: ${lastResult.scores.subVol})` : 
                   "Sin resultados";
                   
-                let rciInfo = "RCI: No disponible (falten dades)";
+                let rciInfo = `RCI: ${t('aiChat.patientContext.rciUnavailable')}`;
                 if (patientResults.length >= 2) {
                     const firstTotal = calculateQPVIIScores(patientResults[0].answers).total;
                     const lastTotal = calculateQPVIIScores(patientResults[patientResults.length - 1].answers).total;
-                    const rciVal = (firstTotal - lastTotal) / 17.6;
-                    rciInfo = `RCI: ${rciVal.toFixed(2)} (${rciVal >= 1.96 ? 'Significatiu' : 'No significatiu'})`;
+                    const rci = computeRci(firstTotal, lastTotal);
+                    rciInfo = `RCI: ${rci.value.toFixed(2)} (${t(`evolution.rciDirection.${rci.direction}`)})`;
                 }
 
-                const progressSummary = patientProgress.length > 0 
-                    ? `${patientProgress.length} sessions, última: ${new Date(patientProgress[0].lastUpdated).toLocaleDateString()}`
-                    : "No hay sesiones.";
+                const progressSummary = patientProgress.length > 0
+                    ? t('aiChat.patientContext.sessionsSummary', { count: patientProgress.length, date: new Date(patientProgress[0].lastUpdated).toLocaleDateString() })
+                    : t('aiChat.patientContext.noSessions');
                     
                 therapistContext += `- PACIENT: ${patient.username} (ID: ${patient.id})\n  * QPV-II actual: ${scores}\n  * ${rciInfo}\n  * Progrés: ${progressSummary}\n`;
             });
@@ -217,11 +218,8 @@ export const ChatInterface: React.FC<{onCloseModal?: () => void; hideHeader?: bo
               const lastResult = sortedHistory[sortedHistory.length - 1];
               const firstTotal = calculateQPVIIScores(firstResult.answers).total;
               const lastTotal = calculateQPVIIScores(lastResult.answers).total;
-              const sDiff = 17.6;
-              const rciValue = (firstTotal - lastTotal) / sDiff;
               setRciData({
-                  value: rciValue,
-                  isSignificant: rciValue >= 1.96,
+                  ...computeRci(firstTotal, lastTotal),
                   improvement: firstTotal - lastTotal,
                   improvementPercent: firstTotal > 0 ? ((firstTotal - lastTotal) / firstTotal * 100).toFixed(1) : '0'
               });

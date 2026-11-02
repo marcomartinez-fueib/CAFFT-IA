@@ -413,6 +413,11 @@ export interface AIChatContent {
   systemInstruction: string;
   therapistSystemInstruction?: string;
   therapistInitialMessage?: string;
+  patientContext?: {
+    rciUnavailable: string;
+    noSessions: string;
+    sessionsSummary: string;
+  };
   assistantNameTitle: string;
   assistantNamePlaceholder: string;
   genderNeutralSuggestions: string[];
@@ -1048,6 +1053,11 @@ export interface TranslationContent {
     rciStatusSignificant?: string;
     rciStatusNotSignificant?: string;
     rciLabel?: string;
+    rciDirection?: {
+      improvement: string;
+      deterioration: string;
+      none: string;
+    };
     prePostComparisonTitle?: string;
     differenceLabel?: string;
     rciMissingDataMessage?: string;

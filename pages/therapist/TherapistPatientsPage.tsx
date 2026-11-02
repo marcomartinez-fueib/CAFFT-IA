@@ -18,6 +18,7 @@ import {
     toggleUserOnboarding
 } from '../../services/dataStore';
 import { calculateQPVIIScores } from '../../utils/qpviiScoring';
+import { computeRci, RciResult } from '../../utils/rci';
 import { determineVideoSequence } from '../../utils/exposureUtils';
 import { getPatientStatus } from '../../utils/clinicalAnalysis';
 import { AVERAGE_VIDEO_DURATION_SECONDS } from '../../constants';
@@ -140,13 +141,12 @@ export const TherapistPatientsPage: React.FC = () => {
             
             const { status } = getPatientStatus(p.id, allData.qpvii, allData.progress);
             
-            let rci: number | null = null;
+            let rci: RciResult | null = null;
             const patientQpviiChron = [...patientQpvii].reverse();
             if (patientQpviiChron.length >= 2) {
                 const first = calculateQPVIIScores(patientQpviiChron[0].answers).total;
                 const last = calculateQPVIIScores(patientQpviiChron[patientQpviiChron.length - 1].answers).total;
-                const sDiff = 17.6; 
-                rci = (first - last) / sDiff;
+                rci = computeRci(first, last);
             }
 
             return {
@@ -316,10 +316,11 @@ export const TherapistPatientsPage: React.FC = () => {
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             {patient.rci !== null ? (
                                                 <div className="flex items-center space-x-2">
-                                                    <span className={`text-sm font-bold ${patient.rci >= 1.96 ? 'text-emerald-600' : patient.rci <= -1.96 ? 'text-uib-red' : 'text-slate-600'}`}>
-                                                        {patient.rci.toFixed(2)}
+                                                    <span className={`text-sm font-bold ${patient.rci.direction === 'improvement' ? 'text-emerald-600' : patient.rci.direction === 'deterioration' ? 'text-uib-red' : 'text-slate-600'}`}>
+                                                        {patient.rci.value.toFixed(2)}
                                                     </span>
-                                                    {patient.rci >= 1.96 && <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-700 text-[8px] font-black uppercase rounded border border-emerald-100 italic">{t('therapistDashboard.table.significant_rci')}</span>}
+                                                    {patient.rci.direction === 'improvement' && <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-700 text-[8px] font-black uppercase rounded border border-emerald-100 italic">{t('evolution.rciDirection.improvement')}</span>}
+                                                    {patient.rci.direction === 'deterioration' && <span className="px-1.5 py-0.5 bg-red-50 text-uib-red text-[8px] font-black uppercase rounded border border-red-100 italic">{t('evolution.rciDirection.deterioration')}</span>}
                                                 </div>
                                             ) : '-'}
                                         </td>

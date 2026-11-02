@@ -21,18 +21,25 @@ import {
     ReferenceArea
 } from 'recharts';
 import { EXPOSURE_VIDEOS } from '../constants';
+import { RciDirection, RciResult } from '../utils/rci';
 
 interface ChatVisualizerProps {
   type: string;
   qpviiData?: EvolutionChartDataPoint[];
   exposureData?: UserExposureProgress[];
-  rciData?: {
-    value: number;
-    isSignificant: boolean;
-    improvement: number;
-    improvementPercent: string;
-  } | null;
+  rciData?: ChatRciData | null;
 }
+
+export type ChatRciData = RciResult & {
+  improvement: number;
+  improvementPercent: string;
+};
+
+const rciStyles: Record<RciDirection, { box: string; circle: string; badge: string }> = {
+  improvement: { box: 'bg-green-50/50 border-green-100', circle: 'bg-green-600 text-white', badge: 'bg-green-200 text-green-800' },
+  deterioration: { box: 'bg-red-50/50 border-red-100', circle: 'bg-uib-red text-white', badge: 'bg-red-200 text-red-800' },
+  none: { box: 'bg-slate-50/50 border-slate-200', circle: 'bg-slate-500 text-white shadow-sm', badge: 'bg-slate-200 text-slate-700' },
+};
 
 const uibBlue = "#005596";
 const uibRed = "#BA0C2F";
@@ -136,16 +143,16 @@ export const ChatVisualizer: React.FC<ChatVisualizerProps> = ({ type, qpviiData,
           <QpviiEvolutionChart data={qpviiData} lines={qpviiLineConfigs} />
         </div>
         {rciData && (
-          <div className={`mt-3 sm:mt-4 p-2 sm:p-3 rounded-lg border flex items-center ${rciData.isSignificant ? 'bg-green-50/50 border-green-100' : 'bg-blue-50/50 border-blue-100'}`}>
-            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0 ${rciData.isSignificant ? 'bg-green-600 text-white' : 'bg-blue-600 text-white shadow-sm'}`}>
+          <div className={`mt-3 sm:mt-4 p-2 sm:p-3 rounded-lg border flex items-center ${rciStyles[rciData.direction].box}`}>
+            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0 ${rciStyles[rciData.direction].circle}`}>
                 <span className="font-black text-sm sm:text-base">{rciData.value.toFixed(1)}</span>
             </div>
             <div className="flex-grow">
-                <h4 className="font-bold text-slate-700 flex items-center uppercase tracking-wide text-[8px] sm:text-[9px]">
+                <h4 className="font-bold text-slate-700 flex flex-wrap items-center uppercase tracking-wide text-[8px] sm:text-[9px]">
                     {t('evolution.rciTitle')}
-                    {rciData.isSignificant && (
-                        <span className="ml-2 px-1.5 py-0.5 bg-green-200 text-green-800 text-[6px] sm:text-[7px] rounded-md font-black uppercase">SIG.</span>
-                    )}
+                    <span className={`ml-2 px-1.5 py-0.5 text-[6px] sm:text-[7px] rounded-md font-black uppercase ${rciStyles[rciData.direction].badge}`}>
+                        {t(`evolution.rciDirection.${rciData.direction}`)}
+                    </span>
                 </h4>
                 <p className="text-[8px] sm:text-[9px] text-slate-500 mt-0.5">
                   {t('evolution.improvement')}: {rciData.improvement} {t('evolution.points')} ({rciData.improvementPercent}%)

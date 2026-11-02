@@ -22,6 +22,7 @@ import { QpviiEvolutionChart } from '../components/QpviiEvolutionChart';
 import { SceneChartTooltip } from '../components/SceneChartTooltip';
 import { EXPOSURE_VIDEOS } from '../constants';
 import { isExposureFullyCompleted } from '../utils/exposureUtils';
+import { computeRci } from '../utils/rci';
 import { 
     LineChart, 
     Line, 
@@ -126,8 +127,19 @@ export const EvolutionPage: React.FC = () => {
     setRawSittings(getExposureSessionsForUser(currentUser.id));
   }, [currentUser]);
 
+    // Pre is the first pre-treatment QPV-II; post the latest post-treatment one
+    // (or, for results saved before evaluations were typed, the latest other).
+    const prePost = useMemo(() => {
+        const sorted = [...rawQpviiHistory].sort((a, b) => a.timestamp - b.timestamp);
+        const pre = sorted.find(r => r.evaluationType !== 'post');
+        if (!pre) return null;
+        const later = sorted.filter(r => r.timestamp > pre.timestamp);
+        const post = [...later].reverse().find(r => r.evaluationType === 'post') ?? later[later.length - 1];
+        return post ? { pre, post } : null;
+    }, [rawQpviiHistory]);
+
     const consolidatedQpviiData: EvolutionChartDataPoint[] = useMemo(() => {
-        const sortedHistory = [...rawQpviiHistory].sort((a, b) => a.timestamp - b.timestamp);
+        const sortedHistory = prePost ? [prePost.pre, prePost.post] : [...rawQpviiHistory].sort((a, b) => a.timestamp - b.timestamp).slice(-1);
         let data: EvolutionChartDataPoint[] = [];
 
         if (sortedHistory.length >= 2) {
@@ -169,24 +181,25 @@ export const EvolutionPage: React.FC = () => {
             }];
         }
         return data;
-    }, [rawQpviiHistory, t, language]);
+    }, [rawQpviiHistory, prePost, t, language]);
 
     const rciData = useMemo(() => {
-        if (rawQpviiHistory.length < 2) return null;
-        const sorted = [...rawQpviiHistory].sort((a, b) => a.timestamp - b.timestamp);
-        const firstTotal = calculateQPVIIScores(sorted[0].answers).total;
-        const lastTotal = calculateQPVIIScores(sorted[sorted.length - 1].answers).total;
-        const sDiff = 17.6; 
-        const rci = (firstTotal - lastTotal) / sDiff;
-        return { 
-            value: rci, 
-            isSignificant: rci >= 1.96,
-            firstTotal,
-            lastTotal,
-            improvement: firstTotal - lastTotal,
-            improvementPercent: firstTotal > 0 ? ((firstTotal - lastTotal) / firstTotal * 100).toFixed(1) : '0'
+        if (!prePost) return null;
+        const preTotal = calculateQPVIIScores(prePost.pre.answers).total;
+        const postTotal = calculateQPVIIScores(prePost.post.answers).total;
+        const difference = postTotal - preTotal;
+        return {
+            ...computeRci(preTotal, postTotal),
+            difference,
+            differencePercent: preTotal > 0 ? Math.abs(difference / preTotal * 100).toFixed(1) : '0'
         };
-    }, [rawQpviiHistory]);
+    }, [prePost]);
+
+    const rciStyle = {
+        improvement: { box: 'bg-green-50 border-green-200', badge: 'bg-green-600 text-white', text: 'text-green-700' },
+        deterioration: { box: 'bg-red-50 border-red-200', badge: 'bg-uib-red text-white', text: 'text-uib-red' },
+        none: { box: 'bg-slate-50 border-slate-200', badge: 'bg-slate-500 text-white', text: 'text-slate-600' },
+    };
 
     // A session is a sitting of practice (see ExposureSession), not a progress
   // record: a whole treatment cycle used to show up as a single session.
@@ -611,21 +624,21 @@ export const EvolutionPage: React.FC = () => {
                            </div>
                            <div className="ml-6 flex-shrink-0 text-center">
                                 <p className="text-sm text-gray-500 uppercase tracking-wider font-bold">{t('evolution.differenceLabel')}</p>
-                                <p className="text-3xl font-black text-uib-red">-{rciData.improvement}</p>
-                                <p className="text-xs font-bold text-green-600">({rciData.improvementPercent}%)</p>
+                                <p className={`text-3xl font-black ${rciStyle[rciData.direction].text}`}>{rciData.difference > 0 ? '+' : ''}{rciData.difference}</p>
+                                <p className={`text-xs font-bold ${rciStyle[rciData.direction].text}`}>({rciData.differencePercent}%)</p>
                            </div>
                         </div>
 
-                        <div className={`p-4 rounded-lg border flex items-center ${rciData.isSignificant ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}>
-                            <div className={`w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0 ${rciData.isSignificant ? 'bg-green-600 text-white' : 'bg-blue-600 text-white'}`}>
+                        <div className={`p-4 rounded-lg border flex items-center ${rciStyle[rciData.direction].box}`}>
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0 ${rciStyle[rciData.direction].badge}`}>
                                 <span className="font-black text-lg">{rciData.value.toFixed(1)}</span>
                             </div>
                             <div className="flex-grow">
                                 <h4 className="font-bold text-uib-black flex items-center uppercase tracking-wide text-xs">
                                     {t('evolution.rciTitle')}
-                                    {rciData.isSignificant && (
-                                        <span className="ml-2 px-2 py-0.5 bg-green-600 text-white text-[10px] rounded-full font-black">SIG.</span>
-                                    )}
+                                    <span className={`ml-2 px-2 py-0.5 text-[10px] rounded-full font-black normal-case ${rciStyle[rciData.direction].badge}`}>
+                                        {t(`evolution.rciDirection.${rciData.direction}`)}
+                                    </span>
                                 </h4>
                                 <p className="text-xs text-gray-700 mt-1 font-medium leading-relaxed">{t('evolution.rciExplanation')}</p>
                             </div>

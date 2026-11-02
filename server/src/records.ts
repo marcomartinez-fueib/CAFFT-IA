@@ -1,5 +1,5 @@
 import type { Db } from './db.ts';
-import type { AiConsultation, QPVIIUserResult, SimulatedEmail, UserExposureProgress } from '../../types.ts';
+import type { AiConsultation, ExposureSession, QPVIIUserResult, SimulatedEmail, UserExposureProgress } from '../../types.ts';
 
 // Row <-> client-shape mapping for the clinical and log tables. The shapes are
 // the client's own types, so the frontend consumes these unchanged.
@@ -62,6 +62,31 @@ function toProgress(r: ProgressRow): UserExposureProgress {
   return progress;
 }
 
+interface SessionRow {
+  id: string;
+  user_id: string;
+  qpvii_timestamp: number | null;
+  is_review: number;
+  started_at: number;
+  last_activity_at: number;
+  ended_at: number | null;
+  end_reason: 'pause' | 'completed' | null;
+}
+
+function toSession(r: SessionRow): ExposureSession {
+  const session: ExposureSession = {
+    id: r.id,
+    userId: r.user_id,
+    qpviiTimestamp: r.qpvii_timestamp,
+    isReview: r.is_review === 1,
+    startedAt: r.started_at,
+    lastActivityAt: r.last_activity_at,
+  };
+  if (r.ended_at !== null) session.endedAt = r.ended_at;
+  if (r.end_reason !== null) session.endReason = r.end_reason;
+  return session;
+}
+
 interface ConsultationRow {
   id: string;
   user_id: string;
@@ -110,6 +135,14 @@ export function progressFor(db: Db, userIds: string[]): UserExposureProgress[] {
     .prepare(`SELECT * FROM exposure_progress WHERE user_id IN (${placeholders(userIds)}) ORDER BY last_updated DESC`)
     .all(...userIds) as unknown as ProgressRow[];
   return rows.map(toProgress);
+}
+
+export function sessionsFor(db: Db, userIds: string[]): ExposureSession[] {
+  if (userIds.length === 0) return [];
+  const rows = db
+    .prepare(`SELECT * FROM exposure_sessions WHERE user_id IN (${placeholders(userIds)}) ORDER BY started_at DESC`)
+    .all(...userIds) as unknown as SessionRow[];
+  return rows.map(toSession);
 }
 
 export function consultationsFor(db: Db, userIds: string[]): AiConsultation[] {

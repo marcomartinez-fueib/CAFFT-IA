@@ -7,7 +7,7 @@
  *
  *  - Reads are synchronous and come from memory, exactly as they used to come
  *    from localStorage, so pages did not have to become asynchronous.
- *  - Clinical writes (QPV-II, exposure progress, AI consultations, emails)
+ *  - Clinical writes (QPV-II, exposure progress and sessions, AI consultations, emails)
  *    update memory immediately and are sent to the server through a sequential
  *    queue that retries transient failures. Every one of them is idempotent on
  *    the server, so a retry can never duplicate a record.
@@ -20,6 +20,7 @@
  */
 import {
   AiConsultation,
+  ExposureSession,
   QPVIIAnswers,
   QPVIIScores,
   QPVIIUserResult,
@@ -36,11 +37,12 @@ interface StoreState {
   users: StoredUser[];
   qpvii: QPVIIUserResult[];
   progress: UserExposureProgress[];
+  sessions: ExposureSession[];
   consultations: AiConsultation[];
   emails: SimulatedEmail[];
 }
 
-const empty = (): StoreState => ({ users: [], qpvii: [], progress: [], consultations: [], emails: [] });
+const empty = (): StoreState => ({ users: [], qpvii: [], progress: [], sessions: [], consultations: [], emails: [] });
 
 let state: StoreState = empty();
 
@@ -231,6 +233,7 @@ export async function deletePatientData(userId: string): Promise<boolean> {
     users: state.users.filter((u) => u.id !== userId),
     qpvii: state.qpvii.filter((r) => r.userId !== userId),
     progress: state.progress.filter((p) => p.userId !== userId),
+    sessions: state.sessions.filter((s) => s.userId !== userId),
     consultations: state.consultations.filter((c) => c.userId !== userId),
     emails: state.emails.filter((e) => e.patientId !== userId),
   };
@@ -376,6 +379,66 @@ export function saveUserExposureProgress(
 
   enqueue('exposure progress', () => api('PUT', '/exposure', record));
   return true;
+}
+
+// --- Exposure sessions ----------------------------------------------------------------
+
+/** A session with no new rating for this long counts as ended. */
+export const SESSION_IDLE_MS = 2 * 60 * 60 * 1000;
+
+export function isSessionOpen(session: ExposureSession, now = Date.now()): boolean {
+  return session.endedAt === undefined && now - session.lastActivityAt <= SESSION_IDLE_MS;
+}
+
+/** Newest first. */
+export function getExposureSessionsForUser(userId: string): ExposureSession[] {
+  return copy(state.sessions.filter((s) => s.userId === userId)).sort((a, b) => b.startedAt - a.startedAt);
+}
+
+export function getAllExposureSessions(): ExposureSession[] {
+  return copy(state.sessions);
+}
+
+function findOpenSession(userId: string, qpviiTimestamp: number | null): ExposureSession | undefined {
+  return state.sessions.find((s) => s.userId === userId && s.qpviiTimestamp === qpviiTimestamp && isSessionOpen(s));
+}
+
+export function getOpenExposureSession(userId: string, qpviiTimestamp: number | null): ExposureSession | null {
+  const open = findOpenSession(userId, qpviiTimestamp);
+  return open ? copy(open) : null;
+}
+
+function putSession(session: ExposureSession): void {
+  state = { ...state, sessions: [...state.sessions.filter((s) => s.id !== session.id), session] };
+  const saved = copy(session);
+  enqueue('exposure session', () => api('PUT', '/exposure-sessions', saved));
+}
+
+/**
+ * Records a rated video in the patient's current session, opening one if
+ * there is none. Sessions start here, never when a page opens, so visiting
+ * the exposure page without watching anything leaves no session behind.
+ */
+export function recordExposureActivity(userId: string, qpviiTimestamp: number | null, isReview: boolean, at: number): ExposureSession {
+  const open = findOpenSession(userId, qpviiTimestamp);
+  const session: ExposureSession = open
+    ? { ...open, lastActivityAt: Math.max(open.lastActivityAt, at) }
+    : { id: crypto.randomUUID(), userId, qpviiTimestamp, isReview, startedAt: at, lastActivityAt: at };
+  putSession(session);
+  return copy(session);
+}
+
+/** Closes the patient's open session for this record, if any; returns it. */
+export function endExposureSession(
+  userId: string,
+  qpviiTimestamp: number | null,
+  reason: NonNullable<ExposureSession['endReason']>,
+): ExposureSession | null {
+  const open = findOpenSession(userId, qpviiTimestamp);
+  if (!open) return null;
+  const session: ExposureSession = { ...open, endedAt: Date.now(), endReason: reason };
+  putSession(session);
+  return copy(session);
 }
 
 // --- Activity ---------------------------------------------------------------------

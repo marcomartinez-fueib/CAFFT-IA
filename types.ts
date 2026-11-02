@@ -1175,6 +1175,23 @@ export interface UserExposureProgress {
   originalQpviiTimestamp?: number; // Links review session back to the original QPV-II it's reviewing
 }
 
+/**
+ * One sitting of exposure practice, from the first rated video until the
+ * patient pauses, finishes the sequence, or stops for more than two hours
+ * (SESSION_IDLE_MS). Its ratings are those of the same progress record whose
+ * videoTimestamp falls between startedAt and lastActivityAt.
+ */
+export interface ExposureSession {
+  id: string;
+  userId: string;
+  qpviiTimestamp: number | null; // The UserExposureProgress record it belongs to
+  isReview: boolean;
+  startedAt: number;
+  lastActivityAt: number;
+  endedAt?: number; // Absent while open. Present with no endReason: rebuilt from old ratings
+  endReason?: 'pause' | 'completed';
+}
+
 export interface HelpModalSection { 
   id: 'fullManual' | 'fearOfFlying' | 'cafftInfo' | 'prospectus' | 'postTreatment' | 'postTreatmentSection' | 'helpVideos' | 'technicalSection' | 'aiChat' | 'therapistInfo' | 'therapistAiChat';
   titleKey: string; 

@@ -621,7 +621,7 @@ const caTranslations: TranslationContent = {
         ev008_title: "Notícies d'Accidents (II)",
         ev008_desc: "Escenes addicionals sobre incidents aeris per aprofundir en l'habituació vicària.",
         discomfortRatingModalTitle: "Valori el seu Malestar",
-        discomfortRatingInstruction: "En una escala d'1 a 10, quin ha estat el seu nivell màxim de por o malestar durant el vídeo '{videoTitle}'?",
+        discomfortRatingInstruction: "En una escala d'1 a 9, quin ha estat el seu nivell màxim de por o malestar durant el vídeo '{videoTitle}'?",
         discomfortRatingSaveButton: "Guardar Valoració",
         discomfortRatingErrorNoSelection: "Si us plau, seleccioni una valoració.",
         discomfortRatingMinLabel: "Gens de malestar",
@@ -705,7 +705,7 @@ const caTranslations: TranslationContent = {
         rciStatusSignificant: "Canvi Significatiu Detectat",
         rciStatusNotSignificant: "Canvi en curs",
         rciLabel: "Resultat del Tractament",
-        ratingAxisLabel: "Ansietat (0-10)",
+        ratingAxisLabel: "Ansietat (1-9)",
         scoreAxisLabel: "Puntuació QPV-II",
         programCompleteSuccessMessage: "Ha completat una fita important. Pot veure la seva evolució i després celebrar la finalització, repassar algunes escenes o finalitzar la sessió.",
         prePostComparisonTitle: "Comparativa Pre vs Post Tractament",
@@ -831,7 +831,7 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
 - **Volum:** Ajustar-lo a un nivell real.
 
 ### 3.2 Implicació Activa (Sense Muletes)
-- **Honestedat:** Valori el seu malestar de forma sincera (0-10).
+- **Honestedat:** Valori el seu malestar de forma sincera (1-9).
 - **Prohibit:** No utilitzi tècniques de relaxació o distracció durant els vídeos. Actuen com a "muletes" que impedeixen l'aprenentatge real.
 
 ---
@@ -1711,7 +1711,7 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
 - **Volumen:** Ajustarlo a un nivel real.
 
 ### 3.2 Implicación Activa (Sin Ajudes Temporals)
-- **Honestidad:** Valore su malestar de forma sincera (0-10).
+- **Honestidad:** Valore su malestar de forma sincera (1-9).
 - **Prohibido:** No utilice técnicas de relajación o distracción durante los vídeos. Actúan como "ajudes temporals" que impiden el aprendizaje real.
 
 ---
@@ -2171,7 +2171,7 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
         ev008_title: "Noticias de Accidentes (II)",
         ev008_desc: "Escenas adicionales sobre incidentes aéreos para profundizar en la habituación vicaria.",
         discomfortRatingModalTitle: "Valore su Malestar",
-        discomfortRatingInstruction: "En una escala de 1 a 10, ¿cuál ha sido su nivel máximo de miedo o malestar durante el vídeo '{videoTitle}'?",
+        discomfortRatingInstruction: "En una escala de 1 a 9, ¿cuál ha sido su nivel máximo de miedo o malestar durante el vídeo '{videoTitle}'?",
         discomfortRatingSaveButton: "Guardar Valoración",
         discomfortRatingErrorNoSelection: "Por favor, seleccione una valoración.",
         discomfortRatingMinLabel: "Nada de malestar",
@@ -2243,7 +2243,7 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
         rciStatusSignificant: "Cambio Significativo Detectado",
         rciStatusNotSignificant: "Cambio en curso",
         rciLabel: "Resultado del Tratamiento",
-        ratingAxisLabel: "Ansiedad (0-10)",
+        ratingAxisLabel: "Ansiedad (1-9)",
         scoreAxisLabel: "Puntuación QPV-II",
         programCompleteSuccessMessage: "Ha completado un hito importante. Puede ver su evolución y después celebrar la finalización, repasar algunas escenas o finalizar la sesión.",
         prePostComparisonTitle: "Comparativa Pre vs Post Tratamiento",
@@ -3040,7 +3040,7 @@ const enTranslations: TranslationContent = {
         ev008_title: "Accident News (II)",
         ev008_desc: "Additional scenes about air incidents to deepen vicarious habituation.",
         discomfortRatingModalTitle: "Rate your Discomfort",
-        discomfortRatingInstruction: "On a scale of 1 to 10, what was your maximum level of fear or discomfort during the video '{videoTitle}'?",
+        discomfortRatingInstruction: "On a scale of 1 to 9, what was your maximum level of fear or discomfort during the video '{videoTitle}'?",
         discomfortRatingSaveButton: "Save Rating",
         discomfortRatingErrorNoSelection: "Please select a rating.",
         discomfortRatingMinLabel: "No discomfort",
@@ -3112,7 +3112,7 @@ const enTranslations: TranslationContent = {
         rciStatusSignificant: "Significant Change Detected",
         rciStatusNotSignificant: "Change in Progress",
         rciLabel: "Treatment Result",
-        ratingAxisLabel: "Anxiety (0-10)",
+        ratingAxisLabel: "Anxiety (1-9)",
         scoreAxisLabel: "QPV-II Score",
         programCompleteSuccessMessage: "You have reached an important milestone. You can see your evolution and then celebrate the completion, review some scenes or finish the session.",
         prePostComparisonTitle: "Pre vs Post Treatment Comparison",
@@ -3420,7 +3420,7 @@ The treatment is based on **Pure Exposure**. We use realistic videos that simula
 - **Volume:** Adjust it to a realistic level.
 
 ### 3.2 Active Involvement (No Safety Aids)
-- **Honesty:** Rate your discomfort sincerely (0-10).
+- **Honesty:** Rate your discomfort sincerely (1-9).
 - **Prohibited:** Do not use relaxation or distraction techniques during videos. They act as "safety aids" that prevent real learning.
 
 ---

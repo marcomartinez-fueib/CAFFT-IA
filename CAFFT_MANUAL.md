@@ -48,7 +48,7 @@ Perquè el tractament sigui efectiu, l'entorn ha de ser controlat:
 
 ### 3.3 Implicació Activa (Sense Muletes)
 - **Concentració:** Mantingui la vista a la pantalla en tot moment.
-- **Honestedat:** Valori el seu malestar (SUDS) de forma sincera (0-10).
+- **Honestedat:** Valori el seu malestar (SUDS) de forma sincera (1-9).
 - **Progrés:** No aturi l'exposició quan l'ansietat sigui alta. L'habituació només ocorre si ens quedem en la situació fins que el malestar baixa almenys a la meitat.
 - **Prohibit:** No utilitzi tècniques de relaxació, respiració profunda o distracció durant els vídeos. Aquestes actuen com a "muletes" que impedeixen l'aprenentatge real de seguretat.
 

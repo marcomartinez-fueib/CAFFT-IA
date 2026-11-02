@@ -175,6 +175,7 @@ export interface HelpModalTranslatedStrings {
   searchPlaceholder: string;
   closeButton: string;
   disclaimer: string;
+  disclaimerTitle?: string;
   needMoreHelp: string;
   noResultsTitle: string;
   noResultsText: string;
@@ -565,6 +566,17 @@ export interface TherapistDashboardContent {
     cancelButton: string;
   };
   notificationsTitle: string;
+  notificationsPage?: {
+    intro: string;
+    empty: string;
+    date: string;
+    patient: string;
+    type: string;
+    subject: string;
+    status: string;
+    statusSent: string;
+    statusGenerated: string;
+  };
   reminders: {
     sendReminderButton: string;
     sendAllReminders?: string;
@@ -678,6 +690,7 @@ export interface TranslationContent {
   common: {
     syncFailed: string;
     dismiss: string;
+    close?: string;
     invitationNote: string;
     invitationSent: string;
     resendInvitation: string;
@@ -820,6 +833,7 @@ export interface TranslationContent {
     q3: string;
     q4: string;
     noVideos: string;
+    watchVideo?: string;
   };
   cafftIntroPage: {
     title: string;
@@ -960,6 +974,8 @@ export interface TranslationContent {
     notificationConsentExplain: string;
     acceptButton: string;
     declineButton: string;
+    notificationPrivacyNote?: string;
+    notificationsEnabledMessage?: string;
   };
   exposureHierarchy: {
     pageTitle: string;

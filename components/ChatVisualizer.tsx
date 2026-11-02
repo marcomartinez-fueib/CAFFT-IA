@@ -74,20 +74,20 @@ export const ChatVisualizer: React.FC<ChatVisualizerProps> = ({ type, qpviiData,
       { time: 5, anxiety: 6, escape: 6 },
       { time: 10, anxiety: 9, escape: 9 },
       { time: 11, anxiety: 8, escape: 1 }, // Escape happens
-      { time: 15, anxiety: 7, escape: 0.5 },
-      { time: 25, anxiety: 4, escape: 0.2 },
-      { time: 40, anxiety: 1.5, escape: 0.1 },
+      { time: 15, anxiety: 7, escape: 1 },
+      { time: 25, anxiety: 4, escape: 1 },
+      { time: 40, anxiety: 1.5, escape: 1 },
     ];
 
     const labels = {
-      title: t('aiChat.didactic.habituationTitle') || "Com funciona l'habituació?",
-      up: t('aiChat.didactic.upLabel') || 'Pujada',
-      habituation: t('aiChat.didactic.habituationLabel') || 'Habituació',
-      good: t('aiChat.didactic.exposureGood') || 'Exposició (Bé)',
-      goodDesc: t('aiChat.didactic.exposureGoodDesc') || "L'ansietat puja però si et quedes, el teu cervell aprèn que no hi ha perill i baixa sola.",
-      bad: t('aiChat.didactic.avoidanceBad') || 'Evitació (Malament)',
-      badDesc: t('aiChat.didactic.avoidanceBadDesc') || "Si fuges, l'ansietat baixa ràpid però el cervell NO aprèn. La pròxima vegada serà igual de forta.",
-      anxietyLevel: t('aiChat.didactic.anxietyLevel') || "Nivell d'ansietat"
+      title: t('aiChat.didactic.habituationTitle'),
+      up: t('aiChat.didactic.upLabel'),
+      habituation: t('aiChat.didactic.habituationLabel'),
+      good: t('aiChat.didactic.exposureGood'),
+      goodDesc: t('aiChat.didactic.exposureGoodDesc'),
+      bad: t('aiChat.didactic.avoidanceBad'),
+      badDesc: t('aiChat.didactic.avoidanceBadDesc'),
+      anxietyLevel: t('aiChat.didactic.anxietyLevel')
     };
 
     return (
@@ -104,7 +104,7 @@ export const ChatVisualizer: React.FC<ChatVisualizerProps> = ({ type, qpviiData,
                 <LineChart data={tutorialData} margin={{ top: 10, right: 10, left: -30, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                     <XAxis dataKey="time" hide />
-                    <YAxis domain={[0, 10]} ticks={[0, 5, 10]} tick={{ fontSize: 8, fill: '#94a3b8' }} />
+                    <YAxis domain={[1, 9]} ticks={[1, 3, 5, 7, 9]} tick={{ fontSize: 8, fill: '#94a3b8' }} />
                     <Tooltip content={<div className="bg-white p-2 rounded-lg border shadow-sm text-[8px] sm:text-[10px] font-bold text-slate-500">{labels.anxietyLevel}</div>} />
                     <ReferenceArea x1={0} x2={10} fill="#fee2e2" fillOpacity={0.3} label={{ position: 'top', value: labels.up, fontSize: 8, fill: '#ef4444', fontWeight: 'bold' }} />
                     <ReferenceArea x1={10} x2={40} fill="#f0fdf4" fillOpacity={0.3} label={{ position: 'top', value: labels.habituation, fontSize: 8, fill: '#22c55e', fontWeight: 'bold' }} />
@@ -205,7 +205,7 @@ export const ChatVisualizer: React.FC<ChatVisualizerProps> = ({ type, qpviiData,
                             <LineChart data={sceneData[sceneKey]} margin={{ top: 5, right: 5, left: -30, bottom: 0 }}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                                 <XAxis dataKey="instance" hide />
-                                <YAxis domain={[0, 10]} ticks={[0, 5, 10]} tick={{ fontSize: 8, fill: '#94a3b8' }} />
+                                <YAxis domain={[1, 9]} ticks={[1, 3, 5, 7, 9]} tick={{ fontSize: 8, fill: '#94a3b8' }} />
                                 <Tooltip content={<SceneChartTooltip t={t} chartData={sceneData[sceneKey]} />} />
                                 <Line type="monotone" dataKey="rating" stroke={uibBlue} strokeWidth={2.5} dot={{ r: 2, fill: uibBlue, strokeWidth: 1.5, stroke: '#fff' }} activeDot={{ r: 4 }} />
                             </LineChart>

@@ -112,6 +112,9 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
           </div>
           <button
             onClick={() => handleToggle('enabled')}
+            role="switch"
+            aria-checked={prefs.enabled}
+            aria-label={t('profile.enableNotifications')}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${prefs.enabled ? 'bg-indigo-600' : 'bg-slate-300'}`}
           >
             <span

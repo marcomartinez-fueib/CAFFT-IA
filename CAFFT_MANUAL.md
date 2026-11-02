@@ -48,8 +48,8 @@ Perquè el tractament sigui efectiu, l'entorn ha de ser controlat:
 
 ### 3.3 Implicació Activa (Sense Muletes)
 - **Concentració:** Mantingui la vista a la pantalla en tot moment.
-- **Honestedat:** Valori el seu malestar (SUDS) de forma sincera (0-10).
-- **Progrés:** No aturi l'exposició quan l'ansietat sigui alta. L'habituació només ocorre si ens quedem en la situació fins que el malestar baixa almenys a la meitat.
+- **Honestedat:** Valori el seu malestar (SUDS) de forma sincera (1-9).
+- **Progrés:** No aturi l'exposició quan l'ansietat sigui alta. L'habituació només ocorre si ens quedem en la situació: repeteixi el vídeo fins que valori el seu malestar amb un 2 o menys.
 - **Prohibit:** No utilitzi tècniques de relaxació, respiració profunda o distracció durant els vídeos. Aquestes actuen com a "muletes" que impedeixen l'aprenentatge real de seguretat.
 
 ### 3.4 Possibles Efectes Adversos
@@ -64,8 +64,8 @@ Un cop finalitzada la jerarquia, ha de realitzar un vol en un termini de 10-15 d
 ### 4.1 Pautes de Vol
 - **Medicació:** NO prengui tranquil·litzants. El cervell ha d'estar "despert" per integrar l'aprenentatge de seguretat.
 - **Alcohol:** NO consumeixi alcohol abans ni durant el vol.
-- **Conducta:** Comporta't amb normalitat. No demanis seients especials. Seu on et toqui.
-- **Nervis:** Accepta els nervis. Recorda que l'ansietat és incòmoda però segura. No lluitis contra ella, deixa-la passar.
+- **Conducta:** Comporti's amb normalitat. No demani seients especials. Segui on li toqui.
+- **Nervis:** Accepti els nervis. Recordi que l'ansietat és incòmoda però segura. No lluiti contra ella, deixi-la passar.
 
 ---
 

@@ -30,7 +30,7 @@ test('password reset: request, email link, set password, single use', async () =
   assert.equal((await post(app, '/auth/password-reset', { email: 'OBLIDADIS@example.test', language: 'es' })).statusCode, 204);
   const { token, mail } = await deliverAndGetToken(db);
   assert.equal(mail.to, 'oblidadis@example.test');
-  assert.match(mail.subject, /restablece/);
+  assert.match(mail.subject, /restablezca/);
   assert.ok(mail.body.includes('http://localhost:3000/cafft/#/reset-password/'));
 
   const confirm = (password: string) => post(app, '/auth/password-reset/confirm', { token, password });
@@ -64,8 +64,8 @@ test('a user created without a password is invited by email', async () => {
 
   const { token, mail } = await deliverAndGetToken(db);
   assert.equal(mail.subject, 'Benvingut/da a CAFFT');
-  assert.ok(mail.body.includes("El teu nom d'usuari és: convidat"));
-  assert.ok(mail.body.includes('ter t\'ha creat un compte'));
+  assert.ok(mail.body.includes("El seu nom d'usuari és: convidat"));
+  assert.ok(mail.body.includes('ter li ha creat un compte'));
 
   // The therapist sees the invitation in the history, without the link.
   const history = db.prepare('SELECT type, body FROM emails WHERE patient_id = ?').get(patientId) as { type: string; body: string };

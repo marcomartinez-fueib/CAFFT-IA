@@ -2,6 +2,7 @@
 import { getUsers, getAllQPVIIResults, getAllUserExposureProgress } from '../services/dataStore';
 import { EXPOSURE_VIDEOS, CANONICAL_FLIGHT_STAGES_ORDER } from '../constants';
 import { determineVideoSequence, isExposureFullyCompleted } from './exposureUtils';
+import { computeRci } from './rci';
 import { QPVIIUserResult, UserExposureProgress } from '../types';
 
 /**
@@ -51,8 +52,8 @@ export function downloadCSV(csvString: string, filename: string): void {
     }
 }
 
-// Constants for Jacobson & Truax calculations based on the provided PDF
-const QPVII_RELIABILITY = 0.97;
+// Non-phobic norms for the Jacobson & Truax "recovered" cut-off (the RCI itself
+// comes from utils/rci.ts).
 const NON_PHOBIC_MEAN = 65.24;
 const NON_PHOBIC_SD = 30.79;
 const AVERAGE_VIDEO_DURATION_SECONDS = 180; // 3 minutes
@@ -195,19 +196,17 @@ export function exportDataToCSV(anonymize: boolean): void {
         }
 
         if (preEval && postEval) {
-            const SE = NON_PHOBIC_SD * Math.sqrt(1 - QPVII_RELIABILITY);
-            if (SE > 0) {
-                const icf = (preEval.scores.total - postEval.scores.total) / SE;
-                rowData.icf_total_score = icf.toFixed(4);
+            // RCI = (post − pre) / Sdiff: negative values are improvements.
+            const rci = computeRci(preEval.scores.total, postEval.scores.total);
+            rowData.icf_total_score = rci.value.toFixed(4);
 
-                const cutoff = NON_PHOBIC_MEAN + 2 * NON_PHOBIC_SD;
-                if (icf > 1.96) {
-                    rowData.imcs_category = postEval.scores.total < cutoff ? 'Recuperat' : 'Millorat';
-                } else if (icf < -1.96) {
-                    rowData.imcs_category = 'Empitjorat';
-                } else {
-                    rowData.imcs_category = 'Manteniment';
-                }
+            const cutoff = NON_PHOBIC_MEAN + 2 * NON_PHOBIC_SD;
+            if (rci.direction === 'improvement') {
+                rowData.imcs_category = postEval.scores.total < cutoff ? 'Recuperat' : 'Millorat';
+            } else if (rci.direction === 'deterioration') {
+                rowData.imcs_category = 'Empitjorat';
+            } else {
+                rowData.imcs_category = 'Manteniment';
             }
         }
         

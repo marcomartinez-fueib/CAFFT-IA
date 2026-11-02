@@ -14,20 +14,20 @@ export function setPasswordLink(appUrl: string, token: string): string {
 }
 
 const SIGNATURE = {
-  ca: "—\nCAFFT · Universitat de les Illes Balears\nAquest és un missatge automàtic; no cal que hi responguis.",
-  es: '—\nCAFFT · Universitat de les Illes Balears\nEste es un mensaje automático; no hace falta que respondas.',
+  ca: "—\nCAFFT · Universitat de les Illes Balears\nAquest és un missatge automàtic; no cal que hi respongui.",
+  es: '—\nCAFFT · Universitat de les Illes Balears\nEste es un mensaje automático; no hace falta que responda.',
   en: '—\nCAFFT · Universitat de les Illes Balears\nThis is an automated message; please do not reply.',
 };
 
 export function passwordResetMail(lang: Lang, username: string, link: string): { subject: string; body: string } {
   const t = {
     ca: {
-      subject: 'CAFFT: restableix la contrasenya',
-      body: `Hola ${username},\n\nHem rebut una sol·licitud per restablir la contrasenya del teu compte de CAFFT. Pots triar-ne una de nova en aquest enllaç, que és vàlid durant 1 hora i només es pot fer servir una vegada:\n\n${link}\n\nSi no ho has demanat tu, pots ignorar aquest missatge: la teva contrasenya no canviarà.`,
+      subject: 'CAFFT: restableixi la contrasenya',
+      body: `Hola ${username},\n\nHem rebut una sol·licitud per restablir la contrasenya del seu compte de CAFFT. Pot triar-ne una de nova en aquest enllaç, que és vàlid durant 1 hora i només es pot fer servir una vegada:\n\n${link}\n\nSi no ho ha demanat vostè, pot ignorar aquest missatge: la seva contrasenya no canviarà.`,
     },
     es: {
-      subject: 'CAFFT: restablece tu contraseña',
-      body: `Hola ${username}:\n\nHemos recibido una solicitud para restablecer la contraseña de tu cuenta de CAFFT. Puedes elegir una nueva en este enlace, válido durante 1 hora y de un solo uso:\n\n${link}\n\nSi no lo has pedido tú, puedes ignorar este mensaje: tu contraseña no cambiará.`,
+      subject: 'CAFFT: restablezca su contraseña',
+      body: `Hola ${username}:\n\nHemos recibido una solicitud para restablecer la contraseña de su cuenta de CAFFT. Puede elegir una nueva en este enlace, válido durante 1 hora y de un solo uso:\n\n${link}\n\nSi no lo ha pedido usted, puede ignorar este mensaje: su contraseña no cambiará.`,
     },
     en: {
       subject: 'CAFFT: reset your password',
@@ -41,11 +41,11 @@ export function invitationMail(lang: Lang, username: string, invitedBy: string, 
   const t = {
     ca: {
       subject: 'Benvingut/da a CAFFT',
-      body: `Hola ${username},\n\n${invitedBy} t'ha creat un compte a CAFFT, el programa de tractament de la por a volar de la Universitat de les Illes Balears.\n\nEl teu nom d'usuari és: ${username}\n\nPer començar, tria la teva contrasenya en aquest enllaç (vàlid durant 7 dies i d'un sol ús):\n\n${link}\n\nSi l'enllaç ha caducat, demana'n un de nou a la persona que t'ha convidat.`,
+      body: `Hola ${username},\n\n${invitedBy} li ha creat un compte a CAFFT, el programa de tractament de la por a volar de la Universitat de les Illes Balears.\n\nEl seu nom d'usuari és: ${username}\n\nPer començar, triï la seva contrasenya en aquest enllaç (vàlid durant 7 dies i d'un sol ús):\n\n${link}\n\nSi l'enllaç ha caducat, demani'n un de nou a la persona que l'ha convidat.`,
     },
     es: {
       subject: 'Bienvenido/a a CAFFT',
-      body: `Hola ${username}:\n\n${invitedBy} te ha creado una cuenta en CAFFT, el programa de tratamiento del miedo a volar de la Universitat de les Illes Balears.\n\nTu nombre de usuario es: ${username}\n\nPara empezar, elige tu contraseña en este enlace (válido durante 7 días y de un solo uso):\n\n${link}\n\nSi el enlace ha caducado, pide uno nuevo a la persona que te ha invitado.`,
+      body: `Hola ${username}:\n\n${invitedBy} le ha creado una cuenta en CAFFT, el programa de tratamiento del miedo a volar de la Universitat de les Illes Balears.\n\nSu nombre de usuario es: ${username}\n\nPara empezar, elija su contraseña en este enlace (válido durante 7 días y de un solo uso):\n\n${link}\n\nSi el enlace ha caducado, pida uno nuevo a la persona que le ha invitado.`,
     },
     en: {
       subject: 'Welcome to CAFFT',

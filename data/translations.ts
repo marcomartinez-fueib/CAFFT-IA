@@ -773,7 +773,7 @@ const caTranslations: TranslationContent = {
             step2: { title: "Indicadors de Progrés (KPIs)", content: "Monitoritza en temps real les taxes d'èxit, la millora mitjana en el QPV-II i el temps total d'exposició de la teva cohort." },
             step3: { title: "Distribució per Fases Clíniques", content: "Visualitza ràpidament en quina etapa del tractament es troba cada pacient per identificar colls d'ampolla." },
             step4: { title: "Anàlisi de l'Activitat Diària", content: "Consulta la dinàmica de sessions i avaluacions dels darrers dies per assegurar l'adherència al programa." },
-            step5: { title: "Gestió de Pacients", content: "Afegeix nous pacients, genera codis d'accés i exporta dades per a investigació o ús clínic extern." },
+            step5: { title: "Gestió de Pacients", content: "Registra nous pacients amb un nom d'usuari i un correu electrònic. El pacient rep un correu d'invitació amb un enllaç, vàlid durant 7 dies, per triar la seva contrasenya; si cal, pots reenviar la invitació des del panell. També pots exportar dades per a investigació o ús clínic extern." },
             step6: { title: "Llistat i Alertes Crítiques", content: "Accedeix a la fitxa detallada de cada pacient. El sistema ressaltarà automàticament aquells que requereixin una revisió urgent." },
             step7: { title: "Consultoria IA Clínica", content: "Revisa les consultes que els pacients han fet a l'IA i utilitza l'assistent per analitzar mètriques complexes o rebre assessorament basat en l'evidència." },
             step8: { title: "Assistència i Guies", content: "Tens sempre a mà l'assistent co-terapeuta per resoldre dubtes sobre el protocol o per accedir ràpidament a les guies clíniques." }
@@ -2366,7 +2366,7 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
             step2: { title: "Indicadores de Progreso (KPIs)", content: "Monitoriza en tiempo real las tasas de éxito, la mejora media en el QPV-II y el tiempo total de exposición de tu cohorte." },
             step3: { title: "Distribución por Fases Clínicas", content: "Visualiza rápidamente en qué etapa del tratamiento se encuentra cada paciente para identificar cuellos de botella." },
             step4: { title: "Análisis de la Actividad Diaria", content: "Consulta la dinámica de sesiones y evaluaciones de los últimos días para asegurar la adherencia al programa." },
-            step5: { title: "Gestión de Pacientes", content: "Añade nuevos pacientes, genera códigos de acceso y exporta datos para investigación o uso clínico externo." },
+            step5: { title: "Gestión de Pacientes", content: "Registra nuevos pacientes con un nombre de usuario y un correo electrónico. El paciente recibe un correo de invitación con un enlace, válido durante 7 días, para elegir su contraseña; si hace falta, puedes reenviar la invitación desde el panel. También puedes exportar datos para investigación o uso clínico externo." },
             step6: { title: "Listado y Alertas Críticas", content: "Accede a la ficha detallada de cada paciente. El sistema resaltará automáticamente aquellos que requieran una revisión urgente." },
             step7: { title: "Consultoría IA Clínica", content: "Revisa las consultas que los pacientes han hecho a la IA y utiliza al asistente para analizar métricas complejas o recibir asesoramiento basado en la evidencia." },
             step8: { title: "Asistencia y Guías", content: "Tienes siempre a mano al asistente co-terapeuta para resolver dudas sobre el protocolo o para acceder rápidamente a las guías clínicas." }
@@ -3234,7 +3234,7 @@ const enTranslations: TranslationContent = {
             step2: { title: "Progress Indicators (KPIs)", content: "Monitor in real-time the success rates, average QPV-II improvement, and total exposure time of your cohort." },
             step3: { title: "Clinical Phase Distribution", content: "Quickly visualize which treatment stage each patient is in to identify bottlenecks." },
             step4: { title: "Daily Activity Analysis", content: "Check the dynamics of sessions and evaluations over the past few days to ensure program adherence." },
-            step5: { title: "Patient Management", content: "Add new patients, generate access codes, and export data for research or external clinical use." },
+            step5: { title: "Patient Management", content: "Register new patients with a username and an email address. The patient receives an invitation email with a link, valid for 7 days, to set their password; if needed, you can resend the invitation from the dashboard. You can also export data for research or external clinical use." },
             step6: { title: "Patient List & Critical Alerts", content: "Access each patient's detailed file. The system will automatically highlight those requiring urgent review." },
             step7: { title: "Clinical AI Consultancy", content: "Review patient consultations with the AI and use the assistant to analyze complex metrics or receive evidence-based advice." },
             step8: { title: "Support & Clinical Guides", content: "Always have the co-therapist assistant at hand to resolve protocol doubts or quickly access clinical guides." }

@@ -148,29 +148,13 @@ export const ExposureHierarchyPage: React.FC = () => {
         <p className="mb-6 text-gray-700">{t('exposureHierarchy.introText')}</p>
         
         <div className="mb-8 p-4 bg-sky-50 border border-sky-200 rounded-lg">
-            <div className="flex items-start mb-4">
+            <div className="flex items-start">
                 <InfoIcon className="w-6 h-6 text-sky-600 mr-3 mt-0.5 flex-shrink-0" />
                 <div>
                     <h4 className="font-bold text-sky-800 text-sm mb-1">{t('exposureHierarchy.hierarchyLogicTitle')}</h4>
                     <p className="text-sm text-sky-700">{t('exposureHierarchy.hierarchyLogicText')}</p>
                 </div>
             </div>
-            {qpviiScores && (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
-                    <div className="bg-white/60 p-2 rounded border border-sky-100 text-center">
-                        <p className="text-[10px] uppercase font-bold text-sky-600 tracking-wider">{t('qpvii.subPreparatiusScore')}</p>
-                        <p className="text-lg font-black text-sky-900">{qpviiScores.subPreparatius}</p>
-                    </div>
-                    <div className="bg-white/60 p-2 rounded border border-sky-100 text-center">
-                        <p className="text-[10px] uppercase font-bold text-sky-600 tracking-wider">{t('qpvii.subVolScore')}</p>
-                        <p className="text-lg font-black text-sky-900">{qpviiScores.subVol}</p>
-                    </div>
-                    <div className="bg-white/60 p-2 rounded border border-sky-100 text-center">
-                        <p className="text-[10px] uppercase font-bold text-sky-600 tracking-wider">{t('qpvii.subVicariScore')}</p>
-                        <p className="text-lg font-black text-sky-900">{qpviiScores.subVicari}</p>
-                    </div>
-                </div>
-            )}
         </div>
 
         {videoSequence.length > 0 ? (

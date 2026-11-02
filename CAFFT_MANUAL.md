@@ -64,8 +64,8 @@ Un cop finalitzada la jerarquia, ha de realitzar un vol en un termini de 10-15 d
 ### 4.1 Pautes de Vol
 - **Medicació:** NO prengui tranquil·litzants. El cervell ha d'estar "despert" per integrar l'aprenentatge de seguretat.
 - **Alcohol:** NO consumeixi alcohol abans ni durant el vol.
-- **Conducta:** Comporta't amb normalitat. No demanis seients especials. Seu on et toqui.
-- **Nervis:** Accepta els nervis. Recorda que l'ansietat és incòmoda però segura. No lluitis contra ella, deixa-la passar.
+- **Conducta:** Comporti's amb normalitat. No demani seients especials. Segui on li toqui.
+- **Nervis:** Accepti els nervis. Recordi que l'ansietat és incòmoda però segura. No lluiti contra ella, deixi-la passar.
 
 ---
 

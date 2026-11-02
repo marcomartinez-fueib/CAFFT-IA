@@ -264,7 +264,7 @@ export async function resetPatientPassword(userId: string): Promise<string | nul
   }
 }
 
-async function toggle(userId: string, what: 'notifications' | 'onboarding'): Promise<boolean> {
+async function toggle(userId: string, what: 'notifications' | 'onboarding' | 'test-account'): Promise<boolean> {
   try {
     const { user } = await api<{ user: StoredUser }>('POST', `/users/${encodeURIComponent(userId)}/toggle-${what}`);
     replaceUser(user);
@@ -277,6 +277,7 @@ async function toggle(userId: string, what: 'notifications' | 'onboarding'): Pro
 
 export const toggleUserNotifications = (userId: string) => toggle(userId, 'notifications');
 export const toggleUserOnboarding = (userId: string) => toggle(userId, 'onboarding');
+export const toggleTestAccount = (userId: string) => toggle(userId, 'test-account');
 
 /** Records that the logged-in user finished an onboarding tour. */
 export async function completeOnboardingTour(tour: 'patient' | 'therapist'): Promise<StoredUser | null> {

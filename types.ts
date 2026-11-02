@@ -43,6 +43,7 @@ export interface User {
   notificationPreferences?: NotificationPreferences;
   sentFollowUps?: string[];
   onboardingEnabled?: boolean;
+  isTestAccount?: boolean; // Set by staff; shows the testing controls to this patient
 }
 
 // A user as the API returns it (server/src/users.ts, toApiUser). The password
@@ -578,6 +579,8 @@ export interface TherapistDashboardContent {
 export interface PatientDetailContent {
   pageTitle: string;
   aiConsultationsTitleForPatient?: string;
+  testAccountLabel?: string;
+  testAccountHint?: string;
   noAiConsultationsForPatient?: string;
   currentPlanTitle: string;
   basedOnEvaluation: string;

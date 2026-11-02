@@ -30,6 +30,7 @@ import {
     saveSimulatedEmail,
     toggleUserNotifications,
     toggleUserOnboarding,
+    toggleTestAccount,
     syncStore,
     resendInvitation,
 } from '../../services/dataStore';
@@ -329,6 +330,13 @@ export const PatientDetailPage: React.FC = () => {
         }
     };
 
+    const handleToggleTestAccount = async () => {
+        if (patientId && await toggleTestAccount(patientId)) {
+            const user = findUserById(patientId);
+            if (user) setPatient({ ...patient, ...user, isTestAccount: user.isTestAccount } as Patient);
+        }
+    };
+
     if (loading) {
         return <div className="p-8 text-center">{t('auth.loading')}</div>;
     }
@@ -392,6 +400,14 @@ export const PatientDetailPage: React.FC = () => {
                             title={patient.onboardingEnabled !== false ? t('therapistDashboard.tooltips.toggleTourOff') : t('therapistDashboard.tooltips.toggleTourOn')}
                         >
                             <CompassIcon className="w-5 h-5" />
+                        </button>
+                        <button
+                            onClick={handleToggleTestAccount}
+                            aria-pressed={!!patient.isTestAccount}
+                            title={t('patientDetail.testAccountHint')}
+                            className={`px-3 py-2 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${patient.isTestAccount ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-slate-50 text-slate-400 border-slate-200'}`}
+                        >
+                            {t('patientDetail.testAccountLabel')}
                         </button>
                     </div>
                     

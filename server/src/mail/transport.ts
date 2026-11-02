@@ -25,6 +25,30 @@ export class LogTransport implements MailTransport {
   }
 }
 
+/**
+ * The test environment (pre) must never mail real people. Only recipients in
+ * the allowed domains (the team's) are delivered; any other message is logged
+ * and recorded as suppressed instead of sent, so the outbox does not retry it.
+ */
+export class DomainRestrictedTransport implements MailTransport {
+  private readonly inner: MailTransport;
+  private readonly domains: Set<string>;
+  private readonly log: (msg: string) => void;
+
+  constructor(inner: MailTransport, domains: string[], log: (msg: string) => void = console.log) {
+    this.inner = inner;
+    this.domains = new Set(domains.map((d) => d.trim().toLowerCase()).filter(Boolean));
+    this.log = log;
+  }
+
+  async send(message: { to: string; subject: string; body: string }): Promise<string | void> {
+    const domain = message.to.split('@').pop()?.toLowerCase() ?? '';
+    if (this.domains.has(domain)) return this.inner.send(message);
+    this.log(`[mail] suppressed: ${message.to} is outside MAIL_ALLOWED_DOMAINS (subject ${JSON.stringify(message.subject)})`);
+    return 'suppressed: recipient outside MAIL_ALLOWED_DOMAINS';
+  }
+}
+
 export interface SmtpConfig {
   host: string;
   port: number;

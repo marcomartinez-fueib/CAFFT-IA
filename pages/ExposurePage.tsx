@@ -137,7 +137,7 @@ export const ExposurePage: React.FC = () => {
         setQpviiTimestampForExposure(originalTimestamp); 
 
         const reviewSequence = EXPOSURE_VIDEOS
-            .filter(video => reviewScenes.includes(video.relatedArea))
+            .filter(video => reviewScenes.includes(video.relatedArea) && video.available !== false)
             .sort((a, b) => {
                 const sceneAIndex = CANONICAL_FLIGHT_STAGES_ORDER.indexOf(a.relatedArea);
                 const sceneBIndex = CANONICAL_FLIGHT_STAGES_ORDER.indexOf(b.relatedArea);

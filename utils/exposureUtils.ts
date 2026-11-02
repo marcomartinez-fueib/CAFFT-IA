@@ -94,7 +94,7 @@ export const determineVideoSequence = (answers: QPVIIAnswers | undefined): Expos
     for (const { stageKey } of phasesWithScores) {
         // Find videos belonging to this phase
         const videosForStage = EXPOSURE_VIDEOS
-            .filter(v => v.relatedArea === stageKey) 
+            .filter(v => v.relatedArea === stageKey && v.available !== false) 
             .sort((v1, v2) => v1.intensity - v2.intensity); 
 
         if (videosForStage.length > 0) {

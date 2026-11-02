@@ -1177,6 +1177,7 @@ export interface ExposureVideo {
   descriptionKey: string;
   relatedArea: ExposureSceneKey;
   intensity: number;
+  available?: false; // In the catalogue, but its files are not delivered yet: never played
 }
 
 export interface VideoDiscomfortRating {

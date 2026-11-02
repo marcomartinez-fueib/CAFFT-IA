@@ -678,6 +678,7 @@ export interface TranslationContent {
     resendInvitation: string;
     invitationResent: string;
     invitationResendFailed: string;
+    viewSource: string;
     time: {
       ago: string;
       year: string;

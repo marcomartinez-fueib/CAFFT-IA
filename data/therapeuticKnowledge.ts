@@ -24,7 +24,7 @@ Sessions: 4-8 sessions de 60 minuts. Freqüència: 2-3 sessions per setmana.
 
 ## 3. Guia de l'Usuari (Prospecte)
 Condicions d'ús: Lloc tranquil, llum tènue, AURICULARS OBLIGATORIS, volum realista.
-Implicació activa: Concentració, honestedat en el malestar (SUDS 0-10), no aturar l'exposició si l'ansietat és alta.
+Implicació activa: Concentració, honestedat en el malestar (SUDS 1-9), no aturar l'exposició si l'ansietat és alta.
 PROHIBIT: No utilitzar tècniques de relaxació, respiració profunda o distracció durant els vídeos. Aquestes actuen com a suports externs que impedeixen l'aprenentatge real i l'habituació.
 
 ## 4. Instruccions per al Vol Real (Post-Tractament)
@@ -92,7 +92,7 @@ Això garanteix un procés gradual i personalitzat.
     coreFeatures: `
 # Funcionalitats Core
 - QPV-II digitalitzat amb 31 ítems i 4 subescales.
-- Càlcul de l'Índex de Canvi Fiable (RCI) (significatiu si > 1.96).
+- Càlcul de l'Índex de Canvi Fiable (RCI): indica si el canvi en el QPV-II entre pre i post és fiable (|RCI| > 1,96).
 - Gràfics d'evolucio i corbes d'habituació (pendent/slope negatiu).
 - LocalStorage DB per a persistència "backendless".
 - Assistent IA integrat (Gemini) amb personalitat terapèutica.

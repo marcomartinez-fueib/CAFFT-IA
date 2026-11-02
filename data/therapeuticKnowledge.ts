@@ -92,7 +92,7 @@ Això garanteix un procés gradual i personalitzat.
     coreFeatures: `
 # Funcionalitats Core
 - QPV-II digitalitzat amb 31 ítems i 4 subescales.
-- Càlcul de l'Índex de Canvi Fiable (RCI) (significatiu si > 1.96).
+- Càlcul de l'Índex de Canvi Fiable (RCI): indica si el canvi en el QPV-II entre pre i post és fiable (|RCI| > 1,96).
 - Gràfics d'evolucio i corbes d'habituació (pendent/slope negatiu).
 - LocalStorage DB per a persistència "backendless".
 - Assistent IA integrat (Gemini) amb personalitat terapèutica.

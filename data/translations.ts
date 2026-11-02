@@ -386,7 +386,7 @@ const caTranslations: TranslationContent = {
         },
         howToUse: {
             title: "Com Utilitzar el Programa",
-            text: "Segueixi els passos indicats a l'aplicació: comenci amb la introducció, completi l'avaluació QPV-II amb honestedat, i després segueixi la seva jerarquia d'exposició personalitzada. És crucial que es quedi a cada pas fins que la seva ansietat es redueixi significativament abans de passar al següent.",
+            text: "Segueixi els passos indicats a l'aplicació: comenci amb la introducció, completi l'avaluació QPV-II amb honestedat, i després segueixi la seva jerarquia d'exposició personalitzada. És crucial que es quedi a cada pas, repetint el vídeo, fins que valori el seu malestar amb un 2 o menys (en l'escala d'1 a 9) abans de passar al següent.",
         },
         advantages: {
             title: "Avantatges del CAFFT",
@@ -891,7 +891,7 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
             title: "2. El Programa CAFFT",
             howItWorks: {
                 title: "Com funciona?",
-                textManual: "L'exposició a les situacions temudes serà gradual. El sistema confecciona una **jerarquia individualitzada** basada en el seu qüestionari QPV-II. Cada seqüència es presenta tantes vegades com sigui necessari fins que l'ansietat disminueixi significativament."
+                textManual: "L'exposició a les situacions temudes serà gradual. El sistema confecciona una **jerarquia individualitzada** basada en el seu qüestionari QPV-II. Cada seqüència es presenta tantes vegades com sigui necessari fins que l'ansietat disminueixi i vostè valori el seu malestar amb un 2 o menys (en l'escala d'1 a 9)."
             },
             duration: {
                 title: "Quant dura?",
@@ -913,7 +913,7 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
                 textManual: "Vostè ha de jugar un paper actiu. Intenti sentir-se com si l'estigués VIVINT (implicació).",
                 list1: "Màxima concentració: No separi la vista de la pantalla.",
                 list2: "No vulgui córrer: Indiqui honestament el grau de malestar.",
-                list3: "No s'aturi: No finalitzi una sessió fins que l'ansietat hagi baixat almenys a la meitat.",
+                list3: "No s'aturi: Repeteixi el vídeo fins que valori el seu malestar amb un 2 o menys (en l'escala d'1 a 9).",
             },
             tasksBetweenSessions: {
                 title: "Tasques entre sessions",
@@ -1064,7 +1064,7 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
         section3Title: "Instruccions Clau (Exposició Pura)",
         section3Point1Active: "Mantingui la implicació: visqui la situació com si fóra real.",
         section3Point2Stay: "No utilitzi tècniques de relaxació, respiració ni distraccions; impedeixen l'habituació.",
-        section3Point3Rate: "No aturi el vídeo ni tanqui els ulls fins que l'ansietat hagi baixat, almenys, a la meitat.",
+        section3Point3Rate: "No aturi el vídeo ni tanqui els ulls. Repeteixi'l fins que valori el seu malestar amb un 2 o menys.",
         section3Point4Repeat: "La repetició sense 'ajudes temporals' és la clau de l'èxit.",
         section4Title: "Què esperar?",
         section4TextInitialAnxiety: "Al principi, l'ansietat pot ser alta.",
@@ -1560,7 +1560,7 @@ const esTranslations: TranslationContent = {
         howToUse: {
             ...caTranslations.userGuide.howToUse,
             title: "Cómo Utilizar el Programa",
-            text: "Siga los pasos indicados en la aplicación: comience con la introducción, complete la evaluación QPV-II con honestidad, y luego siga su jerarquía de exposición personalizada. Es crucial que se quede en cada paso hasta que su ansiedad se reduzca considerablemente (al menos a la mitad) antes de pasar al siguiente.",
+            text: "Siga los pasos indicados en la aplicación: comience con la introducción, complete la evaluación QPV-II con honestidad, y luego siga su jerarquía de exposición personalizada. Es crucial que se quede en cada paso, repitiendo el vídeo, hasta que valore su malestar con un 2 o menos (en la escala de 1 a 9) antes de pasar al siguiente.",
         },
         advantages: {
             ...caTranslations.userGuide.advantages,
@@ -1777,7 +1777,7 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
             title: "2. El Programa CAFFT",
             howItWorks: {
                 title: "¿Cómo funciona?",
-                textManual: "La exposición a las situaciones temidas será gradual. El sistema confecciona una **jerarquía individualizada** basada en su cuestionario QPV-II. Cada secuencia se presenta tantas veces como sea necesario hasta que la ansiedad disminuya significativamente."
+                textManual: "La exposición a las situaciones temidas será gradual. El sistema confecciona una **jerarquía individualizada** basada en su cuestionario QPV-II. Cada secuencia se presenta tantas veces como sea necesario hasta que la ansiedad disminuya y usted valore su malestar con un 2 o menos (en la escala de 1 a 9)."
             },
             duration: {
                 title: "¿Cuánto dura?",
@@ -1799,7 +1799,7 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
                 textManual: "Usted debe jugar un papel activo. Intente sentirse como si lo estuviera VIVIENDO (implicación).",
                 list1: "Máxima concentración: No separe la vista de la pantalla.",
                 list2: "No quiera correr: Indique honestamente el grado de malestar.",
-                list3: "No se detenga: No finalice una sesión hasta que la ansiedad haya bajado al menos a la mitad.",
+                list3: "No se detenga: Repita el vídeo hasta que valore su malestar con un 2 o menos (en la escala de 1 a 9).",
             },
             tasksBetweenSessions: {
                 title: "Tareas entre sesiones",
@@ -2477,7 +2477,7 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
         section3Title: "Instrucciones Clave (Exposición Pura)",
         section3Point1Active: "Mantenga la implicación: viva la situación como si fuera real.",
         section3Point2Stay: "No utilice técnicas de relajación, respiración ni distracciones; impiden la habituación.",
-        section3Point3Rate: "No detenga el vídeo ni cierre los ojos hasta que la ansiedad haya bajado, al menos, a la mitad.",
+        section3Point3Rate: "No detenga el vídeo ni cierre los ojos. Repítalo hasta que valore su malestar con un 2 o menos.",
         section3Point4Repeat: "La repetición sin 'ayudas temporales' es la clave del éxito.",
         section4Title: "¿Qué esperar?",
         section4TextInitialAnxiety: "Al principio, la ansiedad puede ser alta.",
@@ -2633,7 +2633,7 @@ const enTranslations: TranslationContent = {
         },
         howToUse: {
             title: "How to Use the Program",
-            text: "Follow the steps indicated in the application: start with the introduction, complete the QPV-II evaluation honestly, and then follow your personalized exposure hierarchy. It is crucial to stay at each step until your anxiety is significantly reduced (at least by half) before moving to the next one.",
+            text: "Follow the steps indicated in the application: start with the introduction, complete the QPV-II evaluation honestly, and then follow your personalized exposure hierarchy. It is crucial to stay at each step, repeating the video, until you rate your discomfort at 2 or less (on the 1 to 9 scale) before moving to the next one.",
         },
         advantages: {
             title: "Advantages of CAFFT",
@@ -3357,7 +3357,7 @@ const enTranslations: TranslationContent = {
         section3Title: "Key Instructions (Pure Exposure)",
         section3Point1Active: "Maintain involvement: experience the situation as if it were real.",
         section3Point2Stay: "Do not use relaxation, breathing techniques, or distractions; they prevent habituation.",
-        section3Point3Rate: "Do not stop the video or close your eyes until the anxiety has dropped by at least half.",
+        section3Point3Rate: "Do not stop the video or close your eyes. Repeat it until you rate your discomfort at 2 or less.",
         section3Point4Repeat: "Repetition without 'safety aids' is the key to success.",
         section4Title: "What to expect?",
         proceedButton: "Understood, I want to start",
@@ -3507,7 +3507,7 @@ The treatment is based on **Pure Exposure**. We use realistic videos that simula
             title: "2. The CAFFT Program",
             howItWorks: {
                 title: "How does it work?",
-                textManual: "Exposure to feared situations will be gradual. The system prepares an **individualized hierarchy** based on your QPV-II questionnaire. Each sequence is presented as many times as necessary until anxiety significantly decreases."
+                textManual: "Exposure to feared situations will be gradual. The system prepares an **individualized hierarchy** based on your QPV-II questionnaire. Each sequence is presented as many times as necessary until anxiety decreases and you rate your discomfort at 2 or less (on the 1 to 9 scale)."
             },
             duration: {
                 title: "How long does it last?",
@@ -3529,7 +3529,7 @@ The treatment is based on **Pure Exposure**. We use realistic videos that simula
                 textManual: "You must play an active role. Try to feel as if you are LIVING it (involvement).",
                 list1: "Maximum concentration: Do not look away from the screen.",
                 list2: "Don't rush: Honestly indicate the degree of discomfort.",
-                list3: "Don't stop: Do not end a session until anxiety has dropped at least by half.",
+                list3: "Don't stop: Repeat the video until you rate your discomfort at 2 or less (on the 1 to 9 scale).",
             },
             tasksBetweenSessions: {
                 title: "Tasks between sessions",

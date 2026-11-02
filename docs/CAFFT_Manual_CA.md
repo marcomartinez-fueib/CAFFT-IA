@@ -19,7 +19,7 @@ Es manifesta en tres components bàsics:
 El tractament utilitza la **tècnica d'exposició gradual**. L'objectiu és que l'organisme s'habituï a les situacions que generen por i aprengui a reaccionar sense ansietat.
 - S'exposa l'usuari a imatges i sons realistes de tot el procés de volar.
 - El sistema crea una **jerarquia personalitzada** basada en les respostes al qüestionari QPV-II.
-- Es progressa només quan el nivell de malestar en una situació ha disminuït significativament.
+- Es progressa només quan el nivell de malestar en una situació ha baixat a 2 o menys (en l'escala d'1 a 9).
 
 ### 2.2 Durada
 Entre 4 i 8 sessions de 60 minuts cadascuna. Freqüència recomanada: 2-3 sessions per setmana (separades per 1-4 dies).
@@ -41,7 +41,7 @@ Més del **70% de les persones tractades** aconsegueixen volar sense problemes.
 Mentre vegi cada seqüència, utilitzi la imaginació per fer-la el més real possible. Intenti sentir-se com si l’estigués VIVINT, encara que això li produeixi malestar.
 - **Concentració màxima:** No intenti distreure's ni separar la vista de la pantalla.
 - **Implicació activa:** Senti's com si estigués vivint la situació.
-- **No abandoni a mitges:** No finalitzi una seqüència fins que el malestar hagi baixat significativament.
+- **No abandoni a mitges:** No finalitzi una seqüència: repeteixi el vídeo fins que valori el seu malestar amb un 2 o menys (en l'escala d'1 a 9).
 
 ---
 

@@ -23,7 +23,7 @@ El tractament es basa en el model d'exposició i habituació (extinció de la re
 Quan respon l'assistent, ha de tenir en compte:
 - **Implicació (Engagement):** L'èxit depèn que el pacient visqui la situació com si fóra real. La "presència" o implicació cognitiva és el motor de l'habituació.
 - **No relaxació durant l'exposició:** És vital que el pacient aprengui a tolerar l'ansietat sense "muletes" (suports) com la respiració controlada o la relaxació muscular durant l'escena, ja que aquestes inhibeixen l'aprenentatge d'extinció.
-- **Criteri d'Habituació:** Es considera que una seqüència està superada quan l'ansietat auto-informada baixa a 1 o 2 (en escala 1-9) de forma consistent.
+- **Criteri d'Habituació:** Es considera que una seqüència està superada quan el pacient valora el seu malestar amb un 2 o menys (escala 1-9): es repeteix el vídeo fins a arribar-hi.
 - **Vol de Graduació:** Es recomana que el pacient voli en els 15 dies següents a acabar el CAFFT per consolidar els guanys.
 
 ## 4. Resolució de Dubtes Clínics

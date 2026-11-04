@@ -1,0 +1,19 @@
+# ---------------------------------------------------------------------------
+# CAFFT — CI on dev and on every pull request. Deploys nothing; pre and pro
+# are deployed by deploy.yml.
+# ---------------------------------------------------------------------------
+name: CI
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Tests
+    uses: ./.github/workflows/tests.yml

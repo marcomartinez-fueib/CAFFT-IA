@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
         proxy: {
           // Mirrors the production nginx proxy so AI features behave the same in
           // dev: the browser never sees the API key and requests stay
-          // same-origin. See docs/deploy/docker/cafft.conf.
+          // same-origin. See deploy/nginx/cafft.conf.
           [genaiPath]: {
             target: 'https://generativelanguage.googleapis.com',
             changeOrigin: true,

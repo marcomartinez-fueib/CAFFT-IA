@@ -5,7 +5,7 @@ import { purgeExpiredSessions } from './sessions.ts';
 import { backupDatabase } from './backup.ts';
 import { processOutbox } from './mail/outbox.ts';
 import nodemailer from 'nodemailer';
-import { LogTransport, SmtpTransport, type CreateTransport, type MailTransport } from './mail/transport.ts';
+import { DomainRestrictedTransport, LogTransport, SmtpTransport, type CreateTransport, type MailTransport } from './mail/transport.ts';
 
 const config = loadConfig();
 const db = openDb(config.dbPath, { migrate: false });
@@ -46,6 +46,10 @@ if (config.smtp.host) {
 } else {
   transport = new LogTransport((msg) => app.log.info(msg));
   app.log.warn('no SMTP_HOST: emails are written to this log, not sent');
+}
+if (config.mailAllowedDomains.length > 0) {
+  transport = new DomainRestrictedTransport(transport, config.mailAllowedDomains, (msg) => app.log.warn(msg));
+  app.log.info({ domains: config.mailAllowedDomains }, 'mail is delivered only to these domains');
 }
 let delivering = false;
 setInterval(async () => {

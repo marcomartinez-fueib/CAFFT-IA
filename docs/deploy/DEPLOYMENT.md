@@ -44,7 +44,8 @@ request `pre → pro` deploys it to **pro**.
 `deploy.sh <pre|pro>`, in the environment's clone:
 
 1. silences the app's alerts for 10 minutes (`silencio-deploy cafft <env>`);
-2. `git pull --ff-only` (stops if someone edited tracked files by hand);
+2. `git fetch` and a fast-forward to the branch (stops if someone edited
+   tracked files by hand);
 3. builds the app in a `node:24-alpine` container — the server has no Node —
    and fails if the build references a host the CSP blocks;
 4. swaps the build into `runtime/web/cafft` with an atomic rename;

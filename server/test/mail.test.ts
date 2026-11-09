@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import type { FastifyInstance } from 'fastify';
 import { login, makeApp, ORIGIN, seedUser } from './helpers.ts';
 import { processOutbox } from '../src/mail/outbox.ts';
-import { LogTransport, SmtpTransport, type CreateTransport } from '../src/mail/transport.ts';
+import { DomainRestrictedTransport, LogTransport, SmtpTransport, type CreateTransport } from '../src/mail/transport.ts';
+import { loadConfig } from '../src/config.ts';
 import type { Db } from '../src/db.ts';
 
 const post = (app: FastifyInstance, url: string, payload: object, cookie?: string) =>
@@ -251,4 +252,24 @@ test('feedback rejects a blank comment or a malformed contact', async () => {
   assert.equal((await post(app, '/feedback', { ...base, contact: 'no-és-un-correu' })).statusCode, 400);
   assert.equal((await post(app, '/feedback', { ...base, contact: '' })).statusCode, 204);
   assert.equal(db.prepare('SELECT COUNT(*) AS n FROM outbound_mail').get()!.n, 1);
+});
+
+test('in the test environment, mail reaches only the allowed domains', async () => {
+  const inner = new LogTransport(() => {});
+  const transport = new DomainRestrictedTransport(inner, ['uib.es', ' FUEIB.org '], () => {});
+  const message = { subject: 's', body: 'b' };
+
+  assert.equal(await transport.send({ ...message, to: 'revisora@uib.es' }), undefined);
+  await transport.send({ ...message, to: 'Equip@FUEIB.org' });
+  assert.match(String(await transport.send({ ...message, to: 'pacient@gmail.com' })), /suppressed/);
+  assert.match(String(await transport.send({ ...message, to: 'algu@uib.es.example.com' })), /suppressed/);
+  assert.deepEqual(inner.sent.map((m) => m.to), ['revisora@uib.es', 'Equip@FUEIB.org']);
+
+  assert.deepEqual(loadConfig().mailAllowedDomains, []);
+  process.env.MAIL_ALLOWED_DOMAINS = 'uib.es, uib.cat,,fueib.org';
+  try {
+    assert.deepEqual(loadConfig().mailAllowedDomains, ['uib.es', 'uib.cat', 'fueib.org']);
+  } finally {
+    delete process.env.MAIL_ALLOWED_DOMAINS;
+  }
 });

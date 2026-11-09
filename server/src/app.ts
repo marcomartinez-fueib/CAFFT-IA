@@ -33,7 +33,7 @@ export async function buildApp(config: Config, db: Db): Promise<FastifyInstance>
       },
     } : false,
     // Only nginx can reach the API, and it sets X-Forwarded-For to the real
-    // client address (see docs/deploy/docker/cafft.conf).
+    // client address (see deploy/nginx/cafft.conf).
     trustProxy: true,
     bodyLimit: 1024 * 1024,
     // Reject unknown properties instead of silently stripping them, so a

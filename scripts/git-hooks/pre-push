@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# ---------------------------------------------------------------------------
+# pre-push — local gate before code leaves the machine. Same model as PAUSAT.
+# ---------------------------------------------------------------------------
+#   0) dev, pre and pro are permanent: deleting them is always blocked.
+#   1) Branch flow dev → pre → pro: a push to pre may only bring commits from
+#      dev, and to pro only from pre (local twin of the guard job in
+#      .github/workflows/deploy.yml; branch protection is not available).
+#   2) Tests: any push with new commits runs the type check and the API tests.
+#
+# Enable once per clone:   git config core.hooksPath scripts/git-hooks
+# Emergencies:             SKIP_TESTS=1 git push …   (skips only the tests)
+#                          git push --no-verify      (skips the whole hook)
+# ---------------------------------------------------------------------------
+set -u
+
+remote="$1"
+fail=0
+run_tests=0
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+    branch="${remote_ref#refs/heads/}"
+
+    if echo "$local_sha" | grep -qE '^0+$'; then
+        case "$branch" in
+            dev|pre|pro)
+                echo "pre-push: ⛔ deleting the environment branch '$branch' is blocked." >&2
+                echo "dev, pre and pro are the promotion flow and what deploy.sh pulls on the server." >&2
+                fail=1
+                ;;
+        esac
+        continue
+    fi
+    run_tests=1
+
+    case "$branch" in
+        pre) upstream="refs/remotes/${remote}/dev" ;;
+        pro) upstream="refs/remotes/${remote}/pre" ;;
+        *)   continue ;;
+    esac
+
+    git fetch -q --prune "$remote" 2>/dev/null || true
+
+    if echo "$remote_sha" | grep -qE '^0+$' || ! git cat-file -e "$remote_sha" 2>/dev/null; then
+        # New on the remote: if the commit is already on another remote
+        # branch, nothing new is published (e.g. restoring a deleted branch).
+        if [ -n "$(git branch -r --contains "$local_sha" 2>/dev/null)" ]; then
+            continue
+        fi
+        range="$local_sha"
+    else
+        range="$remote_sha..$local_sha"
+    fi
+
+    bad=$(git rev-list --no-merges "$range" --not "$upstream" 2>/dev/null)
+    if [ -n "$bad" ]; then
+        echo "pre-push: ⛔ push to '$branch' blocked: it has commits that do not come from '${upstream#refs/remotes/}':" >&2
+        git log --oneline --no-walk $bad | head -10 >&2
+        echo "Allowed flow: dev → pre → pro (merge from the previous branch only)." >&2
+        fail=1
+    fi
+done
+
+[ "$fail" -ne 0 ] && exit 1
+
+if [ "$run_tests" -eq 1 ] && [ "${SKIP_TESTS:-0}" != "1" ]; then
+    root="$(git rev-parse --show-toplevel)"
+    echo "pre-push: type check and API tests…" >&2
+    if ! (cd "$root" && npm run -s lint && npm run -s test:api >/dev/null); then
+        echo "pre-push: ⛔ blocked: the checks fail (npm run lint / npm run test:api)." >&2
+        echo "(emergency: SKIP_TESTS=1 git push …  or  git push --no-verify)" >&2
+        exit 1
+    fi
+fi
+
+exit 0

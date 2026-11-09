@@ -1,0 +1,115 @@
+# ============================================================================
+#  CAFFT-IA — one environment (pre or pro) on the UIB server
+# ============================================================================
+#
+#  Used by ../deploy.sh from the environment's clone, always with its env file:
+#
+#      docker compose --env-file .env.pro -f deploy/compose.yml up -d --build
+#
+#  Everything that differs between environments comes from that file (see
+#  env.example): host, names, mail. Everything that is not code lives in the
+#  clone's runtime/ directory, which git ignores:
+#
+#      runtime/web/cafft/                 the built app (deploy.sh swaps it in)
+#      runtime/videos/                    the mp4 assets
+#      runtime/secrets/gemini-key.conf    the Gemini key (0600)
+#      runtime/data/                      the SQLite database   — owned by uid 1000
+#      runtime/backups/                   daily snapshots       — owned by uid 1000
+#
+#  Traefik (edge-traefik-1, shared with PAUSAT and B4B) routes
+#  Host(CAFFT_HOST) && PathPrefix(/cafft) here. PAUSAT's routers for the same
+#  host match on Host alone, so the explicit priority makes /cafft win.
+# ============================================================================
+
+name: ${COMPOSE_PROJECT_NAME:?set COMPOSE_PROJECT_NAME in the env file}
+
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: ${CONTAINER_PREFIX:?}-nginx
+    restart: unless-stopped
+
+    volumes:
+      - ./nginx/cafft.conf:/etc/nginx/conf.d/default.conf:ro
+
+      # NOTE: `web` is mounted, not `web/cafft`. deploy.sh replaces the whole
+      # app directory in one atomic rename, and a bind mount follows the inode
+      # it was given at container start — mounting web/cafft directly would
+      # leave the container serving the old, already-unlinked directory after
+      # every deploy. Mounting the parent keeps the swap visible.
+      - ../runtime/web:/var/www/cafft-site:ro
+
+      - ../runtime/videos:/srv/cafft/videos:ro
+      - ../runtime/secrets/gemini-key.conf:/etc/nginx/private/cafft-gemini-key.conf:ro
+
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/cafft/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+    networks: [edge, cafft]
+
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=edge
+      # A changed nginx config changes this label, so `up -d` recreates the
+      # container (a bind-mounted file's content alone would not).
+      - cafft.nginx-conf-sha256=${NGINX_CONF_SHA256:-unknown}
+
+      # Two routers, same rule, one per entrypoint, as the PAUSAT stacks do.
+      - traefik.http.routers.${TRAEFIK_ROUTER:?}.rule=Host(`${CAFFT_HOST:?}`) && PathPrefix(`/cafft`)
+      - traefik.http.routers.${TRAEFIK_ROUTER}.entrypoints=web
+      - traefik.http.routers.${TRAEFIK_ROUTER}.priority=100
+      - traefik.http.routers.${TRAEFIK_ROUTER}.service=${TRAEFIK_ROUTER}
+
+      # tls=true with no certResolver: the host's certificate is declared in
+      # /data/apps/edge/dynamic/pausat.yml and selected by SNI.
+      - traefik.http.routers.${TRAEFIK_ROUTER}-tls.rule=Host(`${CAFFT_HOST}`) && PathPrefix(`/cafft`)
+      - traefik.http.routers.${TRAEFIK_ROUTER}-tls.entrypoints=websecure
+      - traefik.http.routers.${TRAEFIK_ROUTER}-tls.priority=100
+      - traefik.http.routers.${TRAEFIK_ROUTER}-tls.tls=true
+      - traefik.http.routers.${TRAEFIK_ROUTER}-tls.service=${TRAEFIK_ROUTER}
+
+      - traefik.http.services.${TRAEFIK_ROUTER}.loadbalancer.server.port=80
+
+  api:
+    build: ../server
+    image: ${CONTAINER_PREFIX}-api
+    container_name: ${CONTAINER_PREFIX}-api
+    restart: unless-stopped
+
+    environment:
+      PUBLIC_ORIGIN: https://${CAFFT_HOST}
+      COOKIE_PATH: /cafft
+      DB_PATH: /data/cafft.db
+      BACKUP_DIR: /backups
+      BACKUP_KEEP_DAYS: "30"
+      APP_URL: https://${CAFFT_HOST}/cafft/
+
+      # Outgoing mail through the UIB relay, as B4B and PAUSAT send from this
+      # server: no username or password, the relay accepts by source IP, and
+      # STARTTLS is required (SMTP_STARTTLS defaults to true).
+      SMTP_HOST: ${SMTP_HOST:-smtp.uib.es}
+      SMTP_PORT: "25"
+      MAIL_FROM: ${MAIL_FROM:-CAFFT <cafft@uib.es>}
+      # pre: only these domains receive mail; empty in pro.
+      MAIL_ALLOWED_DOMAINS: ${MAIL_ALLOWED_DOMAINS:-}
+      # Feedback from the in-app form is stored and mailed here.
+      FEEDBACK_TO: ${FEEDBACK_TO:-salutmental@fueib.org}
+
+    volumes:
+      # The image runs as uid 1000 (`node`): both directories must be
+      # writable by it.
+      - ../runtime/data:/data
+      - ../runtime/backups:/backups
+
+    # Not on `edge` and no Traefik labels: only the nginx container can reach
+    # the API, which is what lets it trust X-Forwarded-For and keeps every
+    # request same-origin under /cafft/.
+    networks: [cafft]
+
+networks:
+  edge:
+    external: true
+  cafft: {}

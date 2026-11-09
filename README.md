@@ -1,8 +1,10 @@
 # CAFFT 5.1
 
-**Deploying to the UIB server?** See
-[`docs/deploy/DEPLOYMENT.md`](docs/deploy/DEPLOYMENT.md) for the on-premise
-deployment at <https://pausat.uib.es/cafft/>.
+**Deploying?** Work lands in `dev`; a pull request `dev → pre` deploys to
+<https://pausat-pre.uib.es/cafft/> (tests, no real patients) and `pre → pro`
+to <https://pausat.uib.es/cafft/>. See
+[`docs/deploy/DEPLOYMENT.md`](docs/deploy/DEPLOYMENT.md). Enable the local
+checks once per clone: `git config core.hooksPath scripts/git-hooks`.
 
 **Running locally?** `npm install && npm run dev`, then open
 <http://localhost:3000/cafft/> (note the `/cafft/` path — it is the app's base

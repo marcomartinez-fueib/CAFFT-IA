@@ -577,6 +577,8 @@ export interface TherapistDashboardContent {
 
 export interface PatientDetailContent {
   pageTitle: string;
+  aiConsultationsTitleForPatient?: string;
+  noAiConsultationsForPatient?: string;
   currentPlanTitle: string;
   basedOnEvaluation: string;
   hierarchyTitle: string;
@@ -692,6 +694,7 @@ export interface TranslationContent {
       seconds: string;
       session: string;
       sessions: string;
+      none?: string;
     };
   };
   informedConsent: InformedConsentContent;

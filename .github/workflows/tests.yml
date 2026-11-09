@@ -1,0 +1,41 @@
+# ---------------------------------------------------------------------------
+# CAFFT — test suite, shared by ci.yml (dev and pull requests) and deploy.yml
+# (pre and pro). Runs on GitHub-hosted runners: it never touches the server.
+# ---------------------------------------------------------------------------
+name: Tests
+
+on:
+  workflow_call:
+
+jobs:
+  tests:
+    name: Lint, API and end-to-end
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            server/package-lock.json
+
+      - name: Install
+        run: npm ci && npm --prefix server ci
+
+      - name: Type check
+        run: npm run lint
+
+      - name: API tests
+        run: npm run test:api
+
+      # The end-to-end run arrives with the fita 1 work; skip it on commits that
+      # do not have it yet.
+      - name: End-to-end
+        run: |
+          if [ ! -f e2e/run.mjs ]; then echo "no e2e/ in this commit: skipped"; exit 0; fi
+          npx playwright-core install --with-deps chromium-headless-shell
+          npm run test:e2e

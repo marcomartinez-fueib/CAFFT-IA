@@ -25,3 +25,9 @@ dist-ssr
 
 # SDD
 .atl
+
+# Server-side environment clones (deploy.sh): settings and everything that is
+# not code
+.env.pre
+.env.pro
+runtime/

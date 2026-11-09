@@ -16,6 +16,12 @@ export interface Config {
    * log, which is what development and tests want.
    */
   smtp: { host: string; port: number; requireTls: boolean; from: string };
+  /**
+   * When set (the test environment), mail is delivered only to these domains,
+   * e.g. ["uib.es", "fueib.org"]; the rest is logged and not sent. Empty: no
+   * restriction.
+   */
+  mailAllowedDomains: string[];
   /** Where feedback sent from the app is mailed. Empty disables the mail; it is still stored. */
   feedbackTo: string;
   /** Disables request logging; used by tests. */
@@ -48,6 +54,7 @@ export function loadConfig(overrides: Partial<Config> = {}): Config {
       requireTls: env('SMTP_STARTTLS', 'true') !== 'false',
       from: env('MAIL_FROM', ''),
     },
+    mailAllowedDomains: env('MAIL_ALLOWED_DOMAINS', '').split(',').map((d) => d.trim()).filter(Boolean),
     // Like BACKUP_DIR, an explicitly empty FEEDBACK_TO means "off".
     feedbackTo: process.env.FEEDBACK_TO ?? 'salutmental@fueib.org',
     logger: true,

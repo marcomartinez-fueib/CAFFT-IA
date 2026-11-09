@@ -1,0 +1,92 @@
+# ---------------------------------------------------------------------------
+# CAFFT — deploy to pre or pro on the UIB server
+# ---------------------------------------------------------------------------
+# Push to `pre` or `pro` → branch-flow guard and tests (GitHub-hosted, in
+# parallel) → deploy on the self-hosted runner that lives ON the server (it is
+# only reachable through the UIB VPN; the runner only makes outgoing
+# connections). The deploy job runs deploy.sh from the pushed commit against
+# the environment's persistent clone (/data/apps/cafft-{pre,pro}).
+#
+# Same model as PAUSAT and B4B. Runbook: docs/deploy/DEPLOYMENT.md
+# ---------------------------------------------------------------------------
+name: Deploy
+
+on:
+  push:
+    branches: [pre, pro]
+  # Re-run by hand from Actions → Deploy → "Run workflow", choosing pre or pro.
+  # It goes through the same guard and tests as a push.
+  workflow_dispatch:
+
+# One deploy per environment at a time; queued pushes are not cancelled, so a
+# `docker compose up --build` is never cut halfway.
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  # Stand-in for branch protection (not available for private repos on the
+  # Free plan): every new non-merge commit on pre must come from dev, and on
+  # pro from pre. If it fails, deploy does not run. The local twin is
+  # scripts/git-hooks/pre-push.
+  guard-branch-flow:
+    name: Guard dev → pre → pro
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check where the new commits come from
+        env:
+          BRANCH: ${{ github.ref_name }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          case "$BRANCH" in
+            pre) UPSTREAM=origin/dev ;;
+            pro) UPSTREAM=origin/pre ;;
+            *) echo "::error::This workflow only deploys 'pre' or 'pro', not '$BRANCH'."; exit 1 ;;
+          esac
+          # New branch, force-push or manual run: no usable `before`.
+          if [ -z "$BEFORE" ] || echo "$BEFORE" | grep -qE '^0+$' || ! git cat-file -e "$BEFORE" 2>/dev/null; then
+            # A commit already published on another branch adds nothing new
+            # (e.g. restoring a deleted branch): nothing to check.
+            if git branch -r --contains HEAD | grep -qv "origin/$BRANCH\$"; then
+              echo "OK: '$BRANCH' points to a commit already on another branch."
+              exit 0
+            fi
+            RANGE="HEAD"
+          else
+            RANGE="$BEFORE..HEAD"
+          fi
+          BAD=$(git rev-list --no-merges "$RANGE" --not "$UPSTREAM")
+          if [ -n "$BAD" ]; then
+            echo "::error::Push to '$BRANCH' refused: it has commits that do not come from ${UPSTREAM#origin/}. Allowed flow: dev → pre → pro."
+            git log --oneline --no-walk $BAD
+            exit 1
+          fi
+          echo "OK: every new commit on '$BRANCH' comes from ${UPSTREAM#origin/}."
+
+  tests:
+    name: Tests
+    uses: ./.github/workflows/tests.yml
+
+  deploy:
+    name: Deploy ${{ github.ref_name }}
+    needs: [guard-branch-flow, tests]
+    runs-on: [self-hosted, cafft]
+    environment: ${{ github.ref_name }}
+    timeout-minutes: 30
+    steps:
+      # Only deploy.sh is needed here: the script works on the persistent
+      # clone, which does the real `git pull`. Taking it from the pushed commit
+      # means the script that runs is always the one being deployed.
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            deploy.sh
+          sparse-checkout-cone-mode: false
+
+      - name: Deploy ${{ github.ref_name }}
+        run: bash deploy.sh "${{ github.ref_name }}"

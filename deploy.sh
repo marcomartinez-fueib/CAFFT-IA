@@ -44,10 +44,11 @@ compose() {
     docker compose --env-file "$ENV_FILE" -f deploy/compose.yml "$@"
 }
 
-# Silence this app's alerts for 10 minutes while containers are recreated.
+# Silence the app's alerts for 10 minutes while containers are recreated.
+# server-monitoring watches only pro (`cafft pro` is the only valid pair).
 # Never fails the deploy if monitoring is down.
-if [ -x /data/apps/monitoring/bin/silencio-deploy ]; then
-    /data/apps/monitoring/bin/silencio-deploy cafft "$TARGET" || true
+if [ "$TARGET" = pro ] && [ -x /data/apps/monitoring/bin/silencio-deploy ]; then
+    /data/apps/monitoring/bin/silencio-deploy cafft pro || true
 fi
 
 # ---------------------------------------------------------------------------
@@ -62,7 +63,8 @@ if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
     exit 1
 fi
 git checkout "$TARGET"
-git pull --ff-only origin "$TARGET"
+# From what was just fetched: one trip to GitHub per deploy, not two.
+git merge --ff-only "origin/$TARGET"
 echo "[deploy] HEAD: $(git rev-parse --short HEAD) — $(git log -1 --format=%s)"
 
 # ---------------------------------------------------------------------------

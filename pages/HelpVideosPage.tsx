@@ -49,7 +49,7 @@ export const HelpVideosPage: React.FC = () => {
                       </h3>
                       
                       <div className="mt-auto flex items-center gap-2 text-uib-accent font-display font-black text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
-                        Visualitza el vídeo
+                        {t('helpVideos.watchVideo')}
                         <div className="w-8 h-px bg-uib-accent" />
                       </div>
                     </div>

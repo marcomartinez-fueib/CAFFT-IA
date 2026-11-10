@@ -423,8 +423,9 @@ export const OnboardingTour: React.FC = () => {
                                 onClick={stopTour}
                                 className="text-slate-300 hover:text-slate-500 transition-colors p-1 -mt-1 -mr-1"
                                 title={t('onboarding.finish')}
+                                aria-label={t('onboarding.finish')}
                             >
-                                <X size={20} strokeWidth={2.5} />
+                                <X size={20} strokeWidth={2.5} aria-hidden="true" />
                             </button>
                         </div>
                         
@@ -446,7 +447,8 @@ export const OnboardingTour: React.FC = () => {
                                             key={i} 
                                             onClick={() => setCurrentStep(i)}
                                             className={`w-2 h-2 rounded-full transition-all duration-300 ${i === currentStep ? 'bg-uib-blue w-6' : 'bg-slate-200 hover:bg-slate-300'}`}
-                                            aria-label={`Go to step ${i + 1}`}
+                                            aria-label={t('onboarding.goToStep', { step: i + 1 })}
+                                            aria-current={i === currentStep ? 'step' : undefined}
                                         />
                                     ))}
                                 </div>
@@ -463,8 +465,10 @@ export const OnboardingTour: React.FC = () => {
                                         <button
                                             onClick={handlePrev}
                                             className="flex items-center justify-center p-2.5 text-slate-500 hover:bg-slate-100 rounded-xl transition-all font-bold group"
+                                            title={t('onboarding.prev')}
+                                            aria-label={t('onboarding.prev')}
                                         >
-                                            <ChevronLeft size={20} className="group-hover:-translate-x-0.5 transition-transform" />
+                                            <ChevronLeft size={20} className="group-hover:-translate-x-0.5 transition-transform" aria-hidden="true" />
                                         </button>
                                     )}
                                     

@@ -224,16 +224,21 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
-  // Staff switch these for the users they can see; anyone for themselves.
+  // Staff switch these for the users they can see; anyone for themselves,
+  // except the test-account flag, which only staff set and only on patients.
   for (const [path, column] of [
     ['toggle-notifications', 'notification_prefs'],
     ['toggle-onboarding', 'onboarding_enabled'],
+    ['toggle-test-account', 'is_test_account'],
   ] as const) {
     app.post<{ Params: { id: string } }>(`/:id/${path}`, async (req, reply) => {
       const actor = req.user!;
       const target = visibleUser(db, actor, req.params.id);
       if (!target) return reply.code(404).send(NOT_FOUND);
       if (actor.role === 'patient' && actor.id !== target.id) return reply.code(403).send(FORBIDDEN);
+      if (column === 'is_test_account' && (actor.role === 'patient' || target.role !== 'patient')) {
+        return reply.code(403).send(FORBIDDEN);
+      }
 
       const now = Date.now();
       if (column === 'notification_prefs') {
@@ -243,6 +248,9 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
           : { enabled: true, reminders: true, newTasks: true, followUp: true, general: true, frequency: 'daily', startTime: '09:00', endTime: '21:00' };
         prefs.enabled = !prefs.enabled;
         db.prepare('UPDATE users SET notification_prefs = ?, updated_at = ? WHERE id = ?').run(JSON.stringify(prefs), now, target.id);
+      } else if (column === 'is_test_account') {
+        db.prepare('UPDATE users SET is_test_account = ?, updated_at = ? WHERE id = ?').run(target.is_test_account === 1 ? 0 : 1, now, target.id);
+        audit(db, { actorId: actor.id, action: target.is_test_account === 1 ? 'test_account.off' : 'test_account.on', targetId: target.id, ip: req.ip });
       } else {
         const enable = target.onboarding_enabled === 0;
         // Re-enabling lets the tours run again, as clearing the old

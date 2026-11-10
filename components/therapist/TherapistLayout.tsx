@@ -5,9 +5,11 @@ import { Sidebar } from './Sidebar';
 import { SyncStatusBanner } from '../SyncStatusBanner';
 import { FeedbackLauncher } from '../FeedbackForm';
 import { Menu, X } from 'lucide-react';
+import { useLanguage } from '../../hooks/useLanguage';
 
 export const TherapistLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { t } = useLanguage();
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
@@ -33,8 +35,10 @@ export const TherapistLayout: React.FC = () => {
           <button 
             onClick={() => setIsSidebarOpen(true)}
             className="p-2 text-slate-600 hover:bg-slate-50 rounded-xl"
+            aria-label={t('common.openMenu')}
+            aria-expanded={isSidebarOpen}
           >
-            <Menu className="w-6 h-6" />
+            <Menu className="w-6 h-6" aria-hidden="true" />
           </button>
           
           <div className="font-black text-xs uppercase tracking-widest text-slate-400">

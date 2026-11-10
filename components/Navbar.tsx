@@ -137,7 +137,7 @@ export const Navbar: React.FC = () => {
                     {currentUser.username}
                   </span>
                   <span className="text-[8px] xl:text-[9px] font-black text-white px-2 py-0.5 rounded-full bg-gradient-to-r from-uib-blue to-uib-accent/80 uppercase tracking-widest leading-none mt-1 shadow-sm">
-                    {currentUser.role}
+                    {t(`general.roles.${currentUser.role}`)}
                   </span>
                 </div>
                 <div className="w-8 h-8 xl:w-10 xl:h-10 bg-uib-blue rounded-xl flex items-center justify-center text-sm font-black text-white border-2 border-white shadow-lg ring-1 ring-uib-blue/5 uppercase shrink-0 transition-all group-hover:scale-110 group-hover:shadow-uib-blue/20">
@@ -186,7 +186,7 @@ export const Navbar: React.FC = () => {
                     {currentUser.username}
                   </span>
                   <span className="text-[10px] font-bold text-uib-darkGray uppercase tracking-widest mt-0.5">
-                    {currentUser.role}
+                    {t(`general.roles.${currentUser.role}`)}
                   </span>
                 </div>
               </div>

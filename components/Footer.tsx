@@ -23,9 +23,6 @@ export const Footer: React.FC = () => {
               {t('auth.consentLinkText')}
            </a>
         </div>
-        <p className="text-[10px] text-gray-400 mt-4 max-w-2xl mx-auto font-light">
-          This is a demonstration application. Information presented is based on provided OCR content.
-        </p>
       </div>
     </footer>
   );

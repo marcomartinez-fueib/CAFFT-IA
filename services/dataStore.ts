@@ -7,7 +7,7 @@
  *
  *  - Reads are synchronous and come from memory, exactly as they used to come
  *    from localStorage, so pages did not have to become asynchronous.
- *  - Clinical writes (QPV-II, exposure progress, AI consultations, emails)
+ *  - Clinical writes (QPV-II, exposure progress and sessions, AI consultations, emails)
  *    update memory immediately and are sent to the server through a sequential
  *    queue that retries transient failures. Every one of them is idempotent on
  *    the server, so a retry can never duplicate a record.
@@ -20,6 +20,7 @@
  */
 import {
   AiConsultation,
+  ExposureSession,
   QPVIIAnswers,
   QPVIIScores,
   QPVIIUserResult,
@@ -36,13 +37,28 @@ interface StoreState {
   users: StoredUser[];
   qpvii: QPVIIUserResult[];
   progress: UserExposureProgress[];
+  sessions: ExposureSession[];
   consultations: AiConsultation[];
   emails: SimulatedEmail[];
 }
 
-const empty = (): StoreState => ({ users: [], qpvii: [], progress: [], consultations: [], emails: [] });
+const empty = (): StoreState => ({ users: [], qpvii: [], progress: [], sessions: [], consultations: [], emails: [] });
 
 let state: StoreState = empty();
+
+// Components that show data derived from the store (the progress bar, for
+// one) subscribe here to refresh when it changes, without a page reload.
+const storeListeners = new Set<() => void>();
+
+function setState(next: StoreState): void {
+  state = next;
+  storeListeners.forEach((listener) => listener());
+}
+
+export function subscribeStore(listener: () => void): () => void {
+  storeListeners.add(listener);
+  return () => storeListeners.delete(listener);
+}
 
 /**
  * Every getter returns a copy. localStorageDB.ts parsed fresh objects on each
@@ -60,11 +76,11 @@ const copy = <T,>(value: T): T => structuredClone(value);
  */
 export async function syncStore(): Promise<void> {
   await flushWrites();
-  state = await api<StoreState>('GET', '/sync');
+  setState(await api<StoreState>('GET', '/sync'));
 }
 
 export function clearStore(): void {
-  state = empty();
+  setState(empty());
 }
 
 // --- Write queue ---------------------------------------------------------------
@@ -157,7 +173,7 @@ export function getPatientsForTherapist(therapistId: string): StoredUser[] {
 
 function replaceUser(user: StoredUser): void {
   const i = state.users.findIndex((u) => u.id === user.id);
-  state = { ...state, users: i === -1 ? [...state.users, user] : state.users.map((u) => (u.id === user.id ? user : u)) };
+  setState({ ...state, users: i === -1 ? [...state.users, user] : state.users.map((u) => (u.id === user.id ? user : u)) });
 }
 
 function patchCachedUser(userId: string, patch: Partial<StoredUser>): void {
@@ -227,13 +243,14 @@ export async function deletePatientData(userId: string): Promise<boolean> {
     console.error('[dataStore] deletePatientData:', err);
     return false;
   }
-  state = {
+  setState({
     users: state.users.filter((u) => u.id !== userId),
     qpvii: state.qpvii.filter((r) => r.userId !== userId),
     progress: state.progress.filter((p) => p.userId !== userId),
+    sessions: state.sessions.filter((s) => s.userId !== userId),
     consultations: state.consultations.filter((c) => c.userId !== userId),
     emails: state.emails.filter((e) => e.patientId !== userId),
-  };
+  });
   return true;
 }
 
@@ -261,7 +278,7 @@ export async function resetPatientPassword(userId: string): Promise<string | nul
   }
 }
 
-async function toggle(userId: string, what: 'notifications' | 'onboarding'): Promise<boolean> {
+async function toggle(userId: string, what: 'notifications' | 'onboarding' | 'test-account'): Promise<boolean> {
   try {
     const { user } = await api<{ user: StoredUser }>('POST', `/users/${encodeURIComponent(userId)}/toggle-${what}`);
     replaceUser(user);
@@ -274,6 +291,7 @@ async function toggle(userId: string, what: 'notifications' | 'onboarding'): Pro
 
 export const toggleUserNotifications = (userId: string) => toggle(userId, 'notifications');
 export const toggleUserOnboarding = (userId: string) => toggle(userId, 'onboarding');
+export const toggleTestAccount = (userId: string) => toggle(userId, 'test-account');
 
 /** Records that the logged-in user finished an onboarding tour. */
 export async function completeOnboardingTour(tour: 'patient' | 'therapist'): Promise<StoredUser | null> {
@@ -313,10 +331,10 @@ export function saveQPVIIResultForUser(
   originalQpviiTimestamp?: number,
 ): boolean {
   const result: QPVIIUserResult = copy({ userId, formName, date, timestamp, scores, answers, evaluationType, originalQpviiTimestamp });
-  state = {
+  setState({
     ...state,
     qpvii: [...state.qpvii.filter((r) => !(r.userId === userId && r.timestamp === timestamp)), result],
-  };
+  });
   patchCachedUser(userId, { lastAssessmentDate: Math.max(findUserById(userId)?.lastAssessmentDate ?? 0, timestamp) });
 
   enqueue('QPV-II result', () => api('PUT', '/qpvii', result));
@@ -369,13 +387,73 @@ export function saveUserExposureProgress(
     originalQpviiTimestamp: originalQpviiTimestamp ?? old?.originalQpviiTimestamp,
   });
 
-  state = {
+  setState({
     ...state,
     progress: old ? state.progress.map((p) => (p === old ? record : p)) : [...state.progress, record],
-  };
+  });
 
   enqueue('exposure progress', () => api('PUT', '/exposure', record));
   return true;
+}
+
+// --- Exposure sessions ----------------------------------------------------------------
+
+/** A session with no new rating for this long counts as ended. */
+export const SESSION_IDLE_MS = 2 * 60 * 60 * 1000;
+
+export function isSessionOpen(session: ExposureSession, now = Date.now()): boolean {
+  return session.endedAt === undefined && now - session.lastActivityAt <= SESSION_IDLE_MS;
+}
+
+/** Newest first. */
+export function getExposureSessionsForUser(userId: string): ExposureSession[] {
+  return copy(state.sessions.filter((s) => s.userId === userId)).sort((a, b) => b.startedAt - a.startedAt);
+}
+
+export function getAllExposureSessions(): ExposureSession[] {
+  return copy(state.sessions);
+}
+
+function findOpenSession(userId: string, qpviiTimestamp: number | null): ExposureSession | undefined {
+  return state.sessions.find((s) => s.userId === userId && s.qpviiTimestamp === qpviiTimestamp && isSessionOpen(s));
+}
+
+export function getOpenExposureSession(userId: string, qpviiTimestamp: number | null): ExposureSession | null {
+  const open = findOpenSession(userId, qpviiTimestamp);
+  return open ? copy(open) : null;
+}
+
+function putSession(session: ExposureSession): void {
+  setState({ ...state, sessions: [...state.sessions.filter((s) => s.id !== session.id), session] });
+  const saved = copy(session);
+  enqueue('exposure session', () => api('PUT', '/exposure-sessions', saved));
+}
+
+/**
+ * Records a rated video in the patient's current session, opening one if
+ * there is none. Sessions start here, never when a page opens, so visiting
+ * the exposure page without watching anything leaves no session behind.
+ */
+export function recordExposureActivity(userId: string, qpviiTimestamp: number | null, isReview: boolean, at: number): ExposureSession {
+  const open = findOpenSession(userId, qpviiTimestamp);
+  const session: ExposureSession = open
+    ? { ...open, lastActivityAt: Math.max(open.lastActivityAt, at) }
+    : { id: crypto.randomUUID(), userId, qpviiTimestamp, isReview, startedAt: at, lastActivityAt: at };
+  putSession(session);
+  return copy(session);
+}
+
+/** Closes the patient's open session for this record, if any; returns it. */
+export function endExposureSession(
+  userId: string,
+  qpviiTimestamp: number | null,
+  reason: NonNullable<ExposureSession['endReason']>,
+): ExposureSession | null {
+  const open = findOpenSession(userId, qpviiTimestamp);
+  if (!open) return null;
+  const session: ExposureSession = { ...open, endedAt: Date.now(), endReason: reason };
+  putSession(session);
+  return copy(session);
 }
 
 // --- Activity ---------------------------------------------------------------------
@@ -406,7 +484,7 @@ export function getSimulatedEmailsForPatient(patientId: string): SimulatedEmail[
 
 export function saveSimulatedEmail(email: SimulatedEmail): boolean {
   email = copy(email);
-  state = { ...state, emails: [...state.emails.filter((e) => e.id !== email.id), email] };
+  setState({ ...state, emails: [...state.emails.filter((e) => e.id !== email.id), email] });
   if (email.type === 'reminder' && email.status === 'sent') {
     patchCachedUser(email.patientId, { lastReminderSentDate: email.timestamp });
   }
@@ -459,7 +537,7 @@ export function getAllAiConsultations(): AiConsultation[] {
 
 export function saveAiConsultation(consultation: AiConsultation): boolean {
   consultation = copy(consultation);
-  state = { ...state, consultations: [...state.consultations.filter((c) => c.id !== consultation.id), consultation] };
+  setState({ ...state, consultations: [...state.consultations.filter((c) => c.id !== consultation.id), consultation] });
   enqueue('AI consultation', () => api('POST', '/ai-consultations', consultation));
   return true;
 }

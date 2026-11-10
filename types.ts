@@ -43,6 +43,7 @@ export interface User {
   notificationPreferences?: NotificationPreferences;
   sentFollowUps?: string[];
   onboardingEnabled?: boolean;
+  isTestAccount?: boolean; // Set by staff; shows the testing controls to this patient
 }
 
 // A user as the API returns it (server/src/users.ts, toApiUser). The password
@@ -175,6 +176,7 @@ export interface HelpModalTranslatedStrings {
   searchPlaceholder: string;
   closeButton: string;
   disclaimer: string;
+  disclaimerTitle?: string;
   needMoreHelp: string;
   noResultsTitle: string;
   noResultsText: string;
@@ -316,8 +318,10 @@ export interface ExposurePageContent {
   finishExposureSessionButton: string;
   reviewSessionTitle?: string;
   finishReviewButton?: string;
-  logoutButton?: string;
-  logoutWarning?: string;
+  pauseButton: string;
+  pauseWarning: string;
+  pauseConfirm: string;
+  restartingSequence: string;
   continueExposure?: string;
   videoLoadErrorTitle?: string;
   videoLoadErrorBody?: string;
@@ -413,6 +417,12 @@ export interface AIChatContent {
   systemInstruction: string;
   therapistSystemInstruction?: string;
   therapistInitialMessage?: string;
+  patientContext?: {
+    rciUnavailable: string;
+    noSessions: string;
+    sessionsSummary: string;
+  };
+  supportSubtitle?: string;
   assistantNameTitle: string;
   assistantNamePlaceholder: string;
   genderNeutralSuggestions: string[];
@@ -493,6 +503,14 @@ export interface TherapistDashboardContent {
     toggleNotificationsOff: string;
     toggleTourOn: string;
     toggleTourOff: string;
+    notificationsOnFor?: string;
+    notificationsOffFor?: string;
+    tourOnFor?: string;
+    tourOffFor?: string;
+    viewPatient?: string;
+    resetPatientPassword?: string;
+    deletePatient?: string;
+    remindPatient?: string;
   };
   patient_status: {
     new: string;
@@ -551,6 +569,7 @@ export interface TherapistDashboardContent {
     copyButton: string;
     copiedButton: string;
     closeButton: string;
+    failed?: string;
   };
   exportDataModal: {
     title: string;
@@ -560,6 +579,17 @@ export interface TherapistDashboardContent {
     cancelButton: string;
   };
   notificationsTitle: string;
+  notificationsPage?: {
+    intro: string;
+    empty: string;
+    date: string;
+    patient: string;
+    type: string;
+    subject: string;
+    status: string;
+    statusSent: string;
+    statusGenerated: string;
+  };
   reminders: {
     sendReminderButton: string;
     sendAllReminders?: string;
@@ -578,6 +608,8 @@ export interface TherapistDashboardContent {
 export interface PatientDetailContent {
   pageTitle: string;
   aiConsultationsTitleForPatient?: string;
+  testAccountLabel?: string;
+  testAccountHint?: string;
   noAiConsultationsForPatient?: string;
   currentPlanTitle: string;
   basedOnEvaluation: string;
@@ -673,11 +705,15 @@ export interface TranslationContent {
   common: {
     syncFailed: string;
     dismiss: string;
+    close?: string;
+    openMenu?: string;
+    backToTop?: string;
     invitationNote: string;
     invitationSent: string;
     resendInvitation: string;
     invitationResent: string;
     invitationResendFailed: string;
+    viewSource: string;
     time: {
       ago: string;
       year: string;
@@ -814,6 +850,7 @@ export interface TranslationContent {
     q3: string;
     q4: string;
     noVideos: string;
+    watchVideo?: string;
   };
   cafftIntroPage: {
     title: string;
@@ -954,6 +991,8 @@ export interface TranslationContent {
     notificationConsentExplain: string;
     acceptButton: string;
     declineButton: string;
+    notificationPrivacyNote?: string;
+    notificationsEnabledMessage?: string;
   };
   exposureHierarchy: {
     pageTitle: string;
@@ -1047,6 +1086,11 @@ export interface TranslationContent {
     rciStatusSignificant?: string;
     rciStatusNotSignificant?: string;
     rciLabel?: string;
+    rciDirection?: {
+      improvement: string;
+      deterioration: string;
+      none: string;
+    };
     prePostComparisonTitle?: string;
     differenceLabel?: string;
     rciMissingDataMessage?: string;
@@ -1059,6 +1103,7 @@ export interface TranslationContent {
   };
   onboarding?: {
     stepCounter: string;
+    goToStep?: string;
     startManual: string;
     next: string;
     prev: string;
@@ -1091,6 +1136,26 @@ export interface TranslationContent {
   exposureExplanation: ExposureExplanationContent;
   celebration: CelebrationPageContent;
   lastSession: LastSessionPageContent;
+  sessionEnd: {
+    pausedTitle: string;
+    pausedIntro: string;
+    summaryTitle: string;
+    videosRated: string;
+    videosPassed: string;
+    discomfortChange: string;
+    duration: string;
+    encouragement: string;
+    nextTitle: string;
+    nextText: string;
+    homeButton: string;
+    evolutionButton: string;
+    noSession: string;
+  };
+  stepGuard: {
+    title: string;
+    needsQpvii: string;
+    goToQpvii: string;
+  };
   aiChat: AIChatContent;
   therapistDashboard: TherapistDashboardContent;
   managerDashboard: ManagerDashboardContent;
@@ -1151,6 +1216,7 @@ export interface ExposureVideo {
   descriptionKey: string;
   relatedArea: ExposureSceneKey;
   intensity: number;
+  available?: false; // In the catalogue, but its files are not delivered yet: never played
 }
 
 export interface VideoDiscomfortRating {
@@ -1173,6 +1239,23 @@ export interface UserExposureProgress {
   isReview?: boolean; // New flag to identify a review session
   reviewCompleted?: boolean; // New flag to track if the one-time review has been done for a cycle
   originalQpviiTimestamp?: number; // Links review session back to the original QPV-II it's reviewing
+}
+
+/**
+ * One sitting of exposure practice, from the first rated video until the
+ * patient pauses, finishes the sequence, or stops for more than two hours
+ * (SESSION_IDLE_MS). Its ratings are those of the same progress record whose
+ * videoTimestamp falls between startedAt and lastActivityAt.
+ */
+export interface ExposureSession {
+  id: string;
+  userId: string;
+  qpviiTimestamp: number | null; // The UserExposureProgress record it belongs to
+  isReview: boolean;
+  startedAt: number;
+  lastActivityAt: number;
+  endedAt?: number; // Absent while open. Present with no endReason: rebuilt from old ratings
+  endReason?: 'pause' | 'completed';
 }
 
 export interface HelpModalSection { 

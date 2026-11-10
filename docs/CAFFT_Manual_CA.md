@@ -19,7 +19,7 @@ Es manifesta en tres components bàsics:
 El tractament utilitza la **tècnica d'exposició gradual**. L'objectiu és que l'organisme s'habituï a les situacions que generen por i aprengui a reaccionar sense ansietat.
 - S'exposa l'usuari a imatges i sons realistes de tot el procés de volar.
 - El sistema crea una **jerarquia personalitzada** basada en les respostes al qüestionari QPV-II.
-- Es progressa només quan el nivell de malestar en una situació ha disminuït significativament.
+- Es progressa només quan el nivell de malestar en una situació ha baixat a 2 o menys (en l'escala d'1 a 9).
 
 ### 2.2 Durada
 Entre 4 i 8 sessions de 60 minuts cadascuna. Freqüència recomanada: 2-3 sessions per setmana (separades per 1-4 dies).
@@ -38,22 +38,22 @@ Més del **70% de les persones tractades** aconsegueixen volar sense problemes.
 4.  Volum del so alt (que sigui realista).
 
 ### 3.2 Implicació durant l'exposició
-Mentre vegi cada seqüència, utilitzi la imaginació per fer-la el més real possible. Intenti sentir-se com si l’estàs VIVINT, encara que això li produeixi malestar.
-- **Concentració màxima:** No intentis distreure't ni separar la vista de la pantalla.
-- **Implicació activa:** Sent-te com si estiguessis vivint la situació.
-- **No abandonis a mitges:** No finalitzis una seqüència fins que el malestar hagi baixat significativament.
+Mentre vegi cada seqüència, utilitzi la imaginació per fer-la el més real possible. Intenti sentir-se com si l’estigués VIVINT, encara que això li produeixi malestar.
+- **Concentració màxima:** No intenti distreure's ni separar la vista de la pantalla.
+- **Implicació activa:** Senti's com si estigués vivint la situació.
+- **No abandoni a mitges:** No finalitzi una seqüència: repeteixi el vídeo fins que valori el seu malestar amb un 2 o menys (en l'escala d'1 a 9).
 
 ---
 
 ## 4. INSTRUCCIONS PER AL VOL REAL
 
 Un cop finalitzat el programa, es recomana realitzar un vol en un termini de 10 a 15 dies.
-1.  **NO prenguis tranquil·litzants** ni abans ni durant el vol.
-2.  **NO ingereixis begudes alcohòliques**.
-3.  Seu allà on et toqui per atzar.
-4.  Evita parlar de la por de volar els dies previs.
-5.  Utilitza distractors naturals si vols (llegir, música), però no per fugir de l'ansietat.
-6.  Accepta els nervis com a part de l'aprenentatge. Si et poses nerviós, pensa que és una oportunitat per aplicar l'habituació que has practicat.
+1.  **NO prengui tranquil·litzants** ni abans ni durant el vol.
+2.  **NO ingereixi begudes alcohòliques**.
+3.  Segui allà on li toqui per atzar.
+4.  Eviti parlar de la por de volar els dies previs.
+5.  Utilitzi distractors naturals si vol (llegir, música), però no per fugir de l'ansietat.
+6.  Accepti els nervis com a part de l'aprenentatge. Si es posa nerviós, pensi que és una oportunitat per aplicar l'habituació que ha practicat.
 
 ---
 
@@ -65,7 +65,7 @@ Un cop finalitzat el programa, es recomana realitzar un vol en un termini de 10 
 - Navegador actualitzat.
 
 ### 5.2 Contraindicacions
-No realitzis el CAFFT sense consultar un metge si:
-- Pateixes una malaltia cardíaca crònica.
-- Estàs en tractament psiquiàtric o prenent psicofàrmacs.
-- Estàs embarassada.
+No realitzi el CAFFT sense consultar un metge si:
+- Pateix una malaltia cardíaca crònica.
+- Està en tractament psiquiàtric o prenent psicofàrmacs.
+- Està embarassada.

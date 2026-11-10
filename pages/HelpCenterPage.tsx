@@ -372,7 +372,7 @@ export const HelpCenterPage: React.FC = () => {
             <div className="mt-8 p-8 bg-uib-accent/5 border border-uib-accent/20 rounded-[40px]">
               <div className="flex items-center gap-3 mb-4">
                 <AlertCircle className="w-5 h-5 text-uib-accent" />
-                <span className="text-[10px] font-black text-uib-blue uppercase tracking-widest">Aviso Clínico</span>
+                <span className="text-[10px] font-black text-uib-blue uppercase tracking-widest">{t('helpModal.disclaimerTitle')}</span>
               </div>
               <p className="text-xs text-slate-500 leading-relaxed italic">{t('helpModal.disclaimer')}</p>
             </div>
@@ -432,9 +432,10 @@ export const HelpCenterPage: React.FC = () => {
             <button 
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="w-12 h-12 bg-white text-uib-blue rounded-full shadow-2xl flex items-center justify-center hover:bg-slate-50 transition-colors border border-slate-100"
-              title="Tornar a dalt"
+              title={t('common.backToTop')}
+              aria-label={t('common.backToTop')}
             >
-              <ArrowRight className="w-5 h-5 -rotate-90" />
+              <ArrowRight className="w-5 h-5 -rotate-90" aria-hidden="true" />
             </button>
           </motion.div>
         )}

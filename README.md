@@ -22,6 +22,12 @@ to it. There are no built-in accounts: create one with
 then log in and use `#/dev/tools` to seed demo users and patients. Its tests run
 with `npm run test:api`.
 
+**End-to-end check:** `npm run test:e2e` builds the app, starts it with the API
+on a throwaway database (ports 3000 and 3001 must be free) and walks the patient
+and therapist flows in a headless Chromium (`e2e/flow.mjs`). It needs a
+Chromium for Playwright: set `CHROME_PATH`, or run
+`npx playwright-core install chromium-headless-shell` once.
+
 ---
 
 ## Older notes: running from a plain static server

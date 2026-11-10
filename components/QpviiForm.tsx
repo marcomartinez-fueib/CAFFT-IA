@@ -11,6 +11,8 @@ interface QpviiFormProps {
   onSubmit: (name: string, date: string, answers: QPVIIAnswers) => void;
   isSubmitting: boolean;
   initialName?: string; 
+  /** Shows the random-fill button; only for test accounts (see utils/testMode.ts). */
+  showTestControls?: boolean;
 }
 
 const initialAnswers = QPVII_QUESTIONS.reduce<QPVIIAnswers>((acc, q) => {
@@ -27,7 +29,7 @@ const DiceIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 );
 
 
-export const QpviiForm: React.FC<QpviiFormProps> = ({ onSubmit, isSubmitting, initialName = '' }) => {
+export const QpviiForm: React.FC<QpviiFormProps> = ({ onSubmit, isSubmitting, initialName = '', showTestControls = false }) => {
   const { t } = useLanguage();
   const [name, setName] = useState(initialName);
   const [date, setDate] = useState('');
@@ -111,6 +113,7 @@ export const QpviiForm: React.FC<QpviiFormProps> = ({ onSubmit, isSubmitting, in
           </div>
         </div>
         
+        {showTestControls && (
         <div className="pt-2 pb-4">
           <button
             type="button"
@@ -122,6 +125,7 @@ export const QpviiForm: React.FC<QpviiFormProps> = ({ onSubmit, isSubmitting, in
             {t('qpvii.fillRandomlyButton')}
           </button>
         </div>
+        )}
 
         <div className="space-y-2">
           {QPVII_QUESTIONS.map((q, index) => (

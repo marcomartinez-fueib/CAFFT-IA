@@ -2,7 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { requireAuth } from '../app.ts';
 import { canWriteClinical, visibleUser, visibleUsers } from '../access.ts';
 import { transaction } from '../db.ts';
-import { consultationsFor, emailsFor, lastActivityAt, progressFor, qpviiFor } from '../records.ts';
+import { consultationsFor, emailsFor, lastActivityAt, progressFor, qpviiFor, sessionsFor } from '../records.ts';
 import { toApiUser, type UserRow } from '../users.ts';
 import { enqueueMail } from '../mail/outbox.ts';
 import { feedbackMail } from '../mail/templates.ts';
@@ -40,6 +40,7 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
       users: users.map(toApiUser),
       qpvii: qpviiFor(db, ids),
       progress: progressFor(db, ids),
+      sessions: sessionsFor(db, ids),
       consultations: consultationsFor(db, ids),
       emails: emailsFor(db, ids),
     };
@@ -193,6 +194,69 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
           ).run(...values, b.userId, b.qpviiTimestamp);
         }
       });
+      return reply.code(204).send();
+    },
+  );
+
+  // Upsert keyed on the client-generated id. A session never changes owner:
+  // the update only applies when the stored row is the same user's.
+  app.put<{
+    Body: {
+      id: string;
+      userId: string;
+      qpviiTimestamp: number | null;
+      isReview: boolean;
+      startedAt: number;
+      lastActivityAt: number;
+      endedAt?: number;
+      endReason?: 'pause' | 'completed';
+    };
+  }>(
+    '/exposure-sessions',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['id', 'userId', 'qpviiTimestamp', 'isReview', 'startedAt', 'lastActivityAt'],
+          properties: {
+            id: S.uuid,
+            userId: S.uuid,
+            qpviiTimestamp: { type: ['integer', 'null'], minimum: 0 },
+            isReview: { type: 'boolean' },
+            startedAt: S.timestamp,
+            lastActivityAt: S.timestamp,
+            endedAt: S.timestamp,
+            endReason: { enum: ['pause', 'completed'] },
+          },
+        },
+      },
+    },
+    async (req, reply) => {
+      const b = req.body;
+      if (!canWriteClinical(req.user!, b.userId)) return reply.code(403).send(FORBIDDEN);
+      if (!visibleUser(db, req.user!, b.userId)) return reply.code(404).send(NOT_FOUND);
+
+      const written = db
+        .prepare(
+          `INSERT INTO exposure_sessions (id, user_id, qpvii_timestamp, is_review, started_at, last_activity_at, ended_at, end_reason)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+           ON CONFLICT (id) DO UPDATE SET
+             qpvii_timestamp = excluded.qpvii_timestamp, is_review = excluded.is_review, started_at = excluded.started_at,
+             last_activity_at = excluded.last_activity_at, ended_at = excluded.ended_at, end_reason = excluded.end_reason
+           WHERE exposure_sessions.user_id = excluded.user_id`,
+        )
+        .run(
+          b.id,
+          b.userId,
+          b.qpviiTimestamp,
+          b.isReview ? 1 : 0,
+          b.startedAt,
+          b.lastActivityAt,
+          b.endedAt ?? null,
+          b.endReason ?? null,
+        );
+      if (written.changes === 0) return reply.code(403).send(FORBIDDEN);
       return reply.code(204).send();
     },
   );

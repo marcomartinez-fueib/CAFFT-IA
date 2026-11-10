@@ -10,6 +10,8 @@ import { QPVIIScores, UserExposureProgress } from '../types';
 import { getUserExposureProgress, saveUserExposureProgress } from '../services/dataStore';
 import { EXPOSURE_EXPLANATION_VIDEO_URL_BASE } from '../constants';
 import { resolveVideoUrl } from '../utils/videoUrl';
+import { currentPlanFor } from '../utils/currentPlan';
+import { StepGuardCard } from '../components/StepGuardCard';
 
 // SVG Icons
 const PlayIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -34,14 +36,14 @@ export const ExposureExplanationPage: React.FC = () => {
   const [videoError, setVideoError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const { qpviiTimestamp, scores } = (location.state as { qpviiTimestamp?: number; scores?: QPVIIScores }) || {};
+  // A direct link or a reload arrives without navigation state.
+  const navState = (location.state as { qpviiTimestamp?: number; scores?: QPVIIScores }) || {};
+  const plan = navState.qpviiTimestamp && navState.scores
+    ? { qpviiTimestamp: navState.qpviiTimestamp, scores: navState.scores }
+    : currentUser ? currentPlanFor(currentUser.id) : null;
+  const qpviiTimestamp = plan?.qpviiTimestamp;
+  const scores = plan?.scores;
 
-  if (!qpviiTimestamp || !scores || !currentUser) {
-    // Should not happen if navigation is correct, but handle gracefully
-    navigate('/qpvii-evaluation', { replace: true, state: { message: "Error: Missing data for exposure explanation."} });
-    return null;
-  }
-  
   // Served from the same origin as the app, under <base>/videos_cafft/.
   // No external CDN fallback: the deployment's `default-src 'self'` CSP blocks
   // third-party media.
@@ -49,6 +51,10 @@ export const ExposureExplanationPage: React.FC = () => {
     const relativePath = `${basePath}_${language}.mp4`;
     return resolveVideoUrl(relativePath);
   }, [language]);
+
+  if (!qpviiTimestamp || !scores || !currentUser) {
+    return <StepGuardCard pageTitle={t('exposureExplanation.pageTitle')} />;
+  }
 
   const handleProceed = () => {
     const progress = getUserExposureProgress(currentUser.id, qpviiTimestamp);
@@ -185,7 +191,7 @@ export const ExposureExplanationPage: React.FC = () => {
             <button
               onClick={closeVideoModal}
               className="absolute -top-3 -right-3 sm:top-2 sm:right-2 z-10 p-2 bg-white rounded-full text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-[#BA0C2F]"
-              aria-label="Close video"
+              aria-label={t('helpModal.closeButton')}
             >
               <XMarkIcon className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
@@ -194,12 +200,13 @@ export const ExposureExplanationPage: React.FC = () => {
                 <div className="w-full h-full flex flex-col items-center justify-center bg-red-100 text-red-700 p-4 text-center">
                     <p className="font-bold text-lg">{t('exposure.videoLoadErrorTitle')}</p>
                     <p className="mt-2 text-sm">{t('exposure.videoLoadErrorBody')}</p>
+                    <p className="mt-2 text-xs">{t('exposure.videoLoadErrorChecklist')}</p>
                     <div className="mt-6 flex flex-wrap justify-center gap-3">
                         <button
-                            onClick={() => navigate('/exposure', { state: { qpviiTimestamp, scores } })}
-                            className="px-5 py-2 bg-green-600 text-white rounded-md text-xs font-bold hover:bg-green-700 shadow-sm uppercase"
+                            onClick={closeVideoModal}
+                            className="px-5 py-2 bg-gray-200 text-gray-800 rounded-md text-sm font-medium hover:bg-gray-300 shadow-sm"
                         >
-                            {t('exposure.simulateViewingButton') || 'Continuar sense vídeo'}
+                            {t('helpModal.closeButton')}
                         </button>
                     </div>
                 </div>

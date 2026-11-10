@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { useAuth } from '../hooks/useAuth.tsx';
 import { useLanguage } from '../hooks/useLanguage.tsx';
-import { getQPVIIResultsForUser, getAllUserExposureProgress } from '../services/dataStore.ts';
+import { getQPVIIResultsForUser, getAllUserExposureProgress, subscribeStore } from '../services/dataStore.ts';
 import { Check, CircleDot, PlayCircle } from 'lucide-react';
 
 export const PatientProgressIndicator: React.FC = () => {
@@ -11,6 +11,9 @@ export const PatientProgressIndicator: React.FC = () => {
   const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState<number>(-1);
   const [percentage, setPercentage] = useState<number>(0);
+  // Recompute as soon as a QPV-II or a rating is saved, not on the next login.
+  const [storeVersion, setStoreVersion] = useState(0);
+  useEffect(() => subscribeStore(() => setStoreVersion((v) => v + 1)), []);
 
   useEffect(() => {
     if (!currentUser || currentUser.role !== 'patient') {
@@ -53,7 +56,7 @@ export const PatientProgressIndicator: React.FC = () => {
 
     setCurrentStep(step);
     setPercentage(pct);
-  }, [currentUser]);
+  }, [currentUser, storeVersion]);
 
   if (!currentUser || currentUser.role !== 'patient' || currentStep === -1) {
     return null;

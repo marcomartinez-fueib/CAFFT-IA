@@ -117,6 +117,8 @@ export const CANONICAL_FLIGHT_STAGES_ORDER: ExposureSceneKey[] = [
 
 export const AVERAGE_VIDEO_DURATION_SECONDS = 180; // 3 minutes
 
+// Videos marked `available: false` stay in the catalogue (titles, history)
+// but are left out of every sequence until their files arrive.
 export const EXPOSURE_VIDEOS: ExposureVideo[] = [
   {
     id: 'ev001',
@@ -173,6 +175,7 @@ export const EXPOSURE_VIDEOS: ExposureVideo[] = [
     descriptionKey: 'exposure.ev007_desc',
     relatedArea: 'inflight',
     intensity: 6, // Higher than calm flight (3)
+    available: false, // the mp4 files have not been delivered yet
   },
   {
     id: 'ev008',
@@ -181,5 +184,6 @@ export const EXPOSURE_VIDEOS: ExposureVideo[] = [
     descriptionKey: 'exposure.ev008_desc',
     relatedArea: 'accidents',
     intensity: 9, // Higher than ev006 (8)
+    available: false, // the mp4 files have not been delivered yet
   },
 ];

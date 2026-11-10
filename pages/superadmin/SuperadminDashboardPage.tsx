@@ -173,25 +173,29 @@ export const SuperadminDashboardPage: React.FC = () => {
                                                 onClick={() => handleToggleNotifications(user.id)}
                                                 className={`p-1.5 rounded-lg border transition-all ${user.notificationPreferences?.enabled !== false ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-300 border-slate-100'}`}
                                                 title={user.notificationPreferences?.enabled !== false ? t('therapistDashboard.tooltips.toggleNotificationsOff') : t('therapistDashboard.tooltips.toggleNotificationsOn')}
+                                                aria-label={t(user.notificationPreferences?.enabled !== false ? 'therapistDashboard.tooltips.notificationsOffFor' : 'therapistDashboard.tooltips.notificationsOnFor', { name: user.username })}
                                             >
-                                                <BellIcon className="w-4 h-4" />
+                                                <BellIcon className="w-4 h-4" aria-hidden="true" />
                                             </button>
-                                            <button 
+                                            <button
                                                 onClick={() => handleToggleOnboarding(user.id)}
                                                 className={`p-1.5 rounded-lg border transition-all ${user.onboardingEnabled !== false ? 'bg-sky-50 text-sky-600 border-sky-100' : 'bg-slate-50 text-slate-300 border-slate-100'}`}
                                                 title={user.onboardingEnabled !== false ? t('therapistDashboard.tooltips.toggleTourOff') : t('therapistDashboard.tooltips.toggleTourOn')}
+                                                aria-label={t(user.onboardingEnabled !== false ? 'therapistDashboard.tooltips.tourOffFor' : 'therapistDashboard.tooltips.tourOnFor', { name: user.username })}
                                             >
-                                                <MapIcon className="w-4 h-4" />
+                                                <MapIcon className="w-4 h-4" aria-hidden="true" />
                                             </button>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         {user.id !== currentUser?.id && (
-                                            <button 
+                                            <button
                                                 onClick={() => handleDeleteUser(user.id)}
                                                 className="text-rose-500 hover:bg-rose-50 p-2 rounded-lg transition-colors"
+                                                title={t('therapistDashboard.tooltips.deletePatient', { name: user.username })}
+                                                aria-label={t('therapistDashboard.tooltips.deletePatient', { name: user.username })}
                                             >
-                                                <TrashIcon className="w-5 h-5" />
+                                                <TrashIcon className="w-5 h-5" aria-hidden="true" />
                                             </button>
                                         )}
                                     </td>

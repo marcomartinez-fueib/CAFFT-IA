@@ -68,8 +68,9 @@ export const Sidebar: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                 <button 
                     onClick={onClose}
                     className="p-2 text-slate-400 hover:text-white"
+                    aria-label={t('common.close')}
                 >
-                    <X className="w-6 h-6" />
+                    <X className="w-6 h-6" aria-hidden="true" />
                 </button>
             </div>
 
@@ -79,7 +80,7 @@ export const Sidebar: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                     {currentUser?.username?.charAt(0).toUpperCase() || 'T'}
                 </div>
                 <h4 className="text-sm font-black text-white text-center truncate w-full">{currentUser?.username}</h4>
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1 truncate w-full text-center">{currentUser?.role}</p>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1 truncate w-full text-center">{currentUser && t(`general.roles.${currentUser.role}`)}</p>
             </div>
             
             <div className="flex flex-col justify-between flex-1 mt-4">

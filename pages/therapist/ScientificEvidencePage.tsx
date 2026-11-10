@@ -281,7 +281,7 @@ export const ScientificEvidencePage: React.FC = () => {
                                     className="text-[10px] font-black text-uib-blue/60 hover:text-uib-blue uppercase tracking-widest flex items-center transition-colors"
                                 >
                                     <ExternalLink className="w-3 h-3 mr-1" />
-                                    {t('common.viewSource') || 'View Article'}
+                                    {t('common.viewSource')}
                                 </a>
                             )}
                         </div>

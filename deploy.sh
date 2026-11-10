@@ -44,11 +44,11 @@ compose() {
     docker compose --env-file "$ENV_FILE" -f deploy/compose.yml "$@"
 }
 
-# Silence the app's alerts for 10 minutes while containers are recreated.
-# server-monitoring watches only pro (`cafft pro` is the only valid pair).
+# Silence the app's alerts for 10 minutes while containers are recreated
+# (server-monitoring knows the pairs `cafft pro` and `cafft pre`).
 # Never fails the deploy if monitoring is down.
-if [ "$TARGET" = pro ] && [ -x /data/apps/monitoring/bin/silencio-deploy ]; then
-    /data/apps/monitoring/bin/silencio-deploy cafft pro || true
+if [ -x /data/apps/monitoring/bin/silencio-deploy ]; then
+    /data/apps/monitoring/bin/silencio-deploy cafft "$TARGET" || true
 fi
 
 # ---------------------------------------------------------------------------

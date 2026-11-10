@@ -338,11 +338,22 @@ the UIB's IT service for it and check that the relay signs with DKIM for
 
 ## Monitoring
 
-`server-monitoring` watches pro: `https://pausat.uib.es/cafft/api/health`
-(it must answer `"status":"ok"`), the containers `cafft-nginx` and `cafft-api`,
-the age of the newest backup and the disk used by the environment. `deploy.sh`
-silences the app's alerts while it runs. The health requests are left out of
-the nginx access log and the API log.
+`server-monitoring` watches both environments:
+
+- `https://pausat.uib.es/cafft/api/health` and
+  `https://pausat-pre.uib.es/cafft/api/health`, which must answer
+  `"status":"ok"`;
+- the containers `cafft-nginx` / `cafft-api` and `cafft-pre-nginx` /
+  `cafft-pre-api`;
+- the age of the newest backup and the disk used, read from
+  `/data/apps/cafft-{pro,pre}/runtime/{data,backups,videos}`.
+
+`deploy.sh` silences the environment's alerts for 10 minutes while it runs
+(`silencio-deploy cafft <pre|pro>`). The health requests are left out of the
+nginx access log and the API log.
+
+**Before moving any of those paths, or renaming a project or container, tell
+whoever maintains `server-monitoring`**: its alerts read them directly.
 
 ---
 

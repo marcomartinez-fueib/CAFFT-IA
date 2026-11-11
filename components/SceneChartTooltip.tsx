@@ -44,7 +44,7 @@ export const SceneChartTooltip: React.FC<CustomTooltipProps> = ({ active, payloa
         <div className="flex items-end justify-between mb-3">
            <div className="flex items-baseline">
               <span className="text-3xl font-black text-uib-blue leading-none" style={{ color: uibBlue }}>{currentRating}</span>
-              <span className="text-[10px] text-gray-400 font-bold ml-1">/10</span>
+              <span className="text-[10px] text-gray-400 font-bold ml-1">/9</span>
            </div>
            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold shadow-sm ${
              trend === 'down' ? 'bg-green-100 text-green-600' :

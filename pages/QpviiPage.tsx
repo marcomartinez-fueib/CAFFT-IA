@@ -11,6 +11,7 @@ import { calculateQPVIIScores } from '../utils/qpviiScoring.ts';
 import { saveQPVIIResultForUser, getQPVIIResultsForUser, getUserExposureProgress } from '../services/dataStore.ts';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { determineVideoSequence, isExposureFullyCompleted } from '../utils/exposureUtils.ts';
+import { showsTestControls } from '../utils/testMode';
 
 
 interface StoredResults {
@@ -174,6 +175,7 @@ export const QpviiPage: React.FC = () => {
           onSubmit={handleFormSubmit}
           isSubmitting={isSubmitting}
           initialName={formName}
+          showTestControls={showsTestControls(currentUser)}
         />
       ) : (
         <QpviiResultsDisplay

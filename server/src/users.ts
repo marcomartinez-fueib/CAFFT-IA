@@ -18,6 +18,7 @@ export interface UserRow {
   assistant_name: string | null;
   notification_prefs: string | null;
   onboarding_enabled: number;
+  is_test_account: number;
   onboarding_done: string;
   sent_follow_ups: string;
   last_login_at: number | null;
@@ -50,6 +51,7 @@ export function toApiUser(row: UserRow): ApiUser {
     sentFollowUps: JSON.parse(row.sent_follow_ups),
     mustChangePassword: row.must_change_password === 1,
   };
+  if (row.is_test_account === 1) user.isTestAccount = true;
   if (row.patient_code) user.patientCode = row.patient_code;
   if (row.therapist_id) user.therapistId = row.therapist_id;
   if (row.manager_id) user.managerId = row.manager_id;

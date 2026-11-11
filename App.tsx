@@ -27,6 +27,7 @@ import { AssistantModal } from './components/AssistantModal.tsx';
 import { ExposureExplanationPage } from './pages/ExposureExplanationPage.tsx';
 import { CelebrationPage } from './pages/CelebrationPage.tsx';
 import { ReviewSelectionPage } from './pages/ReviewSelectionPage.tsx';
+import { SessionEndPage } from './pages/SessionEndPage.tsx';
 import { LastSessionPage } from './pages/LastSessionPage.tsx';
 import { ProfilePage } from './pages/ProfilePage.tsx';
 import { FeedbackPage } from './pages/FeedbackPage.tsx';
@@ -134,6 +135,9 @@ const App: React.FC = () => {
                 }/>
                 <Route path="review-selection" element={
                     <ProtectedRoute role="patient"><ReviewSelectionPage /></ProtectedRoute>
+                }/>
+                <Route path="session-end" element={
+                    <ProtectedRoute role="patient"><SessionEndPage /></ProtectedRoute>
                 }/>
                  <Route path="last-session" element={
                     <ProtectedRoute role="patient"><LastSessionPage /></ProtectedRoute>

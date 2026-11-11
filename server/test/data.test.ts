@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { FastifyInstance } from 'fastify';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { migrate, openDb } from '../src/db.ts';
 import { login, makeApp, ORIGIN, seedUser } from './helpers.ts';
 
 function as(app: FastifyInstance, cookie: string) {
@@ -132,4 +135,56 @@ test('data routes require a session', async () => {
   assert.equal((await app.inject({ method: 'GET', url: '/sync' })).statusCode, 401);
   assert.equal((await app.inject({ method: 'GET', url: '/users/x' })).statusCode, 404); // no GET route; DELETE etc. are guarded
   assert.equal((await app.inject({ method: 'DELETE', url: '/users/x' })).statusCode, 401);
+});
+
+test('exposure sessions: upsert by id, visible to the therapist, never change owner', async () => {
+  const { patient, therapist, app, db, P, Q } = await setup();
+  const session = { id: 's1', userId: P.id, qpviiTimestamp: 42, isReview: false, startedAt: 1000, lastActivityAt: 1000 };
+  assert.equal((await patient('PUT', '/exposure-sessions', session)).statusCode, 204);
+  assert.equal(
+    (await patient('PUT', '/exposure-sessions', { ...session, lastActivityAt: 2000, endedAt: 2000, endReason: 'pause' })).statusCode,
+    204,
+  );
+  assert.equal((await therapist('PUT', '/exposure-sessions', session)).statusCode, 403);
+
+  const [stored] = (await therapist('GET', '/sync')).json().sessions;
+  assert.deepEqual(stored, { ...session, lastActivityAt: 2000, endedAt: 2000, endReason: 'pause' });
+
+  // Another patient reusing the id cannot overwrite it.
+  const other = as(app, await login(app, 'altre'));
+  assert.equal((await other('PUT', '/exposure-sessions', { ...session, userId: Q.id })).statusCode, 403);
+  assert.equal((await patient('GET', '/sync')).json().sessions[0].endReason, 'pause');
+});
+
+test('migration 005 rebuilds sessions from existing ratings', async () => {
+  const db = openDb(':memory:', { migrate: false });
+  db.exec('CREATE TABLE schema_migrations (version INTEGER PRIMARY KEY, applied_at INTEGER NOT NULL)');
+  const dir = join(import.meta.dirname, '..', 'migrations');
+  for (const file of readdirSync(dir).filter((f) => /^00[1-4]_/.test(f)).sort()) {
+    db.exec(readFileSync(join(dir, file), 'utf8'));
+    db.prepare('INSERT INTO schema_migrations VALUES (?, 0)').run(Number.parseInt(file, 10));
+  }
+  const P = await seedUser(db, 'patient', 'pac');
+  const hour = 60 * 60 * 1000;
+  const rating = (at: number) => ({ id: 'ev001', rating: 5, qpviiTimestamp: 42, videoTimestamp: at });
+  const insert = db.prepare(
+    `INSERT INTO exposure_progress (user_id, qpvii_timestamp, is_review, video_sequence, current_video_index,
+       completed_video_ids, discomfort_ratings, last_updated) VALUES (?, ?, ?, '[]', 0, '[]', ?, 0)`,
+  );
+  // Two sittings a day apart (the second one with its ratings stored out of order), and an empty record.
+  insert.run(P.id, 42, 0, JSON.stringify([rating(1 * hour), rating(1.5 * hour), rating(30 * hour), rating(29 * hour)]));
+  insert.run(P.id, 43, 1, JSON.stringify([rating(50 * hour)]));
+  insert.run(P.id, 44, 0, '[]');
+
+  migrate(db);
+
+  const rows = db
+    .prepare('SELECT qpvii_timestamp, is_review, started_at, last_activity_at, ended_at, end_reason FROM exposure_sessions ORDER BY started_at')
+    .all()
+    .map((r) => ({ ...r }));
+  assert.deepEqual(rows, [
+    { qpvii_timestamp: 42, is_review: 0, started_at: 1 * hour, last_activity_at: 1.5 * hour, ended_at: 1.5 * hour, end_reason: null },
+    { qpvii_timestamp: 42, is_review: 0, started_at: 29 * hour, last_activity_at: 30 * hour, ended_at: 30 * hour, end_reason: null },
+    { qpvii_timestamp: 43, is_review: 1, started_at: 50 * hour, last_activity_at: 50 * hour, ended_at: 50 * hour, end_reason: null },
+  ]);
 });

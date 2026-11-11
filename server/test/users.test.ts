@@ -163,3 +163,28 @@ test('toggles: staff for users they see, patients only for themselves', async ()
   assert.equal(back.json().user.onboardingEnabled, true);
   assert.deepEqual(back.json().user.onboardingCompleted, []);
 });
+
+test('only staff mark a patient as a test account', async () => {
+  const { app, db } = await makeApp();
+  const T = await seedUser(db, 'therapist', 'ter');
+  const P = await seedUser(db, 'patient', 'pac');
+  db.prepare('UPDATE users SET therapist_id = ? WHERE id = ?').run(T.id, P.id);
+  const asUser = async (name: string) => {
+    const cookie = await login(app, name);
+    return (url: string) => app.inject({ method: 'POST', url, headers: { cookie, origin: ORIGIN } });
+  };
+  const patient = await asUser('pac');
+  const therapist = await asUser('ter');
+
+  assert.equal((await patient(`/users/${P.id}/toggle-test-account`)).statusCode, 403);
+  assert.equal((await therapist(`/users/${T.id}/toggle-test-account`)).statusCode, 403);
+
+  const on = await therapist(`/users/${P.id}/toggle-test-account`);
+  assert.equal(on.json().user.isTestAccount, true);
+  const off = await therapist(`/users/${P.id}/toggle-test-account`);
+  assert.equal(off.json().user.isTestAccount, undefined);
+  assert.deepEqual(
+    db.prepare("SELECT action FROM audit_log WHERE action LIKE 'test_account.%' ORDER BY id").all().map((r) => r.action),
+    ['test_account.on', 'test_account.off'],
+  );
+});

@@ -1,20 +1,24 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { AiProvider, ChatMessage } from '../src/ai/provider.ts';
-import { geminiProvider, readApiKey } from '../src/ai/provider.ts';
+import { geminiProvider, localProvider, readApiKey } from '../src/ai/provider.ts';
 import { purgeOldConsultations } from '../src/routes/assistant.ts';
 import { login, makeApp, ORIGIN, seedUser } from './helpers.ts';
 
-function fakeProvider(reply: string[], seen: { system: string; messages: ChatMessage[] }[] = []): AiProvider {
+function fakeProvider(reply: string[], seen: { system: string; messages: ChatMessage[] }[] = [], waitFirst = false): AiProvider {
   return {
-    async *stream(request) {
+    async *stream(request, hooks) {
       seen.push(request);
+      if (waitFirst) hooks?.onWaiting?.();
       for (const part of reply) yield part;
     },
   };
 }
 
 const conversation = { system: 'Ets l’assistent del CAFFT.', messages: [{ role: 'user', text: 'Com funciona?' }] };
+
+/** The events of an /ai/chat reply (one JSON object per line). */
+const eventsOf = (body: string) => body.trim().split('\n').map((l) => JSON.parse(l) as { type: string; text?: string; code?: string });
 
 test('the assistant answers through the API and records the question for the therapist', async () => {
   const seen: { system: string; messages: ChatMessage[] }[] = [];
@@ -24,7 +28,7 @@ test('the assistant answers through the API and records the question for the the
 
   const res = await app.inject({ method: 'POST', url: '/ai/chat', headers: { cookie, origin: ORIGIN }, payload: conversation });
   assert.equal(res.statusCode, 200);
-  assert.equal(res.body, 'Hola, així.');
+  assert.deepEqual(eventsOf(res.body), [{ type: 'text', text: 'Hola, ' }, { type: 'text', text: 'així.' }]);
   assert.equal(res.headers['x-accel-buffering'], 'no');
   assert.deepEqual(seen, [conversation]);
 
@@ -48,7 +52,19 @@ test('the assistant is refused when off, without consent, or without a session',
   assert.equal((await on.app.inject({ method: 'POST', url: '/ai/chat', headers: { origin: ORIGIN }, payload: conversation })).statusCode, 401);
 });
 
-test('a provider failure before any text is a 502 and nothing is stored', async () => {
+test('waiting for the model is announced, and only the last messages are sent', async () => {
+  const seen: { system: string; messages: ChatMessage[] }[] = [];
+  const { app, db } = await makeApp({ aiProvider: fakeProvider(['ok'], seen, true) });
+  await seedUser(db, 'patient', 'pac');
+  const cookie = await login(app, 'pac');
+  const long = Array.from({ length: 31 }, (_, i) => ({ role: i % 2 ? 'model' : 'user', text: `m${i}` }));
+  const res = await app.inject({ method: 'POST', url: '/ai/chat', headers: { cookie, origin: ORIGIN }, payload: { system: 'S', messages: long } });
+  assert.deepEqual(eventsOf(res.body), [{ type: 'waiting' }, { type: 'text', text: 'ok' }]);
+  assert.equal(seen[0].messages.length, 20);
+  assert.equal(seen[0].messages[19].text, 'm30');
+});
+
+test('a provider failure is reported as an error event and nothing is stored', async () => {
   const failing: AiProvider = {
     // eslint-disable-next-line require-yield
     async *stream() {
@@ -59,7 +75,7 @@ test('a provider failure before any text is a 502 and nothing is stored', async 
   await seedUser(db, 'patient', 'pac');
   const cookie = await login(app, 'pac');
   const res = await app.inject({ method: 'POST', url: '/ai/chat', headers: { cookie, origin: ORIGIN }, payload: conversation });
-  assert.equal(res.statusCode, 502);
+  assert.deepEqual(eventsOf(res.body), [{ type: 'error', code: 'ai.unavailable' }]);
   assert.equal(db.prepare('SELECT COUNT(*) AS n FROM ai_consultations').get()!.n, 0);
 });
 
@@ -122,5 +138,61 @@ test('a wrong key is not retried', async () => {
   await assert.rejects(async () => {
     for await (const _ of provider.stream(conversation as never)) void _;
   }, /\(a\) answered 403/);
+  assert.equal(calls, 1);
+});
+
+test('the local provider calls the UIB gateway and waits while the engine wakes', async () => {
+  const sent: { url: string; init: RequestInit }[] = [];
+  const waits: number[] = [];
+  const sse = 'data: {"choices":[{"delta":{"content":"Bon "}}]}\n\ndata: {"choices":[{"delta":{"content":"dia"}}]}\n\ndata: [DONE]\n\n';
+  let calls = 0;
+  const fakeFetch = (async (url: string, init: RequestInit) => {
+    sent.push({ url, init });
+    return ++calls === 1
+      ? new Response('{"error":{"code":"llm_waking"}}', { status: 503, headers: { 'retry-after': '5' } })
+      : new Response(sse, { status: 200 });
+  }) as unknown as typeof fetch;
+  let waitingCalls = 0;
+  const provider = localProvider('http://pausat-llm:8080/v1/', 'TOKEN', 'pausat-chat', { fetchImpl: fakeFetch, wait: async (ms) => { waits.push(ms); } });
+
+  const parts: string[] = [];
+  for await (const p of provider.stream({ system: 'S', messages: [{ role: 'user', text: 'Q' }, { role: 'model', text: 'A' }, { role: 'user', text: 'Q2' }] }, { onWaiting: () => waitingCalls++ })) parts.push(p);
+  assert.deepEqual(parts, ['Bon ', 'dia']);
+  assert.deepEqual(waits, [5000]);
+  assert.equal(waitingCalls, 1);
+  assert.equal(sent[0].url, 'http://pausat-llm:8080/v1/chat/completions');
+  assert.equal((sent[0].init.headers as Record<string, string>).authorization, 'Bearer TOKEN');
+  assert.deepEqual(JSON.parse(String(sent[0].init.body)), {
+    model: 'pausat-chat',
+    stream: true,
+    max_tokens: 1000,
+    temperature: 0.3,
+    messages: [
+      { role: 'system', content: 'S' },
+      { role: 'user', content: 'Q' },
+      { role: 'assistant', content: 'A' },
+      { role: 'user', content: 'Q2' },
+    ],
+  });
+});
+
+test('the local provider gives up when the engine does not wake in time, and does not retry a wrong token', async () => {
+  const busy = (async () => new Response('waking', { status: 503, headers: { 'retry-after': '60' } })) as unknown as typeof fetch;
+  const waits: number[] = [];
+  let clock = 0;
+  const slow = localProvider('http://x/v1', 'T', 'm', {
+    fetchImpl: busy,
+    wait: async (ms) => { waits.push(ms); clock += ms; },
+    now: () => clock,
+    maxWaitMs: 150_000,
+  });
+  await assert.rejects(async () => { for await (const _ of slow.stream(conversation as never)) void _; }, /503/);
+  assert.deepEqual(waits, [60_000, 60_000]); // a third wait would pass 150 s
+
+  let calls = 0;
+  const denied = (async () => { calls++; return new Response('no', { status: 401 }); }) as unknown as typeof fetch;
+  await assert.rejects(async () => {
+    for await (const _ of localProvider('http://x/v1', 'T', 'm', { fetchImpl: denied, wait: async () => {} }).stream(conversation as never)) void _;
+  }, /401/);
   assert.equal(calls, 1);
 });

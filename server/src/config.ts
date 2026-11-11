@@ -30,9 +30,30 @@ export interface Config {
    * The AI assistant. Off without a key, or with AI_ENABLED=false (a switch
    * for the pilot if the data protection officer asks for it).
    */
-  ai: { enabled: boolean; apiKey: string; model: string; retentionDays: number | null };
+  ai: {
+    enabled: boolean;
+    /** `local`: the UIB's engine (pausat-llm); `gemini`: Google. */
+    provider: 'local' | 'gemini';
+    apiKey: string;
+    model: string;
+    local: { url: string; token: string; model: string };
+    retentionDays: number | null;
+  };
   /** Disables request logging; used by tests. */
   logger: boolean;
+}
+
+/**
+ * A secret from a file, or '' when there is no such file: a missing secret
+ * leaves the assistant off instead of stopping the API.
+ */
+function readSecret(path: string | undefined): string {
+  if (!path) return '';
+  try {
+    return readFileSync(path, 'utf8');
+  } catch {
+    return '';
+  }
 }
 
 function env(name: string, fallback: string): string {
@@ -64,7 +85,13 @@ export function loadConfig(overrides: Partial<Config> = {}): Config {
     mailAllowedDomains: env('MAIL_ALLOWED_DOMAINS', '').split(',').map((d) => d.trim()).filter(Boolean),
     ai: {
       enabled: env('AI_ENABLED', 'true') !== 'false',
-      apiKey: process.env.GEMINI_API_KEY || (process.env.GEMINI_KEY_FILE ? readApiKey(readFileSync(process.env.GEMINI_KEY_FILE, 'utf8')) : ''),
+      provider: env('AI_PROVIDER', 'gemini') === 'local' ? 'local' : 'gemini',
+      local: {
+        url: env('LOCAL_LLM_URL', 'http://pausat-llm:8080/v1'),
+        token: process.env.LOCAL_LLM_TOKEN || readSecret(process.env.LOCAL_LLM_TOKEN_FILE).trim(),
+        model: env('LOCAL_LLM_MODEL', 'pausat-chat'),
+      },
+      apiKey: process.env.GEMINI_API_KEY || readApiKey(readSecret(process.env.GEMINI_KEY_FILE)),
       // Comma-separated, in order of preference (see ai/provider.ts).
       model: env('GEMINI_MODEL', 'gemini-3.8-flash,gemini-2.5-flash'),
       // Questions and answers older than this are deleted. Empty: kept.

@@ -271,7 +271,7 @@ const caTranslations: TranslationContent = {
         conformityTitle: "Com a prova de conformitat, accept el present consentiment.",
         yes: "Sí",
         no: "No",
-        select: "Triï..."
+        select: "Seleccioni..."
     },
     progress: {
         programTitle: "El Seu Procés CAFFT",
@@ -1548,7 +1548,7 @@ const esTranslations: TranslationContent = {
         conformityTitle: "Como prueba de conformidad, acepto el presente consentimiento.",
         yes: "Sí",
         no: "No",
-        select: "Elija..."
+        select: "Seleccione..."
     },
     nav: { ...caTranslations.nav, home: "Inicio", fearOfFlying: "Miedo a Volar", cafftProgram: "Programa", qpviiEvaluation: "Evaluación", exposure: "Exposición", login: "Iniciar Sesión", register: "Registrarse", profile: "Perfil", logout: "Cerrar Sesión", privacyPolicy: "Política de Privacidad", cafftIntro: "Inicio", forgotPasswordLink: "¿Ha olvidado la contraseña?", evolution: "Evolución", exposureHierarchy: "Jerarquía de Exposición", exposureExplanation: "Explicación de Exposición", lastSession: "Sesión Final", therapistDashboard: "Panel Control", managerDashboard: "Control", superadminDashboard: "Admin", patients: "Pacientes", therapists: "Terapeutas", managers: "Gestores", therapistNotifications: "Notificaciones", clinicalGuide: "Guía Clínica", scientificEvidence: "Evidencia", help: "Ayuda", addUser: "Añadir Usuario", addTherapist: "Añadir Terapeuta", save: "Guardar", cancel: "Cancelar" },
     home: { 

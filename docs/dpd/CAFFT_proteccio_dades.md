@@ -30,7 +30,7 @@ els marcats **[DPD]** són preguntes per al DPD.
 | Identificació | Nom d'usuari, correu electrònic, codi de pacient seudònim | Base de dades del servidor | El mateix pacient; el seu terapeuta; gestors i administradors |
 | Dades sociodemogràfiques | Data de naixement, gènere, ocupació, com ha conegut el servei, si accepta la presència d'estudiants | Ídem | Ídem |
 | **Salut** | Respostes i puntuacions del QPV-II; valoracions de malestar (escala 1–9) de cada vídeo d'exposició; sessions (data, durada); progrés en la jerarquia | Ídem | Ídem |
-| **Converses amb l'assistent** | Text lliure de les preguntes i respostes | Ídem, i el proveïdor d'IA en el moment de respondre (§ 4) | El pacient; el seu terapeuta; el proveïdor, sense identificadors del pacient |
+| **Converses amb l'assistent** | Text lliure de les preguntes i respostes | Ídem; el model d'IA de la UIB les processa en el moment de respondre (§ 4) | El pacient; el seu terapeuta |
 | Consentiments | Quina versió del text s'ha acceptat, quan i en quina llengua; retirades | Ídem | Terapeuta (estat); administradors |
 | Comunicacions | Correus enviats (invitació, restabliment de contrasenya, recordatoris) i resposta del servidor de correu | Ídem | Administradors |
 | Registre d'accessos | Data, usuari, acció, pacient afectat i adreça IP de: inicis de sessió, canvis de comptes, consentiments, i cada accés del personal a dades clíniques (§ 6) | Ídem | Administradors; el DPD a petició |
@@ -51,7 +51,8 @@ galetes de seguiment ni analítica de tercers: només la galeta de sessió
                                                                  │
                                          ┌───────────────────────┼─────────────────────┐
                                          ▼                       ▼                     ▼
-                              Google Gemini API          Relé de correu UIB     Còpies diàries
+                         Model d'IA de la UIB         Relé de correu UIB     Còpies diàries
+                         (pausat-llm, mateix servidor)
                               (assistent; § 4)           smtp.uib.es            (mateix servidor)
 ```
 
@@ -62,34 +63,35 @@ galetes de seguiment ni analítica de tercers: només la galeta de sessió
   les proves automàtiques fan servir bases de dades temporals amb usuaris
   inventats.
 
-## 4. Assistent virtual i proveïdor d'IA
+## 4. Assistent virtual i model d'IA
 
-- **Proveïdor:** Google, models Gemini estables (`gemini-3.8-flash` i, si està
-  saturat, `gemini-2.5-flash`), a través de
-  l'API de Gemini en el **nivell de pagament**. **[DPD]** Verificar les
-  condicions del servei de Google aplicables (ús de les dades, conservació per
-  a control d'abusos, ubicació del tractament, possibles transferències fora de
-  l'EEE i contracte d'encarregat del tractament).
-- **Qui hi parla:** només l'API del servidor, que té la clau. El navegador no
-  té cap contacte amb Google.
+- **Model:** el motor d'IA propi de la UIB, **al mateix servidor** (`pausat-llm`,
+  que també fa servir el PAUSAT): un model obert (Qwen3.5) servit amb vLLM.
+  **Cap conversa no surt de la UIB** i no intervé cap proveïdor extern. Ni la
+  passarel·la ni el motor no registren el contingut de les peticions.
+- **Qui hi parla:** només l'API del servidor, amb un testimoni d'accés propi de
+  cada entorn. El navegador no hi té accés.
 - **Què s'envia:** les instruccions de l'assistent (manual clínic del CAFFT,
   moment del tractament i, per al pacient, si ha fet el QPV-II i el darrer
-  vídeo), i la conversa en curs. **No s'hi inclou el nom, el correu ni cap
-  identificador** del pacient. Per al terapeuta, les dades dels seus pacients
-  (puntuacions del QPV-II, índex de canvi fiable i progrés) hi van identificades
-  només pel codi de pacient seudònim.
-- **Límit que no depèn de l'aplicació:** el text lliure que escriu l'usuari
-  arriba tal com l'escriu. Si hi posa el seu nom o altres dades, el proveïdor
-  les rep. **[equip]** Valorar un avís al xat perquè no s'hi escriguin dades
-  identificatives.
+  vídeo), i els darrers missatges de la conversa. **No s'hi inclou el nom, el
+  correu ni cap identificador** del pacient. Per al terapeuta, les dades dels
+  seus pacients hi van identificades només pel codi de pacient seudònim.
+- **Text lliure:** el que escriu l'usuari arriba al model tal com l'escriu, però
+  es processa dins la UIB.
 - **Conservació a la UIB:** les preguntes i respostes es desen perquè el
   terapeuta les pugui consultar. Es poden esborrar automàticament passat un
   termini (`AI_RETENTION_DAYS`), avui sense fixar. **[DPD]** Termini.
+- **Disponibilitat:** el motor es comparteix amb el PAUSAT i s'adorm quan no
+  s'usa; la primera resposta pot trigar uns minuts. **Per això cap funció de
+  seguretat (crisi o risc) no pot dependre de l'assistent.** **[equip]** Avui el
+  CAFFT no té cap detecció de crisi en el xat: valorar si cal abans del pilot.
 - **Interruptor:** l'assistent es pot desactivar per entorn sense afectar la
-  resta de l'aplicació, si el DPD no n'accepta l'ús.
-- **[DPD]** Si cal un proveïdor amb tractament garantit a la UE (p. ex. Google
-  Vertex AI en una regió europea), el canvi està limitat a un sol mòdul del
-  servidor.
+  resta de l'aplicació.
+- **No és un producte sanitari validat.** **[equip]** Revisar una mostra de
+  respostes del model en el context del CAFFT abans del pilot.
+- L'aplicació també pot fer servir Google Gemini en lloc del model de la UIB
+  (`AI_PROVIDER=gemini`); no està activat i, si s'activés, les converses
+  sortirien de la UIB i caldria tornar a consultar el DPD.
 
 ## 5. Consentiment
 
@@ -137,7 +139,7 @@ galetes de seguiment ni analítica de tercers: només la galeta de sessió
   estricta; capçaleres contra incrustació i sniffing.
 - L'API no és accessible directament des de fora: només hi arriba el
   contenidor nginx de la mateixa aplicació.
-- La clau del proveïdor d'IA només és al servidor (fitxer `0600`).
+- El testimoni d'accés al model d'IA només és al servidor (fitxer `0600`).
 - **Xifratge en repòs:** **[equip/informàtica]** Pendent que informàtica de la
   UIB confirmi si el disc del servidor està xifrat.
 
@@ -185,7 +187,8 @@ galetes de seguiment ni analítica de tercers: només la galeta de sessió
 | Risc | Mesures | Risc residual |
 |---|---|---|
 | Accés no autoritzat a dades de salut | Rols comprovats al servidor, contrasenyes robustes, límits d'intents, registre d'accessos | Baix |
-| Dades de salut al proveïdor d'IA | Sense identificadors; nivell de pagament; interruptor; termini de conservació configurable | **Mitjà**, depèn de les condicions de Google i del text lliure de l'usuari (§ 4) |
+| Dades de salut processades pel model d'IA | Model propi de la UIB al mateix servidor; sense identificadors; sense registre del contingut; interruptor; termini de conservació configurable | Baix |
+| Una persona en crisi escriu al xat | **Cap detecció avui**; el model pot no estar disponible durant minuts | **[equip]** A valorar abans del pilot (§ 4) |
 | Registre lliure de pacients | Els pacients que es registren sols queden sense terapeuta i només els veu l'administrador | **[equip]** El registre lliure es manté obert per decisió del projecte; valorar si cal per al pilot |
 | Pèrdua de dades per avaria del servidor | Còpies diàries i abans de cada actualització | Mitjà: les còpies són al mateix servidor |
 | Correus a destinataris equivocats | Les invitacions les crea el terapeuta; a proves, només dominis de l'equip | Baix |
@@ -196,8 +199,8 @@ galetes de seguiment ni analítica de tercers: només la galeta de sessió
 
 1. Base jurídica i si la recerca necessita un consentiment separat.
 2. Si cal una avaluació d'impacte completa (art. 35) i en quin format.
-3. Acceptabilitat de Google Gemini (nivell de pagament) com a encarregat, o
-   si cal un proveïdor amb tractament a la UE; contracte d'encarregat.
+3. Si el tractament de les converses amb el model d'IA propi de la UIB
+   (compartit amb el PAUSAT) requereix alguna mesura addicional.
 4. Terminis de conservació (§ 7), especialment de les converses amb
    l'assistent i del registre d'accessos.
 5. Si les còpies només al mateix servidor són suficients.

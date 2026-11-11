@@ -10,7 +10,7 @@ import { authRoutes } from './routes/auth.ts';
 import { meRoutes, userRoutes } from './routes/users.ts';
 import { dataRoutes, feedbackRoutes } from './routes/data.ts';
 import { assistantRoutes } from './routes/assistant.ts';
-import { geminiProvider, type AiProvider } from './ai/provider.ts';
+import { geminiProvider, localProvider, type AiProvider } from './ai/provider.ts';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -81,12 +81,18 @@ export async function buildApp(config: Config, db: Db, deps: { aiProvider?: AiPr
   await app.register(meRoutes, { prefix: '/me' });
   await app.register(dataRoutes);
   await app.register(feedbackRoutes, { prefix: '/feedback' });
-  const aiProvider = deps.aiProvider !== undefined
-    ? deps.aiProvider
-    : config.ai.enabled && config.ai.apiKey ? geminiProvider(config.ai.apiKey, config.ai.model) : null;
-  await app.register(assistantRoutes, { prefix: '/ai', provider: aiProvider });
+  await app.register(assistantRoutes, { prefix: '/ai', provider: deps.aiProvider !== undefined ? deps.aiProvider : configuredProvider(config) });
 
   return app;
+}
+
+/** The assistant's model, or null when it is off or not configured. */
+export function configuredProvider(config: Config): AiProvider | null {
+  if (!config.ai.enabled) return null;
+  if (config.ai.provider === 'local') {
+    return config.ai.local.token ? localProvider(config.ai.local.url, config.ai.local.token, config.ai.local.model) : null;
+  }
+  return config.ai.apiKey ? geminiProvider(config.ai.apiKey, config.ai.model) : null;
 }
 
 /** preHandler for routes that need a logged-in user. */

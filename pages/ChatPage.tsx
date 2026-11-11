@@ -66,6 +66,8 @@ export const ChatInterface: React.FC<{onCloseModal?: () => void; hideHeader?: bo
   const [rciData, setRciData] = useState<ChatRciData | null>(null);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  // The UIB's model sleeps when idle and can take minutes to wake.
+  const [isModelWaking, setIsModelWaking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
@@ -350,16 +352,20 @@ ${THERAPEUTIC_KNOWLEDGE.coreFeatures}
         setMessages(prev => [...prev, { role: 'model', text: '' }]);
 
         // The API stores the question and answer for the therapist.
-        await askAssistant(systemInstruction, history, (replySoFar) => {
-            setMessages(prev => {
-                const latestMessages = [...prev];
-                const lastMessage = { ...latestMessages[latestMessages.length - 1] };
-                if (lastMessage.role === 'model') {
-                    lastMessage.text = replySoFar;
-                    latestMessages[latestMessages.length - 1] = lastMessage;
-                }
-                return latestMessages;
-            });
+        await askAssistant(systemInstruction, history, {
+            onWaiting: () => setIsModelWaking(true),
+            onText: (replySoFar) => {
+                setIsModelWaking(false);
+                setMessages(prev => {
+                    const latestMessages = [...prev];
+                    const lastMessage = { ...latestMessages[latestMessages.length - 1] };
+                    if (lastMessage.role === 'model') {
+                        lastMessage.text = replySoFar;
+                        latestMessages[latestMessages.length - 1] = lastMessage;
+                    }
+                    return latestMessages;
+                });
+            },
         });
     } catch (e) {
         console.error("Error sending message:", e);
@@ -373,6 +379,7 @@ ${THERAPEUTIC_KNOWLEDGE.coreFeatures}
         });
     } finally {
         setIsLoading(false);
+        setIsModelWaking(false);
     }
   }, [input, isLoading, messages, currentUser, qpviiData.length, t]);
   
@@ -566,8 +573,9 @@ ${THERAPEUTIC_KNOWLEDGE.coreFeatures}
             animate={{ opacity: 1, scale: 1 }}
             className="flex justify-start"
           >
-            <div className="px-4 py-3 rounded-2xl shadow-sm bg-white text-slate-800 rounded-bl-none border border-slate-100">
+            <div className="px-4 py-3 rounded-2xl shadow-sm bg-white text-slate-800 rounded-bl-none border border-slate-100" role="status">
                 <TypingIndicator />
+                {isModelWaking && <p className="mt-2 text-xs text-slate-500 max-w-xs">{t('aiChat.wakingNotice')}</p>}
             </div>
           </motion.div>
         )}

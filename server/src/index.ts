@@ -1,6 +1,6 @@
 import { loadConfig } from './config.ts';
 import { migrate, openDb } from './db.ts';
-import { buildApp } from './app.ts';
+import { buildApp, configuredProvider } from './app.ts';
 import { purgeExpiredSessions } from './sessions.ts';
 import { backupDatabase } from './backup.ts';
 import { processOutbox } from './mail/outbox.ts';
@@ -39,7 +39,15 @@ if (config.backupDir) {
 
 // AI assistant: say whether it is on, and keep questions and answers only for
 // the retention period, if one is set (AI_RETENTION_DAYS).
-app.log.info({ enabled: config.ai.enabled && !!config.ai.apiKey, model: config.ai.model, retentionDays: config.ai.retentionDays }, 'AI assistant');
+app.log.info(
+  {
+    enabled: configuredProvider(config) !== null,
+    provider: config.ai.provider,
+    model: config.ai.provider === 'local' ? `${config.ai.local.model} @ ${config.ai.local.url}` : config.ai.model,
+    retentionDays: config.ai.retentionDays,
+  },
+  'AI assistant',
+);
 const purgeAi = () => {
   const removed = purgeOldConsultations(db, config.ai.retentionDays);
   if (removed > 0) app.log.info({ removed }, 'old assistant consultations deleted');

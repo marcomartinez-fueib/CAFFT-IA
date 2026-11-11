@@ -412,6 +412,7 @@ export interface LastSessionPageContent {
 
 export interface AIChatContent {
   connectionError?: string;
+  wakingNotice?: string;
   unavailableError?: string;
   pageTitle: string;
   disclaimer: string;

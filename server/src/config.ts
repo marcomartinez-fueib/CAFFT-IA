@@ -65,6 +65,7 @@ export function loadConfig(overrides: Partial<Config> = {}): Config {
     ai: {
       enabled: env('AI_ENABLED', 'true') !== 'false',
       apiKey: process.env.GEMINI_API_KEY || (process.env.GEMINI_KEY_FILE ? readApiKey(readFileSync(process.env.GEMINI_KEY_FILE, 'utf8')) : ''),
+      // Comma-separated, in order of preference (see ai/provider.ts).
       model: env('GEMINI_MODEL', 'gemini-3-flash-preview'),
       // Questions and answers older than this are deleted. Empty: kept.
       retentionDays: process.env.AI_RETENTION_DAYS ? Number(process.env.AI_RETENTION_DAYS) : null,

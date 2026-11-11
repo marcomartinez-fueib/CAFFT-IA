@@ -3,16 +3,17 @@
 CAFFT-IA is a single-page app backed by a small API (`server/`, see
 `docs/backend/PLAN.md`) that keeps accounts and clinical data in SQLite. Each
 environment runs two containers: `<prefix>-nginx` serves the app and proxies to
-`<prefix>-api`. nginx also proxies Gemini, so the API key never reaches the
-browser, and only for logged-in users.
+`<prefix>-api`. The AI assistant goes through the API to the UIB's own model
+(pausat-llm, shared with PAUSAT): no conversation leaves the UIB.
 
 | Environment | URL | Branch | Clone on the server | Containers |
 |---|---|---|---|---|
 | **pre** (tests, no real patients) | <https://pausat-pre.uib.es/cafft/> | `pre` | `/data/apps/cafft-pre` | `cafft-pre-nginx`, `cafft-pre-api` |
 | **pro** (the pilot) | <https://pausat.uib.es/cafft/> | `pro` | `/data/apps/cafft-pro` | `cafft-nginx`, `cafft-api` |
 
-Both are reachable only through the UIB VPN. `pro` keeps the compose project
-`cafft` and the container names that `server-monitoring` watches.
+`pro` is public: patients use it from home. `pre` is reachable only through
+the UIB VPN. `pro` keeps the compose project `cafft` and the container names
+that `server-monitoring` watches.
 
 ---
 
@@ -64,11 +65,11 @@ deploy leaves a copy of the data as it was before the new code touched it.
 ├── .env.<env>                   host, names, mail (deploy/env.example) — not in git
 ├── deploy.sh
 ├── deploy/compose.yml           the stack
-├── deploy/nginx/cafft.conf      nginx config, including the Gemini proxy
+├── deploy/nginx/cafft.conf      nginx config
 └── runtime/                     not in git
     ├── web/cafft/               the built app (deploy.sh swaps it in)
     ├── videos/                  the exposure videos (mp4)
-    ├── secrets/gemini-key.conf  the Gemini key (0600)
+    ├── secrets/llm-gate-token   the `gate` token for pausat-llm (0600), read only by the API
     ├── data/                    the SQLite database   — owned by uid 1000
     └── backups/                 daily snapshots       — owned by uid 1000
 ```
@@ -170,9 +171,9 @@ chown 1000:1000 runtime/data runtime/backups
 chmod 700 runtime/data runtime/backups runtime/secrets
 ```
 
-The Gemini key: a file with exactly one line,
-`proxy_set_header X-Goog-Api-Key "AIza...";`, mode `0600`, in
-`runtime/secrets/gemini-key.conf`. The exposure videos: copy them into
+The assistant's token for the UIB's engine, in
+`runtime/secrets/llm-gate-token` (mode `0600`), see
+[The AI assistant](#the-ai-assistant). The exposure videos: copy them into
 `runtime/videos/`.
 
 ### 5. First deploy and the first account
@@ -241,7 +242,7 @@ curl -sSI $B/cafft | grep -iE '^HTTP/|^location'          # 301 -> /cafft/
 curl -sS $B/cafft/ | grep -oE '(src|href)="/cafft/assets/[^"]+"'
 
 curl -sSI $B/cafft/ | grep -iE 'cache-control|content-security-policy'
-curl -sS -o /dev/null -w 'genai -> %{http_code}\n' $B/cafft/genai/v1beta/models   # 401 without a session
+curl -sS -o /dev/null -w 'ai -> %{http_code}  (401 without a session)\n' -X POST $B/cafft/api/ai/chat
 curl -sS -o /dev/null -w 'range -> %{http_code}  (206)\n' \
      -H 'Range: bytes=0-1023' $B/cafft/videos_cafft/ev001_es.mp4
 curl -sS -o /dev/null -w 'listing -> %{http_code}  (403)\n' $B/cafft/videos_cafft/
@@ -263,15 +264,17 @@ With devtools open; **any CSP violation means a feature is silently dead.**
 
 ### If the AI chat does not reply
 
-```bash
-curl -s -o /dev/null -w '%{http_code}\n' 'https://pausat.uib.es/cafft/genai/v1beta/models'
-```
+`docker logs <prefix>-api | grep -E '"AI assistant"|assistant: provider'`: the
+first line says at start whether the assistant is on and with which model; the
+others are the model's errors. In the app:
 
-- `401` without a session is expected; from the logged-in browser it should be `200`.
-- `403` — the key is wrong, or the Gemini API is not enabled for it.
-- `404` — the `location /cafft/genai/` block is missing.
-- `429` — the rate limit (20 requests/minute per IP) is doing its job.
-- `502` — nginx cannot reach Google; `docker restart <prefix>-nginx` re-resolves it.
+- «not available» — no token (or `AI_ENABLED=false`): the API answers 503
+  `ai.disabled`;
+- «getting ready…» for a minute or more — the engine is waking, or waiting for
+  a video in PAUSAT Studio to finish (`scripts/gpu-arbiter.sh status` in the
+  PAUSAT clone): the API keeps asking for up to 10 minutes;
+- «could not be reached» — the model failed or did not wake in 10 minutes;
+- 429 — more than 20 messages a minute from one user.
 
 ### If the page renders unstyled
 
@@ -305,6 +308,64 @@ docker start cafft-api
 
 If nginx returns 502 for `/cafft/api/*`, the API is down (`docker logs cafft-api`);
 the rest of the site keeps working, because nginx resolves `api` per request.
+
+---
+
+## The AI assistant
+
+By default (`AI_PROVIDER=local`) the assistant uses the UIB's own model: the
+shared engine **pausat-llm** that runs for PAUSAT on this server (vLLM serving
+Qwen3.5 as `pausat-chat`, 32k tokens of context, thinking off). The API reaches
+its gateway at `http://pausat-llm:8080/v1` over the Docker network `ai-shared`,
+like the newsletter, with a token of scope `gate`. Nothing leaves the UIB, and
+neither the gateway nor vLLM logs request bodies.
+
+- **Waking.** The engine sleeps after 5 minutes without chat and shares the GPU
+  with PAUSAT Studio. Waking takes up to ~2.5 min, longer if a video is
+  rendering (never interrupted). The API keeps asking for up to 10 minutes and
+  tells the app, which shows «the assistant is getting ready».
+- **Limits.** `max_tokens` 1000, temperature 0.3, and the last 20 messages of
+  the conversation.
+- **Not for safety.** The engine can be unavailable for minutes: nothing about
+  crisis or risk may depend on it.
+
+**Adding an environment as a client** (once per environment, coordinated with
+PAUSAT, whose engine it is; runbook in PAUSAT's `docs/deployment.md` § 8.16.1):
+
+```bash
+# 1. A token, kept by CAFFT; the arbiter only keeps its SHA-256.
+TOKEN=$(python3 -c "import secrets; print(secrets.token_urlsafe(32))")
+umask 077; printf '%s\n' "$TOKEN" > /data/apps/cafft-pre/runtime/secrets/llm-gate-token
+python3 -c "import hashlib,sys; print(hashlib.sha256(sys.argv[1].encode()).hexdigest())" "$TOKEN"
+unset TOKEN
+# 2. In /etc/pausat/gpu-arbiter/clients.json (sudoedit, keep root:10001 0640):
+#      {"name": "cafft-pre", "token_sha256": "<the hex above>", "scopes": ["gate"]}
+# 3. The arbiter reads clients.json only at start. At a quiet moment (no video
+#    lease in Studio, `scripts/gpu-arbiter.sh status`), from PAUSAT's pro clone:
+cd /data/apps/pausat-pro && docker compose -p pausat-llm -f docker-compose.llm.yml up -d --force-recreate gpu-arbiter
+# 4. Restart this environment's API so it reads the token:
+docker restart cafft-pre-api
+```
+
+Recreating the arbiter cuts, for a few seconds, any chat reply in progress in
+PAUSAT and CAFFT; vLLM is not restarted.
+
+`AI_PROVIDER=gemini` (with `runtime/secrets/gemini-key.conf`) switches to Google
+Gemini instead; the data would then leave the UIB.
+
+---
+
+## Audit log
+
+The API records logins, account changes, consents, and every access by staff
+to patients' clinical data: each data load (`clinical.read`), each patient card
+opened (`clinical.view`) and each export (`clinical.export`), with the patients
+concerned. To answer «who has seen this patient?» or to hand the log to the
+data protection officer:
+
+```bash
+docker exec cafft-api node src/cli/audit.ts --days 90 > cafft-audit.csv
+```
 
 ---
 
@@ -362,13 +423,17 @@ whoever maintains `server-monitoring`**: its alerts read them directly.
 `pausat.uib.es` sends a strict Content-Security-Policy
 (`default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; …`),
 so the app needs no exceptions: Tailwind is compiled at build time, the fonts
-are self-hosted, Gemini is called through `/cafft/genai/` with the key injected
-by nginx, and every video is served from `/cafft/videos_cafft/`. `deploy.sh`
+are self-hosted, the AI assistant goes through the API, and every video is
+served from `/cafft/videos_cafft/`. `deploy.sh`
 refuses a build that references a CDN the policy would block.
 
-**The Gemini proxy requires a session:** nginx checks the session cookie with
-the API (`auth_request`) before forwarding to Google, and limits each IP to 20
-requests per minute. **Patient data lives only in the API's database**; the
+**The AI assistant goes through the API:** only it talks to the model. The
+app sends the instructions and the conversation without the user's name,
+email or ids — therapists' patients appear by their pseudonymous code — and
+the API needs a session, the current consent for patients, and allows 20
+messages a minute per user. It stores each question and answer for the
+therapist; `AI_RETENTION_DAYS` deletes old ones and `AI_ENABLED=false` turns
+the assistant off. **Patient data lives only in the API's database**; the
 browser keeps a copy in memory while the app is open, plus the language
 preference in `localStorage`. **There are no built-in accounts**: the first
 superadmin is created with `create-admin`.

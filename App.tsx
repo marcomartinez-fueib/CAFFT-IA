@@ -28,6 +28,7 @@ import { ExposureExplanationPage } from './pages/ExposureExplanationPage.tsx';
 import { CelebrationPage } from './pages/CelebrationPage.tsx';
 import { ReviewSelectionPage } from './pages/ReviewSelectionPage.tsx';
 import { SessionEndPage } from './pages/SessionEndPage.tsx';
+import { ConsentGuard } from './components/ConsentGuard.tsx';
 import { LastSessionPage } from './pages/LastSessionPage.tsx';
 import { ProfilePage } from './pages/ProfilePage.tsx';
 import { FeedbackPage } from './pages/FeedbackPage.tsx';
@@ -113,7 +114,7 @@ const App: React.FC = () => {
                 <Route path="reset-password/:token" element={<ResetPasswordPage />} />
                 
                 {/* Patient-only Routes */}
-                <Route path="qpvii-evaluation" element={<QpviiPage />} />
+                <Route path="qpvii-evaluation" element={<ConsentGuard><QpviiPage /></ConsentGuard>} />
 
                 <Route path="cafft-intro" element={
                     <ProtectedRoute role="patient"><CafftIntroPage /></ProtectedRoute>

@@ -5,8 +5,9 @@ import { DatabaseSync } from 'node:sqlite';
 const DAY = 24 * 60 * 60 * 1000;
 
 // Console errors that are expected: the session check before login, and the
-// exposure videos when the Git LFS files are not present.
-const EXPECTED_CONSOLE = [/status of 401/, /Video loading failed/];
+// exposure videos when the Git LFS files are not present, and the assistant
+// answering «not available» (these runs have no provider key).
+const EXPECTED_CONSOLE = [/status of 401/, /Video loading failed/, /status of 503/, /ai\.disabled/];
 
 export async function runFlow({ browser, base, dbPath }) {
   const db = new DatabaseSync(dbPath);
@@ -124,6 +125,18 @@ export async function runFlow({ browser, base, dbPath }) {
   check('1.5 trend charts appear from the second session', (await page.locator('.recharts-wrapper').count()) > 0);
   check('1.7 no «/10» left on La Meva Evolució', !/\/10\b/.test(body));
 
+  // The assistant goes through the API; these runs have no provider key, so the
+  // API answers «not available» and the chat must say so (and keep working).
+  await page.getByRole('button', { name: 'Ajuda' }).click();
+  await pause(1500);
+  await page.getByPlaceholder('Escrigui aquí...').fill('Com funciona l\'exposició?');
+  await page.getByRole('button', { name: 'Enviar' }).click();
+  await pause(1500);
+  check('2.7 the assistant goes through the API (no provider: «not available»)', (await text()).includes('no està disponible ara mateix'));
+  await page.keyboard.press('Escape');
+  await page.goto(base + '#/');
+  await pause(800);
+
   db.prepare('UPDATE users SET is_test_account = 0 WHERE id = ?').run(patientId);
   await page.reload();
   await pause(1500);
@@ -137,6 +150,30 @@ export async function runFlow({ browser, base, dbPath }) {
       !/videos_cafft|\.mp4|https?:\/\//.test(body) && (await page.getByRole('button', { name: /Simular/i }).count()) === 0);
   }
   await page.close();
+
+  // --- A patient registered from the panel: consent first --------------------------
+  const np = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  watch(np);
+  await np.goto(base + '#/login');
+  await np.fill('#username', 'nova');
+  await np.fill('#password', 'correct-horse');
+  await np.click('form button[type="submit"]');
+  await np.waitForTimeout(2000);
+  await np.goto(base + '#/exposure-hierarchy');
+  await np.waitForTimeout(1000);
+  let nb = await np.locator('body').innerText();
+  check('2.1 a patient registered from the panel sees the informed consent first', nb.includes('Consentiment informat') && nb.includes('Acceptar i continuar'));
+  await np.fill('#dob', '1990-01-01');
+  await np.selectOption('#gender', 'female');
+  await np.selectOption('#occupation', 'PDI');
+  await np.selectOption('#source', 'web');
+  await np.check('#consent');
+  await np.getByRole('button', { name: 'Acceptar i continuar' }).click();
+  await np.waitForTimeout(1500);
+  nb = await np.locator('body').innerText();
+  const novaConsent = db.prepare("SELECT c.version FROM consents c JOIN users u ON u.id = c.user_id WHERE u.username = 'nova'").get();
+  check('2.1 accepting records the version and opens the programme', !!novaConsent && nb.includes('Primer cal fer un pas previ'));
+  await np.close();
 
   // --- Therapist, on a desktop screen ------------------------------------------------
   const tp = await browser.newPage({ viewport: { width: 1280, height: 900 } });

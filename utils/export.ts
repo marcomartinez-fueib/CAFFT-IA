@@ -1,5 +1,5 @@
 
-import { getUsers, getAllQPVIIResults, getAllUserExposureProgress } from '../services/dataStore';
+import { getUsers, getAllQPVIIResults, getAllUserExposureProgress, reportClinicalAccess } from '../services/dataStore';
 import { EXPOSURE_VIDEOS, CANONICAL_FLIGHT_STAGES_ORDER } from '../constants';
 import { determineVideoSequence, isExposureFullyCompleted } from './exposureUtils';
 import { computeRci } from './rci';
@@ -125,6 +125,7 @@ export function exportDataToCSV(anonymize: boolean): void {
         alert('No patient data found to export.');
         return;
     }
+    reportClinicalAccess('clinical.export', patientUsers.map(u => u.id));
 
     let userIdMap: Map<string, string> | null = null;
     if (anonymize) {
@@ -286,6 +287,9 @@ export function exportAiLogsToCSV(consultations: any[]): void {
         alert('No AI consultation logs found to export.');
         return;
     }
+
+    const patientIds = new Set(getUsers().filter(u => u.role === 'patient').map(u => u.id));
+    reportClinicalAccess('clinical.export', [...new Set(consultations.map(c => c.userId).filter((id: string) => patientIds.has(id)))]);
 
     const headers = ['userName', 'query', 'response', 'timestamp'];
     

@@ -8,8 +8,8 @@ checks once per clone: `git config core.hooksPath scripts/git-hooks`.
 
 **Running locally?** `npm install && npm run dev`, then open
 <http://localhost:3000/cafft/> (note the `/cafft/` path — it is the app's base
-path). Copy `.env.example` to `.env.local` and set `GEMINI_API_KEY` to enable
-the AI features. Video files go in `public/videos_cafft/`; see
+path). For the AI assistant, set `GEMINI_API_KEY` in `server/.env`
+(only the API talks to the provider). Video files go in `public/videos_cafft/`; see
 [`PLACE_VIDEOS_HERE.txt`](public/videos_cafft/PLACE_VIDEOS_HERE.txt) for the
 expected filenames.
 

@@ -12,7 +12,8 @@
 #
 #      runtime/web/cafft/                 the built app (deploy.sh swaps it in)
 #      runtime/videos/                    the mp4 assets
-#      runtime/secrets/gemini-key.conf    the Gemini key (0600)
+#      runtime/secrets/llm-gate-token     the `gate` token for pausat-llm (0600), read by the API
+#      runtime/secrets/gemini-key.conf    the Gemini key, only with AI_PROVIDER=gemini
 #      runtime/data/                      the SQLite database   — owned by uid 1000
 #      runtime/backups/                   daily snapshots       — owned by uid 1000
 #
@@ -40,7 +41,6 @@ services:
       - ../runtime/web:/var/www/cafft-site:ro
 
       - ../runtime/videos:/srv/cafft/videos:ro
-      - ../runtime/secrets/gemini-key.conf:/etc/nginx/private/cafft-gemini-key.conf:ro
 
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/cafft/"]
@@ -98,18 +98,35 @@ services:
       # Feedback from the in-app form is stored and mailed here.
       FEEDBACK_TO: ${FEEDBACK_TO:-salutmental@fueib.org}
 
+      # The AI assistant. By default the UIB's own engine (pausat-llm, shared
+      # with PAUSAT) through its gateway on the `ai-shared` network, with this
+      # environment's `gate` token: nothing leaves the UIB. AI_PROVIDER=gemini
+      # switches to Google. AI_ENABLED=false turns it off; AI_RETENTION_DAYS
+      # deletes older questions and answers (empty: kept).
+      AI_PROVIDER: ${AI_PROVIDER:-local}
+      LOCAL_LLM_URL: http://pausat-llm:8080/v1
+      LOCAL_LLM_TOKEN_FILE: /run/secrets/llm-gate-token
+      GEMINI_KEY_FILE: /run/secrets/gemini-key.conf
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.8-flash,gemini-2.5-flash}
+      AI_ENABLED: ${AI_ENABLED:-true}
+      AI_RETENTION_DAYS: ${AI_RETENTION_DAYS:-}
+
     volumes:
       # The image runs as uid 1000 (`node`): both directories must be
       # writable by it.
       - ../runtime/data:/data
       - ../runtime/backups:/backups
+      - ../runtime/secrets:/run/secrets:ro
 
     # Not on `edge` and no Traefik labels: only the nginx container can reach
     # the API, which is what lets it trust X-Forwarded-For and keeps every
-    # request same-origin under /cafft/.
-    networks: [cafft]
+    # request same-origin under /cafft/. On `ai-shared` to reach pausat-llm.
+    networks: [cafft, ai-shared]
 
 networks:
   edge:
+    external: true
+  # Created by PAUSAT's shared engine (pausat-llm); the newsletter uses it too.
+  ai-shared:
     external: true
   cafft: {}

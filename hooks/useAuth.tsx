@@ -9,7 +9,10 @@ import {
     getQPVIIResultsForUser,
     getAllUserExposureProgress,
     uiLanguage,
+    acceptConsent as acceptConsentInStore,
+    withdrawNotificationConsent as withdrawNotificationConsentInStore,
 } from '../services/dataStore.ts';
+import { CONSENT_VERSIONS } from '../consent.ts';
 import { determineVideoSequence, isExposureFullyCompleted } from '../utils/exposureUtils.ts';
 import { EXPOSURE_VIDEOS, CANONICAL_FLIGHT_STAGES_ORDER } from '../constants.ts';
 
@@ -193,7 +196,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const register = useCallback(async (username: string, email: string, passwordAttempt: string, consent: boolean, informedConsentMetadata?: InformedConsentMetadata): Promise<{ success: boolean; errorKey?: string }> => {
     setLoading(true);
     try {
-      await api('POST', '/auth/register', { username, email, password: passwordAttempt, consent, informedConsentMetadata });
+      await api('POST', '/auth/register', {
+        username, email, password: passwordAttempt, consent, informedConsentMetadata,
+        consentVersion: CONSENT_VERSIONS.treatment, language: uiLanguage(),
+      });
       return { success: true };
     } catch (err) {
       const code = err instanceof ApiError ? err.code : '';
@@ -232,6 +238,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return false;
     }
   }, [currentUser]);
+
+  const acceptConsent = useCallback(async (kind: 'treatment' | 'notifications', informedConsentMetadata?: InformedConsentMetadata): Promise<{ success: boolean; errorKey?: string }> => {
+    try {
+      setCurrentUser(await acceptConsentInStore(kind, informedConsentMetadata));
+      return { success: true };
+    } catch (err) {
+      // consent.outdated: the page showed a text that has since changed.
+      return { success: false, errorKey: err instanceof ApiError && err.code === 'consent.outdated' ? 'consentGate.outdatedError' : 'consentGate.saveError' };
+    }
+  }, []);
+
+  const withdrawNotificationConsent = useCallback(async (): Promise<boolean> => {
+    try {
+      setCurrentUser(await withdrawNotificationConsentInStore());
+      return true;
+    } catch (err) {
+      console.error('[auth] withdrawNotificationConsent:', err);
+      return false;
+    }
+  }, []);
 
   // The server answers the same whether or not the address has an account,
   // so the message never reveals who is registered.
@@ -278,7 +304,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 
   return (
-    <AuthContext.Provider value={{ currentUser, login, register, logout, loading, requestPasswordReset, resetPassword, changePassword, updateUser }}>
+    <AuthContext.Provider value={{ currentUser, login, register, logout, loading, requestPasswordReset, resetPassword, changePassword, updateUser, acceptConsent, withdrawNotificationConsent }}>
       {children}
     </AuthContext.Provider>
   );

@@ -31,6 +31,7 @@ import {
     toggleUserNotifications,
     toggleUserOnboarding,
     toggleTestAccount,
+    reportClinicalAccess,
     syncStore,
     resendInvitation,
 } from '../../services/dataStore';
@@ -59,6 +60,7 @@ import {
     BotIcon as Bot
 } from 'lucide-react';
 import { generateClinicalRecommendations, calculateLinearRegressionSlope, getPatientStatus } from '../../utils/clinicalAnalysis';
+import { CONSENT_VERSIONS } from '../../consent.ts';
 
 // UIB Colors
 const uibRed = "#BA0C2F";
@@ -143,6 +145,8 @@ export const PatientDetailPage: React.FC = () => {
             navigate('/therapist/dashboard');
             return;
         }
+        // Opening a patient's card is an access to their clinical data.
+        reportClinicalAccess('clinical.view', [patientId]);
         // Render from memory at once, then again with the server's latest.
         let cancelled = false;
         load();
@@ -383,6 +387,14 @@ export const PatientDetailPage: React.FC = () => {
                         {patient.patientCode && <span className="text-[9px] font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-500 uppercase font-black">{patient.patientCode}</span>}
                     </div>
                     <p className="text-xs font-bold text-slate-600 leading-none truncate max-w-[200px]">{patient.email}</p>
+                    <p className={`text-[10px] font-semibold mt-1 ${patient.treatmentConsent?.version === CONSENT_VERSIONS.treatment ? 'text-emerald-700' : 'text-amber-700'}`}>
+                        {!patient.treatmentConsent
+                            ? t('patientDetail.consentPending')
+                            : t(patient.treatmentConsent.version === CONSENT_VERSIONS.treatment ? 'patientDetail.consentAccepted' : 'patientDetail.consentOutdated', {
+                                date: new Date(patient.treatmentConsent.acceptedAt).toLocaleDateString(),
+                                version: patient.treatmentConsent.version,
+                            })}
+                    </p>
                 </div>
 
                 <div className="md:ml-auto flex items-center gap-2">

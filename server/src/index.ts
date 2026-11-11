@@ -1,11 +1,12 @@
 import { loadConfig } from './config.ts';
 import { migrate, openDb } from './db.ts';
-import { buildApp } from './app.ts';
+import { buildApp, configuredProvider } from './app.ts';
 import { purgeExpiredSessions } from './sessions.ts';
 import { backupDatabase } from './backup.ts';
 import { processOutbox } from './mail/outbox.ts';
 import nodemailer from 'nodemailer';
 import { DomainRestrictedTransport, LogTransport, SmtpTransport, type CreateTransport, type MailTransport } from './mail/transport.ts';
+import { purgeOldConsultations } from './routes/assistant.ts';
 
 const config = loadConfig();
 const db = openDb(config.dbPath, { migrate: false });
@@ -35,6 +36,24 @@ async function runBackup(): Promise<void> {
 if (config.backupDir) {
   setInterval(runBackup, 24 * 60 * 60 * 1000).unref();
 }
+
+// AI assistant: say whether it is on, and keep questions and answers only for
+// the retention period, if one is set (AI_RETENTION_DAYS).
+app.log.info(
+  {
+    enabled: configuredProvider(config) !== null,
+    provider: config.ai.provider,
+    model: config.ai.provider === 'local' ? `${config.ai.local.model} @ ${config.ai.local.url}` : config.ai.model,
+    retentionDays: config.ai.retentionDays,
+  },
+  'AI assistant',
+);
+const purgeAi = () => {
+  const removed = purgeOldConsultations(db, config.ai.retentionDays);
+  if (removed > 0) app.log.info({ removed }, 'old assistant consultations deleted');
+};
+purgeAi();
+setInterval(purgeAi, 24 * 60 * 60 * 1000).unref();
 
 // Mail: deliver the outbox every 30 s. One run at a time, so a slow relay
 // cannot make two runs send the same message.

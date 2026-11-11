@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { readApiKey } from './ai/provider.ts';
 export interface Config {
   dbPath: string;
   port: number;
@@ -24,8 +26,34 @@ export interface Config {
   mailAllowedDomains: string[];
   /** Where feedback sent from the app is mailed. Empty disables the mail; it is still stored. */
   feedbackTo: string;
+  /**
+   * The AI assistant. Off without a key, or with AI_ENABLED=false (a switch
+   * for the pilot if the data protection officer asks for it).
+   */
+  ai: {
+    enabled: boolean;
+    /** `local`: the UIB's engine (pausat-llm); `gemini`: Google. */
+    provider: 'local' | 'gemini';
+    apiKey: string;
+    model: string;
+    local: { url: string; token: string; model: string };
+    retentionDays: number | null;
+  };
   /** Disables request logging; used by tests. */
   logger: boolean;
+}
+
+/**
+ * A secret from a file, or '' when there is no such file: a missing secret
+ * leaves the assistant off instead of stopping the API.
+ */
+function readSecret(path: string | undefined): string {
+  if (!path) return '';
+  try {
+    return readFileSync(path, 'utf8');
+  } catch {
+    return '';
+  }
 }
 
 function env(name: string, fallback: string): string {
@@ -55,6 +83,20 @@ export function loadConfig(overrides: Partial<Config> = {}): Config {
       from: env('MAIL_FROM', ''),
     },
     mailAllowedDomains: env('MAIL_ALLOWED_DOMAINS', '').split(',').map((d) => d.trim()).filter(Boolean),
+    ai: {
+      enabled: env('AI_ENABLED', 'true') !== 'false',
+      provider: env('AI_PROVIDER', 'gemini') === 'local' ? 'local' : 'gemini',
+      local: {
+        url: env('LOCAL_LLM_URL', 'http://pausat-llm:8080/v1'),
+        token: process.env.LOCAL_LLM_TOKEN || readSecret(process.env.LOCAL_LLM_TOKEN_FILE).trim(),
+        model: env('LOCAL_LLM_MODEL', 'pausat-chat'),
+      },
+      apiKey: process.env.GEMINI_API_KEY || readApiKey(readSecret(process.env.GEMINI_KEY_FILE)),
+      // Comma-separated, in order of preference (see ai/provider.ts).
+      model: env('GEMINI_MODEL', 'gemini-3.8-flash,gemini-2.5-flash'),
+      // Questions and answers older than this are deleted. Empty: kept.
+      retentionDays: process.env.AI_RETENTION_DAYS ? Number(process.env.AI_RETENTION_DAYS) : null,
+    },
     // Like BACKUP_DIR, an explicitly empty FEEDBACK_TO means "off".
     feedbackTo: process.env.FEEDBACK_TO ?? 'salutmental@fueib.org',
     logger: true,

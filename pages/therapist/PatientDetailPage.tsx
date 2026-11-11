@@ -31,6 +31,7 @@ import {
     toggleUserNotifications,
     toggleUserOnboarding,
     toggleTestAccount,
+    reportClinicalAccess,
     syncStore,
     resendInvitation,
 } from '../../services/dataStore';
@@ -144,6 +145,8 @@ export const PatientDetailPage: React.FC = () => {
             navigate('/therapist/dashboard');
             return;
         }
+        // Opening a patient's card is an access to their clinical data.
+        reportClinicalAccess('clinical.view', [patientId]);
         // Render from memory at once, then again with the server's latest.
         let cancelled = false;
         load();

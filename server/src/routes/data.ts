@@ -3,6 +3,7 @@ import { requireAuth } from '../app.ts';
 import { canWriteClinical, visibleUser, visibleUsers } from '../access.ts';
 import { hasCurrentTreatmentConsent } from '../consents.ts';
 import { transaction } from '../db.ts';
+import { audit } from '../audit.ts';
 import { consultationsFor, emailsFor, lastActivityAt, progressFor, qpviiFor, sessionsFor } from '../records.ts';
 import { toApiUser, type UserRow } from '../users.ts';
 import { enqueueMail } from '../mail/outbox.ts';
@@ -39,6 +40,12 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
   app.get('/sync', async (req, reply) => {
     const users = visibleUsers(db, req.user!);
     const ids = users.map((u) => u.id);
+    // Staff loading their patients' clinical data is an access to health
+    // data: record whose. (A patient loading their own data is not.)
+    const patientIds = users.filter((u) => u.role === 'patient' && u.id !== req.user!.id).map((u) => u.id);
+    if (req.user!.role !== 'patient' && patientIds.length > 0) {
+      audit(db, { actorId: req.user!.id, action: 'clinical.read', ip: req.ip, detail: { patients: patientIds } });
+    }
     reply.header('Cache-Control', 'no-store');
     return {
       users: users.map(toApiUser),
@@ -264,6 +271,33 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
           b.endReason ?? null,
         );
       if (written.changes === 0) return reply.code(403).send(FORBIDDEN);
+      return reply.code(204).send();
+    },
+  );
+
+  // What the server cannot see by itself: a therapist opening a patient's
+  // card, or exporting data to a file (the export is built in the browser
+  // from data already loaded). Only for patients the caller may see.
+  app.post<{ Body: { action: 'clinical.view' | 'clinical.export'; patientIds: string[] } }>(
+    '/audit/access',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['action', 'patientIds'],
+          properties: {
+            action: { enum: ['clinical.view', 'clinical.export'] },
+            patientIds: { type: 'array', minItems: 1, maxItems: 5000, items: S.uuid },
+          },
+        },
+      },
+    },
+    async (req, reply) => {
+      const { action, patientIds } = req.body;
+      if (req.user!.role === 'patient') return reply.code(403).send(FORBIDDEN);
+      if (!patientIds.every((id) => visibleUser(db, req.user!, id))) return reply.code(404).send(NOT_FOUND);
+      audit(db, { actorId: req.user!.id, action, ip: req.ip, detail: { patients: patientIds } });
       return reply.code(204).send();
     },
   );

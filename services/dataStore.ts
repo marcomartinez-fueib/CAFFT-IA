@@ -317,6 +317,15 @@ export async function withdrawNotificationConsent(): Promise<StoredUser> {
   return user;
 }
 
+/**
+ * Records in the server's audit log that staff opened a patient's card or
+ * exported their data (the server sees data loads, not what is looked at).
+ */
+export function reportClinicalAccess(action: 'clinical.view' | 'clinical.export', patientIds: string[]): void {
+  if (patientIds.length === 0) return;
+  enqueue('access record', () => api('POST', '/audit/access', { action, patientIds }));
+}
+
 /** Records that the logged-in user finished an onboarding tour. */
 export async function completeOnboardingTour(tour: 'patient' | 'therapist'): Promise<StoredUser | null> {
   try {

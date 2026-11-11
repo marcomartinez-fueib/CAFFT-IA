@@ -308,6 +308,20 @@ the rest of the site keeps working, because nginx resolves `api` per request.
 
 ---
 
+## Audit log
+
+The API records logins, account changes, consents, and every access by staff
+to patients' clinical data: each data load (`clinical.read`), each patient card
+opened (`clinical.view`) and each export (`clinical.export`), with the patients
+concerned. To answer «who has seen this patient?» or to hand the log to the
+data protection officer:
+
+```bash
+docker exec cafft-api node src/cli/audit.ts --days 90 > cafft-audit.csv
+```
+
+---
+
 ## Email through the UIB relay
 
 Password-reset links, invitations, reminders and the in-app feedback (to

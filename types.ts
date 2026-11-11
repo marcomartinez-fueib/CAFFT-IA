@@ -851,16 +851,15 @@ export interface TranslationContent {
         items: string[];
     }
   };
-  helpVideos: { // Kept for Help Modal, but removed from nav
+  helpVideos: {
     title: string;
     pageTitle: string;
-    videos: { titleKey: string; link: string }[];
-    q1: string;
-    q2: string;
-    q3: string;
-    q4: string;
     noVideos: string;
-    watchVideo?: string;
+    unavailable: string;
+    transcript: string;
+    transcriptUnavailable: string;
+    learnMore: string;
+    groups: Record<'welcome' | 'assessment' | 'training' | 'results' | 'success' | 'therapist', string>;
   };
   cafftIntroPage: {
     title: string;

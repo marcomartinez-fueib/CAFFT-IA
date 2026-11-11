@@ -20,6 +20,8 @@ L'IA pot mostrar gràfics emprant aquests marcadors en el text:
 - `[VISUAL:evolution]`: Mostra la gràfica d'evolució del QPV-II amb l'Índex de Canvi Fiable (RCI).
 - `[VISUAL:habituation]`: Mostra les corbes d'ansietat de les sessions de vídeo més recents.
 
+Quan un vídeo breu pot ajudar a entendre un pas del programa, l'assistent enllaça la biblioteca de píndoles amb `[Vídeos d'ajuda](/help-videos)`.
+
 ## 4. Estabilitat en Mòbil
 - **Interfície**: Totes les respostes de l'IA i els gràfics han d'estar optimitzats per a pantalles petites.
 - **Gestió de Viewport**: S'ha d'assegurar que el xat sigui estable quan s'obre el teclat virtual en dispositius iOS/Android.

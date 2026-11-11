@@ -134,6 +134,32 @@ export async function runFlow({ browser, base, dbPath }) {
   await pause(1500);
   check('2.7 the assistant goes through the API (no provider: «not available»)', (await text()).includes('no està disponible ara mateix'));
   await page.keyboard.press('Escape');
+
+  // Help videos, from the catalogue e2e/run.mjs writes into the build.
+  // The assistant dialog does not close with Escape yet (fita 6); a reload does.
+  await page.goto(base + '#/help-videos');
+  await page.reload();
+  await pause(1500);
+  body = await text();
+  check('3.7 the library groups the videos by moment, with P17 as «to learn more»',
+    body.includes('Benvinguda') && body.includes('Entrenament') && body.includes("Per què funciona l'exposició") && body.includes('PER SABER-NE MÉS') && !/youtube/i.test(await page.content()));
+  const p04 = page.getByRole('button', { name: /Per què funciona l'exposició/ });
+  await p04.click();
+  await pause(800);
+  const player = page.locator('video[data-help-video="P04"]');
+  const state = await player.evaluate((v) => ({ paused: v.paused, autoplay: v.autoplay, track: v.querySelector('track')?.default }));
+  check('3.2 the video plays inside the page, not by itself, subtitles on', state.paused && !state.autoplay && state.track === true);
+  await page.getByText('Transcripció').click();
+  await pause(800);
+  check('3.2 the transcript comes from the subtitles', (await text()).includes('Text de prova de P04_exposicio en ca.'));
+  await player.evaluate((v) => v.dispatchEvent(new Event('ended')));
+  await pause(300);
+  check('3.2 at the end the card folds and the focus returns to its button',
+    (await p04.getAttribute('aria-expanded')) === 'false' && (await p04.evaluate((b) => b === document.activeElement)));
+  await page.goto(base + '#/cafft-intro');
+  await pause(1500);
+  check('3.1 the introduction plays P01 from the catalogue', (await page.locator('video[data-help-video="P01"]').count()) === 1);
+
   await page.goto(base + '#/');
   await pause(800);
 

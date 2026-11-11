@@ -16,27 +16,54 @@ export interface AiProvider {
 
 type Fetch = typeof fetch;
 
+/** Answers worth retrying: the model is busy, or Google failed. */
+const TRANSIENT = new Set([429, 500, 503]);
+
 /**
  * Google Gemini through the Generative Language API (paid tier: Google does
  * not use the data to train its models). Server-sent events, so the reply can
  * be passed on while it is written.
+ *
+ * `models` in order of preference: a busy model (503, 429) is retried twice,
+ * a second and three seconds later, and then the next one is tried. Preview
+ * models are often busy, so a stable one should come last.
  */
-export function geminiProvider(apiKey: string, model: string, fetchImpl: Fetch = fetch): AiProvider {
+export function geminiProvider(
+  apiKey: string,
+  models: string | string[],
+  fetchImpl: Fetch = fetch,
+  wait: (ms: number) => Promise<void> = (ms) => new Promise((r) => setTimeout(r, ms)),
+): AiProvider {
+  const candidates = (Array.isArray(models) ? models : models.split(',')).map((m) => m.trim()).filter(Boolean);
+
+  async function open(system: string, messages: ChatMessage[]): Promise<Response> {
+    let lastError = new Error('no model configured');
+    for (const model of candidates) {
+      for (let attempt = 0; attempt < 3; attempt++) {
+        if (attempt > 0) await wait(attempt === 1 ? 1000 : 3000);
+        const res = await fetchImpl(
+          `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:streamGenerateContent?alt=sse`,
+          {
+            method: 'POST',
+            headers: { 'content-type': 'application/json', 'x-goog-api-key': apiKey },
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: system }] },
+              contents: messages.map((m) => ({ role: m.role, parts: [{ text: m.text }] })),
+            }),
+            signal: AbortSignal.timeout(120_000),
+          },
+        );
+        if (res.ok && res.body) return res;
+        lastError = new Error(`Gemini (${model}) answered ${res.status}: ${(await res.text()).slice(0, 300)}`);
+        if (!TRANSIENT.has(res.status)) throw lastError; // a wrong key or request: no point retrying
+      }
+    }
+    throw lastError;
+  }
+
   return {
     async *stream({ system, messages }) {
-      const res = await fetchImpl(
-        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:streamGenerateContent?alt=sse`,
-        {
-          method: 'POST',
-          headers: { 'content-type': 'application/json', 'x-goog-api-key': apiKey },
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: system }] },
-            contents: messages.map((m) => ({ role: m.role, parts: [{ text: m.text }] })),
-          }),
-          signal: AbortSignal.timeout(120_000),
-        },
-      );
-      if (!res.ok || !res.body) throw new Error(`Gemini answered ${res.status}: ${(await res.text()).slice(0, 300)}`);
+      const res = await open(system, messages);
 
       const decoder = new TextDecoder();
       let buffer = '';

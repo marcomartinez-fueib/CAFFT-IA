@@ -93,3 +93,34 @@ test('questions and answers older than the retention period are deleted', async 
   assert.equal(purgeOldConsultations(db, 30), 1);
   assert.deepEqual(db.prepare('SELECT id FROM ai_consultations').all().map((r) => r.id), ['new']);
 });
+
+test('a busy model is retried and then the next one is used', async () => {
+  const calls: string[] = [];
+  const waits: number[] = [];
+  const sse = 'data: {"candidates":[{"content":{"parts":[{"text":"ok"}]}}]}\n\n';
+  const fakeFetch = (async (url: string) => {
+    const model = /models\/([^:]+):/.exec(url)![1];
+    calls.push(model);
+    return model === 'preview' ? new Response('busy', { status: 503 }) : new Response(sse, { status: 200 });
+  }) as unknown as typeof fetch;
+  const provider = geminiProvider('KEY', 'preview, stable', fakeFetch, async (ms) => { waits.push(ms); });
+
+  const parts: string[] = [];
+  for await (const p of provider.stream(conversation as never)) parts.push(p);
+  assert.deepEqual(parts, ['ok']);
+  assert.deepEqual(calls, ['preview', 'preview', 'preview', 'stable']);
+  assert.deepEqual(waits, [1000, 3000]);
+});
+
+test('a wrong key is not retried', async () => {
+  let calls = 0;
+  const fakeFetch = (async () => {
+    calls++;
+    return new Response('bad key', { status: 403 });
+  }) as unknown as typeof fetch;
+  const provider = geminiProvider('KEY', 'a,b', fakeFetch, async () => {});
+  await assert.rejects(async () => {
+    for await (const _ of provider.stream(conversation as never)) void _;
+  }, /\(a\) answered 403/);
+  assert.equal(calls, 1);
+});

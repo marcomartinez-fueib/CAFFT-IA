@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { readApiKey } from './ai/provider.ts';
 export interface Config {
   dbPath: string;
   port: number;
@@ -24,6 +26,11 @@ export interface Config {
   mailAllowedDomains: string[];
   /** Where feedback sent from the app is mailed. Empty disables the mail; it is still stored. */
   feedbackTo: string;
+  /**
+   * The AI assistant. Off without a key, or with AI_ENABLED=false (a switch
+   * for the pilot if the data protection officer asks for it).
+   */
+  ai: { enabled: boolean; apiKey: string; model: string; retentionDays: number | null };
   /** Disables request logging; used by tests. */
   logger: boolean;
 }
@@ -55,6 +62,13 @@ export function loadConfig(overrides: Partial<Config> = {}): Config {
       from: env('MAIL_FROM', ''),
     },
     mailAllowedDomains: env('MAIL_ALLOWED_DOMAINS', '').split(',').map((d) => d.trim()).filter(Boolean),
+    ai: {
+      enabled: env('AI_ENABLED', 'true') !== 'false',
+      apiKey: process.env.GEMINI_API_KEY || (process.env.GEMINI_KEY_FILE ? readApiKey(readFileSync(process.env.GEMINI_KEY_FILE, 'utf8')) : ''),
+      model: env('GEMINI_MODEL', 'gemini-3-flash-preview'),
+      // Questions and answers older than this are deleted. Empty: kept.
+      retentionDays: process.env.AI_RETENTION_DAYS ? Number(process.env.AI_RETENTION_DAYS) : null,
+    },
     // Like BACKUP_DIR, an explicitly empty FEEDBACK_TO means "off".
     feedbackTo: process.env.FEEDBACK_TO ?? 'salutmental@fueib.org',
     logger: true,

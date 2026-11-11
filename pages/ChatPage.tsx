@@ -4,12 +4,12 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
-import { ai, createChatSession, getAiLastError } from '../utils/gemini';
+import { askAssistant } from '../services/assistant';
+import { ApiError } from '../services/api';
 import { 
     getQPVIIResultsForUser, 
     getAllUserExposureProgress, 
     getUsers, 
-    saveAiConsultation,
     getDaysSinceLastActivity
 } from '../services/dataStore.ts';
 import { calculateQPVIIScores } from '../utils/qpviiScoring';
@@ -111,7 +111,10 @@ export const ChatInterface: React.FC<{onCloseModal?: () => void; hideHeader?: bo
         
         if (myPatients.length > 0) {
             therapistContext = "\n\nDATOS CLÍNICOS DE TUS PACIENTES (Analiza estos datos para asesorar al terapeuta):\n";
-            myPatients.forEach(patient => {
+            // Patients by their pseudonymous code, never by name or id: this
+            // text goes to an external provider. The therapist sees the codes
+            // on each patient's card.
+            myPatients.forEach((patient, index) => {
                 const patientResults = getQPVIIResultsForUser(patient.id).sort((a, b) => a.timestamp - b.timestamp);
                 const patientProgress = getAllUserExposureProgress().filter(p => p.userId === patient.id).sort((a, b) => b.lastUpdated - a.lastUpdated);
                 
@@ -132,7 +135,7 @@ export const ChatInterface: React.FC<{onCloseModal?: () => void; hideHeader?: bo
                     ? t('aiChat.patientContext.sessionsSummary', { count: patientProgress.length, date: new Date(patientProgress[0].lastUpdated).toLocaleDateString() })
                     : t('aiChat.patientContext.noSessions');
                     
-                therapistContext += `- PACIENT: ${patient.username} (ID: ${patient.id})\n  * QPV-II actual: ${scores}\n  * ${rciInfo}\n  * Progrés: ${progressSummary}\n`;
+                therapistContext += `- PACIENT ${patient.patientCode || `#${index + 1}`}\n  * QPV-II actual: ${scores}\n  * ${rciInfo}\n  * Progrés: ${progressSummary}\n`;
             });
         }
     }
@@ -228,35 +231,9 @@ export const ChatInterface: React.FC<{onCloseModal?: () => void; hideHeader?: bo
           }
 
           const isTherapist = currentUser.role === 'therapist';
-          
-          // Documentation Knowledge Base
-          const docsKnowledge = `
-BASE DE CONEXEMENT CLÍNIC (Protocol CAFFT 5.1):
-${THERAPEUTIC_KNOWLEDGE.manual}
-${isTherapist ? THERAPEUTIC_KNOWLEDGE.therapistGuide : ''}
-${THERAPEUTIC_KNOWLEDGE.hierarchyLogic}
-${THERAPEUTIC_KNOWLEDGE.patientFlow}
-${THERAPEUTIC_KNOWLEDGE.coreFeatures}
-`;
 
-          const systemInstruction = isTherapist 
-            ? t('aiChat.therapistSystemInstruction', { username: currentUser.username }) + "\n\n" + docsKnowledge + therapeuticContext.therapistContext
-            : t('aiChat.systemInstruction', { 
-                therapeuticContext: therapeuticContext.contextText,
-                assistantName: currentUser.assistantName || 'Bora',
-                username: currentUser.username || 'Pacient',
-                hasCompletedQPVII: results.length > 0 ? "SÍ" : "NO"
-            }) + "\n\n" + docsKnowledge;
-          
-          const chatSession = createChatSession(systemInstruction);
-
-          if (!chatSession) {
-              const lastErr = getAiLastError();
-              setError(`Failed to initialize AI assistant. ${lastErr || 'The service may be unavailable.'}`);
-              setIsInitializing(false);
-              return;
-          }
-
+          // The conversation goes through the API when a message is sent
+          // (services/assistant.ts); there is nothing to open here.
           setIsAiReady(true);
           
           const isQpviiCompleted = qpviiData.length > 0;
@@ -330,7 +307,7 @@ ${THERAPEUTIC_KNOWLEDGE.coreFeatures}
   };
 
   const handleSendMessage = useCallback(async () => {
-    if (!input.trim() || isLoading || !ai) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage: Message = { role: 'user', text: input };
     const newMessages = [...messages, userMessage];
@@ -340,12 +317,11 @@ ${THERAPEUTIC_KNOWLEDGE.coreFeatures}
     setError(null);
 
     try {
-        // Build history in the format required by generateContentStream
-        // Filter out initial system messages if any, and map to {role, parts: [{text}]}
-        const history = newMessages.map(msg => ({
-            role: msg.role === 'user' ? 'user' : 'model',
-            parts: [{ text: msg.text }]
-        }));
+        // The opening greeting was written here, with the patient's name, not
+        // by the model: it is not part of what the provider sees.
+        const history = newMessages
+            .filter((msg, i) => !(i === 0 && msg.role === 'model'))
+            .map(msg => ({ role: msg.role === 'user' ? 'user' as const : 'model' as const, text: msg.text }));
 
         // Get system instruction
         const isTherapist = currentUser.role === 'therapist';
@@ -362,55 +338,32 @@ ${THERAPEUTIC_KNOWLEDGE.patientFlow}
 ${THERAPEUTIC_KNOWLEDGE.coreFeatures}
 `;
 
+        // No username, email or ids: this text goes to an external provider.
         const systemInstruction = isTherapist 
-          ? t('aiChat.therapistSystemInstruction', { username: currentUser.username }) + "\n\n" + docsKnowledge + therapeuticContext.therapistContext
+          ? t('aiChat.therapistSystemInstruction') + "\n\n" + docsKnowledge + therapeuticContext.therapistContext
           : t('aiChat.systemInstruction', { 
               therapeuticContext: therapeuticContext.contextText,
               assistantName: currentUser.assistantName || 'Bora',
-              username: currentUser.username || 'Pacient',
               hasCompletedQPVII: hasQPVII ? "SÍ (ja ha realitzat el qüestionari inicial)" : "NO (encara ha de fer el qüestionari)"
           }) + "\n\n" + docsKnowledge;
 
-        const stream = await ai.models.generateContentStream({
-            model: "gemini-3-flash-preview",
-            contents: history,
-            config: {
-                systemInstruction: systemInstruction,
-            },
-        });
-        
         setMessages(prev => [...prev, { role: 'model', text: '' }]);
 
-        let accumulatedText = '';
-        for await (const chunk of stream) {
-            const chunkText = chunk.text;
-            if (chunkText) {
-                accumulatedText += chunkText;
-                setMessages(prev => {
-                    const latestMessages = [...prev];
-                    const lastMessage = { ...latestMessages[latestMessages.length - 1] };
-                    if (lastMessage.role === 'model') {
-                        lastMessage.text = accumulatedText;
-                        latestMessages[latestMessages.length - 1] = lastMessage;
-                    }
-                    return latestMessages;
-                });
-            }
-        }
-
-        // Log consultation
-        saveAiConsultation({
-            id: crypto.randomUUID(),
-            userId: currentUser.id,
-            userName: currentUser.username,
-            userRole: currentUser.role as 'patient' | 'therapist',
-            query: input,
-            response: accumulatedText,
-            timestamp: Date.now()
+        // The API stores the question and answer for the therapist.
+        await askAssistant(systemInstruction, history, (replySoFar) => {
+            setMessages(prev => {
+                const latestMessages = [...prev];
+                const lastMessage = { ...latestMessages[latestMessages.length - 1] };
+                if (lastMessage.role === 'model') {
+                    lastMessage.text = replySoFar;
+                    latestMessages[latestMessages.length - 1] = lastMessage;
+                }
+                return latestMessages;
+            });
         });
     } catch (e) {
         console.error("Error sending message:", e);
-        setError("Error de connexió amb l'assistent. Torna-ho a provar.");
+        setError(t(e instanceof ApiError && e.code === 'ai.disabled' ? 'aiChat.unavailableError' : 'aiChat.connectionError'));
         setMessages(prev => {
             const last = prev[prev.length - 1];
             if (last.role === 'model' && last.text === '') {

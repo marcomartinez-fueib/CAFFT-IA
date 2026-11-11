@@ -64,11 +64,11 @@ deploy leaves a copy of the data as it was before the new code touched it.
 ├── .env.<env>                   host, names, mail (deploy/env.example) — not in git
 ├── deploy.sh
 ├── deploy/compose.yml           the stack
-├── deploy/nginx/cafft.conf      nginx config, including the Gemini proxy
+├── deploy/nginx/cafft.conf      nginx config
 └── runtime/                     not in git
     ├── web/cafft/               the built app (deploy.sh swaps it in)
     ├── videos/                  the exposure videos (mp4)
-    ├── secrets/gemini-key.conf  the Gemini key (0600)
+    ├── secrets/gemini-key.conf  the Gemini key (0600), read only by the API
     ├── data/                    the SQLite database   — owned by uid 1000
     └── backups/                 daily snapshots       — owned by uid 1000
 ```
@@ -241,7 +241,7 @@ curl -sSI $B/cafft | grep -iE '^HTTP/|^location'          # 301 -> /cafft/
 curl -sS $B/cafft/ | grep -oE '(src|href)="/cafft/assets/[^"]+"'
 
 curl -sSI $B/cafft/ | grep -iE 'cache-control|content-security-policy'
-curl -sS -o /dev/null -w 'genai -> %{http_code}\n' $B/cafft/genai/v1beta/models   # 401 without a session
+curl -sS -o /dev/null -w 'ai -> %{http_code}  (401 without a session)\n' -X POST $B/cafft/api/ai/chat
 curl -sS -o /dev/null -w 'range -> %{http_code}  (206)\n' \
      -H 'Range: bytes=0-1023' $B/cafft/videos_cafft/ev001_es.mp4
 curl -sS -o /dev/null -w 'listing -> %{http_code}  (403)\n' $B/cafft/videos_cafft/
@@ -263,15 +263,15 @@ With devtools open; **any CSP violation means a feature is silently dead.**
 
 ### If the AI chat does not reply
 
-```bash
-curl -s -o /dev/null -w '%{http_code}\n' 'https://pausat.uib.es/cafft/genai/v1beta/models'
-```
+Only the API talks to the provider (`POST /cafft/api/ai/chat`). Its log says at
+start whether the assistant is on (`docker logs <prefix>-api | grep "AI assistant"`)
+and records each provider error (`assistant: provider failed`). In the app:
 
-- `401` without a session is expected; from the logged-in browser it should be `200`.
-- `403` — the key is wrong, or the Gemini API is not enabled for it.
-- `404` — the `location /cafft/genai/` block is missing.
-- `429` — the rate limit (20 requests/minute per IP) is doing its job.
-- `502` — nginx cannot reach Google; `docker restart <prefix>-nginx` re-resolves it.
+- «not available» — no key, or `AI_ENABLED=false` in the env file: the API
+  answers 503 `ai.disabled`;
+- «could not be reached» — the provider failed (502 `ai.unavailable`): a wrong
+  key, the API not enabled for it, a quota, or no way out to Google;
+- 429 — more than 20 messages a minute from one user.
 
 ### If the page renders unstyled
 
@@ -376,13 +376,17 @@ whoever maintains `server-monitoring`**: its alerts read them directly.
 `pausat.uib.es` sends a strict Content-Security-Policy
 (`default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; …`),
 so the app needs no exceptions: Tailwind is compiled at build time, the fonts
-are self-hosted, Gemini is called through `/cafft/genai/` with the key injected
-by nginx, and every video is served from `/cafft/videos_cafft/`. `deploy.sh`
+are self-hosted, the AI assistant goes through the API, and every video is
+served from `/cafft/videos_cafft/`. `deploy.sh`
 refuses a build that references a CDN the policy would block.
 
-**The Gemini proxy requires a session:** nginx checks the session cookie with
-the API (`auth_request`) before forwarding to Google, and limits each IP to 20
-requests per minute. **Patient data lives only in the API's database**; the
+**The AI assistant goes through the API:** only it holds the provider's key
+and talks to Google (Gemini, paid tier). The app sends the instructions and the
+conversation without the user's name, email or ids — therapists' patients
+appear by their pseudonymous code — and the API needs a session, the current
+consent for patients, and allows 20 messages a minute per user. It stores each
+question and answer for the therapist; `AI_RETENTION_DAYS` deletes old ones and
+`AI_ENABLED=false` turns the assistant off. **Patient data lives only in the API's database**; the
 browser keeps a copy in memory while the app is open, plus the language
 preference in `localStorage`. **There are no built-in accounts**: the first
 superadmin is created with `create-admin`.

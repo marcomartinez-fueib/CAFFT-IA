@@ -5,12 +5,14 @@ import { openDb, type Db } from '../src/db.ts';
 import { hashPassword } from '../src/passwords.ts';
 import { createUser, findUserById, type Role, type UserRow } from '../src/users.ts';
 import { recordConsent } from '../src/consents.ts';
+import type { AiProvider } from '../src/ai/provider.ts';
 
 export const ORIGIN = 'http://localhost:3000';
 
-export async function makeApp(): Promise<{ app: FastifyInstance; db: Db }> {
+export async function makeApp(deps: { aiProvider?: AiProvider | null } = {}): Promise<{ app: FastifyInstance; db: Db }> {
   const db = openDb(':memory:');
-  const app = await buildApp(loadConfig({ dbPath: ':memory:', publicOrigin: ORIGIN, logger: false }), db);
+  // No real provider in tests unless one is passed.
+  const app = await buildApp(loadConfig({ dbPath: ':memory:', publicOrigin: ORIGIN, logger: false }), db, { aiProvider: null, ...deps });
   return { app, db };
 }
 

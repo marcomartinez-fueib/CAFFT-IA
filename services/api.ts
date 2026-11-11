@@ -50,3 +50,34 @@ export async function api<T = void>(method: 'GET' | 'POST' | 'PUT' | 'PATCH' | '
   }
   return data as T;
 }
+
+/**
+ * POSTs and hands the reply's text to `onText` as it arrives (the AI
+ * assistant streams its answer). Errors are ApiErrors, as with `api`.
+ */
+export async function apiStream(path: string, body: unknown, onText: (text: string) => void): Promise<void> {
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    throw new ApiError(0, 'network');
+  }
+  if (!res.ok || !res.body) {
+    const data = await res.json().catch(() => ({}));
+    const code = typeof data?.error === 'string' ? data.error : 'unknown';
+    if (res.status === 401 && code === 'unauthenticated') window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
+    throw new ApiError(res.status, code);
+  }
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    onText(decoder.decode(value, { stream: true }));
+  }
+}

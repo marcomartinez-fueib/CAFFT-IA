@@ -411,6 +411,8 @@ export interface LastSessionPageContent {
 }
 
 export interface AIChatContent {
+  connectionError?: string;
+  unavailableError?: string;
   pageTitle: string;
   disclaimer: string;
   initialMessage: string | string[];

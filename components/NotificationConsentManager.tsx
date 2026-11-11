@@ -6,7 +6,7 @@ import { NotificationConsentModal } from './NotificationConsentModal.tsx';
 import { NotificationService } from '../services/notificationService.ts';
 
 export const NotificationConsentManager: React.FC = () => {
-  const { currentUser, updateUser } = useAuth();
+  const { currentUser, updateUser, acceptConsent } = useAuth();
   const { t } = useLanguage();
   const [showModal, setShowModal] = useState(false);
 
@@ -32,6 +32,8 @@ export const NotificationConsentManager: React.FC = () => {
     }
 
     await updateUser({ notificationPreferences: initialPrefs });
+    // The acceptance, with the version of the text, goes to the consent record.
+    if (initialPrefs.enabled) await acceptConsent('notifications');
     setShowModal(false);
     
     if (permission === 'granted') {

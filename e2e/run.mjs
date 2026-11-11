@@ -16,6 +16,7 @@ import { chromium } from 'playwright-core';
 import { openDb } from '../server/src/db.ts';
 import { createUser } from '../server/src/users.ts';
 import { hashPassword } from '../server/src/passwords.ts';
+import { recordConsent } from '../server/src/consents.ts';
 import { runFlow } from './flow.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
@@ -65,10 +66,15 @@ async function seed() {
   const passwordHash = await hashPassword('correct-horse');
   const therapist = createUser(db, { role: 'therapist', username: 'ter', email: 'ter@example.test', passwordHash });
   const patient = createUser(db, { role: 'patient', username: 'pac', email: 'pac@example.test', passwordHash });
-  if (!therapist.ok || !patient.ok) throw new Error('seed failed');
+  // A second patient, registered from the panel, who has not accepted the consent yet.
+  const pending = createUser(db, { role: 'patient', username: 'nova', email: 'nova@example.test', passwordHash });
+  if (!therapist.ok || !patient.ok || !pending.ok) throw new Error('seed failed');
+  recordConsent(db, patient.user.id, 'treatment', 'ca');
   // The patient has answered the notification consent; neither sees the guided tour.
   const prefs = { enabled: false, reminders: false, newTasks: false, followUp: false, general: false, frequency: 'daily', startTime: '09:00', endTime: '21:00' };
-  db.prepare('UPDATE users SET therapist_id = ?, consent_given = 1, notification_prefs = ? WHERE id = ?').run(therapist.user.id, JSON.stringify(prefs), patient.user.id);
+  for (const p of [patient, pending]) {
+    db.prepare('UPDATE users SET therapist_id = ?, notification_prefs = ? WHERE id = ?').run(therapist.user.id, JSON.stringify(prefs), p.user.id);
+  }
   db.prepare('UPDATE users SET onboarding_enabled = 0').run();
   db.close();
 }

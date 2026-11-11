@@ -3,11 +3,13 @@ import { requireAuth } from '../app.ts';
 import { audit } from '../audit.ts';
 import { hashPassword, MIN_PASSWORD_LENGTH, verifyAgainstDummy, verifyPassword } from '../passwords.ts';
 import { createSession, deleteOtherSessions, deleteSession, SESSION_COOKIE } from '../sessions.ts';
-import { createUser, findUserByUsername, toApiUser, type UserRow } from '../users.ts';
+import { createUser, findUserById, findUserByUsername, toApiUser, type UserRow } from '../users.ts';
 import { transaction } from '../db.ts';
 import { enqueueMail } from '../mail/outbox.ts';
 import { asLang, LANGS, passwordResetMail, setPasswordLink } from '../mail/templates.ts';
 import { consumePasswordToken, issuePasswordToken } from '../passwordTokens.ts';
+import { CONSENT_VERSIONS, recordConsent } from '../consents.ts';
+import * as S from '../schemas.ts';
 
 // Error values are the client's translation keys (data/translations.ts), so
 // the UI can show them as it does today.
@@ -127,7 +129,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
   });
 
   app.post<{
-    Body: { username: string; email: string; password: string; consent: boolean; informedConsentMetadata?: unknown };
+    Body: { username: string; email: string; password: string; consent: boolean; consentVersion?: string; language?: string; informedConsentMetadata?: unknown };
   }>(
     '/register',
     {
@@ -142,24 +144,21 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
             email: emailSchema,
             password: passwordSchema,
             consent: { type: 'boolean' },
-            informedConsentMetadata: {
-              type: 'object',
-              additionalProperties: false,
-              properties: {
-                dob: { type: 'string', maxLength: 32 },
-                gender: { type: 'string', maxLength: 64 },
-                occupation: { type: 'string', maxLength: 128 },
-                source: { type: 'string', maxLength: 256 },
-                studentsPresence: { type: 'boolean' },
-              },
-            },
+            // The version of the consent text the form showed (consent.ts).
+            consentVersion: { type: 'string', maxLength: 32 },
+            language: { enum: ['ca', 'es', 'en'] },
+            informedConsentMetadata: S.informedConsentMetadata,
           },
         },
       },
     },
     async (req, reply) => {
-      const { username, email, password, consent, informedConsentMetadata } = req.body;
+      const { username, email, password, consent, consentVersion, language, informedConsentMetadata } = req.body;
       if (!consent) return reply.code(400).send({ error: ERR.consentRequired });
+      // A form loaded before the text changed showed an old version.
+      if (consentVersion !== undefined && consentVersion !== CONSENT_VERSIONS.treatment) {
+        return reply.code(409).send({ error: 'consent.outdated' });
+      }
       if (password.length < MIN_PASSWORD_LENGTH) return reply.code(400).send({ error: ERR.passwordTooShort });
 
       // Self-registration only ever creates patients; staff accounts are
@@ -169,15 +168,15 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
         username,
         email,
         passwordHash: await hashPassword(password),
-        consentGiven: true,
-        consentMetadata: informedConsentMetadata,
+        consentGiven: false,
       });
       if (!result.ok) {
         return reply.code(409).send({ error: result.conflict === 'username' ? ERR.usernameTaken : ERR.emailTaken });
       }
 
+      recordConsent(db, result.user.id, 'treatment', language ?? null, informedConsentMetadata);
       audit(db, { actorId: result.user.id, action: 'register', targetId: result.user.id, ip: req.ip });
-      return reply.code(201).send({ user: toApiUser(result.user) });
+      return reply.code(201).send({ user: toApiUser(findUserById(db, result.user.id)!) });
     },
   );
 

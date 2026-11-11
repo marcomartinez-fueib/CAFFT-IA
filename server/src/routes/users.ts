@@ -13,6 +13,7 @@ import { hashPassword, MIN_PASSWORD_LENGTH } from '../passwords.ts';
 import { deleteOtherSessions } from '../sessions.ts';
 import { createUser, findUserById, toApiUser, type Role, type UserRow } from '../users.ts';
 import * as S from '../schemas.ts';
+import { CONSENT_VERSIONS, recordConsent, withdrawNotificationConsent, type ConsentKind } from '../consents.ts';
 
 const ERR = {
   usernameTaken: 'auth.usernameTakenError',
@@ -108,7 +109,8 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
       const passwordHash = await hashPassword(password ?? randomBytes(32).toString('base64url'));
 
       const result = transaction(db, () => {
-        const created = createUser(db, { role, username, email, passwordHash, consentGiven: true, therapistId, managerId });
+        // Patients accept the informed consent themselves, at their first login.
+        const created = createUser(db, { role, username, email, passwordHash, consentGiven: false, therapistId, managerId });
         if (!created.ok) return created;
         if (password === undefined) sendInvitation(db, config, created.user, actor, language);
         audit(db, { actorId: actor.id, action: `user.create.${role}`, targetId: created.user.id, ip: req.ip });
@@ -278,6 +280,50 @@ export async function meRoutes(app: FastifyInstance): Promise<void> {
       const done = new Set<string>(JSON.parse(user.onboarding_done));
       done.add(req.params.tour);
       db.prepare('UPDATE users SET onboarding_done = ?, updated_at = ? WHERE id = ?').run(JSON.stringify([...done]), Date.now(), user.id);
+      return { user: toApiUser(findUserById(db, user.id)!) };
+    },
+  );
+
+  // Accepting the current version of a consent text. The client sends the
+  // version it showed, so a page loaded before the text changed cannot
+  // record acceptance of a text the user never read.
+  app.post<{ Body: { kind: ConsentKind; version: string; language?: 'ca' | 'es' | 'en'; informedConsentMetadata?: object } }>(
+    '/consents',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['kind', 'version'],
+          properties: {
+            kind: { enum: ['treatment', 'notifications'] },
+            version: S.shortText(32),
+            language: { enum: ['ca', 'es', 'en'] },
+            informedConsentMetadata: S.informedConsentMetadata,
+          },
+        },
+      },
+    },
+    async (req, reply) => {
+      const user = req.user!;
+      const { kind, version, language, informedConsentMetadata } = req.body;
+      if (version !== CONSENT_VERSIONS[kind]) return reply.code(409).send({ error: 'consent.outdated' });
+      recordConsent(db, user.id, kind, language ?? null, informedConsentMetadata);
+      audit(db, { actorId: user.id, action: `consent.accept.${kind}`, targetId: user.id, ip: req.ip });
+      return { user: toApiUser(findUserById(db, user.id)!) };
+    },
+  );
+
+  // Only the notification consent can be withdrawn from the app. Withdrawing
+  // the treatment consent means leaving the programme: the patient asks their
+  // therapist or the UIB's data protection officer (see the consent's legal text).
+  app.post<{ Body: { kind: 'notifications' } }>(
+    '/consents/withdraw',
+    { schema: { body: { type: 'object', additionalProperties: false, required: ['kind'], properties: { kind: { enum: ['notifications'] } } } } },
+    async (req) => {
+      const user = req.user!;
+      withdrawNotificationConsent(db, user.id, user.notification_prefs);
+      audit(db, { actorId: user.id, action: 'consent.withdraw.notifications', targetId: user.id, ip: req.ip });
       return { user: toApiUser(findUserById(db, user.id)!) };
     },
   );

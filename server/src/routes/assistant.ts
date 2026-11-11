@@ -8,10 +8,13 @@ import * as S from '../schemas.ts';
 /**
  * The AI assistant's conversation. The app sends the instructions and the
  * conversation without identifiers (no username, email or ids; therapists'
- * patients by their pseudonymous code); the API adds the key, asks the
- * provider, passes the reply on as it is written, and stores the question and
- * answer for the therapist (ai_consultations).
+ * patients by their pseudonymous code); the API asks the model, passes the
+ * reply on as it is written, and stores the question and answer for the
+ * therapist (ai_consultations).
  */
+/** Messages of the conversation sent to the model (the last ones). */
+const MAX_HISTORY = 20;
+
 export async function assistantRoutes(app: FastifyInstance, opts: { provider: AiProvider | null }): Promise<void> {
   const { db } = app;
   app.addHook('preHandler', requireAuth);
@@ -47,37 +50,37 @@ export async function assistantRoutes(app: FastifyInstance, opts: { provider: Ai
       if (!opts.provider) return reply.code(503).send({ error: 'ai.disabled' });
       if (!hasCurrentTreatmentConsent(user)) return reply.code(403).send({ error: 'consent.required' });
       if (user.role !== 'patient' && user.role !== 'therapist') return reply.code(403).send({ error: 'forbidden' });
-      const { system, messages } = req.body;
+      const { system } = req.body;
+      // The engine's context is shared by instructions, history and reply:
+      // keep the end of the conversation.
+      const messages = req.body.messages.slice(-MAX_HISTORY);
       const question = messages[messages.length - 1];
       if (question.role !== 'user') return reply.code(400).send({ error: 'ai.lastMessageNotUser' });
 
-      // Ask first, answer once the provider has started: a provider error
-      // before any text is a proper 502 the app can show.
-      const chunks = opts.provider.stream({ system, messages })[Symbol.asyncIterator]();
-      let first: IteratorResult<string>;
-      try {
-        first = await chunks.next();
-      } catch (err) {
-        req.log.error({ err }, 'assistant: provider failed');
-        return reply.code(502).send({ error: 'ai.unavailable' });
-      }
-
+      // One JSON event per line, so the app learns at once that the model is
+      // waking, can show it, and nginx never sees a minute of silence:
+      //   {"type":"waiting"}  {"type":"text","text":"…"}  {"type":"error","code":"ai.unavailable"}
       reply.hijack();
       reply.raw.writeHead(200, {
-        'content-type': 'text/plain; charset=utf-8',
+        'content-type': 'application/x-ndjson; charset=utf-8',
         'cache-control': 'no-store',
         // nginx would otherwise hold the reply until it is complete.
         'x-accel-buffering': 'no',
       });
+      const send = (event: object) => reply.raw.write(`${JSON.stringify(event)}\n`);
       let answer = '';
+      // Until the first words, say every 15 s that we are still waiting.
+      const heartbeat = setInterval(() => answer === '' && send({ type: 'waiting' }), 15_000);
       try {
-        for (let r = first; !r.done; r = await chunks.next()) {
-          answer += r.value;
-          reply.raw.write(r.value);
+        for await (const text of opts.provider.stream({ system, messages }, { onWaiting: () => send({ type: 'waiting' }) })) {
+          answer += text;
+          send({ type: 'text', text });
         }
       } catch (err) {
-        req.log.error({ err }, 'assistant: provider failed mid-reply');
+        req.log.error({ err }, answer ? 'assistant: provider failed mid-reply' : 'assistant: provider failed');
+        send({ type: 'error', code: 'ai.unavailable' });
       } finally {
+        clearInterval(heartbeat);
         reply.raw.end();
       }
       if (answer) {

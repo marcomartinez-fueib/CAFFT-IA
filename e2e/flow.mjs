@@ -138,6 +138,30 @@ export async function runFlow({ browser, base, dbPath }) {
   }
   await page.close();
 
+  // --- A patient registered from the panel: consent first --------------------------
+  const np = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  watch(np);
+  await np.goto(base + '#/login');
+  await np.fill('#username', 'nova');
+  await np.fill('#password', 'correct-horse');
+  await np.click('form button[type="submit"]');
+  await np.waitForTimeout(2000);
+  await np.goto(base + '#/exposure-hierarchy');
+  await np.waitForTimeout(1000);
+  let nb = await np.locator('body').innerText();
+  check('2.1 a patient registered from the panel sees the informed consent first', nb.includes('Consentiment informat') && nb.includes('Acceptar i continuar'));
+  await np.fill('#dob', '1990-01-01');
+  await np.selectOption('#gender', 'female');
+  await np.selectOption('#occupation', 'PDI');
+  await np.selectOption('#source', 'web');
+  await np.check('#consent');
+  await np.getByRole('button', { name: 'Acceptar i continuar' }).click();
+  await np.waitForTimeout(1500);
+  nb = await np.locator('body').innerText();
+  const novaConsent = db.prepare("SELECT c.version FROM consents c JOIN users u ON u.id = c.user_id WHERE u.username = 'nova'").get();
+  check('2.1 accepting records the version and opens the programme', !!novaConsent && nb.includes('Primer cal fer un pas previ'));
+  await np.close();
+
   // --- Therapist, on a desktop screen ------------------------------------------------
   const tp = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   watch(tp);

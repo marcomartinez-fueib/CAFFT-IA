@@ -1343,6 +1343,9 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
         ratingHistory: "Historial de Valoracions",
         videoTitle: "Estímul / Vídeo",
         aiConsultationsTitleForPatient: "Consultes a l'IA Assistant",
+        consentAccepted: "Consentiment informat acceptat el {date} (versió {version})",
+        consentPending: "Consentiment informat pendent: el pacient l'haurà d'acceptar quan entri",
+        consentOutdated: "Consentiment acceptat el {date} (versió {version}); haurà d'acceptar la versió actual quan torni a entrar",
         testAccountLabel: "Compte de prova",
         testAccountHint: "Els comptes de prova veuen els controls per provar l'aplicació (omplir el QPV-II a l'atzar i simular els vídeos) i queden fora de les dades del pilot.",
         noAiConsultationsForPatient: "Aquest pacient encara no ha realitzat cap consulta.",
@@ -1458,6 +1461,15 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
         title: "Primer cal fer un pas previ",
         needsQpvii: "Per preparar la seva jerarquia d'exposició, primer ha de respondre el qüestionari QPV-II. Amb les seves respostes, l'aplicació ordena els vídeos de menys a més malestar.",
         goToQpvii: "Respondre el QPV-II",
+    },
+    consentGate: {
+        title: "Consentiment informat",
+        intro: "Abans de començar el programa, llegeixi el consentiment informat i, si hi està d'acord, accepti'l. També li demanam unes dades bàsiques que fa servir l'Espai de Benestar Psicològic.",
+        introUpdated: "El text del consentiment informat ha canviat des que el va acceptar. Llegeixi'l de nou i, si hi està d'acord, accepti'l per continuar.",
+        submitButton: "Acceptar i continuar",
+        notNowButton: "Ara no (tancar la sessió)",
+        outdatedError: "El text del consentiment ha canviat mentre el llegia. Recarregui la pàgina per veure la versió actual.",
+        saveError: "No s'ha pogut desar. Comprovi la connexió i torni-ho a provar.",
     },
 };
 
@@ -2121,6 +2133,9 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
         ratingHistory: "Historial Valoraciones",
         videoTitle: "Estímulo / Vídeo",
         aiConsultationsTitleForPatient: "Consultas al IA Assistant",
+        consentAccepted: "Consentimiento informado aceptado el {date} (versión {version})",
+        consentPending: "Consentimiento informado pendiente: el paciente tendrá que aceptarlo cuando entre",
+        consentOutdated: "Consentimiento aceptado el {date} (versión {version}); tendrá que aceptar la versión actual cuando vuelva a entrar",
         testAccountLabel: "Cuenta de prueba",
         testAccountHint: "Las cuentas de prueba ven los controles para probar la aplicación (rellenar el QPV-II al azar y simular los vídeos) y quedan fuera de los datos del piloto.",
         noAiConsultationsForPatient: "Este paciente aún no ha realizado ninguna consulta.",
@@ -2642,6 +2657,15 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
         needsQpvii: "Para preparar su jerarquía de exposición, primero tiene que responder el cuestionario QPV-II. Con sus respuestas, la aplicación ordena los vídeos de menos a más malestar.",
         goToQpvii: "Responder el QPV-II",
     },
+    consentGate: {
+        title: "Consentimiento informado",
+        intro: "Antes de empezar el programa, lea el consentimiento informado y, si está de acuerdo, acéptelo. También le pedimos unos datos básicos que utiliza el Espai de Benestar Psicològic.",
+        introUpdated: "El texto del consentimiento informado ha cambiado desde que lo aceptó. Léalo de nuevo y, si está de acuerdo, acéptelo para continuar.",
+        submitButton: "Aceptar y continuar",
+        notNowButton: "Ahora no (cerrar la sesión)",
+        outdatedError: "El texto del consentimiento ha cambiado mientras lo leía. Recargue la página para ver la versión actual.",
+        saveError: "No se ha podido guardar. Compruebe la conexión y vuelva a intentarlo.",
+    },
 };
 
 const enTranslations: TranslationContent = {
@@ -2980,6 +3004,9 @@ const enTranslations: TranslationContent = {
         ratingHistory: "Rating History",
         videoTitle: "Stimulus / Video",
         aiConsultationsTitleForPatient: "AI Assistant Consultations",
+        consentAccepted: "Informed consent accepted on {date} (version {version})",
+        consentPending: "Informed consent pending: the patient will have to accept it when they log in",
+        consentOutdated: "Consent accepted on {date} (version {version}); they will have to accept the current version at their next login",
         testAccountLabel: "Test account",
         testAccountHint: "Test accounts see the controls for trying out the app (random QPV-II answers and simulated videos) and are left out of the pilot's data.",
         noAiConsultationsForPatient: "This patient has not made any consultations yet.",
@@ -3815,6 +3842,15 @@ The treatment is based on **Pure Exposure**. We use realistic videos that simula
         title: "There is a step to complete first",
         needsQpvii: "To prepare your exposure hierarchy, you first need to answer the QPV-II questionnaire. Your answers are used to order the videos from least to most discomfort.",
         goToQpvii: "Answer the QPV-II",
+    },
+    consentGate: {
+        title: "Informed consent",
+        intro: "Before starting the programme, please read the informed consent and, if you agree, accept it. We also ask for some basic details used by the Espai de Benestar Psicològic.",
+        introUpdated: "The text of the informed consent has changed since you accepted it. Please read it again and, if you agree, accept it to continue.",
+        submitButton: "Accept and continue",
+        notNowButton: "Not now (log out)",
+        outdatedError: "The consent text changed while you were reading it. Reload the page to see the current version.",
+        saveError: "It could not be saved. Check your connection and try again.",
     },
 };
 

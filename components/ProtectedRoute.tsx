@@ -4,6 +4,8 @@ import React, { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.tsx';
 import { useLanguage } from '../hooks/useLanguage.tsx';
+import { needsTreatmentConsent } from '../consent.ts';
+import { ConsentPage } from '../pages/ConsentPage.tsx';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -41,6 +43,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, role }
     }
   }
 
+  // A patient sees nothing of the programme before accepting the current
+  // informed consent (patients registered by a therapist, or a changed text).
+  if (needsTreatmentConsent(currentUser)) {
+    return <ConsentPage />;
+  }
 
   return <>{children}</>;
 };

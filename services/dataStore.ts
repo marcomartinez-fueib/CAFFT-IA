@@ -20,6 +20,7 @@
  */
 import {
   AiConsultation,
+  InformedConsentMetadata,
   ExposureSession,
   QPVIIAnswers,
   QPVIIScores,
@@ -32,6 +33,7 @@ import {
   Feedback,
 } from '../types.ts';
 import { api, ApiError } from './api.ts';
+import { CONSENT_VERSIONS, type ConsentKind } from '../consent.ts';
 
 interface StoreState {
   users: StoredUser[];
@@ -292,6 +294,28 @@ async function toggle(userId: string, what: 'notifications' | 'onboarding' | 'te
 export const toggleUserNotifications = (userId: string) => toggle(userId, 'notifications');
 export const toggleUserOnboarding = (userId: string) => toggle(userId, 'onboarding');
 export const toggleTestAccount = (userId: string) => toggle(userId, 'test-account');
+
+/**
+ * Accepts the version of a consent text that the app shows (consent.ts). The
+ * server refuses an outdated version with `consent.outdated`.
+ */
+export async function acceptConsent(kind: ConsentKind, informedConsentMetadata?: InformedConsentMetadata): Promise<StoredUser> {
+  const { user } = await api<{ user: StoredUser }>('POST', '/me/consents', {
+    kind,
+    version: CONSENT_VERSIONS[kind],
+    language: uiLanguage(),
+    ...(informedConsentMetadata ? { informedConsentMetadata } : {}),
+  });
+  replaceUser(user);
+  return user;
+}
+
+/** Withdraws the notification consent: reminders stop. */
+export async function withdrawNotificationConsent(): Promise<StoredUser> {
+  const { user } = await api<{ user: StoredUser }>('POST', '/me/consents/withdraw', { kind: 'notifications' });
+  replaceUser(user);
+  return user;
+}
 
 /** Records that the logged-in user finished an onboarding tour. */
 export async function completeOnboardingTour(tour: 'patient' | 'therapist'): Promise<StoredUser | null> {

@@ -3,7 +3,8 @@ import { buildApp } from '../src/app.ts';
 import { loadConfig } from '../src/config.ts';
 import { openDb, type Db } from '../src/db.ts';
 import { hashPassword } from '../src/passwords.ts';
-import { createUser, type Role, type UserRow } from '../src/users.ts';
+import { createUser, findUserById, type Role, type UserRow } from '../src/users.ts';
+import { recordConsent } from '../src/consents.ts';
 
 export const ORIGIN = 'http://localhost:3000';
 
@@ -13,10 +14,21 @@ export async function makeApp(): Promise<{ app: FastifyInstance; db: Db }> {
   return { app, db };
 }
 
-export async function seedUser(db: Db, role: Role, username: string, password = 'correct-horse'): Promise<UserRow> {
+/**
+ * A user ready to use the app: patients have accepted the current informed
+ * consent unless `consent: false`, as one created from the panel has not.
+ */
+export async function seedUser(
+  db: Db,
+  role: Role,
+  username: string,
+  password = 'correct-horse',
+  options: { consent?: boolean } = {},
+): Promise<UserRow> {
   const result = createUser(db, { role, username, email: `${username}@example.test`, passwordHash: await hashPassword(password) });
   if (!result.ok) throw new Error(`seed conflict: ${result.conflict}`);
-  return result.user;
+  if (role === 'patient' && options.consent !== false) recordConsent(db, result.user.id, 'treatment', 'ca');
+  return findUserById(db, result.user.id)!;
 }
 
 /** The `name=value` pair from a response's Set-Cookie, ready for a Cookie header. */

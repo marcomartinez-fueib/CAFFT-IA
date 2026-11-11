@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { requireAuth } from '../app.ts';
 import { canWriteClinical, visibleUser, visibleUsers } from '../access.ts';
+import { hasCurrentTreatmentConsent } from '../consents.ts';
 import { transaction } from '../db.ts';
 import { consultationsFor, emailsFor, lastActivityAt, progressFor, qpviiFor, sessionsFor } from '../records.ts';
 import { toApiUser, type UserRow } from '../users.ts';
@@ -21,6 +22,9 @@ function wantsReminderEmails(patient: UserRow): boolean {
 
 const NOT_FOUND = { error: 'notFound' };
 const FORBIDDEN = { error: 'forbidden' };
+// A patient must accept the current informed consent before any clinical data
+// of theirs is stored (consent.ts); the app shows the consent screen first.
+const CONSENT_REQUIRED = { error: 'consent.required' };
 
 export async function dataRoutes(app: FastifyInstance): Promise<void> {
   const { db } = app;
@@ -83,6 +87,7 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
     async (req, reply) => {
       const b = req.body;
       if (!canWriteClinical(req.user!, b.userId)) return reply.code(403).send(FORBIDDEN);
+      if (!hasCurrentTreatmentConsent(req.user!)) return reply.code(403).send(CONSENT_REQUIRED);
       if (!visibleUser(db, req.user!, b.userId)) return reply.code(404).send(NOT_FOUND);
 
       transaction(db, () => {
@@ -160,6 +165,7 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
     async (req, reply) => {
       const b = req.body;
       if (!canWriteClinical(req.user!, b.userId)) return reply.code(403).send(FORBIDDEN);
+      if (!hasCurrentTreatmentConsent(req.user!)) return reply.code(403).send(CONSENT_REQUIRED);
       if (!visibleUser(db, req.user!, b.userId)) return reply.code(404).send(NOT_FOUND);
 
       const values = [
@@ -235,6 +241,7 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
     async (req, reply) => {
       const b = req.body;
       if (!canWriteClinical(req.user!, b.userId)) return reply.code(403).send(FORBIDDEN);
+      if (!hasCurrentTreatmentConsent(req.user!)) return reply.code(403).send(CONSENT_REQUIRED);
       if (!visibleUser(db, req.user!, b.userId)) return reply.code(404).send(NOT_FOUND);
 
       const written = db
@@ -285,6 +292,7 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
     async (req, reply) => {
       const b = req.body;
       if (b.userId !== req.user!.id) return reply.code(403).send(FORBIDDEN);
+      if (!hasCurrentTreatmentConsent(req.user!)) return reply.code(403).send(CONSENT_REQUIRED);
       db.prepare(
         'INSERT OR IGNORE INTO ai_consultations (id, user_id, user_role, query, response, timestamp) VALUES (?, ?, ?, ?, ?, ?)',
       ).run(b.id, b.userId, req.user!.role === 'patient' ? 'patient' : 'therapist', b.query, b.response, b.timestamp);

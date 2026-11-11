@@ -164,7 +164,7 @@ test('migration 005 rebuilds sessions from existing ratings', async () => {
     db.exec(readFileSync(join(dir, file), 'utf8'));
     db.prepare('INSERT INTO schema_migrations VALUES (?, 0)').run(Number.parseInt(file, 10));
   }
-  const P = await seedUser(db, 'patient', 'pac');
+  const P = await seedUser(db, 'patient', 'pac', undefined, { consent: false }); // no consents table before 007
   const hour = 60 * 60 * 1000;
   const rating = (at: number) => ({ id: 'ev001', rating: 5, qpviiTimestamp: 42, videoTimestamp: at });
   const insert = db.prepare(

@@ -11,8 +11,9 @@ browser, and only for logged-in users.
 | **pre** (tests, no real patients) | <https://pausat-pre.uib.es/cafft/> | `pre` | `/data/apps/cafft-pre` | `cafft-pre-nginx`, `cafft-pre-api` |
 | **pro** (the pilot) | <https://pausat.uib.es/cafft/> | `pro` | `/data/apps/cafft-pro` | `cafft-nginx`, `cafft-api` |
 
-Both are reachable only through the UIB VPN. `pro` keeps the compose project
-`cafft` and the container names that `server-monitoring` watches.
+`pro` is public: patients use it from home. `pre` is reachable only through
+the UIB VPN. `pro` keeps the compose project `cafft` and the container names
+that `server-monitoring` watches.
 
 ---
 

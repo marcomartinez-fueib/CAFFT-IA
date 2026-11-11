@@ -1,6 +1,6 @@
 import type { Db } from './db.ts';
 import { transaction } from './db.ts';
-import { CONSENT_VERSIONS, type ConsentKind } from '../../consent.ts';
+import { CONSENT_VERSIONS, type ConsentKind } from './consentVersions.ts';
 
 export { CONSENT_VERSIONS, type ConsentKind };
 

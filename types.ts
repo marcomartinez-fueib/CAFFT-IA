@@ -44,6 +44,7 @@ export interface User {
   sentFollowUps?: string[];
   onboardingEnabled?: boolean;
   isTestAccount?: boolean; // Set by staff; shows the testing controls to this patient
+  treatmentConsent?: { version: string; acceptedAt: number }; // Latest informed consent accepted (consent.ts)
 }
 
 // A user as the API returns it (server/src/users.ts, toApiUser). The password
@@ -77,6 +78,9 @@ export interface AuthContextType {
   resetPassword: (token: string, newPassword: string) => Promise<{ success: boolean; errorKey?: string; messageKey?: string }>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; errorKey?: string; messageKey?: string }>;
   updateUser: (updates: Partial<User>) => Promise<boolean>;
+  /** Accepts the current version of a consent text (consent.ts). */
+  acceptConsent: (kind: 'treatment' | 'notifications', informedConsentMetadata?: InformedConsentMetadata) => Promise<{ success: boolean; errorKey?: string }>;
+  withdrawNotificationConsent: () => Promise<boolean>;
 }
 
 export interface QPVIIQuestion {
@@ -407,6 +411,8 @@ export interface LastSessionPageContent {
 }
 
 export interface AIChatContent {
+  connectionError?: string;
+  unavailableError?: string;
   pageTitle: string;
   disclaimer: string;
   initialMessage: string | string[];
@@ -608,6 +614,9 @@ export interface TherapistDashboardContent {
 export interface PatientDetailContent {
   pageTitle: string;
   aiConsultationsTitleForPatient?: string;
+  consentAccepted?: string;
+  consentPending?: string;
+  consentOutdated?: string;
   testAccountLabel?: string;
   testAccountHint?: string;
   noAiConsultationsForPatient?: string;
@@ -1150,6 +1159,15 @@ export interface TranslationContent {
     homeButton: string;
     evolutionButton: string;
     noSession: string;
+  };
+  consentGate: {
+    title: string;
+    intro: string;
+    introUpdated: string;
+    submitButton: string;
+    notNowButton: string;
+    outdatedError: string;
+    saveError: string;
   };
   stepGuard: {
     title: string;

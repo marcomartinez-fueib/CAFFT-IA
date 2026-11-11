@@ -14,7 +14,7 @@ interface NotificationSettingsProps {
 
 export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user, onUpdate }) => {
   const { t } = useLanguage();
-  const { updateUser } = useAuth();
+  const { updateUser, acceptConsent, withdrawNotificationConsent } = useAuth();
   const [prefs, setPrefs] = useState<NotificationPreferences>(
     user.notificationPreferences || NotificationService.getDefaultPreferences()
   );
@@ -65,7 +65,12 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
         updatedPrefs.consentDate = undefined;
     }
 
-    const success = await updateUser({ notificationPreferences: updatedPrefs });
+    const wasEnabled = !!user.notificationPreferences?.enabled;
+    let success = await updateUser({ notificationPreferences: updatedPrefs });
+    // Turning notifications on or off is giving or withdrawing the consent:
+    // the server keeps both, with the version of the text and the date.
+    if (success && updatedPrefs.enabled && !wasEnabled) success = (await acceptConsent('notifications')).success;
+    if (success && !updatedPrefs.enabled && wasEnabled) success = await withdrawNotificationConsent();
     if (success) {
       setMessage({ type: 'success', text: t('profile.savePreferences') });
       onUpdate();
@@ -77,7 +82,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({ user
 
   const handleWithdrawConsent = async () => {
     const updatedPrefs = { ...prefs, enabled: false, consentDate: undefined };
-    const success = await updateUser({ notificationPreferences: updatedPrefs });
+    const success = await withdrawNotificationConsent();
     if (success) {
       setPrefs(updatedPrefs);
       setMessage({ type: 'success', text: t('profile.consentWithdrawn') });

@@ -20,6 +20,7 @@
  */
 import {
   AiConsultation,
+  InformedConsentMetadata,
   ExposureSession,
   QPVIIAnswers,
   QPVIIScores,
@@ -32,6 +33,7 @@ import {
   Feedback,
 } from '../types.ts';
 import { api, ApiError } from './api.ts';
+import { CONSENT_VERSIONS, type ConsentKind } from '../consent.ts';
 
 interface StoreState {
   users: StoredUser[];
@@ -292,6 +294,37 @@ async function toggle(userId: string, what: 'notifications' | 'onboarding' | 'te
 export const toggleUserNotifications = (userId: string) => toggle(userId, 'notifications');
 export const toggleUserOnboarding = (userId: string) => toggle(userId, 'onboarding');
 export const toggleTestAccount = (userId: string) => toggle(userId, 'test-account');
+
+/**
+ * Accepts the version of a consent text that the app shows (consent.ts). The
+ * server refuses an outdated version with `consent.outdated`.
+ */
+export async function acceptConsent(kind: ConsentKind, informedConsentMetadata?: InformedConsentMetadata): Promise<StoredUser> {
+  const { user } = await api<{ user: StoredUser }>('POST', '/me/consents', {
+    kind,
+    version: CONSENT_VERSIONS[kind],
+    language: uiLanguage(),
+    ...(informedConsentMetadata ? { informedConsentMetadata } : {}),
+  });
+  replaceUser(user);
+  return user;
+}
+
+/** Withdraws the notification consent: reminders stop. */
+export async function withdrawNotificationConsent(): Promise<StoredUser> {
+  const { user } = await api<{ user: StoredUser }>('POST', '/me/consents/withdraw', { kind: 'notifications' });
+  replaceUser(user);
+  return user;
+}
+
+/**
+ * Records in the server's audit log that staff opened a patient's card or
+ * exported their data (the server sees data loads, not what is looked at).
+ */
+export function reportClinicalAccess(action: 'clinical.view' | 'clinical.export', patientIds: string[]): void {
+  if (patientIds.length === 0) return;
+  enqueue('access record', () => api('POST', '/audit/access', { action, patientIds }));
+}
 
 /** Records that the logged-in user finished an onboarding tour. */
 export async function completeOnboardingTour(tour: 'patient' | 'therapist'): Promise<StoredUser | null> {

@@ -25,6 +25,8 @@ export interface UserRow {
   last_assessment_at: number | null;
   last_reminder_at: number | null;
   must_change_password: number;
+  treatment_consent_version: string | null;
+  treatment_consent_at: number | null;
   created_at: number;
   updated_at: number;
 }
@@ -52,6 +54,9 @@ export function toApiUser(row: UserRow): ApiUser {
     mustChangePassword: row.must_change_password === 1,
   };
   if (row.is_test_account === 1) user.isTestAccount = true;
+  if (row.treatment_consent_version && row.treatment_consent_at) {
+    user.treatmentConsent = { version: row.treatment_consent_version, acceptedAt: row.treatment_consent_at };
+  }
   if (row.patient_code) user.patientCode = row.patient_code;
   if (row.therapist_id) user.therapistId = row.therapist_id;
   if (row.manager_id) user.managerId = row.manager_id;

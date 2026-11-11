@@ -12,7 +12,7 @@
 #
 #      runtime/web/cafft/                 the built app (deploy.sh swaps it in)
 #      runtime/videos/                    the mp4 assets
-#      runtime/secrets/gemini-key.conf    the Gemini key (0600)
+#      runtime/secrets/gemini-key.conf    the Gemini key (0600), read by the API
 #      runtime/data/                      the SQLite database   — owned by uid 1000
 #      runtime/backups/                   daily snapshots       — owned by uid 1000
 #
@@ -40,7 +40,6 @@ services:
       - ../runtime/web:/var/www/cafft-site:ro
 
       - ../runtime/videos:/srv/cafft/videos:ro
-      - ../runtime/secrets/gemini-key.conf:/etc/nginx/private/cafft-gemini-key.conf:ro
 
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/cafft/"]
@@ -98,11 +97,20 @@ services:
       # Feedback from the in-app form is stored and mailed here.
       FEEDBACK_TO: ${FEEDBACK_TO:-salutmental@fueib.org}
 
+      # The AI assistant: only the API talks to the provider, with this key.
+      # AI_ENABLED=false turns it off; AI_RETENTION_DAYS deletes older
+      # questions and answers (empty: kept).
+      GEMINI_KEY_FILE: /run/secrets/gemini-key.conf
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3-flash-preview}
+      AI_ENABLED: ${AI_ENABLED:-true}
+      AI_RETENTION_DAYS: ${AI_RETENTION_DAYS:-}
+
     volumes:
       # The image runs as uid 1000 (`node`): both directories must be
       # writable by it.
       - ../runtime/data:/data
       - ../runtime/backups:/backups
+      - ../runtime/secrets/gemini-key.conf:/run/secrets/gemini-key.conf:ro
 
     # Not on `edge` and no Traefik labels: only the nginx container can reach
     # the API, which is what lets it trust X-Forwarded-For and keeps every

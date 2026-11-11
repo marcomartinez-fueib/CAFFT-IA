@@ -64,3 +64,16 @@ export const discomfortRatings = {
     },
   },
 } as const;
+
+// The details the informed-consent form asks for (components/InformedConsentFields.tsx).
+export const informedConsentMetadata = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    dob: { type: 'string', maxLength: 32 },
+    gender: { type: 'string', maxLength: 64 },
+    occupation: { type: 'string', maxLength: 128 },
+    source: { type: 'string', maxLength: 256 },
+    studentsPresence: { type: 'boolean' },
+  },
+} as const;

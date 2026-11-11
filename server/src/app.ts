@@ -9,6 +9,8 @@ import { healthRoutes } from './routes/health.ts';
 import { authRoutes } from './routes/auth.ts';
 import { meRoutes, userRoutes } from './routes/users.ts';
 import { dataRoutes, feedbackRoutes } from './routes/data.ts';
+import { assistantRoutes } from './routes/assistant.ts';
+import { geminiProvider, type AiProvider } from './ai/provider.ts';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -23,7 +25,8 @@ declare module 'fastify' {
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
-export async function buildApp(config: Config, db: Db): Promise<FastifyInstance> {
+/** `aiProvider` replaces the configured one (tests); null turns the assistant off. */
+export async function buildApp(config: Config, db: Db, deps: { aiProvider?: AiProvider | null } = {}): Promise<FastifyInstance> {
   const app = Fastify({
     logger: config.logger ? {
       // Bodies carry health data and passwords: never log them, and keep
@@ -78,6 +81,10 @@ export async function buildApp(config: Config, db: Db): Promise<FastifyInstance>
   await app.register(meRoutes, { prefix: '/me' });
   await app.register(dataRoutes);
   await app.register(feedbackRoutes, { prefix: '/feedback' });
+  const aiProvider = deps.aiProvider !== undefined
+    ? deps.aiProvider
+    : config.ai.enabled && config.ai.apiKey ? geminiProvider(config.ai.apiKey, config.ai.model) : null;
+  await app.register(assistantRoutes, { prefix: '/ai', provider: aiProvider });
 
   return app;
 }

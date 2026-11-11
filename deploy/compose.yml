@@ -101,7 +101,7 @@ services:
       # AI_ENABLED=false turns it off; AI_RETENTION_DAYS deletes older
       # questions and answers (empty: kept).
       GEMINI_KEY_FILE: /run/secrets/gemini-key.conf
-      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3-flash-preview}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.8-flash,gemini-2.5-flash}
       AI_ENABLED: ${AI_ENABLED:-true}
       AI_RETENTION_DAYS: ${AI_RETENTION_DAYS:-}
 

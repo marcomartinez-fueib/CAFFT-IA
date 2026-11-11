@@ -69,6 +69,8 @@ deploy leaves a copy of the data as it was before the new code touched it.
 └── runtime/                     not in git
     ├── web/cafft/               the built app (deploy.sh swaps it in)
     ├── videos/                  the exposure videos (mp4)
+    │   ├── cataleg.json         the help videos' catalogue, from the team
+    │   └── ajuda/               the help videos: mp4, vtt subtitles, posters
     ├── secrets/llm-gate-token   the `gate` token for pausat-llm (0600), read only by the API
     ├── data/                    the SQLite database   — owned by uid 1000
     └── backups/                 daily snapshots       — owned by uid 1000
@@ -91,6 +93,22 @@ certificates of `pausat.uib.es` and `pausat-pre.uib.es` are already declared in
   and the tests like a push.
 - **Deploy by hand, in an emergency** (the runner is down): on the server,
   `bash /data/apps/cafft-pro/deploy.sh pro`.
+
+### Updating the help videos
+
+The team delivers the help videos ("píndoles") as a folder `videos_cafft/` with
+`cataleg.json` and `ajuda/`. They are not in the repository: copy them from a
+laptop into each environment, and the app picks them up on the next page load
+(nginx sends them with `no-cache`, so a file replaced under the same name is
+not held in browsers' caches):
+
+```bash
+rsync -av --chmod=F644,D755 <delivery>/videos_cafft/cataleg.json <delivery>/videos_cafft/ajuda \
+  <server>:/data/apps/cafft-<env>/runtime/videos/
+```
+
+Without the catalogue the app still works; the help videos say they are not
+available.
 
 ### Rolling back
 

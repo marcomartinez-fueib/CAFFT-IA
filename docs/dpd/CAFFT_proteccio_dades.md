@@ -64,7 +64,8 @@ galetes de seguiment ni analítica de tercers: només la galeta de sessió
 
 ## 4. Assistent virtual i proveïdor d'IA
 
-- **Proveïdor:** Google, model Gemini (`gemini-3-flash-preview`), a través de
+- **Proveïdor:** Google, models Gemini estables (`gemini-3.8-flash` i, si està
+  saturat, `gemini-2.5-flash`), a través de
   l'API de Gemini en el **nivell de pagament**. **[DPD]** Verificar les
   condicions del servei de Google aplicables (ús de les dades, conservació per
   a control d'abusos, ubicació del tractament, possibles transferències fora de

@@ -139,9 +139,11 @@ done
 # 5. Check through Traefik, as a browser would
 # ---------------------------------------------------------------------------
 # The body, not just the status: without the CAFFT router, PAUSAT answers this
-# URL with its own index.html and a misleading 200.
+# URL with its own index.html and a misleading 200. A recreated nginx has no
+# route until its first healthcheck passes, which runs 30 s after it starts
+# (deploy/compose.yml), so this waits up to two minutes.
 HEALTH=""
-for _ in $(seq 1 15); do
+for _ in $(seq 1 60); do
     HEALTH="$(curl -s --max-time 10 --resolve "$CAFFT_HOST:443:127.0.0.1" "https://$CAFFT_HOST/cafft/api/health" || true)"
     [[ "$HEALTH" == *'"status":"ok"'* ]] && break
     sleep 2

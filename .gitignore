@@ -31,3 +31,8 @@ dist-ssr
 .env.pre
 .env.pro
 runtime/
+
+# Help videos and their catalogue: delivered by the team and kept on the
+# server (runtime/videos/), not in the repository. Link them here for dev.
+public/videos_cafft/ajuda
+public/videos_cafft/cataleg.json

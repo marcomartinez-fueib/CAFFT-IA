@@ -1,6 +1,6 @@
 
 
-import React, { useState, useCallback, useRef } from 'react';
+import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
@@ -8,33 +8,15 @@ import { PageTitle } from '../components/PageTitle';
 import { SectionCard } from '../components/SectionCard';
 import { QPVIIScores, UserExposureProgress } from '../types';
 import { getUserExposureProgress, saveUserExposureProgress } from '../services/dataStore';
-import { EXPOSURE_EXPLANATION_VIDEO_URL_BASE } from '../constants';
-import { resolveVideoUrl } from '../utils/videoUrl';
 import { currentPlanFor } from '../utils/currentPlan';
 import { StepGuardCard } from '../components/StepGuardCard';
-
-// SVG Icons
-const PlayIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
-    <path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" />
-  </svg>
-);
-
-const XMarkIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-  </svg>
-);
+import { HelpVideoPlayer } from '../components/HelpVideoPlayer';
 
 export const ExposureExplanationPage: React.FC = () => {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const { currentUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-
-  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
-  const [videoError, setVideoError] = useState<string | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
 
   // A direct link or a reload arrives without navigation state.
   const navState = (location.state as { qpviiTimestamp?: number; scores?: QPVIIScores }) || {};
@@ -43,14 +25,6 @@ export const ExposureExplanationPage: React.FC = () => {
     : currentUser ? currentPlanFor(currentUser.id) : null;
   const qpviiTimestamp = plan?.qpviiTimestamp;
   const scores = plan?.scores;
-
-  // Served from the same origin as the app, under <base>/videos_cafft/.
-  // No external CDN fallback: the deployment's `default-src 'self'` CSP blocks
-  // third-party media.
-  const getLocalizedVideoUrl = useCallback((basePath: string): string => {
-    const relativePath = `${basePath}_${language}.mp4`;
-    return resolveVideoUrl(relativePath);
-  }, [language]);
 
   if (!qpviiTimestamp || !scores || !currentUser) {
     return <StepGuardCard pageTitle={t('exposureExplanation.pageTitle')} />;
@@ -86,12 +60,6 @@ export const ExposureExplanationPage: React.FC = () => {
       replace: true
     });
   };
-
-  const openVideoModal = () => {
-      setVideoError(null);
-      setIsVideoModalOpen(true);
-  };
-  const closeVideoModal = () => setIsVideoModalOpen(false);
 
   const sections = [
     { titleKey: 'exposureExplanation.section1Title', textKey: 'exposureExplanation.section1Text' },
@@ -133,17 +101,7 @@ export const ExposureExplanationPage: React.FC = () => {
             <h3 className="text-xl font-semibold text-[#BA0C2F] mb-4">
               {t('exposureExplanation.videoTitle')}
             </h3>
-            <div 
-              className="relative aspect-video w-full max-w-lg mx-auto bg-slate-800 rounded-lg shadow-xl overflow-hidden cursor-pointer group border-2 border-slate-700"
-              onClick={openVideoModal}
-            >
-              <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center transition-opacity duration-300 group-hover:bg-opacity-20">
-                <PlayIcon className="w-16 h-16 text-white opacity-80 group-hover:opacity-100 transform group-hover:scale-110 transition-all duration-300" />
-              </div>
-               <div className="absolute bottom-0 left-0 p-4">
-                  <p className="text-white font-semibold">{t('exposureExplanation.videoTitle')}</p>
-              </div>
-            </div>
+            <HelpVideoPlayer id="P04" className="max-w-2xl mx-auto" />
           </div>
 
           {sections.map((section, idx) => (
@@ -180,55 +138,6 @@ export const ExposureExplanationPage: React.FC = () => {
           </button>
         </SectionCard>
       </div>
-
-      {/* Video Modal */}
-      {isVideoModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4" onClick={closeVideoModal}>
-          <div 
-            className="relative bg-white p-3 sm:p-4 rounded-xl shadow-2xl w-full max-w-2xl aspect-video"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={closeVideoModal}
-              className="absolute -top-3 -right-3 sm:top-2 sm:right-2 z-10 p-2 bg-white rounded-full text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-[#BA0C2F]"
-              aria-label={t('helpModal.closeButton')}
-            >
-              <XMarkIcon className="w-5 h-5 sm:w-6 sm:h-6" />
-            </button>
-            <div className="w-full h-full bg-black rounded-lg overflow-hidden">
-             {videoError ? (
-                <div className="w-full h-full flex flex-col items-center justify-center bg-red-100 text-red-700 p-4 text-center">
-                    <p className="font-bold text-lg">{t('exposure.videoLoadErrorTitle')}</p>
-                    <p className="mt-2 text-sm">{t('exposure.videoLoadErrorBody')}</p>
-                    <p className="mt-2 text-xs">{t('exposure.videoLoadErrorChecklist')}</p>
-                    <div className="mt-6 flex flex-wrap justify-center gap-3">
-                        <button
-                            onClick={closeVideoModal}
-                            className="px-5 py-2 bg-gray-200 text-gray-800 rounded-md text-sm font-medium hover:bg-gray-300 shadow-sm"
-                        >
-                            {t('helpModal.closeButton')}
-                        </button>
-                    </div>
-                </div>
-              ) : (
-                <video
-                  ref={videoRef}
-                  src={getLocalizedVideoUrl(EXPOSURE_EXPLANATION_VIDEO_URL_BASE)}
-                  controls
-                  autoPlay
-                  className="w-full h-full"
-                  onError={(e) => {
-                      console.error("Video load error:", e);
-                      setVideoError(t('exposure.videoLoadErrorBody'));
-                  }}
-                >
-                  {t('exposure.videoTagNotSupported')}
-                </video>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };

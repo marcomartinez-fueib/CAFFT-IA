@@ -1,3 +1,8 @@
 Please place your CAFFT exposure videos in this directory.
 Naming convention: [video_id]_[language_code].mp4
 Example: ev001_ca.mp4, ev001_es.mp4, ev001_en.mp4
+
+The help videos are not in the repository. For development, link the team's
+delivery here (both paths are git-ignored):
+  ln -s <delivery>/videos_cafft/ajuda        public/videos_cafft/ajuda
+  ln -s <delivery>/videos_cafft/cataleg.json public/videos_cafft/cataleg.json

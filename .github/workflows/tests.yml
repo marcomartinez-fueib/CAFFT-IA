@@ -50,5 +50,11 @@ jobs:
       - name: End-to-end
         run: |
           if [ ! -f e2e/run.mjs ]; then echo "no e2e/ in this commit: skipped"; exit 0; fi
-          npx playwright-core install --with-deps chromium-headless-shell
+          # The runner image ships Google Chrome; installing Playwright's
+          # browser needs apt, which fails whenever Ubuntu's mirrors do.
+          if command -v google-chrome >/dev/null; then
+            export CHROME_PATH=$(command -v google-chrome)
+          else
+            npx playwright-core install --with-deps chromium-headless-shell
+          fi
           npm run test:e2e

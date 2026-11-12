@@ -19,7 +19,7 @@ export const ExpandableText: React.FC<ExpandableTextProps> = ({ text, maxLength 
             {isExpanded ? text : `${text.substring(0, maxLength)}...`}
             <button 
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="ml-2 text-uib-blue font-bold hover:underline focus:outline-none inline-flex items-center"
+                className="ml-2 text-uib-blue font-bold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-uib-blue rounded inline-flex items-center"
             >
                 {isExpanded ? t('general.seeLess') : t('general.seeMore')}
             </button>

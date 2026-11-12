@@ -106,3 +106,133 @@ export function feedbackMail(f: {
     body: `${f.comment.trim()}\n\n—\n${lines.join('\n')}\n\nEnviado desde el formulario de feedback de CAFFT.`,
   };
 }
+
+/**
+ * The reminders the server sends by itself (src/reminders.ts). No clinical
+ * information: only that there is a session, or that it has been a while.
+ * `push` is the same message for a notification on the phone or computer.
+ */
+export interface ReminderMessage {
+  subject: string;
+  body: string;
+  push: { title: string; body: string };
+}
+
+function reminderFooter(lang: Lang, unsubscribeLink: string): string {
+  return {
+    ca: `Si no vol rebre més recordatoris, desactivi'ls aquí:\n${unsubscribeLink}\n\nTambé ho pot fer des del seu perfil.`,
+    es: `Si no quiere recibir más recordatorios, desactívelos aquí:\n${unsubscribeLink}\n\nTambién puede hacerlo desde su perfil.`,
+    en: `If you no longer want these reminders, turn them off here:\n${unsubscribeLink}\n\nYou can also do it from your profile.`,
+  }[lang];
+}
+
+export function sessionReminderMail(lang: Lang, username: string, time: string, appUrl: string, unsubscribeLink: string): ReminderMessage {
+  const t = {
+    ca: {
+      subject: `CAFFT: té una sessió avui a les ${time}`,
+      text: `Té programada una sessió del CAFFT avui a les ${time}.`,
+      body: `Hola ${username},\n\nTé programada una sessió del CAFFT avui a les ${time}. Busqui un moment tranquil i un lloc on pugui estar sense interrupcions.\n\n${appUrl}`,
+    },
+    es: {
+      subject: `CAFFT: tiene una sesión hoy a las ${time}`,
+      text: `Tiene programada una sesión del CAFFT hoy a las ${time}.`,
+      body: `Hola ${username}:\n\nTiene programada una sesión del CAFFT hoy a las ${time}. Busque un momento tranquilo y un lugar donde pueda estar sin interrupciones.\n\n${appUrl}`,
+    },
+    en: {
+      subject: `CAFFT: you have a session today at ${time}`,
+      text: `You have a CAFFT session planned today at ${time}.`,
+      body: `Hi ${username},\n\nYou have a CAFFT session planned today at ${time}. Find a quiet moment and a place where you will not be interrupted.\n\n${appUrl}`,
+    },
+  }[lang];
+  return {
+    subject: t.subject,
+    body: `${t.body}\n\n${reminderFooter(lang, unsubscribeLink)}\n\n${SIGNATURE[lang]}`,
+    push: { title: 'CAFFT', body: t.text },
+  };
+}
+
+export function inactivityReminderMail(lang: Lang, username: string, appUrl: string, unsubscribeLink: string): ReminderMessage {
+  const t = {
+    ca: {
+      subject: 'CAFFT: quan li vagi bé, pot continuar',
+      text: 'Fa uns dies que no fa cap sessió del CAFFT. Quan li vagi bé, pot continuar on ho va deixar.',
+      body: `Hola ${username},\n\nFa uns dies que no fa cap sessió del CAFFT. És normal que costi trobar el moment; quan li vagi bé, pot continuar on ho va deixar.\n\n${appUrl}`,
+    },
+    es: {
+      subject: 'CAFFT: cuando le vaya bien, puede continuar',
+      text: 'Hace unos días que no hace ninguna sesión del CAFFT. Cuando le vaya bien, puede continuar donde lo dejó.',
+      body: `Hola ${username}:\n\nHace unos días que no hace ninguna sesión del CAFFT. Es normal que cueste encontrar el momento; cuando le vaya bien, puede continuar donde lo dejó.\n\n${appUrl}`,
+    },
+    en: {
+      subject: 'CAFFT: whenever suits you, you can carry on',
+      text: "It has been a few days since your last CAFFT session. Whenever suits you, you can carry on where you left off.",
+      body: `Hi ${username},\n\nIt has been a few days since your last CAFFT session. Finding the moment is not always easy; whenever suits you, you can carry on where you left off.\n\n${appUrl}`,
+    },
+  }[lang];
+  return {
+    subject: t.subject,
+    body: `${t.body}\n\n${reminderFooter(lang, unsubscribeLink)}\n\n${SIGNATURE[lang]}`,
+    push: { title: 'CAFFT', body: t.text },
+  };
+}
+
+/** The app's link to turn reminders off without logging in. */
+export function unsubscribeLink(appUrl: string, token: string): string {
+  return `${appUrl.replace(/\/*$/, '/')}#/reminders-off/${token}`;
+}
+
+/**
+ * The welcome email of a patient their therapist registered: what CAFFT is,
+ * how long it takes, what they need, who their therapist is, and one button
+ * (the link to choose their password). DRAFT: the team reviews these texts.
+ */
+export function patientWelcomeMail(lang: Lang, username: string, therapist: { name: string; email: string } | null, link: string): { subject: string; body: string } {
+  const contact = therapist
+    ? {
+        ca: `La persona que l'acompanyarà en el programa és ${therapist.name}. Si té qualsevol dubte, li pot escriure a ${therapist.email}.`,
+        es: `La persona que le acompañará en el programa es ${therapist.name}. Si tiene cualquier duda, puede escribirle a ${therapist.email}.`,
+        en: `The person who will support you through the programme is ${therapist.name}. If you have any questions, you can write to them at ${therapist.email}.`,
+      }[lang]
+    : '';
+  const t = {
+    ca: {
+      subject: 'Benvingut/da al CAFFT',
+      body: `Hola ${username},\n\nLi donam la benvinguda al CAFFT, el programa de la Universitat de les Illes Balears per superar la por a volar.\n\nCom funciona: mirarà vídeos de situacions d'un vol, de menys a més difícils, des del seu ordinador, tauleta o mòbil. Són fins a 8 sessions d'uns 30 a 45 minuts; en recomanam 2 o 3 per setmana.\n\nQuè necessita: un lloc tranquil, auriculars i uns minuts per començar. El primer dia li demanarem el consentiment, li ensenyarem com funciona i respondrà un qüestionari.\n\n${contact}\n\nPer començar, triï la seva contrasenya (l'enllaç és vàlid 7 dies):\n\n${link}\n\nEl seu nom d'usuari és: ${username}`,
+    },
+    es: {
+      subject: 'Bienvenido/a al CAFFT',
+      body: `Hola ${username}:\n\nLe damos la bienvenida al CAFFT, el programa de la Universitat de les Illes Balears para superar el miedo a volar.\n\nCómo funciona: verá vídeos de situaciones de un vuelo, de menos a más difíciles, desde su ordenador, tableta o móvil. Son hasta 8 sesiones de unos 30 a 45 minutos; le recomendamos 2 o 3 por semana.\n\nQué necesita: un lugar tranquilo, auriculares y unos minutos para empezar. El primer día le pediremos el consentimiento, le enseñaremos cómo funciona y responderá un cuestionario.\n\n${contact}\n\nPara empezar, elija su contraseña (el enlace es válido 7 días):\n\n${link}\n\nSu nombre de usuario es: ${username}`,
+    },
+    en: {
+      subject: 'Welcome to CAFFT',
+      body: `Hi ${username},\n\nWelcome to CAFFT, the Universitat de les Illes Balears programme for overcoming the fear of flying.\n\nHow it works: you will watch videos of situations in a flight, from easier to harder, on your computer, tablet or phone. There are up to 8 sessions of about 30 to 45 minutes; we recommend 2 or 3 a week.\n\nWhat you need: a quiet place, headphones and a few minutes to start. On the first day we will ask for your consent, show you how it works, and you will fill in a questionnaire.\n\n${contact}\n\nTo get started, choose your password (the link is valid for 7 days):\n\n${link}\n\nYour username is: ${username}`,
+    },
+  }[lang];
+  return { subject: t.subject, body: `${t.body.replace(/\n\n\n\n/g, '\n\n')}\n\n${SIGNATURE[lang]}` };
+}
+
+/** The day after the planned flight: how did it go? DRAFT for the team. */
+export function flightQuestionMail(lang: Lang, username: string, reportLink: string, unsubscribeLink: string): ReminderMessage {
+  const t = {
+    ca: {
+      subject: 'CAFFT: com ha anat el vol?',
+      text: "Com ha anat el vol? Ens ajudaria molt que ens ho expliqués en un minut.",
+      body: `Hola ${username},\n\nVostè tenia previst volar aquests dies. Com ha anat? Ens ajudaria molt que ens ho expliqués: són tres preguntes i un minut.\n\n${reportLink}\n\nSi encara no ha volat, també ens ho pot dir allà.`,
+    },
+    es: {
+      subject: 'CAFFT: ¿cómo ha ido el vuelo?',
+      text: '¿Cómo ha ido el vuelo? Nos ayudaría mucho que nos lo contara en un minuto.',
+      body: `Hola ${username}:\n\nUsted tenía previsto volar estos días. ¿Cómo ha ido? Nos ayudaría mucho que nos lo contara: son tres preguntas y un minuto.\n\n${reportLink}\n\nSi todavía no ha volado, también nos lo puede decir allí.`,
+    },
+    en: {
+      subject: 'CAFFT: how did the flight go?',
+      text: 'How did the flight go? It would help us a lot if you told us in a minute.',
+      body: `Hi ${username},\n\nYou were planning to fly around now. How did it go? It would help us a lot if you told us: three questions, one minute.\n\n${reportLink}\n\nIf you have not flown yet, you can tell us there too.`,
+    },
+  }[lang];
+  return {
+    subject: t.subject,
+    body: `${t.body}\n\n${reminderFooter(lang, unsubscribeLink)}\n\n${SIGNATURE[lang]}`,
+    push: { title: 'CAFFT', body: t.text },
+  };
+}

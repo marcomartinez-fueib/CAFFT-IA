@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useDialog } from '../hooks/useDialog';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
 import { PageTitle } from '../components/PageTitle';
 import { HelpVideoCard } from '../components/HelpVideoCard';
+import { QpviiComparison } from '../components/QpviiComparison';
 import { SectionCard } from '../components/SectionCard';
 import { getUserExposureProgress, saveUserExposureProgress, getQPVIIResultsForUser } from '../services/dataStore';
 import { UserExposureProgress } from '../types';
@@ -37,6 +39,7 @@ export const CelebrationPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [completedSessionTimestamp, setCompletedSessionTimestamp] = useState<number | null>(null);
   const [isInstructionsModalOpen, setIsInstructionsModalOpen] = useState(false);
+  const instructionsDialog = useDialog(() => setIsInstructionsModalOpen(false));
 
   useEffect(() => {
     if (!currentUser) {
@@ -102,15 +105,17 @@ export const CelebrationPage: React.FC = () => {
     <div 
       className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[100] p-4 transition-opacity duration-300 ease-in-out"
       onClick={() => setIsInstructionsModalOpen(false)}
+      ref={instructionsDialog}
       role="dialog"
       aria-modal="true"
+      aria-labelledby="instructions-dialog-title"
     >
       <div 
         className="bg-white rounded-lg shadow-2xl w-full max-w-2xl h-[80vh] flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-5 border-b border-gray-200 bg-slate-50">
-          <h2 className="text-xl font-semibold text-slate-800">
+          <h2 id="instructions-dialog-title" className="text-xl font-semibold text-slate-800">
             {t('lastSession.header')}
           </h2>
           <button
@@ -176,7 +181,20 @@ export const CelebrationPage: React.FC = () => {
           </div>
         </div>
 
+        {currentUser && (
+          <div className="my-8 text-left max-w-xl mx-auto">
+            <h3 className="text-xl font-semibold text-sky-700 mb-3">{t('flight.compareTitle')}</h3>
+            <QpviiComparison userId={currentUser.id} />
+          </div>
+        )}
+
         <div className="mt-12 flex flex-col sm:flex-row justify-center items-center gap-4">
+          <Link
+            to="/flight-report"
+            className="w-full sm:w-auto py-3 px-6 rounded-lg shadow-md text-base font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          >
+            {t('flight.celebrationButton')}
+          </Link>
           <Link
             to="/"
             className="w-full sm:w-auto py-3 px-6 border border-transparent rounded-lg shadow-md text-base font-medium text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors"

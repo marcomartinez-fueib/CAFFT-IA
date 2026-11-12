@@ -9,6 +9,7 @@ import '@fontsource-variable/inter';
 import './index.css';
 
 import App from './App.tsx';
+import { registerServiceWorker } from './services/push.ts';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -17,6 +18,10 @@ if (!rootElement) {
 
 const root = (window as any)._root || ReactDOM.createRoot(rootElement);
 if (!(window as any)._root) (window as any)._root = root;
+// The service worker makes the app installable and shows push reminders. Not in
+// development, where Vite serves the app from another path.
+if (import.meta.env.PROD) void registerServiceWorker();
+
 root.render(
   <React.StrictMode>
     <App />

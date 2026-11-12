@@ -1,14 +1,16 @@
 
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useDialog } from '../../hooks/useDialog';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useAuth } from '../../hooks/useAuth';
 import { PageTitle } from '../../components/PageTitle';
+import { NewPatientFields, type NewPatient } from '../../components/therapist/NewPatientFields';
 import { HelpVideoCard } from '../../components/HelpVideoCard';
 import { Breadcrumbs } from '../../components/Breadcrumbs';
 import { Patient, StoredUser, SimulatedEmail, QPVIIUserResult, UserExposureProgress, PatientStatus, TranslationContent, QPVIIScores } from '../../types';
-import { 
+import { uiLanguage, 
     getUsers,
     getQPVIIResultsForUser, 
     getAllQPVIIResults,
@@ -21,11 +23,11 @@ import {
     toggleUserNotifications,
     getAiConsultationsByUserIds,
     toggleUserOnboarding,
-    getDaysSinceLastActivity,
-    sendAdherenceRemindersToAllInactive
+    sendAdherenceRemindersToAllInactive,
+    getDaysSinceLastSession
 } from '../../services/dataStore';
 import { calculateQPVIIScores } from '../../utils/qpviiScoring';
-import { exportDataToCSV, exportAiLogsToCSV } from '../../utils/export';
+import { exportDataToCSV, exportAiLogsToCSV, exportFunnelCSV } from '../../utils/export';
 import { determineVideoSequence, isExposureFullyCompleted } from '../../utils/exposureUtils';
 import { getPatientStatus } from '../../utils/clinicalAnalysis';
 import { AVERAGE_VIDEO_DURATION_SECONDS } from '../../constants';
@@ -118,6 +120,9 @@ const formatSeconds = (totalSeconds: number, t: (key: string) => string): string
 import { ExpandableText } from '../../components/ExpandableText';
 import { useOnboarding } from '../../hooks/useOnboarding';
 
+// The therapist is alerted after this many days without a session (plan, fita 5.7).
+const INACTIVITY_ALERT_DAYS = 3;
+
 export const TherapistDashboardPage: React.FC = () => {
   const { t, language } = useLanguage();
   const { currentUser } = useAuth();
@@ -155,13 +160,18 @@ export const TherapistDashboardPage: React.FC = () => {
   
   // Modal states
   const [isAddModalOpen, setAddModalOpen] = useState(false);
+  const addDialog = useDialog(() => setAddModalOpen(false));
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  const deleteDialog = useDialog(() => setDeleteModalOpen(false));
   const [isResetModalOpen, setResetModalOpen] = useState(false);
+  const resetDialog = useDialog(() => setResetModalOpen(false));
   const [isExportModalOpen, setExportModalOpen] = useState(false);
+  const exportDialog = useDialog(() => setExportModalOpen(false));
   const [isInviteModalOpen, setInviteModalOpen] = useState(false);
+  const inviteDialog = useDialog(() => setInviteModalOpen(false));
 
   const [patientToProcess, setPatientToProcess] = useState<Patient | StoredUser | null>(null);
-  const [newPatientData, setNewPatientData] = useState({ username: '', email: '' });
+  const [newPatientData, setNewPatientData] = useState<NewPatient>({ username: '', email: '', language: uiLanguage() });
   const [newPassword, setNewPassword] = useState('');
   const [passwordCopied, setPasswordCopied] = useState(false);
   const [anonymizeExport, setAnonymizeExport] = useState(true);
@@ -290,9 +300,9 @@ export const TherapistDashboardPage: React.FC = () => {
             highRiskCount++;
         }
 
-        const daysInactive = getDaysSinceLastActivity(p.id);
-            
-        if (daysInactive !== null && daysInactive >= 3) { // Using 3 days for general "inactive" stat
+        // Inactive: three days or more without a session, once they have started.
+        const daysInactive = getDaysSinceLastSession(p.id);
+        if (daysInactive !== null && daysInactive >= INACTIVITY_ALERT_DAYS) {
             inactiveCount++;
         }
 
@@ -365,7 +375,7 @@ export const TherapistDashboardPage: React.FC = () => {
         p.status.textKey === 'stalled' || 
         p.status.textKey === 'dropping_out' || 
         p.status.textKey === 'needs_review' ||
-        (getDaysSinceLastActivity(p.id) !== null && (getDaysSinceLastActivity(p.id) || 0) >= 3)
+        (getDaysSinceLastSession(p.id) ?? 0) >= INACTIVITY_ALERT_DAYS
     ) : [];
   }, [patientsWithStats, dashboardStats]);
 
@@ -389,7 +399,7 @@ export const TherapistDashboardPage: React.FC = () => {
   
   const handleOpenAddModal = () => {
     setError(null);
-    setNewPatientData({ username: '', email: '' });
+    setNewPatientData({ username: '', email: '', language: uiLanguage() });
     setAddModalOpen(true);
   };
 
@@ -407,6 +417,7 @@ export const TherapistDashboardPage: React.FC = () => {
           role: 'patient',
           username: newPatientData.username,
           email: newPatientData.email,
+          language: newPatientData.language,
         });
         if (result.errorKey) {
           setError(t(result.errorKey));
@@ -462,11 +473,15 @@ export const TherapistDashboardPage: React.FC = () => {
     setExportModalOpen(false);
   };
 
+  // A reminder in the last two days (by the therapist or automatic) is enough.
+  const sentRecently = (patient: { lastReminderSentDate?: number }) =>
+    !!patient.lastReminderSentDate && Date.now() - patient.lastReminderSentDate < 2 * 24 * 60 * 60 * 1000;
+
   const handleSendReminder = (patient: any) => {
     if (!currentUser) return;
     
     const subject = t('aiChat.reminder.emailSubject');
-    const body = t('aiChat.reminder.emailBody', { username: patient.username });
+    const body = `${t('aiChat.reminder.emailBody', { username: patient.username })}\n\n${currentUser.username}`;
     
     saveSimulatedEmail({
         id: crypto.randomUUID(),
@@ -619,9 +634,9 @@ export const TherapistDashboardPage: React.FC = () => {
                             </p>
                             <div className="flex items-center mt-1 space-x-2">
                                 <PatientStatusBadge status={patient.status} t={t} />
-                                {patient.lastActive && (Date.now() - patient.lastActive) > (3 * 24 * 60 * 60 * 1000) && (
+                                {(getDaysSinceLastSession(patient.id) ?? 0) >= INACTIVITY_ALERT_DAYS && (
                                     <span className="text-[10px] font-bold text-rose-600 uppercase tracking-tighter">
-                                        {t('therapistDashboard.patient_status.inactive_badge', { days: Math.floor((Date.now() - patient.lastActive) / (24 * 60 * 60 * 1000)) })}
+                                        {t('therapistDashboard.daysWithoutSession', { days: getDaysSinceLastSession(patient.id) ?? 0 })}
                                     </span>
                                 )}
                             </div>
@@ -635,10 +650,12 @@ export const TherapistDashboardPage: React.FC = () => {
                             >
                                 <ViewIcon className="w-4 h-4" aria-hidden="true" />
                             </button>
+                            {/* One click sends the prepared message (aiChat.reminder), signed by the therapist. */}
                             <button
                                 onClick={() => handleSendReminder(patient)}
-                                className="p-2 bg-white text-slate-600 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-200 transition-colors"
-                                title={t('therapistDashboard.table.remind')}
+                                disabled={sentRecently(patient)}
+                                className="p-2 bg-white text-slate-600 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-200 transition-colors disabled:opacity-40 disabled:hover:text-slate-600"
+                                title={sentRecently(patient) ? t('therapistDashboard.reminderSentRecently') : t('aiChat.reminder.emailBody', { username: patient.username })}
                                 aria-label={t('therapistDashboard.tooltips.remindPatient', { name: patient.username })}
                             >
                                 <SendIcon className="w-4 h-4" aria-hidden="true" />
@@ -654,10 +671,12 @@ export const TherapistDashboardPage: React.FC = () => {
         {/* Phase Distribution Chart */}
         <div id="phase-distribution" className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm col-span-1">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">{t('therapistDashboard.charts.phaseDistribution')}</h3>
-            <div className="h-48 w-full">
+            {/* The figures are in the legend below; the drawing is hidden from screen readers. */}
+            <div className="h-48 w-full" aria-hidden="true">
                 <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
+                    <PieChart accessibilityLayer={false}>
                         <Pie
+                            rootTabIndex={-1}
                             data={phaseDistribution}
                             cx="50%"
                             cy="50%"
@@ -800,9 +819,9 @@ export const TherapistDashboardPage: React.FC = () => {
                                       {patient.patientCode && <span className="ml-2 text-[10px] font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-400 group-hover:bg-sky-50 group-hover:text-sky-600 transition-colors uppercase">{patient.patientCode}</span>}
                                   </div>
                                   <div className="text-[10px] text-slate-400">{patient.email}</div>
-                                  {getDaysSinceLastActivity(patient.id) !== null && (getDaysSinceLastActivity(patient.id) || 0) >= 3 && (
+                                  {(getDaysSinceLastSession(patient.id) ?? 0) >= INACTIVITY_ALERT_DAYS && (
                                        <span className="mt-1 inline-block text-[8px] font-black bg-amber-100 px-1.5 py-0.5 rounded text-amber-700 uppercase tracking-widest">
-                                           {t('therapistDashboard.reminders.inactivityBadge', { days: getDaysSinceLastActivity(patient.id) })}
+                                           {t('therapistDashboard.daysWithoutSession', { days: getDaysSinceLastSession(patient.id) ?? 0 })}
                                        </span>
                                    )}
                               </td>
@@ -964,24 +983,14 @@ export const TherapistDashboardPage: React.FC = () => {
 
       {/* Modals */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+        <div ref={addDialog} role="dialog" aria-modal="true" aria-labelledby="addDialog-title" className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
           <div className="bg-white p-6 sm:p-8 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-md border border-slate-100 flex flex-col h-auto max-h-[90vh] overflow-y-auto">
             <div className="sm:hidden flex justify-center pb-4">
               <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
             </div>
-            <h3 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight">{t('therapistDashboard.addPatientModal.title')}</h3>
+            <h3 id="addDialog-title" className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight">{t('therapistDashboard.addPatientModal.title')}</h3>
             {error && <div className="mb-6 p-4 bg-rose-50 border border-rose-100 text-rose-700 text-sm rounded-xl font-medium">{error}</div>}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{t('therapistDashboard.addPatientModal.usernameLabel')}</label>
-                <input type="text" value={newPatientData.username} onChange={(e) => setNewPatientData({...newPatientData, username: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all" />
-              </div>
-              <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{t('therapistDashboard.addPatientModal.emailLabel')}</label>
-                <input type="email" value={newPatientData.email} onChange={(e) => setNewPatientData({...newPatientData, email: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all" />
-              </div>
-              <p className="text-xs text-slate-500 leading-relaxed">{t('common.invitationNote')}</p>
-            </div>
+            <NewPatientFields value={newPatientData} onChange={setNewPatientData} />
             <div className="mt-8 flex gap-3 pb-8 sm:pb-0">
               <button onClick={() => setAddModalOpen(false)} className="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors uppercase text-xs tracking-widest">{t('therapistDashboard.addPatientModal.cancelButton')}</button>
               <button onClick={handleAddPatient} className="flex-1 px-4 py-3 bg-sky-600 text-white rounded-xl font-bold hover:bg-sky-700 transition-all uppercase text-xs tracking-widest shadow-lg shadow-sky-200">{t('therapistDashboard.addPatientModal.createButton')}</button>
@@ -991,14 +1000,14 @@ export const TherapistDashboardPage: React.FC = () => {
       )}
 
       {isInviteModalOpen && patientToProcess && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+        <div ref={inviteDialog} role="dialog" aria-modal="true" aria-labelledby="inviteDialog-title" className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
           <div className="bg-white p-6 sm:p-8 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-md border border-slate-100">
             <div className="sm:hidden flex justify-center pb-4">
               <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
             </div>
             <div className="flex items-center gap-3 mb-4">
               <SendIcon className="w-6 h-6 text-sky-600 flex-shrink-0" />
-              <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">{t('therapistDashboard.inviteModal.title')}</h3>
+              <h3 id="inviteDialog-title" className="text-xl font-black text-slate-900 uppercase tracking-tight">{t('therapistDashboard.inviteModal.title')}</h3>
             </div>
             <p className="text-sm text-slate-600 mb-8 leading-relaxed">{t('common.invitationSent', { email: patientToProcess.email })}</p>
             <button
@@ -1012,12 +1021,12 @@ export const TherapistDashboardPage: React.FC = () => {
       )}
 
       {isDeleteModalOpen && patientToProcess && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+        <div ref={deleteDialog} role="dialog" aria-modal="true" aria-labelledby="deleteDialog-title" className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
           <div className="bg-white p-6 sm:p-8 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-md border border-slate-100">
             <div className="sm:hidden flex justify-center pb-4">
               <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
             </div>
-            <h3 className="text-xl font-black text-slate-900 mb-4 uppercase tracking-tight">{t('therapistDashboard.deletePatientModal.title')}</h3>
+            <h3 id="deleteDialog-title" className="text-xl font-black text-slate-900 mb-4 uppercase tracking-tight">{t('therapistDashboard.deletePatientModal.title')}</h3>
             <p className="text-slate-600 mb-8 leading-relaxed">{t('therapistDashboard.deletePatientModal.confirmationText', { username: (patientToProcess as any).username })}</p>
             <div className="flex gap-3 pb-8 sm:pb-0">
               <button onClick={() => setDeleteModalOpen(false)} className="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors uppercase text-xs tracking-widest">{t('therapistDashboard.deletePatientModal.cancelButton')}</button>
@@ -1028,12 +1037,12 @@ export const TherapistDashboardPage: React.FC = () => {
       )}
 
       {isResetModalOpen && patientToProcess && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+        <div ref={resetDialog} role="dialog" aria-modal="true" aria-labelledby="resetDialog-title" className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
           <div className="bg-white p-6 sm:p-8 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-md border border-slate-100 text-center">
             <div className="sm:hidden flex justify-center pb-4">
               <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
             </div>
-            <h3 className="text-xl font-black text-slate-900 mb-4 uppercase tracking-tight">{t('therapistDashboard.resetPasswordModal.title', { username: (patientToProcess as any).username })}</h3>
+            <h3 id="resetDialog-title" className="text-xl font-black text-slate-900 mb-4 uppercase tracking-tight">{t('therapistDashboard.resetPasswordModal.title', { username: (patientToProcess as any).username })}</h3>
             <p className="text-slate-600 mb-4">{t('therapistDashboard.resetPasswordModal.newPasswordIs')}</p>
             <div className="p-5 bg-slate-50 border border-slate-200 rounded-2xl font-mono text-xl font-black text-sky-700 tracking-wider mb-8 shadow-inner">{newPassword}</div>
             <div className="flex gap-3 pb-8 sm:pb-0">
@@ -1045,12 +1054,12 @@ export const TherapistDashboardPage: React.FC = () => {
       )}
 
       {isExportModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+        <div ref={exportDialog} role="dialog" aria-modal="true" aria-labelledby="exportDialog-title" className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
           <div className="bg-white p-6 sm:p-8 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-md border border-slate-100">
             <div className="sm:hidden flex justify-center pb-4">
               <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
             </div>
-            <h3 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight">{t('therapistDashboard.exportModal.title')}</h3>
+            <h3 id="exportDialog-title" className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight">{t('therapistDashboard.exportModal.title')}</h3>
             <div className="mb-8">
               <label className="flex items-center space-x-3 cursor-pointer group p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-sky-200 transition-colors">
                 <input 
@@ -1064,6 +1073,16 @@ export const TherapistDashboardPage: React.FC = () => {
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{t('therapistDashboard.exportModal.anonymizeDescription')}</span>
                 </div>
               </label>
+            </div>
+            <div className="mb-8 p-4 bg-slate-50 rounded-xl border border-slate-100">
+              <p className="text-sm font-bold text-slate-700">{t('therapistDashboard.exportModal.funnelTitle')}</p>
+              <p className="text-xs text-slate-500 mt-1 mb-3">{t('therapistDashboard.exportModal.funnelDescription')}</p>
+              <button
+                onClick={async () => { if (!(await exportFunnelCSV())) alert(t('therapistDashboard.noPatients')); }}
+                className="px-4 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold uppercase tracking-widest text-slate-700 hover:border-sky-400"
+              >
+                {t('therapistDashboard.exportModal.funnelButton')}
+              </button>
             </div>
             <div className="flex gap-3 pb-8 sm:pb-0">
               <button onClick={() => setExportModalOpen(false)} className="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors uppercase text-xs tracking-widest">{t('therapistDashboard.exportModal.cancelButton')}</button>

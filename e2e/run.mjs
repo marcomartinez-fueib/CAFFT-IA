@@ -10,6 +10,7 @@
 // them the player fails and the run uses the test-account «Simular» button.
 import { spawn } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { DatabaseSync } from 'node:sqlite';
 import { tmpdir, homedir } from 'node:os';
 import { join } from 'node:path';
 import { chromium } from 'playwright-core';
@@ -18,6 +19,7 @@ import { createUser } from '../server/src/users.ts';
 import { hashPassword } from '../server/src/passwords.ts';
 import { recordConsent } from '../server/src/consents.ts';
 import { runFlow } from './flow.mjs';
+import { runA11y } from './a11y.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
 const BASE = 'http://localhost:3000/cafft/';
@@ -76,6 +78,8 @@ async function seed() {
     db.prepare('UPDATE users SET therapist_id = ?, notification_prefs = ? WHERE id = ?').run(therapist.user.id, JSON.stringify(prefs), p.user.id);
   }
   db.prepare('UPDATE users SET onboarding_enabled = 0').run();
+  // The patient already went through the welcome; «nova» has not.
+  db.prepare('UPDATE users SET welcome_completed_at = 1 WHERE id = ?').run(patient.user.id);
   db.close();
 }
 
@@ -133,6 +137,15 @@ try {
     const results = await runFlow({ browser, base: BASE, dbPath });
     console.log(results.join('\n'));
     failed = results.some((r) => r.startsWith('FAIL'));
+    // With A11Y=1, the accessibility check of every screen (e2e/a11y.mjs).
+    if (process.env.A11Y) {
+      const patientId = new DatabaseSync(dbPath).prepare("SELECT id FROM users WHERE username = 'pac'").get().id;
+      const found = await runA11y({ browser, base: BASE, patientId });
+      writeFileSync(join(ROOT, 'e2e-a11y.json'), JSON.stringify(found, null, 2));
+      const serious = found.filter((f) => f.impact === 'serious' || f.impact === 'critical');
+      console.log(`a11y: ${found.length} problems (${serious.length} serious or critical), see e2e-a11y.json`);
+      if (found.length > 0) failed = true;
+    }
   } finally {
     await browser.close();
   }

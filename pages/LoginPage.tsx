@@ -50,10 +50,10 @@ export const LoginPage: React.FC = () => {
     setLoading(false);
 
     if (result.success && result.redirect) {
-      const from = location.state?.from?.pathname || result.redirect.path || '/cafft-intro';
+      const from = location.state?.from?.pathname || result.redirect.path || '/start';
       navigate(from, { replace: true, state: result.redirect.state }); // Pass state here
     } else if (result.success) { // Fallback if somehow redirect is undefined but success is true
-      navigate('/cafft-intro', { replace: true });
+      navigate('/start', { replace: true });
     }
      else {
       setError(t(result.errorKey || 'auth.invalidCredentialsError'));

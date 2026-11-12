@@ -39,7 +39,7 @@ export const FearOfFlyingPage: React.FC = () => {
           {translatedChartData.length > 0 ? (
             <PieChartDisplay data={translatedChartData} />
           ) : (
-            <p className="text-center text-gray-500">Chart data is currently unavailable.</p>
+            <p className="text-center text-gray-500">{t('fearOfFlying.chartUnavailable')}</p>
           )}
         </div>
       </SectionCard>

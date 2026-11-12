@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useDialog } from '../hooks/useDialog';
 import { motion, AnimatePresence } from 'motion/react';
 import { Bell, ShieldCheck, X } from 'lucide-react';
 import { useLanguage } from '../hooks/useLanguage.tsx';
@@ -12,6 +13,7 @@ interface NotificationConsentModalProps {
 
 export const NotificationConsentModal: React.FC<NotificationConsentModalProps> = ({ isOpen, onAccept, onDecline }) => {
   const { t } = useLanguage();
+  const dialog = useDialog(onDecline);
 
   return (
     <AnimatePresence>
@@ -25,6 +27,10 @@ export const NotificationConsentModal: React.FC<NotificationConsentModalProps> =
             onClick={onDecline}
           />
           <motion.div
+            ref={dialog}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="notification-consent-title"
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -45,7 +51,7 @@ export const NotificationConsentModal: React.FC<NotificationConsentModalProps> =
               </div>
 
               <div className="text-center space-y-3 mb-8">
-                <h2 className="text-2xl font-bold text-slate-900 leading-tight">
+                <h2 id="notification-consent-title" className="text-2xl font-bold text-slate-900 leading-tight">
                   {t('profile.notificationConsentPrompt')}
                 </h2>
                 <p className="text-slate-500">

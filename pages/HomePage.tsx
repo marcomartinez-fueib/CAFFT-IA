@@ -85,8 +85,8 @@ export const HomePage: React.FC = () => {
           
           {/* Footer-like attribution in Hero */}
           <div className="mt-20 pt-8 w-24 mx-auto border-t border-gray-200">
-             <div className="flex flex-col items-center opacity-50">
-                <p className="text-xs text-gray-400 font-bold tracking-widest uppercase">UIB</p>
+             <div className="flex flex-col items-center">
+                <p className="text-xs text-gray-500 font-bold tracking-widest uppercase">UIB</p>
              </div>
           </div>
         </div>

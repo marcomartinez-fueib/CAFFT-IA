@@ -11,6 +11,7 @@ import { FearOfFlyingPage } from './pages/FearOfFlyingPage.tsx';
 import { CafftProgramPage } from './pages/CafftProgramPage.tsx';
 import { UserGuidePage } from './pages/UserGuidePage.tsx';
 import { HelpVideosPage } from './pages/HelpVideosPage.tsx';
+import { SkipLink } from './components/SkipLink.tsx';
 import { SessionPlanPage } from './pages/SessionPlanPage.tsx';
 import { RemindersOffPage } from './pages/RemindersOffPage.tsx';
 import { WelcomePage } from './pages/WelcomePage.tsx';
@@ -68,12 +69,13 @@ const MainLayout: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 overflow-x-hidden">
+      <SkipLink />
       <Navbar />
       <PatientProgressIndicator />
       <SyncStatusBanner />
       <NotificationBanner />
       <NotificationConsentManager />
-      <main className="flex-grow">
+      <main id="main-content" tabIndex={-1} className="flex-grow focus:outline-none">
         <Outlet />
       </main>
       <FeedbackLauncher />

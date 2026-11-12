@@ -155,18 +155,19 @@ export async function runFlow({ browser, base, dbPath }) {
 
   // The assistant goes through the API; these runs have no provider key, so the
   // API answers «not available» and the chat must say so (and keep working).
-  await page.getByRole('button', { name: 'Ajuda' }).click();
+  await page.getByRole('button', { name: 'Assistent virtual' }).click();
   await pause(1500);
   await page.getByPlaceholder('Escrigui aquí...').fill('Com funciona l\'exposició?');
   await page.getByRole('button', { name: 'Enviar' }).click();
   await pause(1500);
   check('2.7 the assistant goes through the API (no provider: «not available»)', (await text()).includes('no està disponible ara mateix'));
   await page.keyboard.press('Escape');
+  await pause(300);
+  check('6.1 Escape closes the assistant and the focus returns to its button',
+    (await page.locator('[role="dialog"]').count()) === 0 && (await page.evaluate(() => document.activeElement?.id)) === 'help-button');
 
   // Help videos, from the catalogue e2e/run.mjs writes into the build.
-  // The assistant dialog does not close with Escape yet (fita 6); a reload does.
   await page.goto(base + '#/help-videos');
-  await page.reload();
   await pause(1500);
   body = await text();
   check('3.7 the library groups the videos by moment, with P17 as «to learn more»',
@@ -322,6 +323,26 @@ export async function runFlow({ browser, base, dbPath }) {
   check('1.10 the therapist marks a test account from the panel', db.prepare('SELECT is_test_account FROM users WHERE id = ?').get(patientId).is_test_account === 1);
   check('1.10 the toggle exposes its state', (await tp.getByRole('button', { name: 'Compte de prova' }).getAttribute('aria-pressed')) === 'true');
 
+  // A dialog keeps the keyboard inside and closes with Escape.
+  await tp.goto(base + '#/therapist/dashboard');
+  await tp.reload();
+  await tp.waitForTimeout(1500);
+  await tp.keyboard.press('Tab');
+  const firstStop = await tp.evaluate(() => document.activeElement?.textContent);
+  await tp.keyboard.press('Enter');
+  check('6.1 the first Tab offers «skip to content», which moves the focus there',
+    firstStop === 'Anar al contingut' && (await tp.evaluate(() => document.activeElement?.id)) === 'main-content', firstStop);
+  await tp.locator('#add-patient-btn').click();
+  await tp.waitForTimeout(500);
+  const dialogFocus = [];
+  for (let i = 0; i < 8; i++) {
+    await tp.keyboard.press('Tab');
+    dialogFocus.push(await tp.evaluate(() => !!document.activeElement?.closest('[role="dialog"]')));
+  }
+  await tp.keyboard.press('Escape');
+  await tp.waitForTimeout(300);
+  check('6.1 the focus stays inside a dialog, and Escape closes it',
+    dialogFocus.every(Boolean) && (await tp.locator('[role="dialog"]').count()) === 0 && (await tp.evaluate(() => document.activeElement?.id)) === 'add-patient-btn');
   await tp.goto(base + '#/therapist/notifications');
   await tp.waitForTimeout(1500);
   check('1.14 Notificacions has no English placeholder', !(await tp.locator('body').innerText()).includes('will be implemented here'));

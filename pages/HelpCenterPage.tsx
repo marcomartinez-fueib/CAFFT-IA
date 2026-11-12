@@ -300,7 +300,7 @@ export const HelpCenterPage: React.FC = () => {
               <div className="p-8">
                 <div className="flex items-center justify-between mb-8">
                   <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('helpModal.tocTitle')}</h3>
-                  <div className="text-[10px] font-bold text-uib-accent bg-uib-accent/10 px-2 py-1 rounded-md">{Math.round(scrollProgress)}%</div>
+                  <div className="text-[10px] font-bold text-uib-blue bg-uib-accent/10 px-2 py-1 rounded-md">{Math.round(scrollProgress)}%</div>
                 </div>
 
                 <nav className="space-y-1">
@@ -397,7 +397,7 @@ export const HelpCenterPage: React.FC = () => {
                        <div className="w-1.5 h-1.5 rounded-full bg-uib-accent/20" />
                        <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
                     </div>
-                    <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest group-hover:text-uib-accent transition-colors">CAFFT 5.1</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-uib-accent transition-colors">CAFFT 5.1</span>
                   </div>
                 </section>
               );

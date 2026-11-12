@@ -21,6 +21,15 @@ export default {
         body: ['Inter Variable', 'Inter', 'sans-serif'],
       },
       colors: {
+        // WCAG 2.2 AA (fita 6.1): Tailwind's lighter shades, used here for
+        // small grey and coloured text, fall below 4.5:1 on white and on the
+        // app's light backgrounds. Each is darkened just enough to pass, and
+        // the shade above it with it, so hover states still differ.
+        slate: { 400: '#5f6c80', 500: '#56637a' },
+        gray: { 400: '#5f6c80', 500: '#56637a' },
+        sky: { 600: '#0369a1', 700: '#075985' },
+        green: { 600: '#15803d', 700: '#166534' },
+        emerald: { 600: '#047857', 700: '#065f46' },
         uib: {
           blue: '#00263E', // Pantone 282 (Blau Institucional)
           accent: '#0072CE', // Pantone 2935 (Blau Vibrant)

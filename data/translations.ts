@@ -213,6 +213,8 @@ const caTranslations: TranslationContent = {
     appName: "CAFFT",
     appNameShort: "CAFFT",
     common: {
+        skipToContent: "Anar al contingut",
+        breadcrumbs: "Ruta de navegació",
         standardProtocol: "Protocol clínic estàndard CAFFT 5.1",
         clinicalArea: "Clínic",
         syncFailed: "No s'han pogut desar alguns canvis. Comprovi la connexió; si el problema continua, avisi el seu terapeuta.",
@@ -1686,6 +1688,8 @@ const esTranslations: TranslationContent = {
     appNameShort: "CAFFT",
     common: {
         ...caTranslations.common,
+        skipToContent: "Ir al contenido",
+        breadcrumbs: "Ruta de navegación",
         standardProtocol: "Protocolo clínico estándar CAFFT 5.1",
         clinicalArea: "Clínico",
         syncFailed: "No se han podido guardar algunos cambios. Compruebe la conexión; si el problema continúa, avise a su terapeuta.",
@@ -3145,6 +3149,8 @@ const enTranslations: TranslationContent = {
     appNameShort: "CAFFT",
     common: {
         ...caTranslations.common,
+        skipToContent: "Skip to content",
+        breadcrumbs: "Breadcrumb",
         standardProtocol: "CAFFT 5.1 standard clinical protocol",
         clinicalArea: "Clinical",
         syncFailed: "Some changes could not be saved. Check your connection; if the problem continues, tell your therapist.",

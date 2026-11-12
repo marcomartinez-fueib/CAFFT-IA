@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useDialog } from '../hooks/useDialog';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
@@ -38,6 +39,7 @@ export const CelebrationPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [completedSessionTimestamp, setCompletedSessionTimestamp] = useState<number | null>(null);
   const [isInstructionsModalOpen, setIsInstructionsModalOpen] = useState(false);
+  const instructionsDialog = useDialog(() => setIsInstructionsModalOpen(false));
 
   useEffect(() => {
     if (!currentUser) {
@@ -103,15 +105,17 @@ export const CelebrationPage: React.FC = () => {
     <div 
       className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[100] p-4 transition-opacity duration-300 ease-in-out"
       onClick={() => setIsInstructionsModalOpen(false)}
+      ref={instructionsDialog}
       role="dialog"
       aria-modal="true"
+      aria-labelledby="instructions-dialog-title"
     >
       <div 
         className="bg-white rounded-lg shadow-2xl w-full max-w-2xl h-[80vh] flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-5 border-b border-gray-200 bg-slate-50">
-          <h2 className="text-xl font-semibold text-slate-800">
+          <h2 id="instructions-dialog-title" className="text-xl font-semibold text-slate-800">
             {t('lastSession.header')}
           </h2>
           <button

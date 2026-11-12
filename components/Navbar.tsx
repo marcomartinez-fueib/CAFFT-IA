@@ -164,7 +164,9 @@ export const Navbar: React.FC = () => {
             <button
               id="sidebar-nav-mobile"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-uib-black hover:text-uib-blue focus:outline-none p-1 sm:p-2 transition-colors"
+              aria-label={isMenuOpen ? t('common.close') : t('common.openMenu')}
+              aria-expanded={isMenuOpen}
+              className="text-uib-black hover:text-uib-blue focus:outline-none focus-visible:ring-2 focus-visible:ring-uib-blue rounded p-1 sm:p-2 transition-colors"
             >
               {isMenuOpen ? <CloseIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
             </button>

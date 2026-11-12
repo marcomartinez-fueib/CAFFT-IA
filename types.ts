@@ -750,6 +750,8 @@ export interface TranslationContent {
     viewSource: string;
     standardProtocol: string;
     clinicalArea: string;
+    breadcrumbs: string;
+    skipToContent: string;
     time: {
       ago: string;
       year: string;

@@ -21,7 +21,7 @@ export const ScientificFoundationPage: React.FC = () => {
     },
     {
       key: 'bornas2001pr',
-      htmlContent: 'Bornas, X. (2001). Computer-Assisted Exposure Treatment for Flight Phobia: a Controlled Study. <em>Psychotherapy Research, 11</em>(3), 259–273. <a href="https://doi.org/10.1093/ptr/11.3.259" target="_blank" rel="noopener noreferrer" class="text-sky-600 hover:underline">https://doi.org/10.1093/ptr/11.3.259</a>',
+      htmlContent: 'Bornas, X. (2001). Computer-Assisted Exposure Treatment for Flight Phobia: a Controlled Study. <em>Psychotherapy Research, 11</em>(3), 259–273. <a href="https://doi.org/10.1093/ptr/11.3.259" target="_blank" rel="noopener noreferrer" class="text-sky-600 underline hover:no-underline">https://doi.org/10.1093/ptr/11.3.259</a>',
     },
     {
       key: 'bornas2002ijchp',
@@ -29,15 +29,15 @@ export const ScientificFoundationPage: React.FC = () => {
     },
     {
       key: 'bornas2004asc',
-      htmlContent: 'Bornas, X., Llabrés, J., Noguera, M., M, A., López, Barceló, F., … Fullana, M. À. (2004). Self-implication and heart rate variability during simulated exposure to flight-related stimuli. <em>Anxiety, Stress and Coping, 17</em>(4), 331–339. <a href="https://doi.org/10.1080/10615800512331328777" target="_blank" rel="noopener noreferrer" class="text-sky-600 hover:underline">https://doi.org/10.1080/10615800512331328777</a>',
+      htmlContent: 'Bornas, X., Llabrés, J., Noguera, M., M, A., López, Barceló, F., … Fullana, M. À. (2004). Self-implication and heart rate variability during simulated exposure to flight-related stimuli. <em>Anxiety, Stress and Coping, 17</em>(4), 331–339. <a href="https://doi.org/10.1080/10615800512331328777" target="_blank" rel="noopener noreferrer" class="text-sky-600 underline hover:no-underline">https://doi.org/10.1080/10615800512331328777</a>',
     },
     {
       key: 'bornas2006pr',
-      htmlContent: 'Bornas, X., Tortella-Feliu, M., & Llabrés, J. (2006). Do all treatments work for flight phobia? Computer-assisted exposure versus a brief multicomponent nonexposure treatment. <em>Psychotherapy Research, 16</em>(1), 41–50. <a href="https://doi.org/10.1080/10503300500091058" target="_blank" rel="noopener noreferrer" class="text-sky-600 hover:underline">https://doi.org/10.1080/10503300500091058</a>',
+      htmlContent: 'Bornas, X., Tortella-Feliu, M., & Llabrés, J. (2006). Do all treatments work for flight phobia? Computer-assisted exposure versus a brief multicomponent nonexposure treatment. <em>Psychotherapy Research, 16</em>(1), 41–50. <a href="https://doi.org/10.1080/10503300500091058" target="_blank" rel="noopener noreferrer" class="text-sky-600 underline hover:no-underline">https://doi.org/10.1080/10503300500091058</a>',
     },
     {
       key: 'bornas2007bp',
-      htmlContent: 'Bornas, X., Llabrés, J., Tortella-Feliu, M., Fullana, M. A., Montoya, P., López, A., … Gelabert, J. M. (2007). Vagally mediated heart rate variability and heart rate entropy as predictors of treatment outcome in flight phobia. <em>Biological Psychology</em>. <a href="https://doi.org/10.1016/j.biopsycho.2007.07.007" target="_blank" rel="noopener noreferrer" class="text-sky-600 hover:underline">https://doi.org/10.1016/j.biopsycho.2007.07.007</a>',
+      htmlContent: 'Bornas, X., Llabrés, J., Tortella-Feliu, M., Fullana, M. A., Montoya, P., López, A., … Gelabert, J. M. (2007). Vagally mediated heart rate variability and heart rate entropy as predictors of treatment outcome in flight phobia. <em>Biological Psychology</em>. <a href="https://doi.org/10.1016/j.biopsycho.2007.07.007" target="_blank" rel="noopener noreferrer" class="text-sky-600 underline hover:no-underline">https://doi.org/10.1016/j.biopsycho.2007.07.007</a>',
     },
     {
       key: 'bornas2007flying',
@@ -49,11 +49,11 @@ export const ScientificFoundationPage: React.FC = () => {
     },
     {
       key: 'tortella2011bm',
-      htmlContent: 'Tortella-Feliu, M., Botella, C., Llabrés, J., Bretón-López, J. M., del Amo, A. R., Baños, R. M., & Gelabert, J. M. (2011). Virtual Reality Versus Computer-Aided Exposure Treatments for Fear of Flying. <em>Behavior Modification, 35</em>(1), 3–30. <a href="https://doi.org/10.1177/0145445510390801" target="_blank" rel="noopener noreferrer" class="text-sky-600 hover:underline">https://doi.org/10.1177/0145445510390801</a>',
+      htmlContent: 'Tortella-Feliu, M., Botella, C., Llabrés, J., Bretón-López, J. M., del Amo, A. R., Baños, R. M., & Gelabert, J. M. (2011). Virtual Reality Versus Computer-Aided Exposure Treatments for Fear of Flying. <em>Behavior Modification, 35</em>(1), 3–30. <a href="https://doi.org/10.1177/0145445510390801" target="_blank" rel="noopener noreferrer" class="text-sky-600 underline hover:no-underline">https://doi.org/10.1177/0145445510390801</a>',
     },
     {
       key: 'bornas2012apb',
-      htmlContent: 'Bornas, X., Del Amo, A. R., Tortella-Feliu, M., & Llabrés, J. (2012). Heart rate variability profiles and exposure therapy treatment outcome in flight phobia. <em>Applied Psychophysiology Biofeedback, 37</em>(1), 53–62. <a href="https://doi.org/10.1007/s10484-011-9179-5" target="_blank" rel="noopener noreferrer" class="text-sky-600 hover:underline">https://doi.org/10.1007/s10484-011-9179-5</a>',
+      htmlContent: 'Bornas, X., Del Amo, A. R., Tortella-Feliu, M., & Llabrés, J. (2012). Heart rate variability profiles and exposure therapy treatment outcome in flight phobia. <em>Applied Psychophysiology Biofeedback, 37</em>(1), 53–62. <a href="https://doi.org/10.1007/s10484-011-9179-5" target="_blank" rel="noopener noreferrer" class="text-sky-600 underline hover:no-underline">https://doi.org/10.1007/s10484-011-9179-5</a>',
     },
     {
       key: 'breton2015bp',

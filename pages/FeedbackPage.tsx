@@ -61,7 +61,7 @@ export const FeedbackPage: React.FC = () => {
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                       — {item.username}
                     </span>
-                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                       {new Date(item.timestamp).toLocaleDateString()}
                     </span>
                   </div>

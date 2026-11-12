@@ -34,7 +34,7 @@ export const LanguageSwitcher: React.FC = () => {
     <div className="relative" ref={dropdownRef} id="language-switcher">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-1 sm:space-x-2 bg-white border border-slate-200 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl shadow-sm hover:bg-slate-50 transition-all focus:outline-none ring-4 shadow-slate-100 ring-slate-100/50"
+        className="flex items-center space-x-1 sm:space-x-2 bg-white border border-slate-200 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl shadow-sm hover:bg-slate-50 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-uib-blue rounded ring-4 shadow-slate-100 ring-slate-100/50"
       >
         <GlobeIcon className="w-3.5 h-3.5 sm:w-3.5 sm:h-3.5 text-slate-400" />
         <span className="text-xs sm:text-xs font-bold text-slate-700">{getShortName(currentLang.name)}</span>

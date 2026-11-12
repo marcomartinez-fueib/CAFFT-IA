@@ -1,6 +1,7 @@
 
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useDialog } from '../../hooks/useDialog';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useAuth } from '../../hooks/useAuth';
@@ -159,10 +160,15 @@ export const TherapistDashboardPage: React.FC = () => {
   
   // Modal states
   const [isAddModalOpen, setAddModalOpen] = useState(false);
+  const addDialog = useDialog(() => setAddModalOpen(false));
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  const deleteDialog = useDialog(() => setDeleteModalOpen(false));
   const [isResetModalOpen, setResetModalOpen] = useState(false);
+  const resetDialog = useDialog(() => setResetModalOpen(false));
   const [isExportModalOpen, setExportModalOpen] = useState(false);
+  const exportDialog = useDialog(() => setExportModalOpen(false));
   const [isInviteModalOpen, setInviteModalOpen] = useState(false);
+  const inviteDialog = useDialog(() => setInviteModalOpen(false));
 
   const [patientToProcess, setPatientToProcess] = useState<Patient | StoredUser | null>(null);
   const [newPatientData, setNewPatientData] = useState<NewPatient>({ username: '', email: '', language: uiLanguage() });
@@ -665,10 +671,12 @@ export const TherapistDashboardPage: React.FC = () => {
         {/* Phase Distribution Chart */}
         <div id="phase-distribution" className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm col-span-1">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">{t('therapistDashboard.charts.phaseDistribution')}</h3>
-            <div className="h-48 w-full">
+            {/* The figures are in the legend below; the drawing is hidden from screen readers. */}
+            <div className="h-48 w-full" aria-hidden="true">
                 <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
+                    <PieChart accessibilityLayer={false}>
                         <Pie
+                            rootTabIndex={-1}
                             data={phaseDistribution}
                             cx="50%"
                             cy="50%"
@@ -975,12 +983,12 @@ export const TherapistDashboardPage: React.FC = () => {
 
       {/* Modals */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+        <div ref={addDialog} role="dialog" aria-modal="true" aria-labelledby="addDialog-title" className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
           <div className="bg-white p-6 sm:p-8 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-md border border-slate-100 flex flex-col h-auto max-h-[90vh] overflow-y-auto">
             <div className="sm:hidden flex justify-center pb-4">
               <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
             </div>
-            <h3 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight">{t('therapistDashboard.addPatientModal.title')}</h3>
+            <h3 id="addDialog-title" className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight">{t('therapistDashboard.addPatientModal.title')}</h3>
             {error && <div className="mb-6 p-4 bg-rose-50 border border-rose-100 text-rose-700 text-sm rounded-xl font-medium">{error}</div>}
             <NewPatientFields value={newPatientData} onChange={setNewPatientData} />
             <div className="mt-8 flex gap-3 pb-8 sm:pb-0">
@@ -992,14 +1000,14 @@ export const TherapistDashboardPage: React.FC = () => {
       )}
 
       {isInviteModalOpen && patientToProcess && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+        <div ref={inviteDialog} role="dialog" aria-modal="true" aria-labelledby="inviteDialog-title" className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
           <div className="bg-white p-6 sm:p-8 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-md border border-slate-100">
             <div className="sm:hidden flex justify-center pb-4">
               <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
             </div>
             <div className="flex items-center gap-3 mb-4">
               <SendIcon className="w-6 h-6 text-sky-600 flex-shrink-0" />
-              <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">{t('therapistDashboard.inviteModal.title')}</h3>
+              <h3 id="inviteDialog-title" className="text-xl font-black text-slate-900 uppercase tracking-tight">{t('therapistDashboard.inviteModal.title')}</h3>
             </div>
             <p className="text-sm text-slate-600 mb-8 leading-relaxed">{t('common.invitationSent', { email: patientToProcess.email })}</p>
             <button
@@ -1013,12 +1021,12 @@ export const TherapistDashboardPage: React.FC = () => {
       )}
 
       {isDeleteModalOpen && patientToProcess && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+        <div ref={deleteDialog} role="dialog" aria-modal="true" aria-labelledby="deleteDialog-title" className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
           <div className="bg-white p-6 sm:p-8 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-md border border-slate-100">
             <div className="sm:hidden flex justify-center pb-4">
               <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
             </div>
-            <h3 className="text-xl font-black text-slate-900 mb-4 uppercase tracking-tight">{t('therapistDashboard.deletePatientModal.title')}</h3>
+            <h3 id="deleteDialog-title" className="text-xl font-black text-slate-900 mb-4 uppercase tracking-tight">{t('therapistDashboard.deletePatientModal.title')}</h3>
             <p className="text-slate-600 mb-8 leading-relaxed">{t('therapistDashboard.deletePatientModal.confirmationText', { username: (patientToProcess as any).username })}</p>
             <div className="flex gap-3 pb-8 sm:pb-0">
               <button onClick={() => setDeleteModalOpen(false)} className="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors uppercase text-xs tracking-widest">{t('therapistDashboard.deletePatientModal.cancelButton')}</button>
@@ -1029,12 +1037,12 @@ export const TherapistDashboardPage: React.FC = () => {
       )}
 
       {isResetModalOpen && patientToProcess && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+        <div ref={resetDialog} role="dialog" aria-modal="true" aria-labelledby="resetDialog-title" className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
           <div className="bg-white p-6 sm:p-8 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-md border border-slate-100 text-center">
             <div className="sm:hidden flex justify-center pb-4">
               <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
             </div>
-            <h3 className="text-xl font-black text-slate-900 mb-4 uppercase tracking-tight">{t('therapistDashboard.resetPasswordModal.title', { username: (patientToProcess as any).username })}</h3>
+            <h3 id="resetDialog-title" className="text-xl font-black text-slate-900 mb-4 uppercase tracking-tight">{t('therapistDashboard.resetPasswordModal.title', { username: (patientToProcess as any).username })}</h3>
             <p className="text-slate-600 mb-4">{t('therapistDashboard.resetPasswordModal.newPasswordIs')}</p>
             <div className="p-5 bg-slate-50 border border-slate-200 rounded-2xl font-mono text-xl font-black text-sky-700 tracking-wider mb-8 shadow-inner">{newPassword}</div>
             <div className="flex gap-3 pb-8 sm:pb-0">
@@ -1046,12 +1054,12 @@ export const TherapistDashboardPage: React.FC = () => {
       )}
 
       {isExportModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+        <div ref={exportDialog} role="dialog" aria-modal="true" aria-labelledby="exportDialog-title" className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
           <div className="bg-white p-6 sm:p-8 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-md border border-slate-100">
             <div className="sm:hidden flex justify-center pb-4">
               <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
             </div>
-            <h3 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight">{t('therapistDashboard.exportModal.title')}</h3>
+            <h3 id="exportDialog-title" className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight">{t('therapistDashboard.exportModal.title')}</h3>
             <div className="mb-8">
               <label className="flex items-center space-x-3 cursor-pointer group p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-sky-200 transition-colors">
                 <input 

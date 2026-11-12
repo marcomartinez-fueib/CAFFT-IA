@@ -127,7 +127,7 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
   // account's identity, role or assignment goes through dedicated routes.
   app.patch<{
     Params: { id: string };
-    Body: { assistantName?: string; notificationPreferences?: object; sentFollowUps?: string[] };
+    Body: { assistantName?: string; notificationPreferences?: object; sentFollowUps?: string[]; helpVideoVariant?: 'esquematica' | 'captures' };
   }>(
     '/:id',
     {
@@ -140,6 +140,7 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
             assistantName: S.shortText(64),
             notificationPreferences: S.notificationPreferences,
             sentFollowUps: S.idList(200),
+            helpVideoVariant: { enum: ['esquematica', 'captures'] },
           },
         },
       },
@@ -148,7 +149,7 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
       const actor = req.user!;
       if (req.params.id !== actor.id) return reply.code(403).send(FORBIDDEN);
 
-      const { assistantName, notificationPreferences, sentFollowUps } = req.body;
+      const { assistantName, notificationPreferences, sentFollowUps, helpVideoVariant } = req.body;
       const sets: string[] = [];
       const values: (string | number | null)[] = [];
       if (assistantName !== undefined) {
@@ -162,6 +163,10 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
       if (sentFollowUps !== undefined) {
         sets.push('sent_follow_ups = ?');
         values.push(JSON.stringify(sentFollowUps));
+      }
+      if (helpVideoVariant !== undefined) {
+        sets.push('help_video_variant = ?');
+        values.push(helpVideoVariant);
       }
       sets.push('updated_at = ?');
       values.push(Date.now());

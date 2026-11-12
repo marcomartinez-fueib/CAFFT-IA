@@ -28,14 +28,20 @@ export interface HelpVideoEntry {
   grup_versions?: string | null;
 }
 
+export type HelpVideoVariant = HelpVideoEntry['variant'];
+
 export interface HelpVideoCatalog {
   versio: string;
   pindoles: HelpVideoEntry[];
+  selector_versions?: { etiquetes?: Partial<Record<Lang, Record<HelpVideoVariant, string>>> };
 }
 
 /** A video ready to play in one language. */
 export interface ResolvedHelpVideo {
+  /** The version: P06, or P06c for the one with screenshots. */
   id: string;
+  /** The video both versions belong to: P06. */
+  videoId: string;
   title: string;
   /** The language of the audio; Catalan when the patient's is missing. */
   lang: Lang;
@@ -77,6 +83,7 @@ export function resolveHelpVideo(catalog: HelpVideoCatalog, id: string, lang: La
   if (!files) return null;
   return {
     id,
+    videoId: entry.grup_versions ?? entry.id,
     title: entry.titol[lang] ?? entry.titol.ca ?? id,
     lang: playLang,
     src: resolveVideoUrl(FILES_DIR + files.video),
@@ -84,6 +91,17 @@ export function resolveHelpVideo(catalog: HelpVideoCatalog, id: string, lang: La
     poster: resolveVideoUrl(FILES_DIR + files.poster),
     durationS: files.durada_s,
   };
+}
+
+/**
+ * The ids of both versions of video `id` when the patient can choose: only if
+ * it has a screenshot version and both exist in their language.
+ */
+export function helpVideoVersions(catalog: HelpVideoCatalog, id: string, lang: Lang): Record<HelpVideoVariant, string> | null {
+  const diagram = catalog.pindoles.find((p) => p.id === id);
+  const screenshots = catalog.pindoles.find((p) => p.grup_versions === id && p.variant === 'captures');
+  if (!diagram?.fitxers[lang] || !screenshots?.fitxers[lang]) return null;
+  return { esquematica: diagram.id, captures: screenshots.id };
 }
 
 /** The spoken text of a WebVTT file, cue after cue, for the transcript. */

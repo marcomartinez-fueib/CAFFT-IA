@@ -81,7 +81,7 @@ async function seed() {
 
 // The help videos are not in the repository (public/videos_cafft/ajuda may be
 // a link to the team's delivery), so the build gets a small catalogue of its
-// own: three videos, one only in Catalan, with real subtitles. The video is a
+// own: a few videos, P06 with both versions, with real subtitles. The video is a
 // one-second black clip in VP9, which any Chromium build can play.
 function writeHelpVideoFixture(dist) {
   const root = join(dist, 'videos_cafft');
@@ -96,10 +96,11 @@ function writeHelpVideoFixture(dist) {
     writeFileSync(join(root, 'ajuda', `${slug}_${lang}_poster.jpg`), jpeg);
     return { video: `${slug}_${lang}.mp4`, subtitols: `${slug}_${lang}.vtt`, poster: `${slug}_${lang}_poster.jpg`, durada_s: 65 };
   };
-  const entry = (id, slug, title, langs) => ({
+  const entry = (id, slug, title, langs, more = {}) => ({
     id, slug, variant: 'esquematica', rol: 'pacient', obligatoria: false, llengues: langs,
     titol: { ca: title, es: `${title} (es)`, en: `${title} (en)` },
     fitxers: Object.fromEntries(langs.map((l) => [l, files(slug, l)])),
+    ...more,
   });
   writeFileSync(join(root, 'cataleg.json'), JSON.stringify({
     versio: 'e2e',
@@ -107,6 +108,9 @@ function writeHelpVideoFixture(dist) {
       entry('P01', 'P01_benvinguda', 'Benvinguda al CAFFT', ['ca', 'es']),
       entry('P04', 'P04_exposicio', "Per què funciona l'exposició", ['ca', 'es']),
       entry('P17', 'P17_por', 'Com es perd la por', ['ca']),
+      entry('P06', 'P06_sessio', "Una sessió d'exposició, pas a pas", ['ca'], { grup_versions: 'P06' }),
+      entry('P06c', 'P06_sessio_captures', "Una sessió d'exposició, pas a pas", ['ca'], { grup_versions: 'P06', variant: 'captures' }),
+      entry('P07', 'P07_repetir', 'Per què repetir el mateix vídeo', ['ca']),
     ],
   }));
 }

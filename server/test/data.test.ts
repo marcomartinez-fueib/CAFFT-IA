@@ -188,3 +188,34 @@ test('migration 005 rebuilds sessions from existing ratings', async () => {
     { qpvii_timestamp: 43, is_review: 1, started_at: 50 * hour, last_activity_at: 50 * hour, ended_at: 50 * hour, end_reason: null },
   ]);
 });
+
+test('help video views: one row per video, merged across viewings, seen by the therapist', async () => {
+  const { patient, therapist, P } = await setup();
+  const view = (body: object) => patient('PUT', '/help-video-views', { videoId: 'P06', versionId: 'P06', ...body });
+
+  assert.equal((await view({ at: 1000, percent: 0, completed: false, newView: true })).statusCode, 204);
+  assert.equal((await view({ at: 2000, percent: 100, completed: true, newView: false })).statusCode, 204);
+  // A second viewing, of the screenshot version, closed half way.
+  assert.equal((await view({ versionId: 'P06c', at: 3000, percent: 0, completed: false, newView: true })).statusCode, 204);
+  assert.equal((await view({ versionId: 'P06c', at: 4000, percent: 50, completed: false, newView: false })).statusCode, 204);
+
+  const [stored] = (await therapist('GET', '/sync')).json().helpVideoViews;
+  assert.deepEqual(stored, {
+    userId: P.id, videoId: 'P06', versionId: 'P06c', firstAt: 1000, lastAt: 4000,
+    views: 2, maxPercent: 100, completedAt: 2000, closedEarly: true,
+  });
+
+  // Only a patient records their own viewings, of a version of that video.
+  assert.equal((await therapist('PUT', '/help-video-views', { videoId: 'T01', versionId: 'T01', at: 1, percent: 0, completed: false, newView: true })).statusCode, 403);
+  assert.equal((await view({ versionId: 'P07', at: 1, percent: 0, completed: false, newView: true })).statusCode, 400);
+  assert.equal((await view({ videoId: '../x', at: 1, percent: 0, completed: false, newView: true })).statusCode, 400);
+  assert.equal((await view({ at: 1, percent: 101, completed: false, newView: true })).statusCode, 400);
+});
+
+test('a user chooses the version of the help videos', async () => {
+  const { app, P } = await setup();
+  const cookie = await login(app, 'pac');
+  const patch = (payload: object) => app.inject({ method: 'PATCH', url: `/users/${P.id}`, headers: { cookie, origin: ORIGIN }, payload });
+  assert.equal((await patch({ helpVideoVariant: 'captures' })).json().user.helpVideoVariant, 'captures');
+  assert.equal((await patch({ helpVideoVariant: 'other' })).statusCode, 400);
+});

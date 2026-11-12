@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
 import { PageTitle } from '../components/PageTitle';
+import { HelpVideoCard } from '../components/HelpVideoCard';
 import { SectionCard } from '../components/SectionCard';
 import { UserExposureProgress } from '../types';
 import { getUserExposureProgress } from '../services/dataStore';
@@ -84,6 +85,8 @@ export const LastSessionPage: React.FC = () => {
         <PageTitle title={t('lastSession.pageTitle')} className="!border-sky-500" />
         <p className="text-lg text-slate-600 max-w-3xl mx-auto">{t('lastSession.pageSubtitle')}</p>
       </div>
+
+      <HelpVideoCard id="P14" className="mb-8 max-w-3xl mx-auto" />
 
       <SectionCard title={t('lastSession.header')} titleClassName="text-center">
         <p className="text-center italic mb-6">{t('lastSession.intro')}</p>

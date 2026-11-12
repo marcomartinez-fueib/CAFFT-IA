@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { ChevronDown, PlayCircle } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { CheckCircle2, ChevronDown, PlayCircle } from 'lucide-react';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
-import { formatDuration, HelpVideoCatalog, loadHelpVideoCatalog, resolveHelpVideo } from '../services/helpVideos';
-import { HelpVideoPlayer } from './HelpVideoPlayer';
+import { getHelpVideoViewsForUser } from '../services/dataStore';
+import { formatDuration, resolveHelpVideo } from '../services/helpVideos';
+import { HelpVideoPlayer, useHelpVideoCatalog } from './HelpVideoPlayer';
 
 /**
  * The videos by moment of the treatment. Only the diagram versions are
@@ -32,13 +33,12 @@ const THERAPIST_GROUP: Group = { key: 'therapist', items: [{ id: 'T01' }, { id: 
 export const HelpVideoLibrary: React.FC = () => {
   const { t, language } = useLanguage();
   const { currentUser } = useAuth();
-  const [catalog, setCatalog] = useState<HelpVideoCatalog | null | 'missing'>(null);
+  const catalog = useHelpVideoCatalog();
   const [openId, setOpenId] = useState<string | null>(null);
   const buttons = useRef<Record<string, HTMLButtonElement | null>>({});
-
-  useEffect(() => {
-    loadHelpVideoCatalog().then(setCatalog).catch(() => setCatalog('missing'));
-  }, []);
+  const watched = new Set(
+    currentUser ? getHelpVideoViewsForUser(currentUser.id).filter((v) => v.completedAt).map((v) => v.videoId) : [],
+  );
 
   if (catalog === null) return <p className="text-slate-500" aria-busy="true">{t('auth.loading')}</p>;
   if (catalog === 'missing') return <p className="text-slate-500" role="status">{t('helpVideos.noVideos')}</p>;
@@ -82,6 +82,11 @@ export const HelpVideoLibrary: React.FC = () => {
                         {more && <span className="block text-xs font-bold uppercase tracking-wider text-slate-500">{t('helpVideos.learnMore')}</span>}
                         <span className="font-display font-bold text-uib-blue">{video!.title}</span>
                       </span>
+                      {watched.has(id) && (
+                        <span className="inline-flex items-center gap-1 text-sm font-medium text-green-700">
+                          <CheckCircle2 className="w-4 h-4" aria-hidden="true" /> {t('helpVideos.watched')}
+                        </span>
+                      )}
                       <span className="text-sm text-slate-500 tabular-nums">{formatDuration(video!.durationS)}</span>
                       <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
                     </button>

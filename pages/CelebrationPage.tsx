@@ -3,6 +3,7 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
 import { PageTitle } from '../components/PageTitle';
+import { HelpVideoCard } from '../components/HelpVideoCard';
 import { SectionCard } from '../components/SectionCard';
 import { getUserExposureProgress, saveUserExposureProgress, getQPVIIResultsForUser } from '../services/dataStore';
 import { UserExposureProgress } from '../types';
@@ -154,6 +155,7 @@ export const CelebrationPage: React.FC = () => {
         <p className="text-lg text-gray-700 mb-8 leading-relaxed max-w-2xl mx-auto">
           {t('celebration.messageBody')}
         </p>
+        <HelpVideoCard id="P15" className="mb-8 max-w-2xl mx-auto" />
 
         <div className="my-10 space-y-8 text-left max-w-xl mx-auto">
           <div>

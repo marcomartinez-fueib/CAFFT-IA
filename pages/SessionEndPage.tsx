@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
 import { PageTitle } from '../components/PageTitle';
+import { HelpVideoCard } from '../components/HelpVideoCard';
 import { SectionCard } from '../components/SectionCard';
 import { getExposureSessionsForUser, getUserExposureProgress } from '../services/dataStore';
 import { summarizeSession } from '../utils/sessions';
@@ -27,6 +28,9 @@ export const SessionEndPage: React.FC = () => {
     return summarizeSession(session, getUserExposureProgress(currentUser.id, session.qpviiTimestamp));
   }, [currentUser, sessionId]);
 
+  // At the end of the first session: the video on real-life exposure between sessions.
+  const isFirstSession = !!currentUser && getExposureSessionsForUser(currentUser.id).filter((s) => !s.isReview).length === 1;
+
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-2xl">
       <PageTitle title={t('sessionEnd.pausedTitle')} />
@@ -48,6 +52,7 @@ export const SessionEndPage: React.FC = () => {
 
             <h2 className="text-lg font-semibold text-slate-800 mb-2">{t('sessionEnd.nextTitle')}</h2>
             <p className="text-gray-700 mb-8">{t('sessionEnd.nextText')}</p>
+            {isFirstSession && <HelpVideoCard id="P12" className="mb-8" />}
           </>
         )}
 

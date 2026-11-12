@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useAuth } from '../../hooks/useAuth';
 import { PageTitle } from '../../components/PageTitle';
+import { HelpVideoCard } from '../../components/HelpVideoCard';
 import { Breadcrumbs } from '../../components/Breadcrumbs';
 import { Patient, StoredUser, SimulatedEmail, QPVIIUserResult, UserExposureProgress, PatientStatus, TranslationContent, QPVIIScores } from '../../types';
 import { 
@@ -531,7 +532,9 @@ export const TherapistDashboardPage: React.FC = () => {
               {t('onboarding.startManual')}
           </button>
       </div>
-      
+
+      <HelpVideoCard id="T01" className="mb-8 max-w-3xl" />
+
       <div id="therapist-stats" className="space-y-6 mb-10">
         <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center">
             <ActivityIcon className="w-4 h-4 mr-2" />

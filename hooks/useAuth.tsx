@@ -225,9 +225,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const updateUser = useCallback(async (updates: Partial<User>): Promise<boolean> => {
     if (!currentUser) return false;
     // Only these fields are the user's to change; the server rejects the rest.
-    const { assistantName, notificationPreferences, sentFollowUps } = updates;
+    const { assistantName, notificationPreferences, sentFollowUps, helpVideoVariant } = updates;
     const patch = Object.fromEntries(
-      Object.entries({ assistantName, notificationPreferences, sentFollowUps }).filter(([, v]) => v !== undefined),
+      Object.entries({ assistantName, notificationPreferences, sentFollowUps, helpVideoVariant }).filter(([, v]) => v !== undefined),
     );
     if (Object.keys(patch).length === 0) return true;
     try {

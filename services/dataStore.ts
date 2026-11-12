@@ -22,6 +22,7 @@ import {
   AiConsultation,
   InformedConsentMetadata,
   ExposureSession,
+  HelpVideoView,
   QPVIIAnswers,
   QPVIIScores,
   QPVIIUserResult,
@@ -40,11 +41,12 @@ interface StoreState {
   qpvii: QPVIIUserResult[];
   progress: UserExposureProgress[];
   sessions: ExposureSession[];
+  helpVideoViews: HelpVideoView[];
   consultations: AiConsultation[];
   emails: SimulatedEmail[];
 }
 
-const empty = (): StoreState => ({ users: [], qpvii: [], progress: [], sessions: [], consultations: [], emails: [] });
+const empty = (): StoreState => ({ users: [], qpvii: [], progress: [], sessions: [], helpVideoViews: [], consultations: [], emails: [] });
 
 let state: StoreState = empty();
 
@@ -230,7 +232,7 @@ export async function createUser(input: {
 /** The logged-in user's own preferences. Use useAuth().updateUser from components. */
 export async function updateOwnUser(
   userId: string,
-  patch: Partial<Pick<StoredUser, 'assistantName' | 'notificationPreferences' | 'sentFollowUps'>>,
+  patch: Partial<Pick<StoredUser, 'assistantName' | 'notificationPreferences' | 'sentFollowUps' | 'helpVideoVariant'>>,
 ): Promise<StoredUser> {
   const { user } = await api<{ user: StoredUser }>('PATCH', `/users/${encodeURIComponent(userId)}`, patch);
   replaceUser(user);
@@ -250,6 +252,7 @@ export async function deletePatientData(userId: string): Promise<boolean> {
     qpvii: state.qpvii.filter((r) => r.userId !== userId),
     progress: state.progress.filter((p) => p.userId !== userId),
     sessions: state.sessions.filter((s) => s.userId !== userId),
+    helpVideoViews: state.helpVideoViews.filter((v) => v.userId !== userId),
     consultations: state.consultations.filter((c) => c.userId !== userId),
     emails: state.emails.filter((e) => e.patientId !== userId),
   });
@@ -487,6 +490,45 @@ export function endExposureSession(
   const session: ExposureSession = { ...open, endedAt: Date.now(), endReason: reason };
   putSession(session);
   return copy(session);
+}
+
+// --- Help videos ------------------------------------------------------------------
+
+export function getHelpVideoViewsForUser(userId: string): HelpVideoView[] {
+  return copy(state.helpVideoViews.filter((v) => v.userId === userId));
+}
+
+export function getHelpVideoView(userId: string, videoId: string): HelpVideoView | null {
+  const view = state.helpVideoViews.find((v) => v.userId === userId && v.videoId === videoId);
+  return view ? copy(view) : null;
+}
+
+/**
+ * A patient's viewing of a help video: reported when it starts (`newView`),
+ * ends or is closed. Memory is merged the way the server merges the row.
+ */
+export function recordHelpVideoView(
+  userId: string,
+  report: { videoId: string; versionId: string; percent: number; completed: boolean; newView: boolean },
+): void {
+  const at = Date.now();
+  const percent = Math.max(0, Math.min(100, Math.round(report.percent)));
+  const old = state.helpVideoViews.find((v) => v.userId === userId && v.videoId === report.videoId);
+  const view: HelpVideoView = {
+    userId,
+    videoId: report.videoId,
+    versionId: report.versionId,
+    firstAt: old?.firstAt ?? at,
+    lastAt: at,
+    views: (old?.views ?? 0) + (report.newView || !old ? 1 : 0),
+    maxPercent: Math.max(old?.maxPercent ?? 0, percent),
+    closedEarly: !report.completed,
+  };
+  const completedAt = old?.completedAt ?? (report.completed ? at : undefined);
+  if (completedAt !== undefined) view.completedAt = completedAt;
+  setState({ ...state, helpVideoViews: [...state.helpVideoViews.filter((v) => v !== old), view] });
+  const body = { ...report, percent, at };
+  enqueue('help video view', () => api('PUT', '/help-video-views', body));
 }
 
 // --- Activity ---------------------------------------------------------------------

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../hooks/useLanguage';
 import { PageTitle } from '../components/PageTitle';
+import { HelpVideoCard } from '../components/HelpVideoCard';
 import { SectionCard } from '../components/SectionCard';
 import { PostTreatmentGuidelines } from '../components/PostTreatmentGuidelines';
 import { 
@@ -580,7 +581,10 @@ export const EvolutionPage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <PageTitle title={t('evolution.pageTitle')} />
-      
+
+      {/* With the first chart on screen, the video that explains how to read it. */}
+      {(hasEnoughDataForTrends || rawQpviiHistory.length >= 2) && <HelpVideoCard id="P13" className="mb-8" />}
+
       {!hasEnoughDataForTrends && (
           <div className="bg-white p-12 rounded-3xl shadow-sm border border-dashed border-gray-200 text-center mb-8">
               <div className="w-20 h-20 bg-blue-50 text-uib-blue rounded-full flex items-center justify-center mx-auto mb-6">

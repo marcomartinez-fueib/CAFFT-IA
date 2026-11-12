@@ -4,6 +4,7 @@ import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
 import { PageTitle } from '../components/PageTitle';
 import { HelpVideoCard } from '../components/HelpVideoCard';
+import { QpviiComparison } from '../components/QpviiComparison';
 import { SectionCard } from '../components/SectionCard';
 import { getUserExposureProgress, saveUserExposureProgress, getQPVIIResultsForUser } from '../services/dataStore';
 import { UserExposureProgress } from '../types';
@@ -176,7 +177,20 @@ export const CelebrationPage: React.FC = () => {
           </div>
         </div>
 
+        {currentUser && (
+          <div className="my-8 text-left max-w-xl mx-auto">
+            <h3 className="text-xl font-semibold text-sky-700 mb-3">{t('flight.compareTitle')}</h3>
+            <QpviiComparison userId={currentUser.id} />
+          </div>
+        )}
+
         <div className="mt-12 flex flex-col sm:flex-row justify-center items-center gap-4">
+          <Link
+            to="/flight-report"
+            className="w-full sm:w-auto py-3 px-6 rounded-lg shadow-md text-base font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          >
+            {t('flight.celebrationButton')}
+          </Link>
           <Link
             to="/"
             className="w-full sm:w-auto py-3 px-6 border border-transparent rounded-lg shadow-md text-base font-medium text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors"

@@ -4,6 +4,7 @@ import { EXPOSURE_VIDEOS, CANONICAL_FLIGHT_STAGES_ORDER } from '../constants';
 import { determineVideoSequence, isExposureFullyCompleted } from './exposureUtils';
 import { computeRci } from './rci';
 import { QPVIIUserResult, UserExposureProgress } from '../types';
+import { api } from '../services/api';
 
 /**
  * Converts an array of objects to a CSV string.
@@ -317,4 +318,21 @@ export function exportAiLogsToCSV(consultations: any[]): void {
 
     const csv = convertToCSV(dataToExport, headers);
     downloadCSV(csv, `cafft_ai_logs_export_${new Date().toISOString().split('T')[0]}.csv`);
+}
+
+/**
+ * The pilot's funnel (server/src/funnel.ts): one pseudonymised row per
+ * patient, with each step of the journey. The server builds it and records
+ * the export.
+ */
+export async function exportFunnelCSV(): Promise<boolean> {
+    try {
+        const { rows } = await api<{ rows: Record<string, string | number>[] }>('GET', '/funnel');
+        if (rows.length === 0) return false;
+        downloadCSV(convertToCSV(rows, Object.keys(rows[0])), `cafft_funnel_${new Date().toISOString().split('T')[0]}.csv`);
+        return true;
+    } catch (err) {
+        console.error('[export] funnel:', err);
+        return false;
+    }
 }

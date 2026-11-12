@@ -3,7 +3,7 @@ import type { FastifyInstance } from 'fastify';
 import type { Config } from '../config.ts';
 import type { Db } from '../db.ts';
 import { enqueueMail } from '../mail/outbox.ts';
-import { asLang, invitationMail, LANGS, setPasswordLink } from '../mail/templates.ts';
+import { asLang, invitationMail, LANGS, patientWelcomeMail, setPasswordLink } from '../mail/templates.ts';
 import { issuePasswordToken } from '../passwordTokens.ts';
 import { requireAuth } from '../app.ts';
 import { audit } from '../audit.ts';
@@ -42,7 +42,14 @@ const TEMP_PASSWORD_ALPHABET = 'abcdefghjkmnpqrstuvwxyz23456789';
  */
 function sendInvitation(db: Db, config: Config, target: UserRow, invitedBy: UserRow, language: string | undefined): void {
   const token = issuePasswordToken(db, target.id, 'invite');
-  const mail = invitationMail(asLang(language), target.username, invitedBy.username, setPasswordLink(config.appUrl, token));
+  const link = setPasswordLink(config.appUrl, token);
+  const lang = asLang(language ?? target.language ?? undefined);
+  // A patient gets the welcome email, with their therapist's name and address.
+  const therapist = target.role === 'patient' && target.therapist_id ? findUserById(db, target.therapist_id) : undefined;
+  const mail =
+    target.role === 'patient'
+      ? patientWelcomeMail(lang, target.username, therapist ? { name: therapist.username, email: therapist.email } : null, link)
+      : invitationMail(lang, target.username, invitedBy.username, link);
   enqueueMail(db, { to: target.email, ...mail, kind: 'invitation' });
   if (target.role === 'patient') {
     // The recorded copy leaves the link out: it is a credential.
@@ -112,6 +119,10 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
         // Patients accept the informed consent themselves, at their first login.
         const created = createUser(db, { role, username, email, passwordHash, consentGiven: false, therapistId, managerId });
         if (!created.ok) return created;
+        if (language) {
+          db.prepare('UPDATE users SET language = ? WHERE id = ?').run(language, created.user.id);
+          created.user.language = language as UserRow['language'];
+        }
         if (password === undefined) sendInvitation(db, config, created.user, actor, language);
         audit(db, { actorId: actor.id, action: `user.create.${role}`, targetId: created.user.id, ip: req.ip });
         return created;

@@ -100,7 +100,7 @@ export const Navbar: React.FC = () => {
           <div id="sidebar-nav" className="hidden md:flex flex-1 items-center justify-start ml-2 lg:ml-8 xl:ml-12 space-x-0 overflow-hidden h-full">
             {mainNavItems.map((item) => {
                 let id = "";
-                if (item.path === '/cafft-intro') id = "nav-home";
+                if (item.path === '/start') id = "nav-home";
                 if (item.path === '/qpvii-evaluation') id = "nav-qpvii";
                 if (item.path === '/exposure') id = "nav-exposure";
                 if (item.path === '/evolution') id = "nav-evolution";
@@ -194,7 +194,7 @@ export const Navbar: React.FC = () => {
             
             {mainNavItems.map((item) => {
               let id = "";
-              if (item.path === '/cafft-intro') id = "nav-home-mobile";
+              if (item.path === '/start') id = "nav-home-mobile";
               if (item.path === '/qpvii-evaluation') id = "nav-qpvii-mobile";
               if (item.path === '/exposure') id = "nav-exposure-mobile";
               if (item.path === '/evolution') id = "nav-evolution-mobile";

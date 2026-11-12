@@ -11,6 +11,7 @@ import { meRoutes, userRoutes } from './routes/users.ts';
 import { dataRoutes, feedbackRoutes } from './routes/data.ts';
 import { assistantRoutes } from './routes/assistant.ts';
 import { planRoutes, reminderLinkRoutes } from './routes/plan.ts';
+import { journeyRoutes } from './routes/journey.ts';
 import { webPushSender } from './push.ts';
 import type { PushSender } from './reminders.ts';
 import { geminiProvider, localProvider, type AiProvider } from './ai/provider.ts';
@@ -93,6 +94,7 @@ export async function buildApp(
   await app.register(feedbackRoutes, { prefix: '/feedback' });
   await app.register(planRoutes, { push: deps.pushSender !== undefined ? deps.pushSender : configuredPush(config, (msg, err) => app.log.error({ err }, msg)) });
   await app.register(reminderLinkRoutes);
+  await app.register(journeyRoutes);
   await app.register(assistantRoutes, { prefix: '/ai', provider: deps.aiProvider !== undefined ? deps.aiProvider : configuredProvider(config) });
 
   return app;

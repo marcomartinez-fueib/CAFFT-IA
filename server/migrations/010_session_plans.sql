@@ -12,10 +12,11 @@ CREATE TABLE session_plans (
 );
 
 -- Every reminder sent, so none goes twice: `key` is the local date of the
--- session ('2027-01-18') or, for inactivity, of the day it was sent.
+-- session ('2027-01-18') or, for inactivity, of the day it was sent; for the
+-- question about the real flight, the date of the flight.
 CREATE TABLE reminders_sent (
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  kind    TEXT NOT NULL CHECK (kind IN ('session', 'inactivity')),
+  kind    TEXT NOT NULL CHECK (kind IN ('session', 'inactivity', 'flight')),
   key     TEXT NOT NULL,
   sent_at INTEGER NOT NULL,
   PRIMARY KEY (user_id, kind, key)

@@ -34,7 +34,7 @@ export const LastSessionPage: React.FC = () => {
 
   useEffect(() => {
     if (!currentUser || qpviiTimestamp === undefined) {
-      navigate('/cafft-intro', { replace: true });
+      navigate('/start', { replace: true });
       return;
     }
 

@@ -4,7 +4,8 @@ import { canWriteClinical, visibleUser, visibleUsers } from '../access.ts';
 import { hasCurrentTreatmentConsent } from '../consents.ts';
 import { transaction } from '../db.ts';
 import { audit } from '../audit.ts';
-import { consultationsFor, emailsFor, helpVideoViewsFor, lastActivityAt, plansFor, progressFor, qpviiFor, sessionsFor } from '../records.ts';
+import { funnelRows } from '../funnel.ts';
+import { consultationsFor, emailsFor, flightReportsFor, helpVideoViewsFor, lastActivityAt, plansFor, progressFor, qpviiDraftFor, qpviiFor, sessionsFor } from '../records.ts';
 import { toApiUser, type UserRow } from '../users.ts';
 import { enqueueMail } from '../mail/outbox.ts';
 import { feedbackMail } from '../mail/templates.ts';
@@ -54,6 +55,9 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
       sessions: sessionsFor(db, ids),
       helpVideoViews: helpVideoViewsFor(db, ids),
       sessionPlans: plansFor(db, ids),
+      flightReports: flightReportsFor(db, ids),
+      // Only the patient's own half-answered questionnaire.
+      qpviiDraft: req.user!.role === 'patient' ? qpviiDraftFor(db, req.user!.id) : null,
       consultations: consultationsFor(db, ids),
       emails: emailsFor(db, ids),
     };
@@ -121,6 +125,8 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
           Date.now(),
           b.userId,
         );
+        // The questionnaire is in: the half-answered copy is no longer needed.
+        db.prepare('DELETE FROM qpvii_drafts WHERE user_id = ?').run(b.userId);
       });
       return reply.code(204).send();
     },
@@ -323,6 +329,16 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
       return reply.code(204).send();
     },
   );
+
+  // The pilot's funnel, pseudonymised (src/funnel.ts), for the patients the
+  // caller may see. Exporting it is an access to health data: recorded.
+  app.get('/funnel', async (req, reply) => {
+    if (req.user!.role === 'patient') return reply.code(403).send(FORBIDDEN);
+    const ids = visibleUsers(db, req.user!).filter((u) => u.role === 'patient' && u.is_test_account !== 1).map((u) => u.id);
+    audit(db, { actorId: req.user!.id, action: 'clinical.export', ip: req.ip, detail: { kind: 'funnel', patients: ids.length } });
+    reply.header('Cache-Control', 'no-store');
+    return { rows: funnelRows(db, ids) };
+  });
 
   // What the server cannot see by itself: a therapist opening a patient's
   // card, or exporting data to a file (the export is built in the browser

@@ -22,8 +22,8 @@ export const HomePage: React.FC = () => {
             case 'superadmin': return '/superadmin/dashboard';
             case 'manager': return '/manager/dashboard';
             case 'therapist': return '/therapist/dashboard';
-            case 'patient': return '/cafft-intro';
-            default: return '/cafft-intro';
+            case 'patient': return '/start';
+            default: return '/start';
         }
     };
 

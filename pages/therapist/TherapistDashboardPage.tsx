@@ -5,10 +5,11 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useAuth } from '../../hooks/useAuth';
 import { PageTitle } from '../../components/PageTitle';
+import { NewPatientFields, type NewPatient } from '../../components/therapist/NewPatientFields';
 import { HelpVideoCard } from '../../components/HelpVideoCard';
 import { Breadcrumbs } from '../../components/Breadcrumbs';
 import { Patient, StoredUser, SimulatedEmail, QPVIIUserResult, UserExposureProgress, PatientStatus, TranslationContent, QPVIIScores } from '../../types';
-import { 
+import { uiLanguage, 
     getUsers,
     getQPVIIResultsForUser, 
     getAllQPVIIResults,
@@ -21,11 +22,11 @@ import {
     toggleUserNotifications,
     getAiConsultationsByUserIds,
     toggleUserOnboarding,
-    getDaysSinceLastActivity,
-    sendAdherenceRemindersToAllInactive
+    sendAdherenceRemindersToAllInactive,
+    getDaysSinceLastSession
 } from '../../services/dataStore';
 import { calculateQPVIIScores } from '../../utils/qpviiScoring';
-import { exportDataToCSV, exportAiLogsToCSV } from '../../utils/export';
+import { exportDataToCSV, exportAiLogsToCSV, exportFunnelCSV } from '../../utils/export';
 import { determineVideoSequence, isExposureFullyCompleted } from '../../utils/exposureUtils';
 import { getPatientStatus } from '../../utils/clinicalAnalysis';
 import { AVERAGE_VIDEO_DURATION_SECONDS } from '../../constants';
@@ -118,6 +119,9 @@ const formatSeconds = (totalSeconds: number, t: (key: string) => string): string
 import { ExpandableText } from '../../components/ExpandableText';
 import { useOnboarding } from '../../hooks/useOnboarding';
 
+// The therapist is alerted after this many days without a session (plan, fita 5.7).
+const INACTIVITY_ALERT_DAYS = 3;
+
 export const TherapistDashboardPage: React.FC = () => {
   const { t, language } = useLanguage();
   const { currentUser } = useAuth();
@@ -161,7 +165,7 @@ export const TherapistDashboardPage: React.FC = () => {
   const [isInviteModalOpen, setInviteModalOpen] = useState(false);
 
   const [patientToProcess, setPatientToProcess] = useState<Patient | StoredUser | null>(null);
-  const [newPatientData, setNewPatientData] = useState({ username: '', email: '' });
+  const [newPatientData, setNewPatientData] = useState<NewPatient>({ username: '', email: '', language: uiLanguage() });
   const [newPassword, setNewPassword] = useState('');
   const [passwordCopied, setPasswordCopied] = useState(false);
   const [anonymizeExport, setAnonymizeExport] = useState(true);
@@ -290,9 +294,9 @@ export const TherapistDashboardPage: React.FC = () => {
             highRiskCount++;
         }
 
-        const daysInactive = getDaysSinceLastActivity(p.id);
-            
-        if (daysInactive !== null && daysInactive >= 3) { // Using 3 days for general "inactive" stat
+        // Inactive: three days or more without a session, once they have started.
+        const daysInactive = getDaysSinceLastSession(p.id);
+        if (daysInactive !== null && daysInactive >= INACTIVITY_ALERT_DAYS) {
             inactiveCount++;
         }
 
@@ -365,7 +369,7 @@ export const TherapistDashboardPage: React.FC = () => {
         p.status.textKey === 'stalled' || 
         p.status.textKey === 'dropping_out' || 
         p.status.textKey === 'needs_review' ||
-        (getDaysSinceLastActivity(p.id) !== null && (getDaysSinceLastActivity(p.id) || 0) >= 3)
+        (getDaysSinceLastSession(p.id) ?? 0) >= INACTIVITY_ALERT_DAYS
     ) : [];
   }, [patientsWithStats, dashboardStats]);
 
@@ -389,7 +393,7 @@ export const TherapistDashboardPage: React.FC = () => {
   
   const handleOpenAddModal = () => {
     setError(null);
-    setNewPatientData({ username: '', email: '' });
+    setNewPatientData({ username: '', email: '', language: uiLanguage() });
     setAddModalOpen(true);
   };
 
@@ -407,6 +411,7 @@ export const TherapistDashboardPage: React.FC = () => {
           role: 'patient',
           username: newPatientData.username,
           email: newPatientData.email,
+          language: newPatientData.language,
         });
         if (result.errorKey) {
           setError(t(result.errorKey));
@@ -462,11 +467,15 @@ export const TherapistDashboardPage: React.FC = () => {
     setExportModalOpen(false);
   };
 
+  // A reminder in the last two days (by the therapist or automatic) is enough.
+  const sentRecently = (patient: { lastReminderSentDate?: number }) =>
+    !!patient.lastReminderSentDate && Date.now() - patient.lastReminderSentDate < 2 * 24 * 60 * 60 * 1000;
+
   const handleSendReminder = (patient: any) => {
     if (!currentUser) return;
     
     const subject = t('aiChat.reminder.emailSubject');
-    const body = t('aiChat.reminder.emailBody', { username: patient.username });
+    const body = `${t('aiChat.reminder.emailBody', { username: patient.username })}\n\n${currentUser.username}`;
     
     saveSimulatedEmail({
         id: crypto.randomUUID(),
@@ -619,9 +628,9 @@ export const TherapistDashboardPage: React.FC = () => {
                             </p>
                             <div className="flex items-center mt-1 space-x-2">
                                 <PatientStatusBadge status={patient.status} t={t} />
-                                {patient.lastActive && (Date.now() - patient.lastActive) > (3 * 24 * 60 * 60 * 1000) && (
+                                {(getDaysSinceLastSession(patient.id) ?? 0) >= INACTIVITY_ALERT_DAYS && (
                                     <span className="text-[10px] font-bold text-rose-600 uppercase tracking-tighter">
-                                        {t('therapistDashboard.patient_status.inactive_badge', { days: Math.floor((Date.now() - patient.lastActive) / (24 * 60 * 60 * 1000)) })}
+                                        {t('therapistDashboard.daysWithoutSession', { days: getDaysSinceLastSession(patient.id) ?? 0 })}
                                     </span>
                                 )}
                             </div>
@@ -635,10 +644,12 @@ export const TherapistDashboardPage: React.FC = () => {
                             >
                                 <ViewIcon className="w-4 h-4" aria-hidden="true" />
                             </button>
+                            {/* One click sends the prepared message (aiChat.reminder), signed by the therapist. */}
                             <button
                                 onClick={() => handleSendReminder(patient)}
-                                className="p-2 bg-white text-slate-600 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-200 transition-colors"
-                                title={t('therapistDashboard.table.remind')}
+                                disabled={sentRecently(patient)}
+                                className="p-2 bg-white text-slate-600 hover:text-emerald-600 rounded-lg shadow-sm border border-slate-200 transition-colors disabled:opacity-40 disabled:hover:text-slate-600"
+                                title={sentRecently(patient) ? t('therapistDashboard.reminderSentRecently') : t('aiChat.reminder.emailBody', { username: patient.username })}
                                 aria-label={t('therapistDashboard.tooltips.remindPatient', { name: patient.username })}
                             >
                                 <SendIcon className="w-4 h-4" aria-hidden="true" />
@@ -800,9 +811,9 @@ export const TherapistDashboardPage: React.FC = () => {
                                       {patient.patientCode && <span className="ml-2 text-[10px] font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-400 group-hover:bg-sky-50 group-hover:text-sky-600 transition-colors uppercase">{patient.patientCode}</span>}
                                   </div>
                                   <div className="text-[10px] text-slate-400">{patient.email}</div>
-                                  {getDaysSinceLastActivity(patient.id) !== null && (getDaysSinceLastActivity(patient.id) || 0) >= 3 && (
+                                  {(getDaysSinceLastSession(patient.id) ?? 0) >= INACTIVITY_ALERT_DAYS && (
                                        <span className="mt-1 inline-block text-[8px] font-black bg-amber-100 px-1.5 py-0.5 rounded text-amber-700 uppercase tracking-widest">
-                                           {t('therapistDashboard.reminders.inactivityBadge', { days: getDaysSinceLastActivity(patient.id) })}
+                                           {t('therapistDashboard.daysWithoutSession', { days: getDaysSinceLastSession(patient.id) ?? 0 })}
                                        </span>
                                    )}
                               </td>
@@ -971,17 +982,7 @@ export const TherapistDashboardPage: React.FC = () => {
             </div>
             <h3 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight">{t('therapistDashboard.addPatientModal.title')}</h3>
             {error && <div className="mb-6 p-4 bg-rose-50 border border-rose-100 text-rose-700 text-sm rounded-xl font-medium">{error}</div>}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{t('therapistDashboard.addPatientModal.usernameLabel')}</label>
-                <input type="text" value={newPatientData.username} onChange={(e) => setNewPatientData({...newPatientData, username: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all" />
-              </div>
-              <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{t('therapistDashboard.addPatientModal.emailLabel')}</label>
-                <input type="email" value={newPatientData.email} onChange={(e) => setNewPatientData({...newPatientData, email: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all" />
-              </div>
-              <p className="text-xs text-slate-500 leading-relaxed">{t('common.invitationNote')}</p>
-            </div>
+            <NewPatientFields value={newPatientData} onChange={setNewPatientData} />
             <div className="mt-8 flex gap-3 pb-8 sm:pb-0">
               <button onClick={() => setAddModalOpen(false)} className="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors uppercase text-xs tracking-widest">{t('therapistDashboard.addPatientModal.cancelButton')}</button>
               <button onClick={handleAddPatient} className="flex-1 px-4 py-3 bg-sky-600 text-white rounded-xl font-bold hover:bg-sky-700 transition-all uppercase text-xs tracking-widest shadow-lg shadow-sky-200">{t('therapistDashboard.addPatientModal.createButton')}</button>
@@ -1064,6 +1065,16 @@ export const TherapistDashboardPage: React.FC = () => {
                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{t('therapistDashboard.exportModal.anonymizeDescription')}</span>
                 </div>
               </label>
+            </div>
+            <div className="mb-8 p-4 bg-slate-50 rounded-xl border border-slate-100">
+              <p className="text-sm font-bold text-slate-700">{t('therapistDashboard.exportModal.funnelTitle')}</p>
+              <p className="text-xs text-slate-500 mt-1 mb-3">{t('therapistDashboard.exportModal.funnelDescription')}</p>
+              <button
+                onClick={async () => { if (!(await exportFunnelCSV())) alert(t('therapistDashboard.noPatients')); }}
+                className="px-4 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold uppercase tracking-widest text-slate-700 hover:border-sky-400"
+              >
+                {t('therapistDashboard.exportModal.funnelButton')}
+              </button>
             </div>
             <div className="flex gap-3 pb-8 sm:pb-0">
               <button onClick={() => setExportModalOpen(false)} className="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors uppercase text-xs tracking-widest">{t('therapistDashboard.exportModal.cancelButton')}</button>

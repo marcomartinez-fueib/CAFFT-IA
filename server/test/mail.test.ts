@@ -64,9 +64,11 @@ test('a user created without a password is invited by email', async () => {
   const patientId = res.json().user.id;
 
   const { token, mail } = await deliverAndGetToken(db);
-  assert.equal(mail.subject, 'Benvingut/da a CAFFT');
+  // A patient gets the welcome email, in the language chosen, with their therapist.
+  assert.equal(mail.subject, 'Benvingut/da al CAFFT');
   assert.ok(mail.body.includes("El seu nom d'usuari és: convidat"));
-  assert.ok(mail.body.includes('ter li ha creat un compte'));
+  assert.ok(mail.body.includes("La persona que l'acompanyarà en el programa és ter. Si té qualsevol dubte, li pot escriure a ter@example.test."));
+  assert.ok(mail.body.includes('fins a 8 sessions'));
 
   // The therapist sees the invitation in the history, without the link.
   const history = db.prepare('SELECT type, body FROM emails WHERE patient_id = ?').get(patientId) as { type: string; body: string };

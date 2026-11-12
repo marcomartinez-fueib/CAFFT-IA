@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto';
 import type { Db } from './db.ts';
 import { transaction } from './db.ts';
 import { enqueueMail } from './mail/outbox.ts';
-import { asLang, inactivityReminderMail, sessionReminderMail, unsubscribeLink, type ReminderMessage } from './mail/templates.ts';
+import { asLang, flightQuestionMail, inactivityReminderMail, sessionReminderMail, unsubscribeLink, type ReminderMessage } from './mail/templates.ts';
 import { normalizeSlots, reminderTime, zonedParts, zonedTime, type PlanSlot } from './sessionPlan.ts';
 import { CONSENT_VERSIONS } from './consentVersions.ts';
 
@@ -13,6 +13,7 @@ import { CONSENT_VERSIONS } from './consentVersions.ts';
  *    earliest), unless the patient has already had a session that day.
  *  - After more than two days without a session, a kind reminder to carry on;
  *    at most one every two days, between 10:00 and 20:00.
+ *  - From the day after the flight they planned, once: how did it go?
  *
  * Only to patients who accepted the current treatment consent and the
  * notification consent, have reminders on in their preferences, and have not
@@ -42,6 +43,8 @@ interface Candidate {
   unsubscribe_token: string | null;
   slots: string | null;
   language: string | null;
+  planned_flight_date: string | null;
+  finished: number;
 }
 
 /** Reminders are on for this patient: they said yes in the dialog and did not switch them off. */
@@ -62,18 +65,18 @@ export function unsubscribeTokenFor(db: Db, userId: string, existing: string | n
 function candidates(db: Db): Candidate[] {
   return db
     .prepare(
-      `SELECT u.id, u.username, u.email, u.notification_prefs, u.unsubscribe_token, p.slots,
-              (SELECT language FROM consents c WHERE c.user_id = u.id AND c.kind = 'treatment' ORDER BY accepted_at DESC LIMIT 1) AS language
+      `SELECT u.id, u.username, u.email, u.notification_prefs, u.unsubscribe_token, p.slots, u.planned_flight_date,
+              COALESCE(u.language, (SELECT language FROM consents c WHERE c.user_id = u.id AND c.kind = 'treatment' ORDER BY accepted_at DESC LIMIT 1)) AS language,
+              EXISTS (SELECT 1 FROM exposure_progress e WHERE e.user_id = u.id AND e.program_completed = 1) AS finished
        FROM users u LEFT JOIN session_plans p ON p.user_id = u.id
        WHERE u.role = 'patient'
          AND u.treatment_consent_version = ?
-         AND u.notification_consent_version = ?
-         AND NOT EXISTS (SELECT 1 FROM exposure_progress e WHERE e.user_id = u.id AND e.program_completed = 1)`,
+         AND u.notification_consent_version = ?`,
     )
     .all(CONSENT_VERSIONS.treatment, CONSENT_VERSIONS.notifications) as unknown as Candidate[];
 }
 
-function alreadySent(db: Db, userId: string, kind: 'session' | 'inactivity', key: string): boolean {
+function alreadySent(db: Db, userId: string, kind: 'session' | 'inactivity' | 'flight', key: string): boolean {
   return !!db.prepare('SELECT 1 FROM reminders_sent WHERE user_id = ? AND kind = ? AND key = ?').get(userId, kind, key);
 }
 
@@ -85,15 +88,28 @@ function lastSessionAt(db: Db, userId: string): number | null {
 export async function runReminders(
   db: Db,
   opts: { now?: number; appUrl: string; push?: PushSender | null },
-): Promise<{ session: number; inactivity: number }> {
+): Promise<{ session: number; inactivity: number; flight: number }> {
   const now = opts.now ?? Date.now();
   const today = zonedParts(now);
-  const sent = { session: 0, inactivity: 0 };
+  const sent = { session: 0, inactivity: 0, flight: 0 };
   const outgoing: { userId: string; message: ReminderMessage }[] = [];
 
   for (const p of candidates(db)) {
     if (!wantsReminders(p.notification_prefs)) continue;
     const lang = asLang(p.language ?? undefined);
+
+    // The real flight, from the day after the date they gave, for two weeks.
+    const flight = p.planned_flight_date;
+    if (flight && today.date > flight && now - zonedTime(flight, '00:00') < 15 * DAY && today.minutes >= 10 * 60 && today.minutes < 20 * 60
+        && !alreadySent(db, p.id, 'flight', flight) && !db.prepare('SELECT 1 FROM flight_reports WHERE user_id = ?').get(p.id)) {
+      const message = flightQuestionMail(lang, p.username, `${opts.appUrl.replace(/\/*$/, '/')}#/flight-report`, unsubscribeLink(opts.appUrl, unsubscribeTokenFor(db, p.id, p.unsubscribe_token)));
+      record(db, p, 'flight', flight, now, message);
+      outgoing.push({ userId: p.id, message });
+      sent.flight++;
+      continue;
+    }
+    // The rest is for patients still in the programme.
+    if (p.finished) continue;
     const last = lastSessionAt(db, p.id);
     const hadSessionToday = last !== null && zonedParts(last).date === today.date;
     const link = () => unsubscribeLink(opts.appUrl, unsubscribeTokenFor(db, p.id, p.unsubscribe_token));
@@ -132,7 +148,7 @@ export async function runReminders(
 }
 
 /** The reminder is recorded and its email queued together, so it can never go twice. */
-function record(db: Db, p: Candidate, kind: 'session' | 'inactivity', key: string, now: number, message: ReminderMessage): void {
+function record(db: Db, p: Candidate, kind: 'session' | 'inactivity' | 'flight', key: string, now: number, message: ReminderMessage): void {
   transaction(db, () => {
     db.prepare('INSERT INTO reminders_sent (user_id, kind, key, sent_at) VALUES (?, ?, ?, ?)').run(p.id, kind, key, now);
     db.prepare("INSERT INTO emails (id, patient_id, type, subject, body, status, timestamp) VALUES (?, ?, 'reminder', ?, ?, 'sent', ?)").run(

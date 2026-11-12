@@ -13,6 +13,9 @@ import { UserGuidePage } from './pages/UserGuidePage.tsx';
 import { HelpVideosPage } from './pages/HelpVideosPage.tsx';
 import { SessionPlanPage } from './pages/SessionPlanPage.tsx';
 import { RemindersOffPage } from './pages/RemindersOffPage.tsx';
+import { WelcomePage } from './pages/WelcomePage.tsx';
+import { PatientStartPage } from './pages/PatientStartPage.tsx';
+import { FlightReportPage } from './pages/FlightReportPage.tsx';
 import { CafftIntroPage } from './pages/CafftIntroPage.tsx';
 import { QpviiPage } from './pages/QpviiPage.tsx';
 import { RegisterPage } from './pages/RegisterPage.tsx';
@@ -119,6 +122,15 @@ const App: React.FC = () => {
 
                 <Route path="cafft-intro" element={
                     <ProtectedRoute role="patient"><CafftIntroPage /></ProtectedRoute>
+                }/>
+                <Route path="welcome" element={
+                    <ProtectedRoute role="patient" welcome><WelcomePage /></ProtectedRoute>
+                }/>
+                <Route path="start" element={
+                    <ProtectedRoute role="patient"><PatientStartPage /></ProtectedRoute>
+                }/>
+                <Route path="flight-report" element={
+                    <ProtectedRoute role="patient"><FlightReportPage /></ProtectedRoute>
                 }/>
                 <Route path="session-plan" element={
                     <ProtectedRoute role="patient"><SessionPlanPage /></ProtectedRoute>

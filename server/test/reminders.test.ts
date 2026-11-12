@@ -34,9 +34,9 @@ function session(db: Db, userId: string, when: number) {
 
 test('the session reminder goes two hours before, once, without clinical data', async () => {
   const { db, P } = await setup();
-  assert.deepEqual(await runReminders(db, { now: at('15:55'), appUrl: APP }), { session: 0, inactivity: 0 });
-  assert.deepEqual(await runReminders(db, { now: at('16:00'), appUrl: APP }), { session: 1, inactivity: 0 });
-  assert.deepEqual(await runReminders(db, { now: at('16:05'), appUrl: APP }), { session: 0, inactivity: 0 });
+  assert.deepEqual(await runReminders(db, { now: at('15:55'), appUrl: APP }), { session: 0, inactivity: 0, flight: 0 });
+  assert.deepEqual(await runReminders(db, { now: at('16:00'), appUrl: APP }), { session: 1, inactivity: 0, flight: 0 });
+  assert.deepEqual(await runReminders(db, { now: at('16:05'), appUrl: APP }), { session: 0, inactivity: 0, flight: 0 });
 
   const [mail] = outbox(db);
   assert.equal(mail.to_address, P.email);
@@ -95,8 +95,8 @@ test('the inactivity reminder: after two days without a session, in the daytime,
 test('a planned day speaks of the session, not of the days without one', async () => {
   const { db, P } = await setup();
   session(db, P.id, at('18:00', '2027-01-14'));
-  assert.deepEqual(await runReminders(db, { now: at('12:00'), appUrl: APP }), { session: 0, inactivity: 0 });
-  assert.deepEqual(await runReminders(db, { now: at('16:00'), appUrl: APP }), { session: 1, inactivity: 0 });
+  assert.deepEqual(await runReminders(db, { now: at('12:00'), appUrl: APP }), { session: 0, inactivity: 0, flight: 0 });
+  assert.deepEqual(await runReminders(db, { now: at('16:00'), appUrl: APP }), { session: 1, inactivity: 0, flight: 0 });
 });
 
 test('reminders also go by push; a subscription the browser dropped is deleted', async () => {

@@ -93,7 +93,7 @@ if (config.reminders.enabled) {
     reminding = true;
     try {
       const sent = await runReminders(db, { appUrl: config.appUrl, push });
-      if (sent.session + sent.inactivity > 0) app.log.info(sent, 'reminders sent');
+      if (sent.session + sent.inactivity + sent.flight > 0) app.log.info(sent, 'reminders sent');
     } catch (err) {
       app.log.error({ err }, 'reminders failed');
     } finally {

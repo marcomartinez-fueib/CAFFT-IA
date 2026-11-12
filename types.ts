@@ -47,6 +47,9 @@ export interface User {
   treatmentConsent?: { version: string; acceptedAt: number }; // Latest informed consent accepted (consent.ts)
   helpVideoVariant?: 'esquematica' | 'captures'; // Chosen version of the help videos that have two
   notificationConsentVersion?: string; // Notification consent accepted and not withdrawn (consent.ts)
+  language?: 'ca' | 'es' | 'en'; // Of the patient's emails, chosen when registered
+  welcomeCompletedAt?: number; // The three-step welcome (fita 5)
+  plannedFlightDate?: string; // 'YYYY-MM-DD', for the question about how the flight went
 }
 
 // A user as the API returns it (server/src/users.ts, toApiUser). The password
@@ -83,6 +86,8 @@ export interface AuthContextType {
   /** Accepts the current version of a consent text (consent.ts). */
   acceptConsent: (kind: 'treatment' | 'notifications', informedConsentMetadata?: InformedConsentMetadata) => Promise<{ success: boolean; errorKey?: string }>;
   withdrawNotificationConsent: () => Promise<boolean>;
+  /** Takes the user as an API call returned it (the welcome, the flight date...). */
+  setUserFromServer: (user: User) => void;
 }
 
 export interface QPVIIQuestion {
@@ -471,6 +476,9 @@ export interface AIChatContent {
 }
 
 export interface TherapistDashboardContent {
+  exportModal: Record<'title' | 'anonymizeLabel' | 'anonymizeDescription' | 'cancelButton' | 'exportButton' | 'funnelTitle' | 'funnelDescription' | 'funnelButton', string>;
+  daysWithoutSession: string;
+  reminderSentRecently: string;
   pageTitle: string;
   kpi: {
     title_overview: string;
@@ -550,6 +558,7 @@ export interface TherapistDashboardContent {
     title: string;
     usernameLabel: string;
     emailLabel: string;
+    languageLabel?: string;
     passwordLabel: string;
     createButton: string;
     cancelButton: string;
@@ -879,6 +888,8 @@ export interface TranslationContent {
     proceedButton: string;
   };
   qpvii: {
+    timeNotice: string;
+    resumeNotice: string;
     title: string;
     formTitle: string;
     instructions: string;
@@ -1196,6 +1207,120 @@ export interface TranslationContent {
     therapistHeld: string;
     therapistMissed: string;
   };
+  welcome: {
+    title: string;
+    stepOf: string;
+    lastly: string;
+    step1Title: string;
+    step2Title: string;
+    step2Text: string;
+    step3Title: string;
+    step3Text: string;
+    stepPlanTitle: string;
+    check: {
+      device: string;
+      headphones: string;
+      place: string;
+      sound: string;
+    };
+    playTone: string;
+    continue: string;
+    finish: string;
+    planOptional: string;
+  };
+  start: {
+    greeting: string;
+    nextStep: string;
+    progress: string;
+    more: string;
+    evolution: string;
+    profile: string;
+    steps: {
+      welcome: {
+        title: string;
+        text: string;
+        button: string;
+      };
+      qpvii: {
+        title: string;
+        text: string;
+        button: string;
+      };
+      qpviiResume: {
+        title: string;
+        text: string;
+        button: string;
+      };
+      hierarchy: {
+        title: string;
+        text: string;
+        button: string;
+      };
+      explanation: {
+        title: string;
+        text: string;
+        button: string;
+      };
+      session: {
+        title: string;
+        text: string;
+        button: string;
+      };
+      review: {
+        title: string;
+        text: string;
+        button: string;
+      };
+      lastSession: {
+        title: string;
+        text: string;
+        button: string;
+      };
+      flightReport: {
+        title: string;
+        text: string;
+        button: string;
+      };
+      done: {
+        title: string;
+        text: string;
+        button: string;
+      };
+    };
+  };
+  flight: {
+    pageTitle: string;
+    compareTitle: string;
+    compareMissing: string;
+    before: string;
+    after: string;
+    change: {
+      improvement: string;
+      deterioration: string;
+      none: string;
+    };
+    guidelinesTitle: string;
+    guidelinesText: string;
+    downloadGuidelines: string;
+    whenTitle: string;
+    whenText: string;
+    plannedDate: string;
+    saveDate: string;
+    dateSaved: string;
+    dateCleared: string;
+    reportTitle: string;
+    flewQuestion: string;
+    yes: string;
+    notYet: string;
+    flightDate: string;
+    anxietyQuestion: string;
+    comment: string;
+    send: string;
+    thanks: string;
+    saveError: string;
+    backToStart: string;
+    celebrationButton: string;
+  };
   remindersOff: {
     title: string;
     done: string;
@@ -1217,6 +1342,12 @@ export interface TranslationContent {
     noSession: string;
   };
   consentGate: {
+    plainTitle: string;
+    plain1: string;
+    plain2: string;
+    plain3: string;
+    plain4: string;
+    plain5: string;
     title: string;
     intro: string;
     introUpdated: string;
@@ -1337,6 +1468,23 @@ export interface ExposureSession {
 export interface SessionPlan {
   userId: string;
   slots: { day: number; time: string }[];
+  updatedAt: number;
+}
+
+// The real flight, as the patient reports it after the programme.
+export interface FlightReport {
+  userId: string;
+  flew: boolean;
+  flightDate?: string;
+  maxAnxiety?: number; // 1-9, like the exposure ratings
+  comment?: string;
+  updatedAt: number;
+}
+
+// A QPV-II being answered, kept on the server so it can be finished another day.
+export interface QpviiDraft {
+  answers: Record<string, number | null>;
+  startedAt: number;
   updatedAt: number;
 }
 

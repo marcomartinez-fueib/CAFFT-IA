@@ -20,7 +20,7 @@ export const TOP_NAV_GUEST: NavItem[] = [
 
 // Top-level navigation items for AUTHENTICATED PATIENT users
 export const TOP_NAV_AUTH: NavItem[] = [
-  { path: '/cafft-intro', labelKey: 'nav.cafftIntro', authRequired: true }, 
+  { path: '/start', labelKey: 'nav.cafftIntro', authRequired: true },
   { path: '/qpvii-evaluation', labelKey: 'nav.qpviiEvaluation', authRequired: true }, 
   { path: '/exposure', labelKey: 'nav.exposure', authRequired: true }, 
   { path: '/evolution', labelKey: 'nav.evolution', authRequired: true },

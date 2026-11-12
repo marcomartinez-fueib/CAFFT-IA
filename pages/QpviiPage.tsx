@@ -1,6 +1,6 @@
 
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../hooks/useLanguage.tsx';
 import { useAuth } from '../hooks/useAuth.tsx';
 import { PageTitle } from '../components/PageTitle.tsx';
@@ -9,7 +9,7 @@ import { QpviiForm } from '../components/QpviiForm.tsx';
 import { QpviiResultsDisplay } from '../components/QpviiResultsDisplay.tsx';
 import { QPVIIAnswers, QPVIIScores } from '../types.ts';
 import { calculateQPVIIScores } from '../utils/qpviiScoring.ts';
-import { saveQPVIIResultForUser, getQPVIIResultsForUser, getUserExposureProgress } from '../services/dataStore.ts';
+import { saveQPVIIResultForUser, getQPVIIResultsForUser, getUserExposureProgress, getQpviiDraft, saveQpviiDraft, subscribeStore } from '../services/dataStore.ts';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { determineVideoSequence, isExposureFullyCompleted } from '../utils/exposureUtils.ts';
 import { showsTestControls } from '../utils/testMode';
@@ -33,6 +33,28 @@ export const QpviiPage: React.FC = () => {
   const [formName, setFormName] = useState('');
 
   const isPostExposureEval = location.state?.isPostExposureEval;
+
+  // The answers are saved as the patient goes (a second after the last one),
+  // so the questionnaire can be finished another day.
+  const [draft, setDraft] = useState(() => (currentUser?.role === 'patient' ? getQpviiDraft() : null));
+  // After a reload the page can render before the data arrive from the server.
+  // Only until the patient answers here: their own saves must not reset the form.
+  const touched = useRef(false);
+  useEffect(() => {
+    const pick = () => { if (!touched.current && currentUser?.role === 'patient') setDraft((d) => d ?? getQpviiDraft()); };
+    pick();
+    return subscribeStore(pick);
+  }, [currentUser?.role]);
+  const startedAt = useRef(draft?.startedAt ?? Date.now());
+  useEffect(() => { if (draft) startedAt.current = draft.startedAt; }, [draft]);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(saveTimer.current), []);
+  const handleAnswersChange = (answers: QPVIIAnswers) => {
+    if (currentUser?.role !== 'patient') return;
+    touched.current = true;
+    clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => saveQpviiDraft(answers as Record<string, number | null>, startedAt.current), 1000);
+  };
   const originalQpviiTimestamp = location.state?.originalQpviiTimestamp;
 
   useEffect(() => {
@@ -173,12 +195,21 @@ export const QpviiPage: React.FC = () => {
 
       {currentUser?.role === 'patient' && !results && <HelpVideoCard id="P03" className="mb-6" />}
 
+      {!results && currentUser?.role === 'patient' && (
+        <p className="mb-6 p-4 rounded-lg bg-sky-50 border border-sky-200 text-sm text-slate-700" role="status">
+          {draft ? t('qpvii.resumeNotice') : t('qpvii.timeNotice')}
+        </p>
+      )}
+
       {!results ? (
         <QpviiForm
-          onSubmit={handleFormSubmit}
+          key={draft ? 'resumed' : 'new'}
+          onSubmit={(...args) => { clearTimeout(saveTimer.current); handleFormSubmit(...args); }}
           isSubmitting={isSubmitting}
           initialName={formName}
           showTestControls={showsTestControls(currentUser)}
+          savedAnswers={draft?.answers as QPVIIAnswers | undefined}
+          onAnswersChange={handleAnswersChange}
         />
       ) : (
         <QpviiResultsDisplay

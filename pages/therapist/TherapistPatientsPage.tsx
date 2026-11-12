@@ -4,10 +4,11 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useAuth } from '../../hooks/useAuth';
 import { PageTitle } from '../../components/PageTitle';
+import { NewPatientFields, type NewPatient } from '../../components/therapist/NewPatientFields';
 import { HelpVideoCard } from '../../components/HelpVideoCard';
 import { Breadcrumbs } from '../../components/Breadcrumbs';
 import { Patient, StoredUser, QPVIIUserResult, UserExposureProgress, PatientStatus, QPVIIScores } from '../../types';
-import { 
+import { uiLanguage, 
     getUsers,
     getAllQPVIIResults,
     getAllUserExposureProgress,
@@ -92,7 +93,7 @@ export const TherapistPatientsPage: React.FC = () => {
     const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
     const [isResetModalOpen, setResetModalOpen] = useState(false);
     const [patientToProcess, setPatientToProcess] = useState<Patient | StoredUser | null>(null);
-    const [newPatientData, setNewPatientData] = useState({ username: '', email: '' });
+    const [newPatientData, setNewPatientData] = useState<NewPatient>({ username: '', email: '', language: uiLanguage() });
     const [newPassword, setNewPassword] = useState('');
     const [passwordCopied, setPasswordCopied] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -168,7 +169,7 @@ export const TherapistPatientsPage: React.FC = () => {
 
     const handleOpenAddModal = () => {
         setError(null);
-        setNewPatientData({ username: '', email: '' });
+        setNewPatientData({ username: '', email: '', language: uiLanguage() });
         setAddModalOpen(true);
     };
 
@@ -185,6 +186,7 @@ export const TherapistPatientsPage: React.FC = () => {
             role: 'patient',
             username: newPatientData.username,
             email: newPatientData.email,
+            language: newPatientData.language,
         });
         if (result.errorKey) {
             setError(t(result.errorKey));
@@ -384,17 +386,7 @@ export const TherapistPatientsPage: React.FC = () => {
                         </div>
                         <h3 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight">{t('therapistDashboard.addPatientModal.title')}</h3>
                         {error && <div className="mb-6 p-4 bg-rose-50 border border-rose-100 text-rose-700 text-sm rounded-xl font-medium">{error}</div>}
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{t('therapistDashboard.addPatientModal.usernameLabel')}</label>
-                                <input type="text" value={newPatientData.username} onChange={(e) => setNewPatientData({...newPatientData, username: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all" />
-                            </div>
-                            <div>
-                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">{t('therapistDashboard.addPatientModal.emailLabel')}</label>
-                                <input type="email" value={newPatientData.email} onChange={(e) => setNewPatientData({...newPatientData, email: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all" />
-                            </div>
-                            <p className="text-xs text-slate-500 leading-relaxed">{t('common.invitationNote')}</p>
-                        </div>
+                        <NewPatientFields value={newPatientData} onChange={setNewPatientData} />
                         <div className="mt-8 flex gap-3 pb-8 sm:pb-0">
                             <button onClick={() => setAddModalOpen(false)} className="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors uppercase text-xs tracking-widest font-black leading-none">{t('therapistDashboard.addPatientModal.cancelButton')}</button>
                             <button onClick={handleAddPatient} className="flex-1 px-4 py-3 bg-sky-600 text-white rounded-xl font-bold hover:bg-sky-700 transition-all uppercase text-xs tracking-widest font-black shadow-lg shadow-sky-200 leading-none">{t('therapistDashboard.addPatientModal.createButton')}</button>

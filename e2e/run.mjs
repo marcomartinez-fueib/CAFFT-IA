@@ -76,6 +76,8 @@ async function seed() {
     db.prepare('UPDATE users SET therapist_id = ?, notification_prefs = ? WHERE id = ?').run(therapist.user.id, JSON.stringify(prefs), p.user.id);
   }
   db.prepare('UPDATE users SET onboarding_enabled = 0').run();
+  // The patient already went through the welcome; «nova» has not.
+  db.prepare('UPDATE users SET welcome_completed_at = 1 WHERE id = ?').run(patient.user.id);
   db.close();
 }
 

@@ -34,7 +34,8 @@ els marcats **[DPD]** són preguntes per al DPD.
 | Consentiments | Quina versió del text s'ha acceptat, quan i en quina llengua; retirades | Ídem | Terapeuta (estat); administradors |
 | Comunicacions | Correus enviats (invitació, restabliment de contrasenya, recordatoris) i resposta del servidor de correu | Ídem | Administradors |
 | Registre d'accessos | Data, usuari, acció, pacient afectat i adreça IP de: inicis de sessió, canvis de comptes, consentiments, i cada accés del personal a dades clíniques (§ 6) | Ídem | Administradors; el DPD a petició |
-| Preferències | Notificacions, nom de l'assistent | Ídem | El pacient |
+| Ús dels vídeos d'ajuda | Per a cada vídeo: quan s'ha obert, fins a quin percentatge s'ha vist, si s'ha acabat i quina versió | Ídem | El pacient; el seu terapeuta; exportació per als indicadors del pilot |
+| Preferències | Notificacions, nom de l'assistent, versió preferida dels vídeos d'ajuda | Ídem | El pacient |
 | Navegador | Només la llengua triada i una marca del recorregut guiat (`localStorage`). Les dades clíniques es tenen en memòria mentre l'aplicació és oberta i no queden al dispositiu. | Dispositiu del pacient | El pacient |
 
 No es tracten dades de pagament ni de geolocalització. L'aplicació no fa servir

@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useAuth } from '../../hooks/useAuth';
 import { PageTitle } from '../../components/PageTitle';
+import { HelpVideoCard } from '../../components/HelpVideoCard';
 import { Breadcrumbs } from '../../components/Breadcrumbs';
 import { Patient, StoredUser, QPVIIUserResult, UserExposureProgress, PatientStatus, QPVIIScores } from '../../types';
 import { 
@@ -245,6 +246,7 @@ export const TherapistPatientsPage: React.FC = () => {
                 { label: t('nav.patients') }
             ]} />
             <PageTitle title={t('nav.patients')} />
+            <HelpVideoCard id="T02" className="mb-6 max-w-3xl" />
 
             <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="relative w-full md:w-96">

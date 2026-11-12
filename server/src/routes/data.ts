@@ -4,7 +4,7 @@ import { canWriteClinical, visibleUser, visibleUsers } from '../access.ts';
 import { hasCurrentTreatmentConsent } from '../consents.ts';
 import { transaction } from '../db.ts';
 import { audit } from '../audit.ts';
-import { consultationsFor, emailsFor, lastActivityAt, progressFor, qpviiFor, sessionsFor } from '../records.ts';
+import { consultationsFor, emailsFor, helpVideoViewsFor, lastActivityAt, progressFor, qpviiFor, sessionsFor } from '../records.ts';
 import { toApiUser, type UserRow } from '../users.ts';
 import { enqueueMail } from '../mail/outbox.ts';
 import { feedbackMail } from '../mail/templates.ts';
@@ -52,6 +52,7 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
       qpvii: qpviiFor(db, ids),
       progress: progressFor(db, ids),
       sessions: sessionsFor(db, ids),
+      helpVideoViews: helpVideoViewsFor(db, ids),
       consultations: consultationsFor(db, ids),
       emails: emailsFor(db, ids),
     };
@@ -271,6 +272,53 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
           b.endReason ?? null,
         );
       if (written.changes === 0) return reply.code(403).send(FORBIDDEN);
+      return reply.code(204).send();
+    },
+  );
+
+  // One viewing of a help video by the patient themself, sent when it starts,
+  // ends or is closed. The row keeps the furthest point reached, the first
+  // completion and whether the latest viewing stopped early; a viewing counts
+  // once however many times it is reported (`newView` only on the first).
+  app.put<{
+    Body: { videoId: string; versionId: string; at: number; percent: number; completed: boolean; newView: boolean };
+  }>(
+    '/help-video-views',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['videoId', 'versionId', 'at', 'percent', 'completed', 'newView'],
+          properties: {
+            videoId: { type: 'string', pattern: '^[PT][0-9]{2}$' },
+            versionId: { type: 'string', pattern: '^[PT][0-9]{2}c?$' },
+            at: S.timestamp,
+            percent: { type: 'integer', minimum: 0, maximum: 100 },
+            completed: { type: 'boolean' },
+            newView: { type: 'boolean' },
+          },
+        },
+      },
+    },
+    async (req, reply) => {
+      const b = req.body;
+      const user = req.user!;
+      if (user.role !== 'patient') return reply.code(403).send(FORBIDDEN);
+      if (!hasCurrentTreatmentConsent(user)) return reply.code(403).send(CONSENT_REQUIRED);
+      if (!b.versionId.startsWith(b.videoId)) return reply.code(400).send({ error: 'badRequest' });
+
+      db.prepare(
+        `INSERT INTO help_video_views (user_id, video_id, version_id, first_at, last_at, views, max_percent, completed_at, closed_early)
+         VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?)
+         ON CONFLICT (user_id, video_id) DO UPDATE SET
+           version_id = excluded.version_id,
+           last_at = MAX(help_video_views.last_at, excluded.last_at),
+           views = help_video_views.views + ?,
+           max_percent = MAX(help_video_views.max_percent, excluded.max_percent),
+           completed_at = COALESCE(help_video_views.completed_at, excluded.completed_at),
+           closed_early = excluded.closed_early`,
+      ).run(user.id, b.videoId, b.versionId, b.at, b.at, b.percent, b.completed ? b.at : null, b.completed ? 0 : 1, b.newView ? 1 : 0);
       return reply.code(204).send();
     },
   );

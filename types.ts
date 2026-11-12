@@ -45,6 +45,7 @@ export interface User {
   onboardingEnabled?: boolean;
   isTestAccount?: boolean; // Set by staff; shows the testing controls to this patient
   treatmentConsent?: { version: string; acceptedAt: number }; // Latest informed consent accepted (consent.ts)
+  helpVideoVariant?: 'esquematica' | 'captures'; // Chosen version of the help videos that have two
 }
 
 // A user as the API returns it (server/src/users.ts, toApiUser). The password
@@ -621,6 +622,9 @@ export interface PatientDetailContent {
   testAccountLabel?: string;
   testAccountHint?: string;
   noAiConsultationsForPatient?: string;
+  helpVideosTitle: string;
+  helpVideosNone: string;
+  helpVideosPartial: string;
   currentPlanTitle: string;
   basedOnEvaluation: string;
   hierarchyTitle: string;
@@ -859,6 +863,11 @@ export interface TranslationContent {
     transcript: string;
     transcriptUnavailable: string;
     learnMore: string;
+    cardLabel: string;
+    watched: string;
+    versionLabel: string;
+    variants: Record<'esquematica' | 'captures', string>;
+    firstSessionRequired: string;
     groups: Record<'welcome' | 'assessment' | 'training' | 'results' | 'success' | 'therapist', string>;
   };
   cafftIntroPage: {
@@ -1274,6 +1283,19 @@ export interface ExposureSession {
   lastActivityAt: number;
   endedAt?: number; // Absent while open. Present with no endReason: rebuilt from old ratings
   endReason?: 'pause' | 'completed';
+}
+
+// How a patient has used one help video (server/migrations/009_help_video_views.sql).
+export interface HelpVideoView {
+  userId: string;
+  videoId: string;   // P06
+  versionId: string; // the version last watched: P06 or P06c
+  firstAt: number;
+  lastAt: number;
+  views: number;
+  maxPercent: number;
+  completedAt?: number; // Played to the end at least once
+  closedEarly: boolean; // The last viewing stopped before the end
 }
 
 export interface HelpModalSection { 

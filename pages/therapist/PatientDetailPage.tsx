@@ -6,6 +6,7 @@ import { useLanguage } from '../../hooks/useLanguage';
 import { PageTitle } from '../../components/PageTitle';
 import { Breadcrumbs } from '../../components/Breadcrumbs';
 import { SectionCard } from '../../components/SectionCard';
+import { HelpVideoUsage } from '../../components/therapist/HelpVideoUsage';
 import { 
     Patient,
     QPVIIUserResult, 
@@ -667,6 +668,10 @@ export const PatientDetailPage: React.FC = () => {
                                 )}
                             </div>
                         </div>
+                    </SectionCard>
+
+                    <SectionCard title={t('patientDetail.helpVideosTitle')}>
+                        <HelpVideoUsage patientId={patientId!} />
                     </SectionCard>
                 </div>
             </div>

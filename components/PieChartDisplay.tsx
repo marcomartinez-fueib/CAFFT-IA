@@ -14,11 +14,15 @@ export const PieChartDisplay: React.FC<PieChartDisplayProps> = ({ data }) => {
     fill: item.fill || PIE_CHART_COLORS[index % PIE_CHART_COLORS.length],
   }));
   
+  // Screen readers get the figures as text; the drawing is hidden from them.
+  const summary = chartData.map((d) => `${d.name}: ${d.value}%`).join('; ');
   return (
-    <div className="w-full h-72 sm:h-96">
+    <div className="w-full h-72 sm:h-96" role="img" aria-label={summary}>
+      <div aria-hidden="true" className="w-full h-full">
       <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
+        <PieChart accessibilityLayer={false}>
           <Pie
+            rootTabIndex={-1}
             data={chartData}
             cx="50%"
             cy="50%"
@@ -36,6 +40,7 @@ export const PieChartDisplay: React.FC<PieChartDisplayProps> = ({ data }) => {
           <Legend />
         </PieChart>
       </ResponsiveContainer>
+      </div>
     </div>
   );
 };

@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useDialog } from '../../hooks/useDialog';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useAuth } from '../../hooks/useAuth';
@@ -41,6 +42,7 @@ export const ManagerDashboardPage: React.FC = () => {
     const [therapists, setTherapists] = useState<StoredUser[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [isAddTherapistModalOpen, setAddTherapistModalOpen] = useState(false);
+    const addDialog = useDialog(() => setAddTherapistModalOpen(false));
     const [newTherapistData, setNewTherapistData] = useState({ username: '', email: '' });
     const [error, setError] = useState<string | null>(null);
 
@@ -190,10 +192,10 @@ export const ManagerDashboardPage: React.FC = () => {
 
              {/* Add Therapist Modal */}
              {isAddTherapistModalOpen && (
-                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <div ref={addDialog} role="dialog" aria-modal="true" aria-labelledby="addDialog-title" className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
                         <div className="p-6 border-b border-slate-100">
-                            <h2 className="text-xl font-black text-slate-900">{t('managerDashboard.addNewTherapistTitle')}</h2>
+                            <h2 id="addDialog-title" className="text-xl font-black text-slate-900">{t('managerDashboard.addNewTherapistTitle')}</h2>
                         </div>
                         <div className="p-6 space-y-4">
                             {error && <div className="p-3 bg-rose-50 text-rose-600 text-xs font-bold rounded-xl">{error}</div>}

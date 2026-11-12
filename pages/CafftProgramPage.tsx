@@ -31,7 +31,7 @@ export const CafftProgramPage: React.FC = () => {
           <div className="mt-8 pt-6 border-t border-gray-200">
             <Link 
               to="/scientific-foundation"
-              className="inline-block bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-colors duration-200 ease-in-out"
+              className="inline-block bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-colors duration-200 ease-in-out"
             >
               {t('cafftProgram.linkToScientificFoundation')}
             </Link>

@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'; 
+import { useDialog } from '../hooks/useDialog';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../hooks/useLanguage';
@@ -72,6 +73,8 @@ export const ExposurePage: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const p06 = useHelpVideo('P06');
+  // The rating needs an answer: no Escape. The focus goes to the slider.
+  const ratingDialog = useDialog();
   const [p06Watched, setP06Watched] = useState(() => !!(currentUser && getHelpVideoView(currentUser.id, 'P06')?.completedAt));
 
   // Exposure videos are served from the same origin as the app, under
@@ -487,13 +490,13 @@ export const ExposurePage: React.FC = () => {
       )}
 
       {isDiscomfortRatingModalOpen && currentVideoForRating && (
-          <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[1001] p-4">
+          <div ref={ratingDialog} role="dialog" aria-modal="true" aria-labelledby="rating-dialog-title" className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[1001] p-4">
               <div className="bg-white rounded-xl shadow-2xl p-6 sm:p-8 w-full max-w-lg transform transition-all animate-fadeIn">
-                  <h3 className="text-xl font-semibold text-slate-800 mb-2">{t('exposure.discomfortRatingModalTitle')}</h3>
+                  <h3 id="rating-dialog-title" className="text-xl font-semibold text-slate-800 mb-2">{t('exposure.discomfortRatingModalTitle')}</h3>
                   <p className="text-sm text-slate-600 mb-6">{t('exposure.discomfortRatingInstruction', { videoTitle: t(currentVideoForRating.titleKey) })}</p>
                    <div className="my-8">
                     <div className="text-center mb-4"><span className="text-6xl font-bold text-uib-blue">{selectedDiscomfortRating}</span></div>
-                    <input type="range" min="1" max="9" step="1" value={selectedDiscomfortRating || 5} aria-label={t('exposure.discomfortRatingModalTitle')} aria-valuetext={String(selectedDiscomfortRating ?? 5)} onChange={(e) => { setSelectedDiscomfortRating(Number(e.target.value)); setDiscomfortRatingError(null); }} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-uib-blue"/>
+                    <input data-autofocus type="range" min="1" max="9" step="1" value={selectedDiscomfortRating || 5} aria-label={t('exposure.discomfortRatingModalTitle')} aria-valuetext={String(selectedDiscomfortRating ?? 5)} onChange={(e) => { setSelectedDiscomfortRating(Number(e.target.value)); setDiscomfortRatingError(null); }} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-uib-blue"/>
                     <div className="flex justify-between text-xs text-slate-500 mt-2 px-1"><span>{t('exposure.discomfortRatingMinLabel')}</span><span>{t('exposure.discomfortRatingMaxLabel')}</span></div>
                   </div>
                   {discomfortRatingError && <p className="text-red-600 text-sm mt-4 text-center">{discomfortRatingError}</p>}

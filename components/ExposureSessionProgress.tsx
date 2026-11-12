@@ -77,7 +77,7 @@ export const ExposureSessionProgress: React.FC<ExposureSessionProgressProps> = (
                 {/* Video Info */}
                 <div className="mt-3 text-center px-1">
                   <p className={`text-[10px] font-black uppercase tracking-tighter transition-colors ${
-                    isCurrent ? 'text-uib-blue' : isCompleted ? 'text-slate-600' : 'text-slate-300'
+                    isCurrent ? 'text-uib-blue' : isCompleted ? 'text-slate-600' : 'text-slate-400'
                   }`}>
                     {t('exposure.' + video.relatedArea)}
                   </p>

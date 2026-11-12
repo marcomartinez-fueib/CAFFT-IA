@@ -13,6 +13,10 @@ interface QpviiFormProps {
   initialName?: string; 
   /** Shows the random-fill button; only for test accounts (see utils/testMode.ts). */
   showTestControls?: boolean;
+  /** Answers saved earlier, to carry on where the patient left off. */
+  savedAnswers?: QPVIIAnswers;
+  /** Called on every answer, to save the questionnaire as it goes. */
+  onAnswersChange?: (answers: QPVIIAnswers) => void;
 }
 
 const initialAnswers = QPVII_QUESTIONS.reduce<QPVIIAnswers>((acc, q) => {
@@ -29,11 +33,11 @@ const DiceIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 );
 
 
-export const QpviiForm: React.FC<QpviiFormProps> = ({ onSubmit, isSubmitting, initialName = '', showTestControls = false }) => {
+export const QpviiForm: React.FC<QpviiFormProps> = ({ onSubmit, isSubmitting, initialName = '', showTestControls = false, savedAnswers, onAnswersChange }) => {
   const { t } = useLanguage();
   const [name, setName] = useState(initialName);
   const [date, setDate] = useState('');
-  const [answers, setAnswers] = useState<QPVIIAnswers>(initialAnswers);
+  const [answers, setAnswers] = useState<QPVIIAnswers>(() => ({ ...initialAnswers, ...savedAnswers }));
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -41,8 +45,10 @@ export const QpviiForm: React.FC<QpviiFormProps> = ({ onSubmit, isSubmitting, in
   }, [initialName]);
 
   const handleAnswerChange = (questionId: number, value: number) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: value }));
-    setError(null); 
+    const next = { ...answers, [questionId]: value };
+    setAnswers(next);
+    onAnswersChange?.(next);
+    setError(null);
   };
   
   const today = new Date().toISOString().split('T')[0];

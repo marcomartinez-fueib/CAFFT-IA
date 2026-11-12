@@ -36,3 +36,6 @@ runtime/
 # server (runtime/videos/), not in the repository. Link them here for dev.
 public/videos_cafft/ajuda
 public/videos_cafft/cataleg.json
+
+# Report of the accessibility check (A11Y=1 npm run test:e2e)
+e2e-a11y.json

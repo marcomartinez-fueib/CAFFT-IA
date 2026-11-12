@@ -29,6 +29,10 @@ jobs:
       - name: Type check
         run: npm run lint
 
+      # No text of the interface left untranslated in Spanish or English.
+      - name: Translations
+        run: npm run check:translations
+
       - name: API tests
         run: npm run test:api
 
@@ -57,4 +61,5 @@ jobs:
           else
             npx playwright-core install --with-deps chromium-headless-shell
           fi
-          npm run test:e2e
+          # With the accessibility check of every screen (e2e/a11y.mjs).
+          A11Y=1 npm run test:e2e

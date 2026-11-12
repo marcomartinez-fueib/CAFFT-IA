@@ -5,6 +5,7 @@ import { Sidebar } from './Sidebar';
 import { SyncStatusBanner } from '../SyncStatusBanner';
 import { FeedbackLauncher } from '../FeedbackForm';
 import { Menu, X } from 'lucide-react';
+import { SkipLink } from '../SkipLink';
 import { useLanguage } from '../../hooks/useLanguage';
 
 export const TherapistLayout: React.FC = () => {
@@ -13,6 +14,7 @@ export const TherapistLayout: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
+      <SkipLink />
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div 
@@ -41,8 +43,8 @@ export const TherapistLayout: React.FC = () => {
             <Menu className="w-6 h-6" aria-hidden="true" />
           </button>
           
-          <div className="font-black text-xs uppercase tracking-widest text-slate-400">
-            CAFFT Clinical
+          <div className="font-black text-xs uppercase tracking-widest text-slate-500">
+            CAFFT {t('common.clinicalArea')}
           </div>
 
           <div className="w-10" /> {/* Spacer */}
@@ -50,7 +52,8 @@ export const TherapistLayout: React.FC = () => {
 
         <SyncStatusBanner />
 
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50 scrollbar-hide">
+        {/* The scrolling area: focusable so the keyboard can scroll it. */}
+        <main id="main-content" tabIndex={0} className="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50 scrollbar-hide focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-uib-blue">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
             <Outlet />
           </div>

@@ -14,6 +14,7 @@
 #      runtime/videos/                    the mp4 assets
 #      runtime/secrets/llm-gate-token     the `gate` token for pausat-llm (0600), read by the API
 #      runtime/secrets/gemini-key.conf    the Gemini key, only with AI_PROVIDER=gemini
+#      runtime/secrets/vapid.json         the Web Push keys; without it, reminders go by email only
 #      runtime/data/                      the SQLite database   — owned by uid 1000
 #      runtime/backups/                   daily snapshots       — owned by uid 1000
 #
@@ -109,6 +110,10 @@ services:
       GEMINI_KEY_FILE: /run/secrets/gemini-key.conf
       GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.8-flash,gemini-2.5-flash}
       AI_ENABLED: ${AI_ENABLED:-true}
+      # Session and inactivity reminders (server/src/reminders.ts); push only
+      # with the VAPID keys.
+      REMINDERS_ENABLED: ${REMINDERS_ENABLED:-true}
+      VAPID_FILE: /run/secrets/vapid.json
       AI_RETENTION_DAYS: ${AI_RETENTION_DAYS:-}
 
     volumes:

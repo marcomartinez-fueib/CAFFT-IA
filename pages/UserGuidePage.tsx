@@ -54,17 +54,17 @@ export const UserGuidePage: React.FC = () => {
       <SectionCard title={t('userGuide.beforeUse.title')} titleClassName="!text-red-600 !border-red-200">
         <p className="mb-4">{t('userGuide.beforeUse.adverseEffects')}</p>
         
-        <h3 className="text-lg font-semibold text-amber-700 mt-4 mb-2">ELS MÉS FREQÜENTS:</h3>
+        <h3 className="text-lg font-semibold text-amber-700 mt-4 mb-2 uppercase">{t('userGuide.beforeUse.mostFrequentTitle')}</h3>
         <ul className="list-disc list-inside space-y-1 mb-4">
           {Array.isArray(mostFrequentEffects) && mostFrequentEffects.map((item, index) => <li key={index}>{item}</li>)}
         </ul>
 
-        <h3 className="text-lg font-semibold text-red-700 mt-4 mb-2">ELS MÉS GREUS:</h3>
+        <h3 className="text-lg font-semibold text-red-700 mt-4 mb-2 uppercase">{t('userGuide.beforeUse.mostSeriousTitle')}</h3>
         <ul className="list-disc list-inside space-y-1 mb-4">
           {Array.isArray(mostSeriousEffects) && mostSeriousEffects.map((item, index) => <li key={index}>{item}</li>)}
         </ul>
         
-        <h3 className="text-lg font-semibold text-red-700 mt-6 mb-2">NO REALITZI EL CAFFT (Consulti abans):</h3>
+        <h3 className="text-lg font-semibold text-red-700 mt-6 mb-2 uppercase">{t('userGuide.beforeUse.doNotUseTitle')}</h3>
          <ul className="space-y-2">
           {Array.isArray(doNotUseIf) && doNotUseIf.map((item, index) => (
             <li key={index} className="flex items-start">

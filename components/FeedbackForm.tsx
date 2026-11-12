@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useDialog } from '../hooks/useDialog';
 import { useLocation } from 'react-router-dom';
 import { Star, MessageSquare, AlertCircle, Lightbulb, Users, CheckCircle2, X } from 'lucide-react';
 import { useLanguage } from '../hooks/useLanguage';
@@ -132,7 +133,7 @@ export const FeedbackForm: React.FC<FeedbackFormProps> = ({ defaultType = 'testi
               type="button"
               onClick={() => setRating(star)}
               aria-label={`${star}/5`}
-              className="focus:outline-none transition-transform hover:scale-110 active:scale-95"
+              className="focus:outline-none focus-visible:ring-2 focus-visible:ring-uib-blue rounded transition-transform hover:scale-110 active:scale-95"
             >
               <Star
                 className={`w-8 h-8 ${
@@ -201,6 +202,7 @@ export const FeedbackLauncher: React.FC = () => {
   const { pathname } = useLocation();
   const { isAssistantHidden } = useUI();
   const [isOpen, setIsOpen] = useState(false);
+  const feedbackDialog = useDialog(() => setIsOpen(false));
 
   useEffect(() => {
     if (!isOpen) return;
@@ -227,7 +229,7 @@ export const FeedbackLauncher: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div
+        <div ref={feedbackDialog}
           className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center sm:p-4"
           onClick={() => setIsOpen(false)}
         >

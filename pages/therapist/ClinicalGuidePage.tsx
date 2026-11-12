@@ -25,10 +25,10 @@ export const ClinicalGuidePage: React.FC = () => {
             content: (
                 <div className="space-y-4">
                     <p className="text-slate-600 leading-relaxed">
-                        Les tècniques d'exposició consisteixen en la planificació de confrontacions repetides i perllongades als estímuls evocadors de la por fòbica, fins que aquesta remeti, prevenint l'aparició de conductes de fugida o evitació.
+                        {t('helpModal.therapistInfo.principlesText')}
                     </p>
                     <div className="bg-blue-50 border-l-4 border-uib-blue p-4 rounded-r-xl">
-                        <h4 className="font-black text-xs uppercase tracking-widest text-uib-blue mb-2">Principis</h4>
+                        <h4 className="font-black text-xs uppercase tracking-widest text-uib-blue mb-2">{t('helpModal.therapistInfo.principlesHeading')}</h4>
                         <ul className="list-disc list-inside text-slate-700 text-sm space-y-1">
                             {(() => {
                                 const list = t('helpModal.therapistInfo.principlesList', { returnObjects: true });
@@ -162,12 +162,12 @@ export const ClinicalGuidePage: React.FC = () => {
                              <BookOpen className="w-8 h-8" />
                         </div>
                         <div>
-                            <h2 className="text-[10px] font-black text-uib-blue uppercase tracking-[0.3em]">Protocol Clínic</h2>
-                            <h1 className="text-3xl font-black text-slate-900 tracking-tight">Guia d'Aplicació</h1>
+                            <p className="text-[10px] font-black text-uib-blue uppercase tracking-[0.3em]">{t('helpModal.therapistInfo.guideKicker')}</p>
+                            <h1 className="text-3xl font-black text-slate-900 tracking-tight">{t('helpModal.therapistInfo.guideTitle')}</h1>
                         </div>
                     </div>
                     <p className="text-slate-500 max-w-xl leading-relaxed">
-                        Aquesta secció conté les directrius oficials per al terapeuta segons el manual CAFFT, la fonamentació en tècniques d'exposició conductual i les aportacions de Michelle Craske (Inhibitory Learning).
+                        {t('helpModal.therapistInfo.guideIntro')}
                     </p>
                 </div>
             </header>

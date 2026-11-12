@@ -114,7 +114,8 @@ export const HelpVideoPlayer: React.FC<Props> = ({ id, onEnded, className = '' }
           ))}
         </div>
       )}
-      <div className="aspect-video w-full bg-black rounded-lg overflow-hidden shadow">
+      {/* `isolate` keeps the browser's video layer inside the rounded corners. */}
+      <div className="relative isolate aspect-video w-full overflow-hidden rounded-xl bg-black ring-1 ring-slate-200">
         <TrackedVideo
           key={video.src}
           video={video}
@@ -170,7 +171,7 @@ const TrackedVideo: React.FC<TrackedVideoProps> = ({ video, track, autoPlay, onP
     // Informational video: unlike the exposure videos, the patient is free
     // to pause and seek, so the native controls stay.
     <video
-      className="w-full h-full"
+      className="block w-full h-full object-contain"
       controls
       playsInline
       autoPlay={autoPlay}

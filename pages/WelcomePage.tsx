@@ -101,7 +101,7 @@ export const WelcomePage: React.FC = () => {
               <legend className="sr-only">{t('welcome.step3Title')}</legend>
               {CHECKS.map((c) => (
                 <div key={c} className="flex items-start gap-3 rounded-lg border border-slate-200 p-3">
-                  <input id={`check-${c}`} type="checkbox" checked={!!checks[c]} onChange={(e) => setChecks({ ...checks, [c]: e.target.checked })} className="mt-1 h-5 w-5 accent-uib-blue" />
+                  <input id={`check-${c}`} type="checkbox" checked={!!checks[c]} onChange={(e) => setChecks({ ...checks, [c]: e.target.checked })} className="mt-1 h-5 w-5 shrink-0 accent-uib-blue" />
                   <div className="flex-grow">
                     <label htmlFor={`check-${c}`} className="text-slate-800 cursor-pointer">{t(`welcome.check.${c}`)}</label>
                     {c === 'sound' && (

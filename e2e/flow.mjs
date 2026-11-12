@@ -189,6 +189,13 @@ export async function runFlow({ browser, base, dbPath }) {
   await pause(1500);
   check('3.1 the introduction plays P01 from the catalogue', (await page.locator('video[data-help-video="P01"]').count()) === 1);
 
+  // The profile is in the menu (on the phone, the menu button).
+  await page.locator('#sidebar-nav-mobile').click();
+  await pause(300);
+  await page.getByRole('link', { name: 'El meu perfil' }).click();
+  await pause(1000);
+  check('4.4 the profile is reachable from the menu', page.url().endsWith('#/profile'));
+
   // Session planner: Monday and Thursday, saved on the server, then the .ics.
   await page.goto(base + '#/session-plan');
   await pause(1500);

@@ -75,7 +75,7 @@ export const HelpVideoLibrary: React.FC = () => {
                       aria-expanded={open}
                       aria-controls={`help-video-${id}`}
                       onClick={() => setOpenId(open ? null : id)}
-                      className="w-full flex items-center gap-4 p-4 text-left rounded-2xl hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-uib-blue"
+                      className={`w-full flex items-center gap-4 p-4 sm:px-6 text-left hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-uib-blue ${open ? 'rounded-t-2xl' : 'rounded-2xl'}`}
                     >
                       <PlayCircle className="w-8 h-8 flex-shrink-0 text-uib-accent" aria-hidden="true" />
                       <span className="flex-grow">
@@ -91,7 +91,7 @@ export const HelpVideoLibrary: React.FC = () => {
                       <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
                     </button>
                     {open && (
-                      <div id={`help-video-${id}`} className="px-4 pb-4">
+                      <div id={`help-video-${id}`} className="px-4 pb-5 pt-1 sm:px-6 sm:pb-6">
                         <HelpVideoPlayer id={id} onEnded={() => close(id)} />
                       </div>
                     )}

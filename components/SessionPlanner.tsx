@@ -90,7 +90,7 @@ export const SessionPlanner: React.FC<{ onSaved?: () => void }> = ({ onSaved }) 
             return (
               <li key={day} className={`flex items-center gap-3 rounded-lg border p-3 ${on ? 'border-uib-blue bg-sky-50' : 'border-slate-200'}`}>
                 <label className="flex flex-grow items-center gap-3 cursor-pointer">
-                  <input type="checkbox" checked={on} onChange={() => toggle(day)} className="h-5 w-5 accent-uib-blue" />
+                  <input type="checkbox" checked={on} onChange={() => toggle(day)} className="h-5 w-5 shrink-0 accent-uib-blue" />
                   <span className="capitalize text-slate-800">{name}</span>
                 </label>
                 {on && (

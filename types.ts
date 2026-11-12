@@ -2,11 +2,14 @@
 
 import React from 'react';
 
-export enum Language {
-  CA = 'ca',
-  ES = 'es',
-  EN = 'en',
-}
+// A plain object rather than an enum, so Node can run the shared code by
+// stripping the types (scripts/check-translations.ts).
+export const Language = {
+  CA: 'ca',
+  ES: 'es',
+  EN: 'en',
+} as const;
+export type Language = (typeof Language)[keyof typeof Language];
 
 export interface NotificationPreferences {
   enabled: boolean;
@@ -243,7 +246,12 @@ export interface HelpModalTranslatedStrings {
   };
   aiChatSection: { title: string; };
   therapistAiChatSection: { title: string; };
-    therapistInfo: { 
+    therapistInfo: {
+      guideKicker: string;
+      guideTitle: string;
+      guideIntro: string;
+      principlesHeading: string;
+      principlesText: string; 
     title: string; 
     evidenceTitle: string;
     evidenceText: string;
@@ -624,6 +632,8 @@ export interface TherapistDashboardContent {
 }
 
 export interface PatientDetailContent {
+  emailSubjectLabel: string;
+  emailMessageLabel: string;
   pageTitle: string;
   aiConsultationsTitleForPatient?: string;
   consentAccepted?: string;
@@ -738,6 +748,8 @@ export interface TranslationContent {
     invitationResent: string;
     invitationResendFailed: string;
     viewSource: string;
+    standardProtocol: string;
+    clinicalArea: string;
     time: {
       ago: string;
       year: string;
@@ -801,6 +813,7 @@ export interface TranslationContent {
   };
   fearOfFlying: {
     title: string;
+    chartUnavailable: string;
     introduction: string;
     prevalence: {
       title: string;
@@ -855,6 +868,9 @@ export interface TranslationContent {
       mostFrequent: string[];
       mostSerious: string[];
       doNotUseIf: string[];
+      mostFrequentTitle: string;
+      mostSeriousTitle: string;
+      doNotUseTitle: string;
     };
     howToUse: {
         title: string;
@@ -1589,6 +1605,7 @@ export interface SuperadminDashboardContent {
 }
 
 export interface FeedbackTranslations {
+  noTestimonials: string;
   pageTitle: string;
   ratingLabel: string;
   typeLabel: string;

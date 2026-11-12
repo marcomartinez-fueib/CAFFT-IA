@@ -1,5 +1,5 @@
 
-import { Translations, Language, HelpSectionContent, TranslationContent, HelpModalContentStructureType, PostTreatmentContent, ExposureExplanationContent, HelpModalTranslatedStrings, CelebrationPageContent, LastSessionPageContent, AIChatContent, TherapistDashboardContent, PatientDetailContent } from '../types.ts';
+import { Language, type Translations, type HelpSectionContent, type TranslationContent, type HelpModalContentStructureType, type PostTreatmentContent, type ExposureExplanationContent, type HelpModalTranslatedStrings, type CelebrationPageContent, type LastSessionPageContent, type AIChatContent, type TherapistDashboardContent, type PatientDetailContent } from '../types.ts';
 
 // --- Help Modal Content Structure ---
 
@@ -213,6 +213,8 @@ const caTranslations: TranslationContent = {
     appName: "CAFFT",
     appNameShort: "CAFFT",
     common: {
+        standardProtocol: "Protocol clínic estàndard CAFFT 5.1",
+        clinicalArea: "Clínic",
         syncFailed: "No s'han pogut desar alguns canvis. Comprovi la connexió; si el problema continua, avisi el seu terapeuta.",
         dismiss: "Tancar",
         close: "Tancar",
@@ -322,6 +324,7 @@ const caTranslations: TranslationContent = {
         startButton: "Començar el Programa",
     },
     fearOfFlying: {
+        chartUnavailable: "Les dades del gràfic no estan disponibles ara mateix.",
         title: "Què és la Por de Volar?",
         introduction: "La por de volar, o aerofòbia, és una de les fòbies específiques més comunes. Afecta un percentatge significatiu de la població i pot limitar la vida personal i professional de les persones.",
         prevalence: {
@@ -378,6 +381,9 @@ const caTranslations: TranslationContent = {
         beforeUse: {
             title: "Abans d'utilitzar el CAFFT",
             adverseEffects: "El tractament pot provocar efectes adversos temporals, similars als símptomes d'ansietat.",
+            mostFrequentTitle: "Els més freqüents:",
+            mostSeriousTitle: "Els més greus:",
+            doNotUseTitle: "No faci el CAFFT (consulti-ho abans) si:",
             mostFrequent: ["Ansietat", "Inquietud", "Tensió muscular", "Preocupació", "Irritabilitat"],
             mostSerious: ["Pot produir-se un atac de pànic, tot i que és poc freqüent."],
             doNotUseIf: [
@@ -1004,6 +1010,11 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
             title: "Assistent Clínic IA",
         },
         therapistInfo: {
+            guideKicker: "Protocol clínic",
+            guideTitle: "Guia d'aplicació",
+            guideIntro: "Aquesta secció conté les directrius oficials per al terapeuta segons el manual CAFFT, la fonamentació en tècniques d'exposició conductual i les aportacions de Michelle Craske (aprenentatge inhibitori).",
+            principlesHeading: "Principis",
+            principlesText: "Les tècniques d'exposició consisteixen en la planificació de confrontacions repetides i perllongades als estímuls evocadors de la por fòbica, fins que aquesta remeti, prevenint l'aparició de conductes de fugida o evitació.",
             title: "Informació Científica i Guia Clínica",
             evidenceTitle: "Fonamentació Científica i Evidència",
             evidenceText: "El CAFFT (**Computer-Assisted Fear of Flying Treatment**) és un programa d'exposició simulat que recrea situacions de vol mitjançant imatges i sons reals. Múltiples assajos controlats aleatoris (**Bornas et al., 2001, 2002, 2006; Tortella-Feliu et al., 2011; Botella-Arbona et al., 2004**) han demostrat:\n\n- **Eficàcia:** Reducció significativament major de la por de volar comparat amb llista d'espera.\n- **Equivalència:** Tan eficaç com la Realitat Virtual (**VRET**) i intervencions multicomponent més llargues.\n- **Manteniment:** Els èxits es mantenen en seguiments de **6 mesos i 1 any**.\n- **Taxa d'èxit:** Entre el **80% i el 90%** dels pacients milloren o es recuperen clínicament.",
@@ -1357,6 +1368,8 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
         moreConsultations: "+ {count} més consultes al registre",
     },
     patientDetail: {
+        emailSubjectLabel: "Assumpte",
+        emailMessageLabel: "Missatge",
         pageTitle: "Detalls del Pacient: {username}",
         currentPlanTitle: "Pla Terapèutic Actual",
         basedOnEvaluation: "Basat en avaluació del {date}",
@@ -1442,6 +1455,7 @@ El tractament es basa en l'**Exposició Pura**. Utilitzem vídeos realistes que 
         }
     },
     feedback: {
+        noTestimonials: "Encara no hi ha testimonis.",
         pageTitle: "Feedback del Programa",
         ratingLabel: "Valoració",
         typeLabel: "Tipus de Comentari",
@@ -1672,6 +1686,8 @@ const esTranslations: TranslationContent = {
     appNameShort: "CAFFT",
     common: {
         ...caTranslations.common,
+        standardProtocol: "Protocolo clínico estándar CAFFT 5.1",
+        clinicalArea: "Clínico",
         syncFailed: "No se han podido guardar algunos cambios. Compruebe la conexión; si el problema continúa, avise a su terapeuta.",
         dismiss: "Cerrar",
         close: "Cerrar",
@@ -1751,6 +1767,7 @@ const esTranslations: TranslationContent = {
         startButton: "Empezar Programa" 
     },
     fearOfFlying: {
+        chartUnavailable: "Los datos del gráfico no están disponibles en este momento.",
         title: "¿Qué es el Miedo a Volar?",
         introduction: "El miedo a volar, o aerofobia, es una de las fobias específicas más comunes. Afecta a un porcentaje significativo de la población y puede limitar la vida personal y profesional de las personas.",
         prevalence: {
@@ -1809,6 +1826,9 @@ const esTranslations: TranslationContent = {
             ...caTranslations.userGuide.beforeUse,
             title: "Antes de utilizar el CAFFT",
             adverseEffects: "El tratamiento puede provocar efectos adversos temporales, similares a los síntomas de ansiedad.",
+            mostFrequentTitle: "Los más frecuentes:",
+            mostSeriousTitle: "Los más graves:",
+            doNotUseTitle: "No haga el CAFFT (consúltelo antes) si:",
             mostFrequent: ["Ansiedad", "Inquietud", "Tensión muscular", "Preocupación", "Irritabilidad"],
             mostSerious: ["Puede producirse un ataque de pánico, aunque es poco frecuente."],
             doNotUseIf: [
@@ -1829,6 +1849,7 @@ const esTranslations: TranslationContent = {
             items: [
                 "Eficacia demostrada en estudios científicos.",
                 "Accesibilidad desde cualquier lugar con Internet.",
+                "Anonimato y privacidad.",
                 "Control total del usuario sobre el ritmo del tratamiento.",
                 "Coste-efectividad en comparación con terapias tradicionales.",
                 "Disponibilidad 24/7.",
@@ -2136,7 +2157,13 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
             title: "Asistente Clínico IA",
         },
         therapistInfo: {
+            guideKicker: "Protocolo clínico",
+            guideTitle: "Guía de aplicación",
+            guideIntro: "Esta sección contiene las directrices oficiales para el terapeuta según el manual CAFFT, la fundamentación en técnicas de exposición conductual y las aportaciones de Michelle Craske (aprendizaje inhibitorio).",
+            principlesHeading: "Principios",
+            principlesText: "Las técnicas de exposición consisten en la planificación de confrontaciones repetidas y prolongadas a los estímulos que evocan el miedo fóbico, hasta que este remita, previniendo la aparición de conductas de huida o evitación.",
             title: "Información Científica y Guía Clínica",
+            applicationSummary: "Disponemos de una guía detallada para la aplicación clínica del protocolo CAFFT, con instrucciones sobre la exposición, el feedback y las técnicas de regulación.",
             evidenceTitle: "Fundamentación Científica y Evidencia",
             evidenceText: "El CAFFT (**Computer-Assisted Fear of Flying Treatment**) es un programa de exposición simulada que recrea situaciones de vuelo mediante imágenes y sonidos reales. Múltiples ensayos controlados aleatorios (**Bornas et al., 2001, 2002, 2006; Tortella-Feliu et al., 2011; Botella-Arbona et al., 2004**) han demostrado:\n\n- **Eficacia:** Reducción significativamente mayor del miedo a volar comparado con lista de espera.\n- **Equivalencia:** Tan eficaz como la Realidad Virtual (**VRET**) e intervenciones multicomponente más largas.\n- **Mantenimiento:** Los éxitos se mantienen en seguimientos de **6 meses y 1 año**.\n- **Tasa de éxito:** Entre el **80% y el 90%** de los pacientes mejoran o se recuperan clínicamente.",
             mechanismTitle: "Mecanismos de Funcionamiento",
@@ -2218,6 +2245,57 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
         }
     },
     therapistDashboard: {
+        ...caTranslations.therapistDashboard,
+        search: "Buscar paciente...",
+        queryLabel: "Pregunta",
+        pageTitle: "Panel del terapeuta",
+        noPatients: "No hay pacientes registrados.",
+        myPatientsTitle: "Mis pacientes",
+        inviteModal: {
+            ...caTranslations.therapistDashboard.inviteModal,
+            title: "Añadir nuevo paciente",
+            sendButton: "Enviar correo (simulado)",
+            intro: "Se ha creado el paciente. Puede enviarle esta invitación:",
+            copyButton: "Copiar texto",
+            copiedButton: "¡Copiado!",
+            closeButton: "Cerrar",
+        },
+        inviteEmail: {
+            ...caTranslations.therapistDashboard.inviteEmail,
+            subject: "Bienvenido/a al programa CAFFT",
+            body: "Hola {patientName}:\n\nSu terapeuta {therapistName} le ha invitado al programa CAFFT.\n\nDatos de acceso:\nUsuario: {username}\nContraseña: {password}\n\nAcceda aquí: [URL_APP]",
+        },
+        exportDataModal: {
+            ...caTranslations.therapistDashboard.exportDataModal,
+            title: "Exportar datos",
+            cancelButton: "Cancelar",
+            anonymizeTooltip: "Sustituye nombres e IDs por códigos genéricos para proteger la privacidad.",
+            anonymizeLabel: "Anonimizar datos (recomendado)",
+        },
+        deletePatientModal: {
+            ...caTranslations.therapistDashboard.deletePatientModal,
+            title: "Borrar paciente",
+            deleteButton: "Borrar",
+            confirmationText: "¿Seguro que quiere borrar el paciente {username}? Esta acción no se puede deshacer.",
+            cancelButton: "Cancelar",
+        },
+        addPatientModal: {
+            ...caTranslations.therapistDashboard.addPatientModal,
+            usernameLabel: "Nombre de usuario",
+            title: "Añadir nuevo paciente",
+            passwordLabel: "Contraseña inicial",
+            languageLabel: "Idioma de los correos",
+            emailLabel: "Correo electrónico",
+            createButton: "Crear paciente",
+            cancelButton: "Cancelar",
+        },
+        addPatientButton: "Añadir paciente",
+        actionOptions: {
+            ...caTranslations.therapistDashboard.actionOptions,
+            viewDetails: "Ver detalles",
+            resetPassword: "Rest. contraseña",
+            deletePatient: "Borrar",
+        },
         exportModal: {
             title: "Exportar datos",
             anonymizeLabel: "Anonimizar",
@@ -2230,7 +2308,6 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
         },
         daysWithoutSession: "{days} días sin ninguna sesión",
         reminderSentRecently: "Ya se le ha enviado un recordatorio estos dos últimos días.",
-        ...caTranslations.therapistDashboard,
         kpi: {
             ...caTranslations.therapistDashboard.kpi,
             title_overview: "Resumen de Rendimiento (KPIs)",
@@ -2247,15 +2324,22 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
         criticalAlertsTitle: "Alertas de Seguimiento",
         table: {
             ...caTranslations.therapistDashboard.table,
-            qpvii_latest: "QPV-II (Último)",
-            rci: "RCI",
+            status: "Estado",
             significant_rci: "Fiable",
             remind: "Recordar",
+            progress: "Progreso",
+            notifications: "Notif.",
+            name: "Nombre",
+            last_active: "Última actividad",
+            hierarchy_completed: "Jerarquía superada",
+            exposure_time: "Tiempo exp.",
+            actions: "Acciones",
+            qpvii_latest: "QPV-II (Último)",
+            rci: "RCI",
             total_time: "Tiempo Total",
             sessions: "Sesiones",
             last_session_slope: "Última Pendiente",
             habituation_status: "Estado Habit.",
-            notifications: "Notíf.",
             onboarding_tour: "Recorrido",
         },
         tooltips: {
@@ -2305,9 +2389,9 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
             statusGenerated: "Generado",
         },
         resetPasswordModal: {
+            copyButton: "Copiar",
             title: "Restablecer contraseña de {username}",
             newPasswordIs: "La nueva contraseña temporal es:",
-            copyButton: "Copiar",
             copiedButton: "¡Copiado!",
             closeButton: "Cerrar",
             failed: "No se ha podido restablecer la contraseña.",
@@ -2322,12 +2406,13 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
         aiConsultationsTitle: "Consultas de los Pacientes al IA Assistant",
         noAiConsultations: "Ninguno de tus pacientes ha realizado aún ninguna consulta al IA assistant.",
         patientLabel: "Paciente",
-        queryLabel: "Pregunta",
         newConsultation: "Nueva Consulta",
         moreConsultations: "+ {count} más consultas en el registro",
     },
     patientDetail: {
         ...caTranslations.patientDetail,
+        emailSubjectLabel: "Asunto",
+        emailMessageLabel: "Mensaje",
         pageTitle: "Detalles del Paciente: {username}",
         currentPlanTitle: "Plan Terapéutico Actual",
         basedOnEvaluation: "Basado en evaluación del {date}",
@@ -2759,6 +2844,7 @@ El tratamiento se basa en la **Exposición Pura**. Utilizamos vídeos realistas 
         },
     },
     feedback: {
+        noTestimonials: "Todavía no hay testimonios.",
         pageTitle: "Feedback del Programa",
         ratingLabel: "Valoración",
         typeLabel: "Tipo de Comentario",
@@ -3059,6 +3145,8 @@ const enTranslations: TranslationContent = {
     appNameShort: "CAFFT",
     common: {
         ...caTranslations.common,
+        standardProtocol: "CAFFT 5.1 standard clinical protocol",
+        clinicalArea: "Clinical",
         syncFailed: "Some changes could not be saved. Check your connection; if the problem continues, tell your therapist.",
         dismiss: "Dismiss",
         close: "Close",
@@ -3148,6 +3236,9 @@ const enTranslations: TranslationContent = {
         beforeUse: {
             title: "Before using CAFFT",
             adverseEffects: "Treatment may cause temporary adverse effects, similar to anxiety symptoms.",
+            mostFrequentTitle: "The most common:",
+            mostSeriousTitle: "The most serious:",
+            doNotUseTitle: "Do not do CAFFT (ask first) if:",
             mostFrequent: ["Anxiety", "Restlessness", "Muscle tension", "Worry", "Irritability"],
             mostSerious: ["A panic attack may occur, although it is uncommon."],
             doNotUseIf: [
@@ -3197,6 +3288,7 @@ const enTranslations: TranslationContent = {
         nervousnessAdvice: "It is normal to feel a bit of nerves. Do not interpret these nerves as a danger sign.",
     },
     fearOfFlying: {
+        chartUnavailable: "Chart data is currently unavailable.",
         title: "What is Fear of Flying?",
         introduction: "Fear of flying, or aerophobia, is one of the most common specific phobias. It affects a significant percentage of the population and can limit people's personal and professional lives.",
         prevalence: {
@@ -3269,6 +3361,57 @@ const enTranslations: TranslationContent = {
         }
     },
     therapistDashboard: {
+        ...caTranslations.therapistDashboard,
+        search: "Search patient...",
+        pageTitle: "Therapist dashboard",
+        noPatients: "No patients registered.",
+        myPatientsTitle: "My patients",
+        inviteModal: {
+            ...caTranslations.therapistDashboard.inviteModal,
+            title: "Add new patient",
+            sendButton: "Send email (simulated)",
+            intro: "The patient has been created. You can send them this invitation:",
+            copyButton: "Copy text",
+            copiedButton: "Copied!",
+            closeButton: "Close",
+        },
+        inviteEmail: {
+            ...caTranslations.therapistDashboard.inviteEmail,
+            subject: "Welcome to the CAFFT programme",
+            body: "Hi {patientName},\n\nYour therapist {therapistName} has invited you to the CAFFT programme.\n\nYour login details:\nUsername: {username}\nPassword: {password}\n\nLog in here: [URL_APP]",
+        },
+        exportDataModal: {
+            ...caTranslations.therapistDashboard.exportDataModal,
+            title: "Export data",
+            exportButton: "Export CSV",
+            cancelButton: "Cancel",
+            anonymizeTooltip: "Replaces names and IDs with generic codes to protect privacy.",
+            anonymizeLabel: "Anonymise data (recommended)",
+        },
+        deletePatientModal: {
+            ...caTranslations.therapistDashboard.deletePatientModal,
+            title: "Delete patient",
+            deleteButton: "Delete",
+            confirmationText: "Are you sure you want to delete the patient {username}? This cannot be undone.",
+            cancelButton: "Cancel",
+        },
+        addPatientModal: {
+            ...caTranslations.therapistDashboard.addPatientModal,
+            usernameLabel: "Username",
+            title: "Add new patient",
+            passwordLabel: "Initial password",
+            languageLabel: "Language of the emails",
+            emailLabel: "Email",
+            createButton: "Create patient",
+            cancelButton: "Cancel",
+        },
+        addPatientButton: "Add patient",
+        actionOptions: {
+            ...caTranslations.therapistDashboard.actionOptions,
+            viewDetails: "View details",
+            resetPassword: "Reset password",
+            deletePatient: "Delete",
+        },
         exportModal: {
             title: "Export data",
             anonymizeLabel: "Anonymise",
@@ -3281,7 +3424,6 @@ const enTranslations: TranslationContent = {
         },
         daysWithoutSession: "{days} days without a session",
         reminderSentRecently: "A reminder was already sent in the last two days.",
-        ...caTranslations.therapistDashboard,
         kpi: {
             ...caTranslations.therapistDashboard.kpi,
             title_overview: "Performance Overview (KPIs)",
@@ -3298,12 +3440,19 @@ const enTranslations: TranslationContent = {
         criticalAlertsTitle: "Follow-up Alerts",
         table: {
             ...caTranslations.therapistDashboard.table,
+            status: "Status",
+            sessions: "Sessions",
+            progress: "Progress",
+            name: "Name",
+            last_active: "Last activity",
+            hierarchy_completed: "Hierarchy completed",
+            exposure_time: "Exp. time",
+            actions: "Actions",
             qpvii_latest: "QPV-II (Latest)",
             rci: "RCI",
             significant_rci: "Reliable",
             remind: "Remind",
             total_time: "Total Time",
-            sessions: "Sessions",
             last_session_slope: "Last Slope",
             habituation_status: "Habit. Status",
             notifications: "Notif.",
@@ -3364,6 +3513,7 @@ const enTranslations: TranslationContent = {
             failed: "The password could not be reset.",
         },
         reminders: {
+            sendAllReminders: "Send adherence reminders",
             sendReminderButton: "Send Reminder",
             reminderSentSuccess: "Reminder sent successfully.",
             inactivityBadge: "Inactive ({days}d)",
@@ -3378,7 +3528,10 @@ const enTranslations: TranslationContent = {
     },
     patientDetail: {
         ...caTranslations.patientDetail,
+        emailSubjectLabel: "Subject",
+        emailMessageLabel: "Message",
         pageTitle: "Patient Details: {username}",
+        patientNotFound: "Patient not found.",
         currentPlanTitle: "Current Treatment Plan",
         basedOnEvaluation: "Based on evaluation from {date}",
         hierarchyTitle: "Exposure Hierarchy",
@@ -3779,6 +3932,7 @@ const enTranslations: TranslationContent = {
     },
     aiChat: {
         pageTitle: "AI Assistant",
+        initialMessageReturning: ["Welcome back, {username}! We missed your steady work. How do you feel about picking up your exposure sessions today?", "Hi {username}, welcome back! It has been a few days. Shall we carry on where we left off?", "Hi! I'm {assistantName}. It's good to see you again. Are you ready to take another small step today?"],
         disclaimer: "This is an automated assistant. Information may not be accurate. If in doubt, consult a professional.",
         initialMessage: ["Hi! I'm {assistantName}, your co-therapist. How can I help you today?", "Hello {username}! I'm {assistantName}. Do you have any questions or would you like to talk about something?", "Hi, I'm {assistantName}. How are you feeling today? I'm here to support you."],
         initialMessageCompleted: ["Hello, {username}! I'm {assistantName}. I've reviewed your progress and you're doing great. What's on your mind right now?", "Hi! I'm {assistantName}. Should we continue with your exposure sessions or do you have any questions?", "Hello, {username}! I'm {assistantName}. How can I assist you today?"],
@@ -3902,6 +4056,7 @@ const enTranslations: TranslationContent = {
         },
     },
     feedback: {
+        noTestimonials: "No testimonials yet.",
         pageTitle: "Program Feedback",
         ratingLabel: "Rating",
         typeLabel: "Comment Type",
@@ -3970,6 +4125,7 @@ const enTranslations: TranslationContent = {
     },
     celebration: {
         pageTitle: "Congratulations!",
+        viewFlightInstructionsButton: "View flight guidelines",
         congratulations: "Congratulations, {username}!",
         messageBody: "You have completed the CAFFT program. This is a great step towards overcoming your fear.",
         achievementsHeader: "Achievements",
@@ -4195,7 +4351,13 @@ The treatment is based on **Pure Exposure**. We use realistic videos that simula
             title: "Clinical AI Assistant",
         },
         therapistInfo: {
+            guideKicker: "Clinical protocol",
+            guideTitle: "Application guide",
+            guideIntro: "This section contains the official guidelines for the therapist according to the CAFFT manual, the foundations of behavioural exposure techniques and Michelle Craske's contributions (inhibitory learning).",
+            principlesHeading: "Principles",
+            principlesText: "Exposure techniques consist of planned, repeated and prolonged confrontations with the stimuli that evoke the phobic fear, until it subsides, while preventing escape or avoidance behaviours.",
             title: "Scientific Information and Clinical Guide",
+            applicationSummary: "There is a detailed guide to the clinical application of the CAFFT protocol, with instructions on exposure, feedback and regulation techniques.",
             evidenceTitle: "Scientific Foundation and Evidence",
             evidenceText: "CAFFT (**Computer-Assisted Fear of Flying Treatment**) is a simulated exposure program that recreates flight situations using real images and sounds. Multiple randomized controlled trials (**Bornas et al., 2001, 2002, 2006; Tortella-Feliu et al., 2011; Botella-Arbona et al., 2004**) have demonstrated:\n\n- **Efficacy:** Significantly greater reduction in fear of flying compared to waiting list controls.\n- **Equivalence:** As effective as Virtual Reality Exposure Therapy (**VRET**) and longer multicomponent interventions.\n- **Maintenance:** Successes are maintained at **6-month and 1-year** follow-ups.\n- **Success Rate:** Between **80% and 90%** of patients improve or recover clinically.",
             mechanismTitle: "Mechanisms of Action",

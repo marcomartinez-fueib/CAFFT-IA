@@ -690,11 +690,11 @@ export const PatientDetailPage: React.FC = () => {
                         <h3 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight">{t('patientDetail.emailModalTitle')}</h3>
                         <div className="p-6 bg-slate-50 border border-slate-200 rounded-2xl mb-8 overflow-y-auto scrollbar-hide shadow-inner">
                             <div className="mb-4 pb-4 border-b border-slate-200">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Subject</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('patientDetail.emailSubjectLabel')}</p>
                                 <p className="text-sm font-bold text-slate-800">{selectedEmail.subject}</p>
                             </div>
                             <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Message</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('patientDetail.emailMessageLabel')}</p>
                                 <p className="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">{selectedEmail.body}</p>
                             </div>
                         </div>

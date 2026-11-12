@@ -173,7 +173,7 @@ export const HelpCenterPage: React.FC = () => {
               {isProspectus && index === 0 && (
                 <div className="flex items-center gap-3 mb-6 text-uib-blue bg-white/50 w-fit px-4 py-1.5 rounded-full border border-slate-200">
                   <ShieldCheck className="w-4 h-4 text-uib-accent" />
-                  <span className="text-[9px] font-bold uppercase tracking-wider">Protocol Clínic Estàndard CAFFT 5.1</span>
+                  <span className="text-[9px] font-bold uppercase tracking-wider">{t('common.standardProtocol')}</span>
                 </div>
               )}
               <ReactMarkdown remarkPlugins={[remarkGfm]}>

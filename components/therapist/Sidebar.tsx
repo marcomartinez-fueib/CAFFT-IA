@@ -63,7 +63,7 @@ export const Sidebar: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
             <div className="flex items-center justify-between mb-8 lg:hidden">
                 <div className="flex items-center">
                     <UibLogo variant="light" className="h-8" />
-                    <span className="ml-3 font-black text-xs uppercase tracking-widest text-white">Clinical</span>
+                    <span className="ml-3 font-black text-xs uppercase tracking-widest text-white">{t('common.clinicalArea')}</span>
                 </div>
                 <button 
                     onClick={onClose}

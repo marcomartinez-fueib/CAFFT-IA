@@ -70,7 +70,7 @@ export const FeedbackPage: React.FC = () => {
             ) : (
               <div className="bg-slate-50 border border-slate-100 rounded-2xl p-8 text-center">
                 <Users className="w-12 h-12 text-slate-200 mx-auto mb-3" />
-                <p className="text-slate-400 text-sm font-medium">No hi ha testimonis encara.</p>
+                <p className="text-slate-400 text-sm font-medium">{t('feedback.noTestimonials')}</p>
               </div>
             )}
           </div>

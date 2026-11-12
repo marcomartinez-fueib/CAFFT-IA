@@ -28,6 +28,8 @@ export interface UserRow {
   treatment_consent_version: string | null;
   treatment_consent_at: number | null;
   help_video_variant: 'esquematica' | 'captures' | null;
+  unsubscribe_token: string | null;
+  notification_consent_version: string | null;
   created_at: number;
   updated_at: number;
 }
@@ -64,6 +66,7 @@ export function toApiUser(row: UserRow): ApiUser {
   if (row.consent_metadata) user.informedConsentMetadata = JSON.parse(row.consent_metadata);
   if (row.assistant_name) user.assistantName = row.assistant_name;
   if (row.help_video_variant) user.helpVideoVariant = row.help_video_variant;
+  if (row.notification_consent_version) user.notificationConsentVersion = row.notification_consent_version;
   if (row.notification_prefs) user.notificationPreferences = JSON.parse(row.notification_prefs);
   if (row.last_login_at) user.lastLoginDate = row.last_login_at;
   if (row.last_assessment_at) user.lastAssessmentDate = row.last_assessment_at;

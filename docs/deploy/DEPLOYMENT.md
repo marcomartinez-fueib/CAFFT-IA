@@ -72,6 +72,7 @@ deploy leaves a copy of the data as it was before the new code touched it.
     │   ├── cataleg.json         the help videos' catalogue, from the team
     │   └── ajuda/               the help videos: mp4, vtt subtitles, posters
     ├── secrets/llm-gate-token   the `gate` token for pausat-llm (0600), read only by the API
+    ├── secrets/vapid.json       the Web Push keys (0600); without it, reminders go by email only
     ├── data/                    the SQLite database   — owned by uid 1000
     └── backups/                 daily snapshots       — owned by uid 1000
 ```
@@ -328,6 +329,32 @@ If nginx returns 502 for `/cafft/api/*`, the API is down (`docker logs cafft-api
 the rest of the site keeps working, because nginx resolves `api` per request.
 
 ---
+
+## Reminders and push notifications
+
+The API sends, by itself, a reminder on the day of each planned session (two
+hours before, not before 8:00) and a gentle one after more than two days
+without a session (at most every two days, 10:00–20:00). Only to patients who
+accepted the current notification consent and have not finished the
+programme; by email through the outbox, and by Web Push to the browsers they
+subscribed. Neither carries clinical information. Every email has a link that
+turns them off without logging in. `REMINDERS_ENABLED=false` in the env file
+stops them; the API logs `reminders` at start-up with whether push is on.
+
+Web Push needs a pair of VAPID keys per environment, made once with the
+library the API already has, kept in `runtime/secrets/vapid.json`:
+
+```bash
+cd /data/apps/cafft-pre      # or cafft-pro, with cafft-api below
+(umask 077; docker exec cafft-pre-api node -e "console.log(JSON.stringify(require('web-push').generateVAPIDKeys()))" > runtime/secrets/vapid.json)
+docker restart cafft-pre-api
+docker logs cafft-pre-api 2>&1 | grep '"reminders"' | tail -1   # "push":true
+```
+
+Changing the keys later invalidates every subscription: patients would have to
+turn notifications on again. The push services are the browsers' own (Google,
+Mozilla, Apple), reached from the server over HTTPS; the message is encrypted
+for the browser and holds only the reminder text.
 
 ## The AI assistant
 

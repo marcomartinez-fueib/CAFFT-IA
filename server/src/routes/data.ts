@@ -4,7 +4,7 @@ import { canWriteClinical, visibleUser, visibleUsers } from '../access.ts';
 import { hasCurrentTreatmentConsent } from '../consents.ts';
 import { transaction } from '../db.ts';
 import { audit } from '../audit.ts';
-import { consultationsFor, emailsFor, helpVideoViewsFor, lastActivityAt, progressFor, qpviiFor, sessionsFor } from '../records.ts';
+import { consultationsFor, emailsFor, helpVideoViewsFor, lastActivityAt, plansFor, progressFor, qpviiFor, sessionsFor } from '../records.ts';
 import { toApiUser, type UserRow } from '../users.ts';
 import { enqueueMail } from '../mail/outbox.ts';
 import { feedbackMail } from '../mail/templates.ts';
@@ -53,6 +53,7 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
       progress: progressFor(db, ids),
       sessions: sessionsFor(db, ids),
       helpVideoViews: helpVideoViewsFor(db, ids),
+      sessionPlans: plansFor(db, ids),
       consultations: consultationsFor(db, ids),
       emails: emailsFor(db, ids),
     };
@@ -426,8 +427,9 @@ export async function dataRoutes(app: FastifyInstance): Promise<void> {
   /**
    * Inactivity reminders: for each visible patient (or just those listed),
    * record a reminder if they have been inactive for `thresholdDays` and have
-   * not had one in the last `minGapDays`. Replaces the client-side
-   * checkAndSendInactivityReminder / sendAdherenceRemindersToAllInactive.
+   * not had one in the last `minGapDays`: the therapist's «send reminders»
+   * button (sendAdherenceRemindersToAllInactive). The automatic reminders
+   * are src/reminders.ts.
    * `{username}` in the body is replaced per patient.
    */
   app.post<{ Body: { patientIds?: string[]; thresholdDays: number; minGapDays?: number; subject: string; bodyTemplate: string } }>(

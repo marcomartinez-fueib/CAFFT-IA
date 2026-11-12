@@ -24,6 +24,7 @@ import {
   ExposureSession,
   HelpVideoView,
   QPVIIAnswers,
+  SessionPlan,
   QPVIIScores,
   QPVIIUserResult,
   SimulatedEmail,
@@ -42,11 +43,12 @@ interface StoreState {
   progress: UserExposureProgress[];
   sessions: ExposureSession[];
   helpVideoViews: HelpVideoView[];
+  sessionPlans: SessionPlan[];
   consultations: AiConsultation[];
   emails: SimulatedEmail[];
 }
 
-const empty = (): StoreState => ({ users: [], qpvii: [], progress: [], sessions: [], helpVideoViews: [], consultations: [], emails: [] });
+const empty = (): StoreState => ({ users: [], qpvii: [], progress: [], sessions: [], helpVideoViews: [], sessionPlans: [], consultations: [], emails: [] });
 
 let state: StoreState = empty();
 
@@ -253,6 +255,7 @@ export async function deletePatientData(userId: string): Promise<boolean> {
     progress: state.progress.filter((p) => p.userId !== userId),
     sessions: state.sessions.filter((s) => s.userId !== userId),
     helpVideoViews: state.helpVideoViews.filter((v) => v.userId !== userId),
+    sessionPlans: state.sessionPlans.filter((p) => p.userId !== userId),
     consultations: state.consultations.filter((c) => c.userId !== userId),
     emails: state.emails.filter((e) => e.patientId !== userId),
   });
@@ -492,6 +495,25 @@ export function endExposureSession(
   return copy(session);
 }
 
+// --- Session plan -----------------------------------------------------------------
+
+export function getSessionPlan(userId: string): SessionPlan | null {
+  const plan = state.sessionPlans.find((p) => p.userId === userId);
+  return plan ? copy(plan) : null;
+}
+
+/** Saves the patient's own plan; the server answers with it normalised. */
+export async function saveSessionPlan(slots: SessionPlan['slots']): Promise<SessionPlan> {
+  const { plan } = await api<{ plan: SessionPlan }>('PUT', '/session-plan', { slots });
+  setState({ ...state, sessionPlans: [...state.sessionPlans.filter((p) => p.userId !== plan.userId), plan] });
+  return copy(plan);
+}
+
+export async function deleteSessionPlan(userId: string): Promise<void> {
+  await api('DELETE', '/session-plan');
+  setState({ ...state, sessionPlans: state.sessionPlans.filter((p) => p.userId !== userId) });
+}
+
 // --- Help videos ------------------------------------------------------------------
 
 export function getHelpVideoViewsForUser(userId: string): HelpVideoView[] {
@@ -587,10 +609,6 @@ async function sendInactivityReminders(
     console.error('[dataStore] sendInactivityReminders:', err);
     return [];
   }
-}
-
-export async function checkAndSendInactivityReminder(userId: string, thresholdDays: number, subject: string, body: string): Promise<boolean> {
-  return (await sendInactivityReminders([userId], thresholdDays, subject, body)).length > 0;
 }
 
 export async function sendAdherenceRemindersToAllInactive(

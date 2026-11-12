@@ -1,5 +1,5 @@
 import type { Db } from './db.ts';
-import type { AiConsultation, ExposureSession, HelpVideoView, QPVIIUserResult, SimulatedEmail, UserExposureProgress } from '../../types.ts';
+import type { AiConsultation, ExposureSession, HelpVideoView, QPVIIUserResult, SessionPlan, SimulatedEmail, UserExposureProgress } from '../../types.ts';
 
 // Row <-> client-shape mapping for the clinical and log tables. The shapes are
 // the client's own types, so the frontend consumes these unchanged.
@@ -178,6 +178,14 @@ export function helpVideoViewsFor(db: Db, userIds: string[]): HelpVideoView[] {
     .prepare(`SELECT * FROM help_video_views WHERE user_id IN (${placeholders(userIds)}) ORDER BY last_at DESC`)
     .all(...userIds) as unknown as HelpVideoViewRow[];
   return rows.map(toHelpVideoView);
+}
+
+export function plansFor(db: Db, userIds: string[]): SessionPlan[] {
+  if (userIds.length === 0) return [];
+  const rows = db
+    .prepare(`SELECT user_id, slots, updated_at FROM session_plans WHERE user_id IN (${placeholders(userIds)})`)
+    .all(...userIds) as unknown as { user_id: string; slots: string; updated_at: number }[];
+  return rows.map((r) => ({ userId: r.user_id, slots: JSON.parse(r.slots), updatedAt: r.updated_at }));
 }
 
 export function consultationsFor(db: Db, userIds: string[]): AiConsultation[] {

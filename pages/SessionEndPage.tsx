@@ -4,6 +4,7 @@ import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
 import { PageTitle } from '../components/PageTitle';
 import { HelpVideoCard } from '../components/HelpVideoCard';
+import { PlanSummary } from '../components/PlanSummary';
 import { SectionCard } from '../components/SectionCard';
 import { getExposureSessionsForUser, getUserExposureProgress } from '../services/dataStore';
 import { summarizeSession } from '../utils/sessions';
@@ -51,7 +52,8 @@ export const SessionEndPage: React.FC = () => {
             <p className="text-gray-700 mb-6">{t('sessionEnd.encouragement')}</p>
 
             <h2 className="text-lg font-semibold text-slate-800 mb-2">{t('sessionEnd.nextTitle')}</h2>
-            <p className="text-gray-700 mb-8">{t('sessionEnd.nextText')}</p>
+            <p className="text-gray-700 mb-4">{t('sessionEnd.nextText')}</p>
+            {currentUser && <PlanSummary userId={currentUser.id} className="mb-8 p-4 rounded-lg bg-slate-50" />}
             {isFirstSession && <HelpVideoCard id="P12" className="mb-8" />}
           </>
         )}

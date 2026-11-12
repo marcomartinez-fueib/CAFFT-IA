@@ -10,6 +10,9 @@ import { authRoutes } from './routes/auth.ts';
 import { meRoutes, userRoutes } from './routes/users.ts';
 import { dataRoutes, feedbackRoutes } from './routes/data.ts';
 import { assistantRoutes } from './routes/assistant.ts';
+import { planRoutes, reminderLinkRoutes } from './routes/plan.ts';
+import { webPushSender } from './push.ts';
+import type { PushSender } from './reminders.ts';
 import { geminiProvider, localProvider, type AiProvider } from './ai/provider.ts';
 
 declare module 'fastify' {
@@ -25,8 +28,15 @@ declare module 'fastify' {
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
-/** `aiProvider` replaces the configured one (tests); null turns the assistant off. */
-export async function buildApp(config: Config, db: Db, deps: { aiProvider?: AiProvider | null } = {}): Promise<FastifyInstance> {
+/**
+ * `aiProvider` replaces the configured one (tests); null turns the assistant
+ * off. `pushSender` likewise for Web Push.
+ */
+export async function buildApp(
+  config: Config,
+  db: Db,
+  deps: { aiProvider?: AiProvider | null; pushSender?: PushSender | null } = {},
+): Promise<FastifyInstance> {
   const app = Fastify({
     logger: config.logger ? {
       // Bodies carry health data and passwords: never log them, and keep
@@ -81,12 +91,18 @@ export async function buildApp(config: Config, db: Db, deps: { aiProvider?: AiPr
   await app.register(meRoutes, { prefix: '/me' });
   await app.register(dataRoutes);
   await app.register(feedbackRoutes, { prefix: '/feedback' });
+  await app.register(planRoutes, { push: deps.pushSender !== undefined ? deps.pushSender : configuredPush(config, (msg, err) => app.log.error({ err }, msg)) });
+  await app.register(reminderLinkRoutes);
   await app.register(assistantRoutes, { prefix: '/ai', provider: deps.aiProvider !== undefined ? deps.aiProvider : configuredProvider(config) });
 
   return app;
 }
 
 /** The assistant's model, or null when it is off or not configured. */
+export function configuredPush(config: Config, log: (msg: string, err?: unknown) => void): PushSender | null {
+  return config.reminders.push ? webPushSender(config.reminders.push, log) : null;
+}
+
 export function configuredProvider(config: Config): AiProvider | null {
   if (!config.ai.enabled) return null;
   if (config.ai.provider === 'local') {

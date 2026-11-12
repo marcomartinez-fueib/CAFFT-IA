@@ -11,6 +11,8 @@ import { FearOfFlyingPage } from './pages/FearOfFlyingPage.tsx';
 import { CafftProgramPage } from './pages/CafftProgramPage.tsx';
 import { UserGuidePage } from './pages/UserGuidePage.tsx';
 import { HelpVideosPage } from './pages/HelpVideosPage.tsx';
+import { SessionPlanPage } from './pages/SessionPlanPage.tsx';
+import { RemindersOffPage } from './pages/RemindersOffPage.tsx';
 import { CafftIntroPage } from './pages/CafftIntroPage.tsx';
 import { QpviiPage } from './pages/QpviiPage.tsx';
 import { RegisterPage } from './pages/RegisterPage.tsx';
@@ -36,7 +38,6 @@ import { FeedbackLauncher } from './components/FeedbackForm.tsx';
 import { HelpCenterPage } from './pages/HelpCenterPage.tsx';
 import { OnboardingProvider } from './hooks/useOnboarding.tsx';
 import { OnboardingTour } from './components/OnboardingTour.tsx';
-import { ReminderCheck } from './components/ReminderCheck.tsx';
 import { NotificationBanner } from './components/NotificationBanner.tsx';
 import { SyncStatusBanner } from './components/SyncStatusBanner.tsx';
 import { NotificationConsentManager } from './components/NotificationConsentManager.tsx';
@@ -89,7 +90,6 @@ const App: React.FC = () => {
     <LanguageProvider>
       <AuthProvider>
         <UIProvider>
-          <ReminderCheck />
           <OnboardingProvider>
             <HashRouter>
               <OnboardingTour />
@@ -112,12 +112,16 @@ const App: React.FC = () => {
                 <Route path="login" element={<LoginPage />} />
                 <Route path="forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="reset-password/:token" element={<ResetPasswordPage />} />
+                <Route path="reminders-off/:token" element={<RemindersOffPage />} />
                 
                 {/* Patient-only Routes */}
                 <Route path="qpvii-evaluation" element={<ConsentGuard><QpviiPage /></ConsentGuard>} />
 
                 <Route path="cafft-intro" element={
                     <ProtectedRoute role="patient"><CafftIntroPage /></ProtectedRoute>
+                }/>
+                <Route path="session-plan" element={
+                    <ProtectedRoute role="patient"><SessionPlanPage /></ProtectedRoute>
                 }/>
                 <Route path="profile" element={
                     <ProtectedRoute role="patient"><ProfilePage /></ProtectedRoute>

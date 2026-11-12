@@ -118,7 +118,7 @@ test('consent texts are pinned to their version', () => {
   };
   const PINNED = {
     treatment: { version: '2026-11', hash: '8ff0ab9b5da1392a' },
-    notifications: { version: '2026-11', hash: 'ecd789a6c9213915' },
+    notifications: { version: '2026-12', hash: 'e86d51d669501897' },
   };
   assert.deepEqual(
     { treatment: { version: CONSENT_VERSIONS.treatment, hash: hashOf(['consentText', 'legalText']) },

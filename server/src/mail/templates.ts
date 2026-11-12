@@ -106,3 +106,77 @@ export function feedbackMail(f: {
     body: `${f.comment.trim()}\n\n—\n${lines.join('\n')}\n\nEnviado desde el formulario de feedback de CAFFT.`,
   };
 }
+
+/**
+ * The reminders the server sends by itself (src/reminders.ts). No clinical
+ * information: only that there is a session, or that it has been a while.
+ * `push` is the same message for a notification on the phone or computer.
+ */
+export interface ReminderMessage {
+  subject: string;
+  body: string;
+  push: { title: string; body: string };
+}
+
+function reminderFooter(lang: Lang, unsubscribeLink: string): string {
+  return {
+    ca: `Si no vol rebre més recordatoris, desactivi'ls aquí:\n${unsubscribeLink}\n\nTambé ho pot fer des del seu perfil.`,
+    es: `Si no quiere recibir más recordatorios, desactívelos aquí:\n${unsubscribeLink}\n\nTambién puede hacerlo desde su perfil.`,
+    en: `If you no longer want these reminders, turn them off here:\n${unsubscribeLink}\n\nYou can also do it from your profile.`,
+  }[lang];
+}
+
+export function sessionReminderMail(lang: Lang, username: string, time: string, appUrl: string, unsubscribeLink: string): ReminderMessage {
+  const t = {
+    ca: {
+      subject: `CAFFT: té una sessió avui a les ${time}`,
+      text: `Té programada una sessió del CAFFT avui a les ${time}.`,
+      body: `Hola ${username},\n\nTé programada una sessió del CAFFT avui a les ${time}. Busqui un moment tranquil i un lloc on pugui estar sense interrupcions.\n\n${appUrl}`,
+    },
+    es: {
+      subject: `CAFFT: tiene una sesión hoy a las ${time}`,
+      text: `Tiene programada una sesión del CAFFT hoy a las ${time}.`,
+      body: `Hola ${username}:\n\nTiene programada una sesión del CAFFT hoy a las ${time}. Busque un momento tranquilo y un lugar donde pueda estar sin interrupciones.\n\n${appUrl}`,
+    },
+    en: {
+      subject: `CAFFT: you have a session today at ${time}`,
+      text: `You have a CAFFT session planned today at ${time}.`,
+      body: `Hi ${username},\n\nYou have a CAFFT session planned today at ${time}. Find a quiet moment and a place where you will not be interrupted.\n\n${appUrl}`,
+    },
+  }[lang];
+  return {
+    subject: t.subject,
+    body: `${t.body}\n\n${reminderFooter(lang, unsubscribeLink)}\n\n${SIGNATURE[lang]}`,
+    push: { title: 'CAFFT', body: t.text },
+  };
+}
+
+export function inactivityReminderMail(lang: Lang, username: string, appUrl: string, unsubscribeLink: string): ReminderMessage {
+  const t = {
+    ca: {
+      subject: 'CAFFT: quan li vagi bé, pot continuar',
+      text: 'Fa uns dies que no fa cap sessió del CAFFT. Quan li vagi bé, pot continuar on ho va deixar.',
+      body: `Hola ${username},\n\nFa uns dies que no fa cap sessió del CAFFT. És normal que costi trobar el moment; quan li vagi bé, pot continuar on ho va deixar.\n\n${appUrl}`,
+    },
+    es: {
+      subject: 'CAFFT: cuando le vaya bien, puede continuar',
+      text: 'Hace unos días que no hace ninguna sesión del CAFFT. Cuando le vaya bien, puede continuar donde lo dejó.',
+      body: `Hola ${username}:\n\nHace unos días que no hace ninguna sesión del CAFFT. Es normal que cueste encontrar el momento; cuando le vaya bien, puede continuar donde lo dejó.\n\n${appUrl}`,
+    },
+    en: {
+      subject: 'CAFFT: whenever suits you, you can carry on',
+      text: "It has been a few days since your last CAFFT session. Whenever suits you, you can carry on where you left off.",
+      body: `Hi ${username},\n\nIt has been a few days since your last CAFFT session. Finding the moment is not always easy; whenever suits you, you can carry on where you left off.\n\n${appUrl}`,
+    },
+  }[lang];
+  return {
+    subject: t.subject,
+    body: `${t.body}\n\n${reminderFooter(lang, unsubscribeLink)}\n\n${SIGNATURE[lang]}`,
+    push: { title: 'CAFFT', body: t.text },
+  };
+}
+
+/** The app's link to turn reminders off without logging in. */
+export function unsubscribeLink(appUrl: string, token: string): string {
+  return `${appUrl.replace(/\/*$/, '/')}#/reminders-off/${token}`;
+}

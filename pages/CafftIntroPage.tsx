@@ -9,6 +9,7 @@ import { useOnboarding } from '../hooks/useOnboarding';
 import { Sparkles } from 'lucide-react';
 import { getQPVIIResultsForUser, getUserExposureProgress } from '../services/dataStore';
 import { HelpVideoPlayer } from '../components/HelpVideoPlayer';
+import { PlanSummary } from '../components/PlanSummary';
 
 export const CafftIntroPage: React.FC = () => {
   const { t } = useLanguage();
@@ -75,6 +76,14 @@ export const CafftIntroPage: React.FC = () => {
           </h3>
           <HelpVideoPlayer id="P01" className="max-w-2xl mx-auto" />
         </div>
+
+        {/* Offered here until the three-step welcome arrives (fita 5). */}
+        {currentUser && (
+          <div className="my-8 p-4 rounded-lg border border-sky-200 bg-sky-50">
+            <h3 className="font-semibold text-slate-800 mb-1">{t('planner.introTitle')}</h3>
+            <PlanSummary userId={currentUser.id} />
+          </div>
+        )}
 
         <div className="flex flex-col sm:flex-row gap-4 mt-8">
             <button

@@ -8,6 +8,7 @@ import { SectionCard } from '../components/SectionCard.tsx';
 import { getQPVIIResultsForUser } from '../services/dataStore.ts';
 import { QPVIIUserResult } from '../types.ts';
 import { NotificationSettings } from '../components/NotificationSettings.tsx';
+import { PlanSummary } from '../components/PlanSummary.tsx';
 
 export const ProfilePage: React.FC = () => {
   const { currentUser, changePassword, loading: authLoading } = useAuth();
@@ -137,6 +138,10 @@ export const ProfilePage: React.FC = () => {
               {authLoading ? t('auth.loading') : t('auth.changePasswordButton')}
             </button>
           </form>
+        </SectionCard>
+
+        <SectionCard title={t('planner.pageTitle')}>
+          <PlanSummary userId={currentUser.id} />
         </SectionCard>
 
         {/* Notification Settings */}

@@ -46,6 +46,7 @@ export interface User {
   isTestAccount?: boolean; // Set by staff; shows the testing controls to this patient
   treatmentConsent?: { version: string; acceptedAt: number }; // Latest informed consent accepted (consent.ts)
   helpVideoVariant?: 'esquematica' | 'captures'; // Chosen version of the help videos that have two
+  notificationConsentVersion?: string; // Notification consent accepted and not withdrawn (consent.ts)
 }
 
 // A user as the API returns it (server/src/users.ts, toApiUser). The password
@@ -1011,6 +1012,20 @@ export interface TranslationContent {
     declineButton: string;
     notificationPrivacyNote?: string;
     notificationsEnabledMessage?: string;
+    remindersTitle: string;
+    remindersOn: string;
+    remindersSaveError: string;
+    pushTitle: string;
+    pushOn: string;
+    pushOff: string;
+    pushExplain: string;
+    pushExplainIos: string;
+    pushNeedsInstall: string;
+    pushBlocked: string;
+    pushUnsupported: string;
+    pushServerOff: string;
+    pushTest: string;
+    pushTestSent: string;
   };
   exposureHierarchy: {
     pageTitle: string;
@@ -1154,6 +1169,38 @@ export interface TranslationContent {
   exposureExplanation: ExposureExplanationContent;
   celebration: CelebrationPageContent;
   lastSession: LastSessionPageContent;
+  planner: {
+    pageTitle: string;
+    intro: string;
+    introTitle: string;
+    daysLegend: string;
+    timeFor: string;
+    adviceFew: string;
+    adviceMany: string;
+    nextSessions: string;
+    nextSession: string;
+    noPlan: string;
+    plan: string;
+    change: string;
+    save: string;
+    saved: string;
+    saveError: string;
+    addToCalendar: string;
+    calendarTitle: string;
+    calendarDescription: string;
+    remindersOffTitle: string;
+    remindersOn: string;
+    therapistNoPlan: string;
+    therapistNoneYet: string;
+    therapistDone: string;
+    therapistHeld: string;
+    therapistMissed: string;
+  };
+  remindersOff: {
+    title: string;
+    done: string;
+    failed: string;
+  };
   sessionEnd: {
     pausedTitle: string;
     pausedIntro: string;
@@ -1283,6 +1330,14 @@ export interface ExposureSession {
   lastActivityAt: number;
   endedAt?: number; // Absent while open. Present with no endReason: rebuilt from old ratings
   endReason?: 'pause' | 'completed';
+}
+
+// The patient's week of sessions (server/src/sessionPlan.ts): day 0 = Sunday,
+// time 'HH:MM' in the clinic's time zone.
+export interface SessionPlan {
+  userId: string;
+  slots: { day: number; time: string }[];
+  updatedAt: number;
 }
 
 // How a patient has used one help video (server/migrations/009_help_video_views.sql).

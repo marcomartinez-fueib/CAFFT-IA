@@ -181,6 +181,42 @@ export async function runFlow({ browser, base, dbPath }) {
   await pause(1500);
   check('3.1 the introduction plays P01 from the catalogue', (await page.locator('video[data-help-video="P01"]').count()) === 1);
 
+  // Session planner: Monday and Thursday, saved on the server, then the .ics.
+  await page.goto(base + '#/session-plan');
+  await pause(1500);
+  await page.getByLabel('dilluns').check();
+  await page.getByLabel('dijous').check();
+  await page.getByLabel('Hora del dijous').fill('19:30');
+  await page.getByRole('button', { name: 'Desar la planificació' }).click();
+  await pause(1000);
+  const planRow = db.prepare('SELECT slots FROM session_plans WHERE user_id = ?').get(patientId);
+  check('4.1 the plan is saved on the server', planRow?.slots === JSON.stringify([{ day: 1, time: '18:00' }, { day: 4, time: '19:30' }]), planRow?.slots);
+  const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Afegir al calendari' }).click()]);
+  const ics = await (await import('node:fs/promises')).readFile(await download.path(), 'utf8');
+  check('4.2 «Afegir al calendari» gives the planned sessions as a calendar file',
+    download.suggestedFilename() === 'cafft-sessions.ics' && (ics.match(/BEGIN:VEVENT/g) || []).length === 8 && ics.includes('SUMMARY:Sessió del CAFFT') && !/QPV|malestar/i.test(ics));
+
+  // Reminders: off for this patient (the seed), turned on from the planner.
+  await page.getByRole('button', { name: 'Sí, enviar-me recordatoris' }).click();
+  await pause(1500);
+  const consentRow = db.prepare('SELECT notification_consent_version AS v, notification_prefs AS p FROM users WHERE id = ?').get(patientId);
+  check('4.4 turning reminders on records the notification consent', consentRow.v === '2026-12' && JSON.parse(consentRow.p).enabled === true);
+  await page.goto(base + '#/profile');
+  await pause(1500);
+  body = await text();
+  check('4.1 the profile shows the next planned session', body.includes('Propera sessió') && body.includes('Recordatoris per correu'));
+
+  // The link of a reminder email turns them off without logging in.
+  db.prepare("UPDATE users SET unsubscribe_token = 'e2e-unsubscribe-token-0123456789' WHERE id = ?").run(patientId);
+  const anon = await browser.newPage();
+  watch(anon);
+  await anon.goto(base + '#/reminders-off/e2e-unsubscribe-token-0123456789');
+  await anon.waitForTimeout(1500);
+  check('4.4 the email link turns reminders off',
+    (await anon.locator('body').innerText()).includes('Hem desactivat els recordatoris')
+      && db.prepare('SELECT notification_consent_version AS v FROM users WHERE id = ?').get(patientId).v === null);
+  await anon.close();
+
   await page.goto(base + '#/');
   await pause(800);
 
@@ -255,6 +291,7 @@ export async function runFlow({ browser, base, dbPath }) {
   await tp.waitForTimeout(2000);
   body = (await tp.locator('body').innerText()).replace(/\s+/g, ' ');
   check('3.4 the therapist sees which help videos the patient watched', body.includes("Vídeos d'ajuda") && /P06 .*Pantalla real.*Vist/.test(body));
+  check('4.6 the therapist sees the patient\'s session plan', body.includes('Planificació de sessions') && body.includes('dilluns 18:00 · dijous 19:30'));
   await tp.close();
 
   check('no unexpected browser errors', errors.length === 0, [...new Set(errors)].slice(0, 5).join(' | '));

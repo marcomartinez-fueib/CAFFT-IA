@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../hooks/useLanguage';
 import { PageTitle } from '../components/PageTitle';
+import { HelpVideoCard } from '../components/HelpVideoCard';
 import { SectionCard } from '../components/SectionCard';
 import { ExposureVideo, QPVIIScores, ExposureSceneKey, QPVIIAnswers } from '../types';
 import { EXPOSURE_VIDEOS } from '../constants';
@@ -146,6 +147,7 @@ export const ExposureHierarchyPage: React.FC = () => {
       <PageTitle title={t('exposureHierarchy.pageTitle')} />
       <SectionCard>
         <p className="mb-6 text-gray-700">{t('exposureHierarchy.introText')}</p>
+        <HelpVideoCard id="P05" className="mb-8" />
         
         <div className="mb-8 p-4 bg-sky-50 border border-sky-200 rounded-lg">
             <div className="flex items-start">

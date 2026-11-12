@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../hooks/useLanguage.tsx';
 import { useAuth } from '../hooks/useAuth.tsx';
 import { PageTitle } from '../components/PageTitle.tsx';
+import { HelpVideoCard } from '../components/HelpVideoCard';
 import { QpviiForm } from '../components/QpviiForm.tsx';
 import { QpviiResultsDisplay } from '../components/QpviiResultsDisplay.tsx';
 import { QPVIIAnswers, QPVIIScores } from '../types.ts';
@@ -169,6 +170,8 @@ export const QpviiPage: React.FC = () => {
            </p>
         </div>
       )}
+
+      {currentUser?.role === 'patient' && !results && <HelpVideoCard id="P03" className="mb-6" />}
 
       {!results ? (
         <QpviiForm

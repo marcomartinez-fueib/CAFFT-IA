@@ -1,5 +1,5 @@
 
-import { getUsers, getAllQPVIIResults, getAllUserExposureProgress, reportClinicalAccess } from '../services/dataStore';
+import { getUsers, getAllQPVIIResults, getAllUserExposureProgress, getHelpVideoViewsForUser, reportClinicalAccess } from '../services/dataStore';
 import { EXPOSURE_VIDEOS, CANONICAL_FLIGHT_STAGES_ORDER } from '../constants';
 import { determineVideoSequence, isExposureFullyCompleted } from './exposureUtils';
 import { computeRci } from './rci';
@@ -57,6 +57,9 @@ export function downloadCSV(csvString: string, filename: string): void {
 const NON_PHOBIC_MEAN = 65.24;
 const NON_PHOBIC_SD = 30.79;
 const AVERAGE_VIDEO_DURATION_SECONDS = 180; // 3 minutes
+
+// The patients' help videos, for the usage columns of the export.
+const PATIENT_HELP_VIDEOS = ['P01', 'P02', 'P03', 'P04', 'P05', 'P06', 'P07', 'P08', 'P09', 'P10', 'P12', 'P13', 'P14', 'P15', 'P16', 'P17'];
 
 /**
  * Formats a duration in seconds to an HH:MM:SS string.
@@ -235,6 +238,17 @@ export function exportDataToCSV(anonymize: boolean): void {
         });
 
         rowData.total_video_views = allRatings.length;
+
+        // Help videos: how far each one was watched, whether to the end, and
+        // which version (P06c is the one with screenshots).
+        const helpViews = getHelpVideoViewsForUser(user.id);
+        rowData.help_videos_completed = helpViews.filter(v => v.completedAt).length;
+        PATIENT_HELP_VIDEOS.forEach(id => {
+            const view = helpViews.find(v => v.videoId === id);
+            rowData[`help_${id}_max_percent`] = view ? view.maxPercent : '';
+            rowData[`help_${id}_completed`] = view ? (view.completedAt ? 'yes' : 'no') : '';
+            rowData[`help_${id}_version`] = view ? view.versionId : '';
+        });
         rowData.avg_discomfort_rating_overall = allRatings.length > 0
             ? (allRatings.reduce((a, b) => a + b.rating, 0) / allRatings.length).toFixed(4)
             : '';
@@ -273,7 +287,9 @@ export function exportDataToCSV(anonymize: boolean): void {
         sceneHeaders.push(`scene_${sceneKey}_ratings_list`);
     });
 
-    const finalHeaders = [...baseHeaders, ...sceneHeaders];
+    const helpHeaders = ['help_videos_completed', ...PATIENT_HELP_VIDEOS.flatMap(id => [`help_${id}_max_percent`, `help_${id}_completed`, `help_${id}_version`])];
+
+    const finalHeaders = [...baseHeaders, ...sceneHeaders, ...helpHeaders];
     const csv = convertToCSV(allPatientRows, finalHeaders);
     downloadCSV(csv, `cafft_patient_summary_export_${new Date().toISOString().split('T')[0]}.csv`);
 }

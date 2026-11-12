@@ -72,6 +72,26 @@ export async function runFlow({ browser, base, dbPath }) {
   check('1.3 «Fer una pausa» replaces «Sortir i guardar el progrés»', body.includes('Fer una pausa') && !body.includes('Sortir i guardar'));
   check('1.4 opening the exposure page creates no session', db.prepare('SELECT COUNT(*) AS n FROM exposure_sessions').get().n === 0);
 
+  // P06 before the first session: open, with the version selector, and it
+  // must be watched to the end before «Començar Exposició» is enabled.
+  // Exact: the card's note also mentions «Començar Exposició».
+  const start = page.getByRole('button', { name: 'Començar Exposició', exact: true });
+  check('3.6 P06 gates the first session', await start.isDisabled() && (await text()).includes('vegi aquest vídeo fins al final'));
+  check('3.3 a video with two versions offers «Esquema / Pantalla real»',
+    (await page.getByRole('radio').count()) === 2 && (await page.getByRole('radio', { name: 'Esquema' }).isChecked()));
+  await page.getByText('Pantalla real').click();
+  await pause(1000);
+  const p06c = page.locator('video[data-help-video="P06c"]');
+  check('3.3 the choice switches the video and is kept in the profile',
+    (await p06c.count()) === 1 && db.prepare('SELECT help_video_variant AS v FROM users WHERE id = ?').get(patientId).v === 'captures');
+  await p06c.evaluate((v) => v.dispatchEvent(new Event('play')));
+  await p06c.evaluate((v) => v.dispatchEvent(new Event('ended')));
+  await pause(1000);
+  const viewRow = db.prepare("SELECT * FROM help_video_views WHERE user_id = ? AND video_id = 'P06'").get(patientId);
+  check('3.4 the viewing is recorded with its version', viewRow?.version_id === 'P06c' && viewRow.completed_at > 0 && viewRow.closed_early === 0 && viewRow.views === 1);
+  check('3.6 watching P06 to the end enables «Començar Exposició»', await start.isEnabled());
+  check('3.5 a watched card folds and says «Vist»', (await page.locator('[data-help-video-card="P06"] [aria-expanded="false"]').count()) === 1 && (await text()).includes('Vist'));
+
   // Plays the current video (or, without the LFS files, simulates it) and rates it.
   const watchAndRate = async (rating) => {
     await page.getByRole('button', { name: /Començar Exposició/i }).first().click();
@@ -91,6 +111,7 @@ export async function runFlow({ browser, base, dbPath }) {
   check('1.7 the discomfort slider goes from 1 to 9', (await watchAndRate(5)) === '9');
   body = await text();
   check('1.8 the retry message speaks only of 2 or less', /2 o menys/.test(body) && !/meitat|->/.test(body));
+  check('3.6 the retry message carries P07', (await page.locator('[data-help-video-card="P07"]').count()) === 1);
 
   await watchAndRate(2);
   check('1.4 the first rating opens one session', db.prepare('SELECT COUNT(*) AS n FROM exposure_sessions').get().n === 1);
@@ -230,6 +251,10 @@ export async function runFlow({ browser, base, dbPath }) {
   await tp.waitForTimeout(1500);
   body = await tp.locator('body').innerText();
   check('1.14 Evidència: no raw key, RCI is not «clínicament significatiu»', !/COMMON\.VIEWSOURCE/i.test(body) && !/clínicament significatiu/i.test(body));
+  await tp.goto(base + `#/therapist/patient/${patientId}`);
+  await tp.waitForTimeout(2000);
+  body = (await tp.locator('body').innerText()).replace(/\s+/g, ' ');
+  check('3.4 the therapist sees which help videos the patient watched', body.includes("Vídeos d'ajuda") && /P06 .*Pantalla real.*Vist/.test(body));
   await tp.close();
 
   check('no unexpected browser errors', errors.length === 0, [...new Set(errors)].slice(0, 5).join(' | '));

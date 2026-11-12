@@ -341,12 +341,17 @@ subscribed. Neither carries clinical information. Every email has a link that
 turns them off without logging in. `REMINDERS_ENABLED=false` in the env file
 stops them; the API logs `reminders` at start-up with whether push is on.
 
-Web Push needs a pair of VAPID keys per environment, made once with the
-library the API already has, kept in `runtime/secrets/vapid.json`:
+Web Push needs a pair of VAPID keys per environment (an elliptic-curve P-256
+pair), made once with Node's own crypto inside the API container and kept in
+`runtime/secrets/vapid.json`:
 
 ```bash
 cd /data/apps/cafft-pre      # or cafft-pro, with cafft-api below
-(umask 077; docker exec cafft-pre-api node -e "console.log(JSON.stringify(require('web-push').generateVAPIDKeys()))" > runtime/secrets/vapid.json)
+(umask 077; docker exec cafft-pre-api node -e "
+const k = require('crypto').generateKeyPairSync('ec', { namedCurve: 'prime256v1' });
+const pub = k.publicKey.export({ format: 'jwk' }), b = (s) => Buffer.from(s, 'base64url');
+console.log(JSON.stringify({ publicKey: Buffer.concat([Buffer.from([4]), b(pub.x), b(pub.y)]).toString('base64url'),
+  privateKey: k.privateKey.export({ format: 'jwk' }).d }));" > runtime/secrets/vapid.json)
 docker restart cafft-pre-api
 docker logs cafft-pre-api 2>&1 | grep '"reminders"' | tail -1   # "push":true
 ```

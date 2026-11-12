@@ -51,7 +51,7 @@ export const HelpVideoCard: React.FC<Props> = ({ id, note, onCompleted, defaultO
         aria-expanded={open}
         aria-controls={`help-video-card-${id}`}
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-3 p-4 rounded-2xl text-left hover:bg-sky-100/60 focus:outline-none focus:ring-2 focus:ring-uib-blue"
+        className={`w-full flex items-center gap-3 p-4 sm:px-6 text-left hover:bg-sky-100/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-uib-blue ${open ? 'rounded-t-2xl' : 'rounded-2xl'}`}
       >
         <PlayCircle className="w-7 h-7 flex-shrink-0 text-uib-accent" aria-hidden="true" />
         <span className="flex-grow">
@@ -68,7 +68,7 @@ export const HelpVideoCard: React.FC<Props> = ({ id, note, onCompleted, defaultO
         <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
       </button>
       {open && (
-        <div id={`help-video-card-${id}`} className="px-4 pb-4">
+        <div id={`help-video-card-${id}`} className="px-4 pb-5 pt-1 sm:px-6 sm:pb-6">
           <HelpVideoPlayer id={id} onEnded={handleEnded} />
         </div>
       )}

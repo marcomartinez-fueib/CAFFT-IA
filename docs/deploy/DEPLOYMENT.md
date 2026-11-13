@@ -69,7 +69,10 @@ deploy leaves a copy of the data as it was before the new code touched it.
 └── runtime/                     not in git
     ├── web/cafft/               the built app (deploy.sh swaps it in)
     ├── videos/                  the exposure videos (mp4)
+    │   ├── cataleg.json         the help videos' catalogue, from the team
+    │   └── ajuda/               the help videos: mp4, vtt subtitles, posters
     ├── secrets/llm-gate-token   the `gate` token for pausat-llm (0600), read only by the API
+    ├── secrets/vapid.json       the Web Push keys (0600); without it, reminders go by email only
     ├── data/                    the SQLite database   — owned by uid 1000
     └── backups/                 daily snapshots       — owned by uid 1000
 ```
@@ -91,6 +94,22 @@ certificates of `pausat.uib.es` and `pausat-pre.uib.es` are already declared in
   and the tests like a push.
 - **Deploy by hand, in an emergency** (the runner is down): on the server,
   `bash /data/apps/cafft-pro/deploy.sh pro`.
+
+### Updating the help videos
+
+The team delivers the help videos ("píndoles") as a folder `videos_cafft/` with
+`cataleg.json` and `ajuda/`. They are not in the repository: copy them from a
+laptop into each environment, and the app picks them up on the next page load
+(nginx sends them with `no-cache`, so a file replaced under the same name is
+not held in browsers' caches):
+
+```bash
+rsync -av --chmod=F644,D755 <delivery>/videos_cafft/cataleg.json <delivery>/videos_cafft/ajuda \
+  <server>:/data/apps/cafft-<env>/runtime/videos/
+```
+
+Without the catalogue the app still works; the help videos say they are not
+available.
 
 ### Rolling back
 
@@ -310,6 +329,37 @@ If nginx returns 502 for `/cafft/api/*`, the API is down (`docker logs cafft-api
 the rest of the site keeps working, because nginx resolves `api` per request.
 
 ---
+
+## Reminders and push notifications
+
+The API sends, by itself, a reminder on the day of each planned session (two
+hours before, not before 8:00) and a gentle one after more than two days
+without a session (at most every two days, 10:00–20:00). Only to patients who
+accepted the current notification consent and have not finished the
+programme; by email through the outbox, and by Web Push to the browsers they
+subscribed. Neither carries clinical information. Every email has a link that
+turns them off without logging in. `REMINDERS_ENABLED=false` in the env file
+stops them; the API logs `reminders` at start-up with whether push is on.
+
+Web Push needs a pair of VAPID keys per environment (an elliptic-curve P-256
+pair), made once with Node's own crypto inside the API container and kept in
+`runtime/secrets/vapid.json`:
+
+```bash
+cd /data/apps/cafft-pre      # or cafft-pro, with cafft-api below
+(umask 077; docker exec cafft-pre-api node -e "
+const k = require('crypto').generateKeyPairSync('ec', { namedCurve: 'prime256v1' });
+const pub = k.publicKey.export({ format: 'jwk' }), b = (s) => Buffer.from(s, 'base64url');
+console.log(JSON.stringify({ publicKey: Buffer.concat([Buffer.from([4]), b(pub.x), b(pub.y)]).toString('base64url'),
+  privateKey: k.privateKey.export({ format: 'jwk' }).d }));" > runtime/secrets/vapid.json)
+docker restart cafft-pre-api
+docker logs cafft-pre-api 2>&1 | grep '"reminders"' | tail -1   # "push":true
+```
+
+Changing the keys later invalidates every subscription: patients would have to
+turn notifications on again. The push services are the browsers' own (Google,
+Mozilla, Apple), reached from the server over HTTPS; the message is encrypted
+for the browser and holds only the reminder text.
 
 ## The AI assistant
 

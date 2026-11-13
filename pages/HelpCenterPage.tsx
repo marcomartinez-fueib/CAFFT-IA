@@ -4,10 +4,10 @@ import remarkGfm from 'remark-gfm';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
 import { useUI } from '../hooks/useUI';
-import { helpModalContentStructure, translations } from '../data/translations';
+import { helpModalContentStructure } from '../data/translations';
 import { HelpModalSection, HelpContentItem, HelpSubtitleItem } from '../types';
-import { YOUTUBE_ICON_SVG } from '../constants';
 import { motion, AnimatePresence } from 'motion/react';
+import { HelpVideoLibrary } from '../components/HelpVideoLibrary';
 import { 
   Plane, 
   BookOpen, 
@@ -173,7 +173,7 @@ export const HelpCenterPage: React.FC = () => {
               {isProspectus && index === 0 && (
                 <div className="flex items-center gap-3 mb-6 text-uib-blue bg-white/50 w-fit px-4 py-1.5 rounded-full border border-slate-200">
                   <ShieldCheck className="w-4 h-4 text-uib-accent" />
-                  <span className="text-[9px] font-bold uppercase tracking-wider">Protocol Clínic Estàndard CAFFT 5.1</span>
+                  <span className="text-[9px] font-bold uppercase tracking-wider">{t('common.standardProtocol')}</span>
                 </div>
               )}
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -201,23 +201,9 @@ export const HelpCenterPage: React.FC = () => {
             </div>
           );
         case 'video_list':
-          const videos = translations[language].helpVideos.videos;
           return (
-            <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-              {videos?.map((v, i) => (
-                <a 
-                  key={i} href={v.link} target="_blank" rel="noopener noreferrer"
-                  className="flex flex-col p-6 bg-white border border-slate-200 rounded-3xl hover:border-uib-accent transition-all group shadow-sm hover:shadow-md"
-                >
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white font-bold text-xs group-hover:bg-uib-accent">
-                      {String(i + 1).padStart(2, '0')}
-                    </div>
-                    <Video className="w-6 h-6 text-red-500 opacity-40 group-hover:opacity-100" />
-                  </div>
-                  <span className="font-display font-bold text-uib-blue group-hover:text-uib-accent">{t(`helpVideos.${v.titleKey}`)}</span>
-                </a>
-              ))}
+            <div key={index} className="mt-8">
+              <HelpVideoLibrary />
             </div>
           );
         case 'ai_chat':
@@ -314,7 +300,7 @@ export const HelpCenterPage: React.FC = () => {
               <div className="p-8">
                 <div className="flex items-center justify-between mb-8">
                   <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('helpModal.tocTitle')}</h3>
-                  <div className="text-[10px] font-bold text-uib-accent bg-uib-accent/10 px-2 py-1 rounded-md">{Math.round(scrollProgress)}%</div>
+                  <div className="text-[10px] font-bold text-uib-blue bg-uib-accent/10 px-2 py-1 rounded-md">{Math.round(scrollProgress)}%</div>
                 </div>
 
                 <nav className="space-y-1">
@@ -411,7 +397,7 @@ export const HelpCenterPage: React.FC = () => {
                        <div className="w-1.5 h-1.5 rounded-full bg-uib-accent/20" />
                        <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
                     </div>
-                    <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest group-hover:text-uib-accent transition-colors">CAFFT 5.1</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-uib-accent transition-colors">CAFFT 5.1</span>
                   </div>
                 </section>
               );

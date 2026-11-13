@@ -1,5 +1,5 @@
 import type { Db } from './db.ts';
-import type { AiConsultation, ExposureSession, QPVIIUserResult, SimulatedEmail, UserExposureProgress } from '../../types.ts';
+import type { AiConsultation, ExposureSession, FlightReport, HelpVideoView, QpviiDraft, QPVIIUserResult, SessionPlan, SimulatedEmail, UserExposureProgress } from '../../types.ts';
 
 // Row <-> client-shape mapping for the clinical and log tables. The shapes are
 // the client's own types, so the frontend consumes these unchanged.
@@ -87,6 +87,33 @@ function toSession(r: SessionRow): ExposureSession {
   return session;
 }
 
+interface HelpVideoViewRow {
+  user_id: string;
+  video_id: string;
+  version_id: string;
+  first_at: number;
+  last_at: number;
+  views: number;
+  max_percent: number;
+  completed_at: number | null;
+  closed_early: number;
+}
+
+function toHelpVideoView(r: HelpVideoViewRow): HelpVideoView {
+  const view: HelpVideoView = {
+    userId: r.user_id,
+    videoId: r.video_id,
+    versionId: r.version_id,
+    firstAt: r.first_at,
+    lastAt: r.last_at,
+    views: r.views,
+    maxPercent: r.max_percent,
+    closedEarly: r.closed_early === 1,
+  };
+  if (r.completed_at !== null) view.completedAt = r.completed_at;
+  return view;
+}
+
 interface ConsultationRow {
   id: string;
   user_id: string;
@@ -143,6 +170,43 @@ export function sessionsFor(db: Db, userIds: string[]): ExposureSession[] {
     .prepare(`SELECT * FROM exposure_sessions WHERE user_id IN (${placeholders(userIds)}) ORDER BY started_at DESC`)
     .all(...userIds) as unknown as SessionRow[];
   return rows.map(toSession);
+}
+
+export function helpVideoViewsFor(db: Db, userIds: string[]): HelpVideoView[] {
+  if (userIds.length === 0) return [];
+  const rows = db
+    .prepare(`SELECT * FROM help_video_views WHERE user_id IN (${placeholders(userIds)}) ORDER BY last_at DESC`)
+    .all(...userIds) as unknown as HelpVideoViewRow[];
+  return rows.map(toHelpVideoView);
+}
+
+export function plansFor(db: Db, userIds: string[]): SessionPlan[] {
+  if (userIds.length === 0) return [];
+  const rows = db
+    .prepare(`SELECT user_id, slots, updated_at FROM session_plans WHERE user_id IN (${placeholders(userIds)})`)
+    .all(...userIds) as unknown as { user_id: string; slots: string; updated_at: number }[];
+  return rows.map((r) => ({ userId: r.user_id, slots: JSON.parse(r.slots), updatedAt: r.updated_at }));
+}
+
+export function flightReportsFor(db: Db, userIds: string[]): FlightReport[] {
+  if (userIds.length === 0) return [];
+  const rows = db
+    .prepare(`SELECT * FROM flight_reports WHERE user_id IN (${placeholders(userIds)})`)
+    .all(...userIds) as unknown as { user_id: string; flew: number; flight_date: string | null; max_anxiety: number | null; comment: string | null; updated_at: number }[];
+  return rows.map((r) => {
+    const report: FlightReport = { userId: r.user_id, flew: r.flew === 1, updatedAt: r.updated_at };
+    if (r.flight_date) report.flightDate = r.flight_date;
+    if (r.max_anxiety !== null) report.maxAnxiety = r.max_anxiety;
+    if (r.comment) report.comment = r.comment;
+    return report;
+  });
+}
+
+export function qpviiDraftFor(db: Db, userId: string): QpviiDraft | null {
+  const row = db.prepare('SELECT answers, started_at, updated_at FROM qpvii_drafts WHERE user_id = ?').get(userId) as
+    | { answers: string; started_at: number; updated_at: number }
+    | undefined;
+  return row ? { answers: JSON.parse(row.answers), startedAt: row.started_at, updatedAt: row.updated_at } : null;
 }
 
 export function consultationsFor(db: Db, userIds: string[]): AiConsultation[] {

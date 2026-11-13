@@ -1,20 +1,16 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect, useCallback } from 'react';
-import { AuthContextType, User, StoredUser, ExposureSceneKey, InformedConsentMetadata } from '../types.ts';
+import { AuthContextType, User, StoredUser, InformedConsentMetadata } from '../types.ts';
 import { api, ApiError, SESSION_EXPIRED_EVENT } from '../services/api.ts';
 import {
     syncStore,
     clearStore,
     flushWrites,
     updateOwnUser,
-    getQPVIIResultsForUser,
-    getAllUserExposureProgress,
     uiLanguage,
     acceptConsent as acceptConsentInStore,
     withdrawNotificationConsent as withdrawNotificationConsentInStore,
 } from '../services/dataStore.ts';
 import { CONSENT_VERSIONS } from '../consent.ts';
-import { determineVideoSequence, isExposureFullyCompleted } from '../utils/exposureUtils.ts';
-import { EXPOSURE_VIDEOS, CANONICAL_FLIGHT_STAGES_ORDER } from '../constants.ts';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -81,116 +77,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     // --- PATIENT FLOW ---
-    const allUserProgress = getAllUserExposureProgress()
-        .filter(p => p.userId === storedUser.id)
-        .sort((a, b) => (b.qpviiTimestamp || b.lastUpdated) - (a.qpviiTimestamp || a.lastUpdated));
-
-    const userQpviiResults = getQPVIIResultsForUser(storedUser.id); // Already sorted by timestamp desc
-
-    // 1. Check for an active, incomplete REVIEW session. This takes absolute precedence.
-    const activeReviewSession = allUserProgress.find(p => p.isReview && !p.programCompleted);
-    if (activeReviewSession) {
-        const sceneSet = new Set<ExposureSceneKey>();
-        (activeReviewSession.videoSequence || []).forEach(videoId => {
-            const video = EXPOSURE_VIDEOS.find(v => v.id === videoId);
-            if (video) {
-                sceneSet.add(video.relatedArea);
-            }
-        });
-        const derivedReviewScenes = Array.from(sceneSet).sort((a, b) => CANONICAL_FLIGHT_STAGES_ORDER.indexOf(a) - CANONICAL_FLIGHT_STAGES_ORDER.indexOf(b));
-
-        setLoading(false);
-        return {
-            success: true,
-            redirect: {
-                path: '/exposure',
-                state: {
-                    reviewScenes: derivedReviewScenes,
-                    reviewSessionTimestamp: activeReviewSession.qpviiTimestamp,
-                    originalQpviiTimestamp: activeReviewSession.originalQpviiTimestamp,
-                }
-            }
-        };
-    }
-
-    // 2. Check for an active, incomplete STANDARD session.
-    const activeStandardSession = allUserProgress.find(p => !p.isReview && !p.programCompleted);
-    if (activeStandardSession) {
-        const qpviiResult = userQpviiResults.find(r => r.timestamp === activeStandardSession.qpviiTimestamp);
-        if (qpviiResult) {
-            const scores = qpviiResult.scores;
-            const answers = qpviiResult.answers;
-            // Pass answers for correct sequence determination
-            const currentVideoSequence = determineVideoSequence(answers);
-
-            if (isExposureFullyCompleted(activeStandardSession, currentVideoSequence)) {
-                // Exposure is complete, user needs to make a decision. Redirect to LastSessionPage.
-                setLoading(false);
-                return {
-                    success: true,
-                    redirect: {
-                        path: '/last-session',
-                        state: { 
-                            qpviiTimestamp: activeStandardSession.qpviiTimestamp 
-                        }
-                    }
-                };
-            }
-
-            // Mid-exposure, resume at hierarchy.
-            setLoading(false);
-            return {
-                success: true,
-                redirect: {
-                    path: '/exposure-hierarchy',
-                    state: { 
-                        qpviiTimestamp: activeStandardSession.qpviiTimestamp, 
-                        scores: scores,
-                        answers: answers // Pass answers
-                    }
-                }
-            };
-        }
-    }
-
-    // 3. No active sessions. Check if there's a new QPV-II evaluation that hasn't been started yet.
-    if (userQpviiResults.length > 0) {
-        const latestQpvii = userQpviiResults[0];
-        const hasProgressRecord = allUserProgress.some(p => p.qpviiTimestamp === latestQpvii.timestamp);
-
-        if (!hasProgressRecord) {
-            // This is a new evaluation cycle waiting to be started.
-            setLoading(false);
-            return {
-                success: true,
-                redirect: {
-                    path: '/exposure-hierarchy',
-                    state: {
-                        qpviiTimestamp: latestQpvii.timestamp,
-                        scores: latestQpvii.scores,
-                        answers: latestQpvii.answers
-                    }
-                }
-            };
-        }
-    }
-
-    // 4. No active sessions and no new evaluations. Check if the latest state was a completed program.
-    const latestProgress = allUserProgress.length > 0 ? allUserProgress[0] : null;
-    if (latestProgress && latestProgress.programCompleted) {
-        setLoading(false);
-        return {
-            success: true,
-            redirect: {
-                path: '/celebration',
-                state: { qpviiTimestamp: latestProgress.qpviiTimestamp }
-            }
-        };
-    }
-    
-    // 5. Fallback: New user with no data at all.
+    // The start screen shows their next step (utils/nextStep.ts).
     setLoading(false);
-    return { success: true, redirect: { path: '/cafft-intro' } };
+    return { success: true, redirect: { path: '/start' } };
   }, []);
 
   const register = useCallback(async (username: string, email: string, passwordAttempt: string, consent: boolean, informedConsentMetadata?: InformedConsentMetadata): Promise<{ success: boolean; errorKey?: string }> => {
@@ -225,9 +114,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const updateUser = useCallback(async (updates: Partial<User>): Promise<boolean> => {
     if (!currentUser) return false;
     // Only these fields are the user's to change; the server rejects the rest.
-    const { assistantName, notificationPreferences, sentFollowUps } = updates;
+    const { assistantName, notificationPreferences, sentFollowUps, helpVideoVariant } = updates;
     const patch = Object.fromEntries(
-      Object.entries({ assistantName, notificationPreferences, sentFollowUps }).filter(([, v]) => v !== undefined),
+      Object.entries({ assistantName, notificationPreferences, sentFollowUps, helpVideoVariant }).filter(([, v]) => v !== undefined),
     );
     if (Object.keys(patch).length === 0) return true;
     try {
@@ -304,7 +193,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 
   return (
-    <AuthContext.Provider value={{ currentUser, login, register, logout, loading, requestPasswordReset, resetPassword, changePassword, updateUser, acceptConsent, withdrawNotificationConsent }}>
+    <AuthContext.Provider value={{ currentUser, login, register, logout, loading, requestPasswordReset, resetPassword, changePassword, updateUser, acceptConsent, withdrawNotificationConsent, setUserFromServer: setCurrentUser }}>
       {children}
     </AuthContext.Provider>
   );

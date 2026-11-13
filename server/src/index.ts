@@ -1,6 +1,7 @@
 import { loadConfig } from './config.ts';
 import { migrate, openDb } from './db.ts';
-import { buildApp, configuredProvider } from './app.ts';
+import { buildApp, configuredProvider, configuredPush } from './app.ts';
+import { runReminders } from './reminders.ts';
 import { purgeExpiredSessions } from './sessions.ts';
 import { backupDatabase } from './backup.ts';
 import { processOutbox } from './mail/outbox.ts';
@@ -80,6 +81,26 @@ setInterval(async () => {
     delivering = false;
   }
 }, 30_000).unref();
+
+// Session and inactivity reminders, checked every 5 minutes (src/reminders.ts).
+// Their emails go through the outbox above.
+const push = configuredPush(config, (msg, err) => app.log.warn({ err }, msg));
+app.log.info({ enabled: config.reminders.enabled, push: push !== null }, 'reminders');
+if (config.reminders.enabled) {
+  let reminding = false;
+  setInterval(async () => {
+    if (reminding) return;
+    reminding = true;
+    try {
+      const sent = await runReminders(db, { appUrl: config.appUrl, push });
+      if (sent.session + sent.inactivity + sent.flight > 0) app.log.info(sent, 'reminders sent');
+    } catch (err) {
+      app.log.error({ err }, 'reminders failed');
+    } finally {
+      reminding = false;
+    }
+  }, 5 * 60 * 1000).unref();
+}
 
 for (const signal of ['SIGINT', 'SIGTERM'] as const) {
   process.once(signal, async () => {

@@ -39,8 +39,27 @@ export interface Config {
     local: { url: string; token: string; model: string };
     retentionDays: number | null;
   };
+  /**
+   * Reminders the server sends by itself (src/reminders.ts), and Web Push.
+   * Push is off without VAPID keys (VAPID_FILE: {"publicKey","privateKey"}).
+   */
+  reminders: {
+    enabled: boolean;
+    push: { publicKey: string; privateKey: string; subject: string } | null;
+  };
   /** Disables request logging; used by tests. */
   logger: boolean;
+}
+
+function readVapid(path: string | undefined, subject: string): Config['reminders']['push'] {
+  const raw = readSecret(path);
+  if (!raw) return null;
+  try {
+    const { publicKey, privateKey } = JSON.parse(raw) as { publicKey?: string; privateKey?: string };
+    return publicKey && privateKey ? { publicKey, privateKey, subject } : null;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -96,6 +115,10 @@ export function loadConfig(overrides: Partial<Config> = {}): Config {
       model: env('GEMINI_MODEL', 'gemini-3.8-flash,gemini-2.5-flash'),
       // Questions and answers older than this are deleted. Empty: kept.
       retentionDays: process.env.AI_RETENTION_DAYS ? Number(process.env.AI_RETENTION_DAYS) : null,
+    },
+    reminders: {
+      enabled: env('REMINDERS_ENABLED', 'true') !== 'false',
+      push: readVapid(process.env.VAPID_FILE, env('VAPID_SUBJECT', 'mailto:salutmental@fueib.org')),
     },
     // Like BACKUP_DIR, an explicitly empty FEEDBACK_TO means "off".
     feedbackTo: process.env.FEEDBACK_TO ?? 'salutmental@fueib.org',

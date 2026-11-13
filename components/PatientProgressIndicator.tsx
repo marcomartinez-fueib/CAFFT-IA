@@ -123,7 +123,7 @@ export const PatientProgressIndicator: React.FC = () => {
                 </motion.div>
                 
                 <span className={`absolute top-8 sm:top-10 whitespace-nowrap text-[8px] sm:text-[10px] font-bold uppercase tracking-tighter transition-opacity ${
-                    isActive ? 'text-sky-600 opacity-100' : isCompleted ? 'text-slate-500 hidden sm:block opacity-70' : 'text-slate-300 hidden sm:block'
+                    isActive ? 'text-sky-600 opacity-100' : isCompleted ? 'text-slate-500 hidden sm:block' : 'text-slate-400 hidden sm:block'
                 }`}>
                     {step.label}
                 </span>

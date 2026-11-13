@@ -1,5 +1,6 @@
 import type { FastifyInstance, LightMyRequestResponse } from 'fastify';
 import { buildApp } from '../src/app.ts';
+import type { PushSender } from '../src/reminders.ts';
 import { loadConfig } from '../src/config.ts';
 import { openDb, type Db } from '../src/db.ts';
 import { hashPassword } from '../src/passwords.ts';
@@ -9,10 +10,10 @@ import type { AiProvider } from '../src/ai/provider.ts';
 
 export const ORIGIN = 'http://localhost:3000';
 
-export async function makeApp(deps: { aiProvider?: AiProvider | null } = {}): Promise<{ app: FastifyInstance; db: Db }> {
+export async function makeApp(deps: { aiProvider?: AiProvider | null; pushSender?: PushSender | null } = {}): Promise<{ app: FastifyInstance; db: Db }> {
   const db = openDb(':memory:');
-  // No real provider in tests unless one is passed.
-  const app = await buildApp(loadConfig({ dbPath: ':memory:', publicOrigin: ORIGIN, logger: false }), db, { aiProvider: null, ...deps });
+  // No real provider or push service in tests unless one is passed.
+  const app = await buildApp(loadConfig({ dbPath: ':memory:', publicOrigin: ORIGIN, logger: false }), db, { aiProvider: null, pushSender: null, ...deps });
   return { app, db };
 }
 

@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useDialog } from '../hooks/useDialog';
 import { createPortal } from 'react-dom';
 import { useLanguage } from '../hooks/useLanguage';
 import { ChatInterface } from '../pages/ChatPage.tsx';
@@ -20,11 +21,13 @@ interface AssistantModalProps {
 export const AssistantModal: React.FC<AssistantModalProps> = ({ isOpen, onClose }) => {
   const { t } = useLanguage();
   const modalRoot = document.body;
+  const dialog = useDialog(onClose);
 
   if (!isOpen) return null;
 
   return createPortal(
-    <div 
+    <div
+      ref={dialog}
       className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-[9999] p-0 sm:p-4 md:p-8 transition-all duration-500 ease-in-out"
       onClick={onClose}
       role="dialog"
@@ -58,7 +61,7 @@ export const AssistantModal: React.FC<AssistantModalProps> = ({ isOpen, onClose 
           </div>
           <button
             onClick={onClose}
-            className="p-2 sm:p-3 text-slate-400 hover:text-uib-blue hover:bg-slate-50 rounded-xl sm:rounded-2xl transition-all duration-300 focus:outline-none"
+            className="p-2 sm:p-3 text-slate-400 hover:text-uib-blue hover:bg-slate-50 rounded-xl sm:rounded-2xl transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-uib-blue"
             aria-label={t('helpModal.closeButton')}
           >
             <XMarkIcon className="h-6 w-6 sm:h-7 sm:w-7" />

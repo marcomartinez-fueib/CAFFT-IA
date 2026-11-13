@@ -6,13 +6,16 @@ import { useAuth } from '../hooks/useAuth.tsx';
 import { useLanguage } from '../hooks/useLanguage.tsx';
 import { needsTreatmentConsent } from '../consent.ts';
 import { ConsentPage } from '../pages/ConsentPage.tsx';
+import { needsWelcome } from '../utils/nextStep.ts';
 
 interface ProtectedRouteProps {
   children: ReactNode;
+  /** The welcome itself: shown before the consent, as its first step. */
+  welcome?: boolean;
   role?: 'patient' | 'therapist' | 'manager' | 'superadmin' | ('patient' | 'therapist' | 'manager' | 'superadmin')[];
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, role }) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, role, welcome = false }) => {
   const { currentUser, loading } = useAuth();
   const location = useLocation();
   const { t } = useLanguage();
@@ -34,7 +37,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, role }
     const roles = Array.isArray(role) ? role : [role];
     if (!roles.includes(currentUser.role)) {
       // Logic for fallback paths
-      let fallbackPath = '/cafft-intro';
+      let fallbackPath = '/start';
       if (currentUser.role === 'therapist') fallbackPath = '/therapist/dashboard';
       if (currentUser.role === 'manager') fallbackPath = '/manager/dashboard';
       if (currentUser.role === 'superadmin') fallbackPath = '/superadmin/dashboard';
@@ -43,8 +46,14 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, role }
     }
   }
 
-  // A patient sees nothing of the programme before accepting the current
-  // informed consent (patients registered by a therapist, or a changed text).
+  if (welcome) return <>{children}</>;
+
+  // A new patient starts with the three-step welcome, whose first step is the
+  // consent. Otherwise a patient sees nothing of the programme before
+  // accepting the current informed consent (when its text has changed).
+  if (needsWelcome(currentUser)) {
+    return <Navigate to="/welcome" replace />;
+  }
   if (needsTreatmentConsent(currentUser)) {
     return <ConsentPage />;
   }

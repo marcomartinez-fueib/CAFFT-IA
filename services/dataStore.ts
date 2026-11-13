@@ -22,7 +22,11 @@ import {
   AiConsultation,
   InformedConsentMetadata,
   ExposureSession,
+  FlightReport,
+  HelpVideoView,
+  QpviiDraft,
   QPVIIAnswers,
+  SessionPlan,
   QPVIIScores,
   QPVIIUserResult,
   SimulatedEmail,
@@ -40,11 +44,18 @@ interface StoreState {
   qpvii: QPVIIUserResult[];
   progress: UserExposureProgress[];
   sessions: ExposureSession[];
+  helpVideoViews: HelpVideoView[];
+  sessionPlans: SessionPlan[];
+  flightReports: FlightReport[];
+  /** The logged-in patient's own half-answered QPV-II. */
+  qpviiDraft: QpviiDraft | null;
   consultations: AiConsultation[];
   emails: SimulatedEmail[];
 }
 
-const empty = (): StoreState => ({ users: [], qpvii: [], progress: [], sessions: [], consultations: [], emails: [] });
+const empty = (): StoreState => ({
+  users: [], qpvii: [], progress: [], sessions: [], helpVideoViews: [], sessionPlans: [], flightReports: [], qpviiDraft: null, consultations: [], emails: [],
+});
 
 let state: StoreState = empty();
 
@@ -215,9 +226,11 @@ export async function createUser(input: {
   password?: string;
   therapistId?: string;
   managerId?: string;
+  /** Of the invitation, and for a patient of all their emails; the interface's by default. */
+  language?: 'ca' | 'es' | 'en';
 }): Promise<CreateUserResult> {
   try {
-    const body = input.password ? input : { ...input, language: uiLanguage() };
+    const body = input.password ? input : { ...input, language: input.language ?? uiLanguage() };
     const { user } = await api<{ user: StoredUser }>('POST', '/users', body);
     replaceUser(user);
     return { user, errorKey: null };
@@ -230,7 +243,7 @@ export async function createUser(input: {
 /** The logged-in user's own preferences. Use useAuth().updateUser from components. */
 export async function updateOwnUser(
   userId: string,
-  patch: Partial<Pick<StoredUser, 'assistantName' | 'notificationPreferences' | 'sentFollowUps'>>,
+  patch: Partial<Pick<StoredUser, 'assistantName' | 'notificationPreferences' | 'sentFollowUps' | 'helpVideoVariant'>>,
 ): Promise<StoredUser> {
   const { user } = await api<{ user: StoredUser }>('PATCH', `/users/${encodeURIComponent(userId)}`, patch);
   replaceUser(user);
@@ -250,6 +263,10 @@ export async function deletePatientData(userId: string): Promise<boolean> {
     qpvii: state.qpvii.filter((r) => r.userId !== userId),
     progress: state.progress.filter((p) => p.userId !== userId),
     sessions: state.sessions.filter((s) => s.userId !== userId),
+    helpVideoViews: state.helpVideoViews.filter((v) => v.userId !== userId),
+    sessionPlans: state.sessionPlans.filter((p) => p.userId !== userId),
+    flightReports: state.flightReports.filter((r) => r.userId !== userId),
+    qpviiDraft: state.qpviiDraft,
     consultations: state.consultations.filter((c) => c.userId !== userId),
     emails: state.emails.filter((e) => e.patientId !== userId),
   });
@@ -367,6 +384,8 @@ export function saveQPVIIResultForUser(
   setState({
     ...state,
     qpvii: [...state.qpvii.filter((r) => !(r.userId === userId && r.timestamp === timestamp)), result],
+    // The server drops the half-answered copy when the result arrives.
+    qpviiDraft: null,
   });
   patchCachedUser(userId, { lastAssessmentDate: Math.max(findUserById(userId)?.lastAssessmentDate ?? 0, timestamp) });
 
@@ -489,6 +508,102 @@ export function endExposureSession(
   return copy(session);
 }
 
+// --- Session plan -----------------------------------------------------------------
+
+export function getSessionPlan(userId: string): SessionPlan | null {
+  const plan = state.sessionPlans.find((p) => p.userId === userId);
+  return plan ? copy(plan) : null;
+}
+
+/** Saves the patient's own plan; the server answers with it normalised. */
+export async function saveSessionPlan(slots: SessionPlan['slots']): Promise<SessionPlan> {
+  const { plan } = await api<{ plan: SessionPlan }>('PUT', '/session-plan', { slots });
+  setState({ ...state, sessionPlans: [...state.sessionPlans.filter((p) => p.userId !== plan.userId), plan] });
+  return copy(plan);
+}
+
+export async function deleteSessionPlan(userId: string): Promise<void> {
+  await api('DELETE', '/session-plan');
+  setState({ ...state, sessionPlans: state.sessionPlans.filter((p) => p.userId !== userId) });
+}
+
+// --- Patient journey ---------------------------------------------------------------
+
+export function getQpviiDraft(): QpviiDraft | null {
+  return state.qpviiDraft ? copy(state.qpviiDraft) : null;
+}
+
+/** Keeps the questionnaire as it is being answered, so it can be finished another day. */
+export function saveQpviiDraft(answers: QpviiDraft['answers'], startedAt: number): void {
+  setState({ ...state, qpviiDraft: { answers: { ...answers }, startedAt, updatedAt: Date.now() } });
+  const body = { answers, startedAt };
+  enqueue('qpvii draft', () => api('PUT', '/qpvii-draft', body));
+}
+
+export function getFlightReport(userId: string): FlightReport | null {
+  const report = state.flightReports.find((r) => r.userId === userId);
+  return report ? copy(report) : null;
+}
+
+export async function saveFlightReport(userId: string, report: Omit<FlightReport, 'userId' | 'updatedAt'>): Promise<void> {
+  await api('PUT', '/flight-report', report);
+  const saved: FlightReport = { ...report, userId, updatedAt: Date.now() };
+  setState({ ...state, flightReports: [...state.flightReports.filter((r) => r.userId !== userId), saved] });
+}
+
+/** The three-step welcome is done; returns the updated user. */
+export async function completeWelcome(): Promise<StoredUser> {
+  const { user } = await api<{ user: StoredUser }>('POST', '/me/welcome-completed');
+  replaceUser(user);
+  return user;
+}
+
+/** When the patient expects to fly (null: no date); returns the updated user. */
+export async function setPlannedFlightDate(date: string | null): Promise<StoredUser> {
+  const { user } = await api<{ user: StoredUser }>('PUT', '/me/flight-date', { date });
+  replaceUser(user);
+  return user;
+}
+
+// --- Help videos ------------------------------------------------------------------
+
+export function getHelpVideoViewsForUser(userId: string): HelpVideoView[] {
+  return copy(state.helpVideoViews.filter((v) => v.userId === userId));
+}
+
+export function getHelpVideoView(userId: string, videoId: string): HelpVideoView | null {
+  const view = state.helpVideoViews.find((v) => v.userId === userId && v.videoId === videoId);
+  return view ? copy(view) : null;
+}
+
+/**
+ * A patient's viewing of a help video: reported when it starts (`newView`),
+ * ends or is closed. Memory is merged the way the server merges the row.
+ */
+export function recordHelpVideoView(
+  userId: string,
+  report: { videoId: string; versionId: string; percent: number; completed: boolean; newView: boolean },
+): void {
+  const at = Date.now();
+  const percent = Math.max(0, Math.min(100, Math.round(report.percent)));
+  const old = state.helpVideoViews.find((v) => v.userId === userId && v.videoId === report.videoId);
+  const view: HelpVideoView = {
+    userId,
+    videoId: report.videoId,
+    versionId: report.versionId,
+    firstAt: old?.firstAt ?? at,
+    lastAt: at,
+    views: (old?.views ?? 0) + (report.newView || !old ? 1 : 0),
+    maxPercent: Math.max(old?.maxPercent ?? 0, percent),
+    closedEarly: !report.completed,
+  };
+  const completedAt = old?.completedAt ?? (report.completed ? at : undefined);
+  if (completedAt !== undefined) view.completedAt = completedAt;
+  setState({ ...state, helpVideoViews: [...state.helpVideoViews.filter((v) => v !== old), view] });
+  const body = { ...report, percent, at };
+  enqueue('help video view', () => api('PUT', '/help-video-views', body));
+}
+
 // --- Activity ---------------------------------------------------------------------
 
 export function getDaysSinceLastActivity(userId: string): number | null {
@@ -503,6 +618,17 @@ export function getDaysSinceLastActivity(userId: string): number | null {
   if (activities.length === 0) return null;
 
   return Math.floor((Date.now() - Math.max(...activities)) / (24 * 60 * 60 * 1000));
+}
+
+/**
+ * Days since the patient's last exposure session, for the therapist's
+ * inactivity alert (3 days): null if they have not had one yet, or have
+ * finished the programme.
+ */
+export function getDaysSinceLastSession(userId: string): number | null {
+  if (state.progress.some((p) => p.userId === userId && !p.isReview && p.programCompleted)) return null;
+  const last = Math.max(0, ...state.sessions.filter((s) => s.userId === userId && !s.isReview).map((s) => s.lastActivityAt));
+  return last > 0 ? Math.floor((Date.now() - last) / (24 * 60 * 60 * 1000)) : null;
 }
 
 // --- Emails (recorded, not yet actually sent) --------------------------------------
@@ -545,10 +671,6 @@ async function sendInactivityReminders(
     console.error('[dataStore] sendInactivityReminders:', err);
     return [];
   }
-}
-
-export async function checkAndSendInactivityReminder(userId: string, thresholdDays: number, subject: string, body: string): Promise<boolean> {
-  return (await sendInactivityReminders([userId], thresholdDays, subject, body)).length > 0;
 }
 
 export async function sendAdherenceRemindersToAllInactive(

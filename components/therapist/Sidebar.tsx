@@ -54,7 +54,7 @@ export const Sidebar: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
         if (onClose) onClose();
     };
     
-    const baseLinkStyle = "flex items-center px-4 py-3 text-slate-400 transition-all duration-200 rounded-xl group cursor-pointer w-full text-left border border-transparent mb-1";
+    const baseLinkStyle = "flex items-center px-4 py-3 text-slate-300 transition-all duration-200 rounded-xl group cursor-pointer w-full text-left border border-transparent mb-1";
     const activeLinkStyle = "bg-uib-accent text-white font-bold shadow-md shadow-uib-accent/20 border-uib-accent/30";
     const inactiveLinkStyle = "hover:bg-slate-800 hover:text-white";
 
@@ -63,11 +63,11 @@ export const Sidebar: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
             <div className="flex items-center justify-between mb-8 lg:hidden">
                 <div className="flex items-center">
                     <UibLogo variant="light" className="h-8" />
-                    <span className="ml-3 font-black text-xs uppercase tracking-widest text-white">Clinical</span>
+                    <span className="ml-3 font-black text-xs uppercase tracking-widest text-white">{t('common.clinicalArea')}</span>
                 </div>
                 <button 
                     onClick={onClose}
-                    className="p-2 text-slate-400 hover:text-white"
+                    className="p-2 text-slate-300 hover:text-white"
                     aria-label={t('common.close')}
                 >
                     <X className="w-6 h-6" aria-hidden="true" />
@@ -80,7 +80,7 @@ export const Sidebar: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                     {currentUser?.username?.charAt(0).toUpperCase() || 'T'}
                 </div>
                 <h4 className="text-sm font-black text-white text-center truncate w-full">{currentUser?.username}</h4>
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1 truncate w-full text-center">{currentUser && t(`general.roles.${currentUser.role}`)}</p>
+                <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest mt-1 truncate w-full text-center">{currentUser && t(`general.roles.${currentUser.role}`)}</p>
             </div>
             
             <div className="flex flex-col justify-between flex-1 mt-4">

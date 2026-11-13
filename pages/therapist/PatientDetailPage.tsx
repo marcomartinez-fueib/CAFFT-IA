@@ -1,11 +1,14 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
+import { useDialog } from '../../hooks/useDialog';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useLanguage } from '../../hooks/useLanguage';
 import { PageTitle } from '../../components/PageTitle';
 import { Breadcrumbs } from '../../components/Breadcrumbs';
 import { SectionCard } from '../../components/SectionCard';
+import { HelpVideoUsage } from '../../components/therapist/HelpVideoUsage';
+import { PlanAdherence } from '../../components/therapist/PlanAdherence';
 import { 
     Patient,
     QPVIIUserResult, 
@@ -129,6 +132,7 @@ export const PatientDetailPage: React.FC = () => {
     
     const [loading, setLoading] = useState(true);
     const [selectedEmail, setSelectedEmail] = useState<SimulatedEmail | null>(null);
+    const emailDialog = useDialog(() => setSelectedEmail(null));
     const [sendingPush, setSendingPush] = useState(false);
 
     const getLocaleForDate = () => {
@@ -517,13 +521,13 @@ export const PatientDetailPage: React.FC = () => {
                                             const isCompleted = allCompletedVideoIds.has(video.id);
 
                                             return (
-                                                <div key={video.id} className={`flex items-center text-sm p-3 rounded-lg border transition-all ${isCompleted ? 'bg-emerald-50 border-emerald-100 opacity-80' : 'bg-slate-50 border-slate-100'}`}>
+                                                <div key={video.id} className={`flex items-center text-sm p-3 rounded-lg border transition-all ${isCompleted ? 'bg-emerald-50 border-emerald-100' : 'bg-slate-50 border-slate-100'}`}>
                                                     <div className={`w-8 h-8 flex items-center justify-center rounded-full text-xs font-black mr-3 flex-shrink-0 ${isCompleted ? 'bg-emerald-500 text-white shadow-sm' : 'bg-uib-blue text-white'}`}>
                                                         {isCompleted ? <CheckCircleIcon className="w-5 h-5" /> : idx + 1}
                                                     </div>
                                                     <div className="flex-grow">
                                                         <p className={`font-bold ${isCompleted ? 'text-emerald-800' : 'text-slate-700'}`}>{t(video.titleKey)}</p>
-                                                        {isCompleted && <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">{t('patientDetail.habituatedLabel')}</span>}
+                                                        {isCompleted && <span className="text-[9px] font-black text-emerald-700 uppercase tracking-widest">{t('patientDetail.habituatedLabel')}</span>}
                                                     </div>
                                                     <div className="flex flex-col items-end">
                                                         <span className={`px-2 py-0.5 rounded-md font-black text-[10px] whitespace-nowrap shadow-sm border ${isCompleted ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-sky-100 text-sky-800 border-sky-200'}`}>
@@ -668,23 +672,31 @@ export const PatientDetailPage: React.FC = () => {
                             </div>
                         </div>
                     </SectionCard>
+
+                    <SectionCard title={t('planner.pageTitle')}>
+                        <PlanAdherence patientId={patientId!} />
+                    </SectionCard>
+
+                    <SectionCard title={t('patientDetail.helpVideosTitle')}>
+                        <HelpVideoUsage patientId={patientId!} />
+                    </SectionCard>
                 </div>
             </div>
 
             {selectedEmail && (
-                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+                <div ref={emailDialog} role="dialog" aria-modal="true" aria-labelledby="emailDialog-title" className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
                     <div className="bg-white p-6 sm:p-8 rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-2xl border border-slate-100 flex flex-col h-auto max-h-[95vh] overflow-y-auto">
                         <div className="sm:hidden flex justify-center pb-4">
                             <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
                         </div>
-                        <h3 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight">{t('patientDetail.emailModalTitle')}</h3>
+                        <h3 id="emailDialog-title" className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight">{t('patientDetail.emailModalTitle')}</h3>
                         <div className="p-6 bg-slate-50 border border-slate-200 rounded-2xl mb-8 overflow-y-auto scrollbar-hide shadow-inner">
                             <div className="mb-4 pb-4 border-b border-slate-200">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Subject</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('patientDetail.emailSubjectLabel')}</p>
                                 <p className="text-sm font-bold text-slate-800">{selectedEmail.subject}</p>
                             </div>
                             <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Message</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('patientDetail.emailMessageLabel')}</p>
                                 <p className="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">{selectedEmail.body}</p>
                             </div>
                         </div>

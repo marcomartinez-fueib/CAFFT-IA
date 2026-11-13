@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../hooks/useLanguage.tsx';
 import { useAuth } from '../hooks/useAuth.tsx';
 import { TOP_NAV_GUEST, TOP_NAV_AUTH, NAV_ITEMS_GUEST_ACTIONS, THERAPIST_SIDEBAR_NAV } from '../constants.ts';
@@ -100,7 +100,7 @@ export const Navbar: React.FC = () => {
           <div id="sidebar-nav" className="hidden md:flex flex-1 items-center justify-start ml-2 lg:ml-8 xl:ml-12 space-x-0 overflow-hidden h-full">
             {mainNavItems.map((item) => {
                 let id = "";
-                if (item.path === '/cafft-intro') id = "nav-home";
+                if (item.path === '/start') id = "nav-home";
                 if (item.path === '/qpvii-evaluation') id = "nav-qpvii";
                 if (item.path === '/exposure') id = "nav-exposure";
                 if (item.path === '/evolution') id = "nav-evolution";
@@ -130,8 +130,10 @@ export const Navbar: React.FC = () => {
             
             <div className="h-8 w-px bg-slate-100 hidden lg:block mx-1"></div>
 
-            {currentUser && (
-              <div className="flex items-center group cursor-pointer">
+            {/* The name and initial: for a patient, the way to their profile. */}
+            {currentUser && (() => {
+              const badge = (
+                <>
                 <div className="flex flex-col items-end mr-2 lg:mr-3 hidden lg:flex">
                   <span className="text-[11px] xl:text-xs font-black text-uib-black truncate max-w-[80px] xl:max-w-[150px]">
                     {currentUser.username}
@@ -143,8 +145,13 @@ export const Navbar: React.FC = () => {
                 <div className="w-8 h-8 xl:w-10 xl:h-10 bg-uib-blue rounded-xl flex items-center justify-center text-sm font-black text-white border-2 border-white shadow-lg ring-1 ring-uib-blue/5 uppercase shrink-0 transition-all group-hover:scale-110 group-hover:shadow-uib-blue/20">
                   {currentUser.username?.charAt(0) || 'U'}
                 </div>
-              </div>
-            )}
+                </>
+              );
+              const style = "flex items-center group rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-uib-blue";
+              return currentUser.role === 'patient'
+                ? <Link to="/profile" title={t('start.profile')} className={`${style} cursor-pointer`}><span className="sr-only">{t('start.profile')}: </span>{badge}</Link>
+                : <div className={style}>{badge}</div>;
+            })()}
 
             {currentUser && (
                 <button 
@@ -164,7 +171,9 @@ export const Navbar: React.FC = () => {
             <button
               id="sidebar-nav-mobile"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-uib-black hover:text-uib-blue focus:outline-none p-1 sm:p-2 transition-colors"
+              aria-label={isMenuOpen ? t('common.close') : t('common.openMenu')}
+              aria-expanded={isMenuOpen}
+              className="text-uib-black hover:text-uib-blue focus:outline-none focus-visible:ring-2 focus-visible:ring-uib-blue rounded p-1 sm:p-2 transition-colors"
             >
               {isMenuOpen ? <CloseIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
             </button>
@@ -194,7 +203,7 @@ export const Navbar: React.FC = () => {
             
             {mainNavItems.map((item) => {
               let id = "";
-              if (item.path === '/cafft-intro') id = "nav-home-mobile";
+              if (item.path === '/start') id = "nav-home-mobile";
               if (item.path === '/qpvii-evaluation') id = "nav-qpvii-mobile";
               if (item.path === '/exposure') id = "nav-exposure-mobile";
               if (item.path === '/evolution') id = "nav-evolution-mobile";
@@ -229,6 +238,15 @@ export const Navbar: React.FC = () => {
                 {t(item.labelKey)}
               </NavLink>
             ))}
+            {currentUser?.role === 'patient' && (
+              <NavLink
+                to="/profile"
+                onClick={() => setIsMenuOpen(false)}
+                className="block px-4 py-3 text-base font-bold uppercase tracking-wide text-uib-darkGray hover:bg-gray-50 hover:text-uib-black"
+              >
+                {t('start.profile')}
+              </NavLink>
+            )}
             {currentUser && (
               <button
                 onClick={handleLogout}

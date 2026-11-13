@@ -3,7 +3,7 @@ import type { FastifyInstance } from 'fastify';
 import type { Config } from '../config.ts';
 import type { Db } from '../db.ts';
 import { enqueueMail } from '../mail/outbox.ts';
-import { asLang, invitationMail, LANGS, setPasswordLink } from '../mail/templates.ts';
+import { asLang, invitationMail, LANGS, patientWelcomeMail, setPasswordLink } from '../mail/templates.ts';
 import { issuePasswordToken } from '../passwordTokens.ts';
 import { requireAuth } from '../app.ts';
 import { audit } from '../audit.ts';
@@ -42,7 +42,14 @@ const TEMP_PASSWORD_ALPHABET = 'abcdefghjkmnpqrstuvwxyz23456789';
  */
 function sendInvitation(db: Db, config: Config, target: UserRow, invitedBy: UserRow, language: string | undefined): void {
   const token = issuePasswordToken(db, target.id, 'invite');
-  const mail = invitationMail(asLang(language), target.username, invitedBy.username, setPasswordLink(config.appUrl, token));
+  const link = setPasswordLink(config.appUrl, token);
+  const lang = asLang(language ?? target.language ?? undefined);
+  // A patient gets the welcome email, with their therapist's name and address.
+  const therapist = target.role === 'patient' && target.therapist_id ? findUserById(db, target.therapist_id) : undefined;
+  const mail =
+    target.role === 'patient'
+      ? patientWelcomeMail(lang, target.username, therapist ? { name: therapist.username, email: therapist.email } : null, link)
+      : invitationMail(lang, target.username, invitedBy.username, link);
   enqueueMail(db, { to: target.email, ...mail, kind: 'invitation' });
   if (target.role === 'patient') {
     // The recorded copy leaves the link out: it is a credential.
@@ -112,6 +119,10 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
         // Patients accept the informed consent themselves, at their first login.
         const created = createUser(db, { role, username, email, passwordHash, consentGiven: false, therapistId, managerId });
         if (!created.ok) return created;
+        if (language) {
+          db.prepare('UPDATE users SET language = ? WHERE id = ?').run(language, created.user.id);
+          created.user.language = language as UserRow['language'];
+        }
         if (password === undefined) sendInvitation(db, config, created.user, actor, language);
         audit(db, { actorId: actor.id, action: `user.create.${role}`, targetId: created.user.id, ip: req.ip });
         return created;
@@ -127,7 +138,7 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
   // account's identity, role or assignment goes through dedicated routes.
   app.patch<{
     Params: { id: string };
-    Body: { assistantName?: string; notificationPreferences?: object; sentFollowUps?: string[] };
+    Body: { assistantName?: string; notificationPreferences?: object; sentFollowUps?: string[]; helpVideoVariant?: 'esquematica' | 'captures' };
   }>(
     '/:id',
     {
@@ -140,6 +151,7 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
             assistantName: S.shortText(64),
             notificationPreferences: S.notificationPreferences,
             sentFollowUps: S.idList(200),
+            helpVideoVariant: { enum: ['esquematica', 'captures'] },
           },
         },
       },
@@ -148,7 +160,7 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
       const actor = req.user!;
       if (req.params.id !== actor.id) return reply.code(403).send(FORBIDDEN);
 
-      const { assistantName, notificationPreferences, sentFollowUps } = req.body;
+      const { assistantName, notificationPreferences, sentFollowUps, helpVideoVariant } = req.body;
       const sets: string[] = [];
       const values: (string | number | null)[] = [];
       if (assistantName !== undefined) {
@@ -162,6 +174,10 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
       if (sentFollowUps !== undefined) {
         sets.push('sent_follow_ups = ?');
         values.push(JSON.stringify(sentFollowUps));
+      }
+      if (helpVideoVariant !== undefined) {
+        sets.push('help_video_variant = ?');
+        values.push(helpVideoVariant);
       }
       sets.push('updated_at = ?');
       values.push(Date.now());

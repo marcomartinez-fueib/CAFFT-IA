@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'; 
+import { useDialog } from '../hooks/useDialog';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../hooks/useLanguage';
@@ -7,13 +8,19 @@ import { useUI } from '../hooks/useUI';
 import { PageTitle } from '../components/PageTitle';
 import { SectionCard } from '../components/SectionCard';
 import { ExposureVideo, QPVIIScores, VideoDiscomfortRating, UserExposureProgress, ExposureSceneKey, QPVIIAnswers } from '../types';
-import { saveUserExposureProgress, getUserExposureProgress, getQPVIIResultsForUser, recordExposureActivity, endExposureSession } from '../services/dataStore';
+import { saveUserExposureProgress, getUserExposureProgress, getQPVIIResultsForUser, recordExposureActivity, endExposureSession, getExposureSessionsForUser, getOpenExposureSession, getHelpVideoView } from '../services/dataStore';
 import { determineVideoSequence, isExposureFullyCompleted } from '../utils/exposureUtils';
 import { EXPOSURE_VIDEOS, CANONICAL_FLIGHT_STAGES_ORDER } from '../constants';
 import { FollowUpService } from '../services/followUpService.ts';
 import { ExposureSessionProgress } from '../components/ExposureSessionProgress';
 import { resolveVideoUrl } from '../utils/videoUrl';
 import { showsTestControls } from '../utils/testMode';
+import { HelpVideoCard } from '../components/HelpVideoCard';
+import { useHelpVideo } from '../components/HelpVideoPlayer';
+
+// The help video before each of the first sessions; P06 is the one that must
+// be watched before the very first.
+const SESSION_VIDEOS: Record<number, string> = { 1: 'P06', 2: 'P10', 3: 'P09' };
 
 const PlayIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -30,6 +37,8 @@ const XMarkIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 interface FeedbackMessage {
   text: string;
   type: 'success' | 'warning' | 'info';
+  /** A help video inside the message: why repeat (P07), or a very high rating (P08). */
+  video?: 'P07' | 'P08';
 }
 
 export const ExposurePage: React.FC = () => {
@@ -63,6 +72,10 @@ export const ExposurePage: React.FC = () => {
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+  const p06 = useHelpVideo('P06');
+  // The rating needs an answer: no Escape. The focus goes to the slider.
+  const ratingDialog = useDialog();
+  const [p06Watched, setP06Watched] = useState(() => !!(currentUser && getHelpVideoView(currentUser.id, 'P06')?.completedAt));
 
   // Exposure videos are served from the same origin as the app, under
   // <base>/videos_cafft/. There is deliberately no external CDN fallback: the
@@ -260,7 +273,11 @@ export const ExposurePage: React.FC = () => {
       if (nextVideoIdx >= videoSequence.length) justCompletedSequence = true;
       else feedback = { text: t('exposure.progressionMessageSuccess'), type: 'success' };
     } else {
-      feedback = { text: t('exposure.progressionMessageRetry', { current: selectedDiscomfortRating }), type: 'warning' };
+      feedback = {
+        text: t('exposure.progressionMessageRetry', { current: selectedDiscomfortRating }),
+        type: 'warning',
+        video: selectedDiscomfortRating >= 8 ? 'P08' : 'P07',
+      };
     }
     
     saveUserExposureProgress(currentUser.id, timestampForRecord, videoSequence.map(v => v.id), nextVideoIdx, updatedCompletedVideoIds, updatedRatings, explanationShown, justCompletedSequence, isReview, originalQpviiTimestamp, false);
@@ -338,6 +355,15 @@ export const ExposurePage: React.FC = () => {
   }
 
   const isSequenceFinished = currentVideoIndex >= videoSequence.length;
+
+  // Before a session starts (never between a video and its rating, nor in a
+  // review): the help video for that session. P06 gates the first session of
+  // a patient who has never had one, if the video is on the server.
+  const isReviewSession = !!location.state?.reviewScenes;
+  const pastSessions = currentUser ? getExposureSessionsForUser(currentUser.id).filter((s) => !s.isReview).length : 0;
+  const sessionNotStarted = !!currentUser && !getOpenExposureSession(currentUser.id, qpviiTimestampForExposure);
+  const sessionVideo = !isReviewSession && !isSequenceFinished && sessionNotStarted ? SESSION_VIDEOS[pastSessions + 1] : undefined;
+  const mustWatchP06 = sessionVideo === 'P06' && pastSessions === 0 && !p06Watched && p06 !== 'missing';
   
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -345,6 +371,7 @@ export const ExposurePage: React.FC = () => {
         {userFeedbackMessage && (
             <div className={`mb-6 p-4 rounded-lg text-center text-sm font-medium ${userFeedbackMessage.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}>
                 {userFeedbackMessage.text}
+                {userFeedbackMessage.video && <HelpVideoCard id={userFeedbackMessage.video} defaultOpen={false} className="mt-3 font-normal" />}
             </div>
         )}
 
@@ -360,7 +387,15 @@ export const ExposurePage: React.FC = () => {
             <>
                 <h2 className="text-2xl font-semibold text-slate-800 mb-2">{t(videoSequence[currentVideoIndex].titleKey)}</h2>
                 <p className="text-base text-gray-600 mb-6 max-w-xl mx-auto">{t(videoSequence[currentVideoIndex].descriptionKey)}</p>
-                <button onClick={() => openVideoPlayer(currentVideoIndex)} className="inline-flex items-center justify-center py-3 px-8 border border-transparent rounded-full shadow-lg text-lg font-semibold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-transform transform hover:scale-105">
+                {sessionVideo && (
+                  <HelpVideoCard
+                    id={sessionVideo}
+                    note={mustWatchP06 ? t('helpVideos.firstSessionRequired') : undefined}
+                    onCompleted={() => setP06Watched(true)}
+                    className="mb-6 max-w-2xl mx-auto"
+                  />
+                )}
+                <button onClick={() => openVideoPlayer(currentVideoIndex)} disabled={mustWatchP06} className="inline-flex items-center justify-center py-3 px-8 border border-transparent rounded-full shadow-lg text-lg font-semibold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-transform transform hover:scale-105 disabled:bg-gray-400 disabled:shadow-none disabled:hover:scale-100 disabled:cursor-not-allowed">
                     <PlayIcon className="h-6 w-6 mr-3" /> {t('exposure.startExposureButton')}
                 </button>
             </>
@@ -455,13 +490,13 @@ export const ExposurePage: React.FC = () => {
       )}
 
       {isDiscomfortRatingModalOpen && currentVideoForRating && (
-          <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[1001] p-4">
+          <div ref={ratingDialog} role="dialog" aria-modal="true" aria-labelledby="rating-dialog-title" className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[1001] p-4">
               <div className="bg-white rounded-xl shadow-2xl p-6 sm:p-8 w-full max-w-lg transform transition-all animate-fadeIn">
-                  <h3 className="text-xl font-semibold text-slate-800 mb-2">{t('exposure.discomfortRatingModalTitle')}</h3>
+                  <h3 id="rating-dialog-title" className="text-xl font-semibold text-slate-800 mb-2">{t('exposure.discomfortRatingModalTitle')}</h3>
                   <p className="text-sm text-slate-600 mb-6">{t('exposure.discomfortRatingInstruction', { videoTitle: t(currentVideoForRating.titleKey) })}</p>
                    <div className="my-8">
                     <div className="text-center mb-4"><span className="text-6xl font-bold text-uib-blue">{selectedDiscomfortRating}</span></div>
-                    <input type="range" min="1" max="9" step="1" value={selectedDiscomfortRating || 5} aria-label={t('exposure.discomfortRatingModalTitle')} aria-valuetext={String(selectedDiscomfortRating ?? 5)} onChange={(e) => { setSelectedDiscomfortRating(Number(e.target.value)); setDiscomfortRatingError(null); }} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-uib-blue"/>
+                    <input data-autofocus type="range" min="1" max="9" step="1" value={selectedDiscomfortRating || 5} aria-label={t('exposure.discomfortRatingModalTitle')} aria-valuetext={String(selectedDiscomfortRating ?? 5)} onChange={(e) => { setSelectedDiscomfortRating(Number(e.target.value)); setDiscomfortRatingError(null); }} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-uib-blue"/>
                     <div className="flex justify-between text-xs text-slate-500 mt-2 px-1"><span>{t('exposure.discomfortRatingMinLabel')}</span><span>{t('exposure.discomfortRatingMaxLabel')}</span></div>
                   </div>
                   {discomfortRatingError && <p className="text-red-600 text-sm mt-4 text-center">{discomfortRatingError}</p>}

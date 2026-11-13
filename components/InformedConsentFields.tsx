@@ -110,7 +110,8 @@ export const InformedConsentFields: React.FC<{
         </select>
       </div>
 
-      <div className="bg-white p-3 border border-sky-200 rounded text-xs text-gray-600 h-48 overflow-y-auto whitespace-pre-wrap">
+      {/* Scrollable, so it must take the focus to be read with the keyboard. */}
+      <div tabIndex={0} role="region" aria-label={t('informedConsent.title')} className="bg-white p-3 border border-sky-200 rounded text-xs text-gray-600 h-48 overflow-y-auto whitespace-pre-wrap focus:outline-none focus:ring-2 focus:ring-uib-blue">
         <strong>{t('informedConsent.consentDate')}: {new Date().toLocaleDateString()}</strong>
         <div className="mt-2">
           {t('informedConsent.consentText')}

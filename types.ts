@@ -2,11 +2,14 @@
 
 import React from 'react';
 
-export enum Language {
-  CA = 'ca',
-  ES = 'es',
-  EN = 'en',
-}
+// A plain object rather than an enum, so Node can run the shared code by
+// stripping the types (scripts/check-translations.ts).
+export const Language = {
+  CA: 'ca',
+  ES: 'es',
+  EN: 'en',
+} as const;
+export type Language = (typeof Language)[keyof typeof Language];
 
 export interface NotificationPreferences {
   enabled: boolean;
@@ -45,6 +48,11 @@ export interface User {
   onboardingEnabled?: boolean;
   isTestAccount?: boolean; // Set by staff; shows the testing controls to this patient
   treatmentConsent?: { version: string; acceptedAt: number }; // Latest informed consent accepted (consent.ts)
+  helpVideoVariant?: 'esquematica' | 'captures'; // Chosen version of the help videos that have two
+  notificationConsentVersion?: string; // Notification consent accepted and not withdrawn (consent.ts)
+  language?: 'ca' | 'es' | 'en'; // Of the patient's emails, chosen when registered
+  welcomeCompletedAt?: number; // The three-step welcome (fita 5)
+  plannedFlightDate?: string; // 'YYYY-MM-DD', for the question about how the flight went
 }
 
 // A user as the API returns it (server/src/users.ts, toApiUser). The password
@@ -81,6 +89,8 @@ export interface AuthContextType {
   /** Accepts the current version of a consent text (consent.ts). */
   acceptConsent: (kind: 'treatment' | 'notifications', informedConsentMetadata?: InformedConsentMetadata) => Promise<{ success: boolean; errorKey?: string }>;
   withdrawNotificationConsent: () => Promise<boolean>;
+  /** Takes the user as an API call returned it (the welcome, the flight date...). */
+  setUserFromServer: (user: User) => void;
 }
 
 export interface QPVIIQuestion {
@@ -236,7 +246,12 @@ export interface HelpModalTranslatedStrings {
   };
   aiChatSection: { title: string; };
   therapistAiChatSection: { title: string; };
-    therapistInfo: { 
+    therapistInfo: {
+      guideKicker: string;
+      guideTitle: string;
+      guideIntro: string;
+      principlesHeading: string;
+      principlesText: string; 
     title: string; 
     evidenceTitle: string;
     evidenceText: string;
@@ -469,6 +484,9 @@ export interface AIChatContent {
 }
 
 export interface TherapistDashboardContent {
+  exportModal: Record<'title' | 'anonymizeLabel' | 'anonymizeDescription' | 'cancelButton' | 'exportButton' | 'funnelTitle' | 'funnelDescription' | 'funnelButton', string>;
+  daysWithoutSession: string;
+  reminderSentRecently: string;
   pageTitle: string;
   kpi: {
     title_overview: string;
@@ -548,6 +566,7 @@ export interface TherapistDashboardContent {
     title: string;
     usernameLabel: string;
     emailLabel: string;
+    languageLabel?: string;
     passwordLabel: string;
     createButton: string;
     cancelButton: string;
@@ -613,6 +632,8 @@ export interface TherapistDashboardContent {
 }
 
 export interface PatientDetailContent {
+  emailSubjectLabel: string;
+  emailMessageLabel: string;
   pageTitle: string;
   aiConsultationsTitleForPatient?: string;
   consentAccepted?: string;
@@ -621,6 +642,9 @@ export interface PatientDetailContent {
   testAccountLabel?: string;
   testAccountHint?: string;
   noAiConsultationsForPatient?: string;
+  helpVideosTitle: string;
+  helpVideosNone: string;
+  helpVideosPartial: string;
   currentPlanTitle: string;
   basedOnEvaluation: string;
   hierarchyTitle: string;
@@ -724,6 +748,10 @@ export interface TranslationContent {
     invitationResent: string;
     invitationResendFailed: string;
     viewSource: string;
+    standardProtocol: string;
+    clinicalArea: string;
+    breadcrumbs: string;
+    skipToContent: string;
     time: {
       ago: string;
       year: string;
@@ -787,6 +815,7 @@ export interface TranslationContent {
   };
   fearOfFlying: {
     title: string;
+    chartUnavailable: string;
     introduction: string;
     prevalence: {
       title: string;
@@ -841,6 +870,9 @@ export interface TranslationContent {
       mostFrequent: string[];
       mostSerious: string[];
       doNotUseIf: string[];
+      mostFrequentTitle: string;
+      mostSeriousTitle: string;
+      doNotUseTitle: string;
     };
     howToUse: {
         title: string;
@@ -851,16 +883,20 @@ export interface TranslationContent {
         items: string[];
     }
   };
-  helpVideos: { // Kept for Help Modal, but removed from nav
+  helpVideos: {
     title: string;
     pageTitle: string;
-    videos: { titleKey: string; link: string }[];
-    q1: string;
-    q2: string;
-    q3: string;
-    q4: string;
     noVideos: string;
-    watchVideo?: string;
+    unavailable: string;
+    transcript: string;
+    transcriptUnavailable: string;
+    learnMore: string;
+    cardLabel: string;
+    watched: string;
+    versionLabel: string;
+    variants: Record<'esquematica' | 'captures', string>;
+    firstSessionRequired: string;
+    groups: Record<'welcome' | 'assessment' | 'training' | 'results' | 'success' | 'therapist', string>;
   };
   cafftIntroPage: {
     title: string;
@@ -870,6 +906,8 @@ export interface TranslationContent {
     proceedButton: string;
   };
   qpvii: {
+    timeNotice: string;
+    resumeNotice: string;
     title: string;
     formTitle: string;
     instructions: string;
@@ -1003,6 +1041,20 @@ export interface TranslationContent {
     declineButton: string;
     notificationPrivacyNote?: string;
     notificationsEnabledMessage?: string;
+    remindersTitle: string;
+    remindersOn: string;
+    remindersSaveError: string;
+    pushTitle: string;
+    pushOn: string;
+    pushOff: string;
+    pushExplain: string;
+    pushExplainIos: string;
+    pushNeedsInstall: string;
+    pushBlocked: string;
+    pushUnsupported: string;
+    pushServerOff: string;
+    pushTest: string;
+    pushTestSent: string;
   };
   exposureHierarchy: {
     pageTitle: string;
@@ -1146,6 +1198,152 @@ export interface TranslationContent {
   exposureExplanation: ExposureExplanationContent;
   celebration: CelebrationPageContent;
   lastSession: LastSessionPageContent;
+  planner: {
+    pageTitle: string;
+    intro: string;
+    introTitle: string;
+    daysLegend: string;
+    timeFor: string;
+    adviceFew: string;
+    adviceMany: string;
+    nextSessions: string;
+    nextSession: string;
+    noPlan: string;
+    plan: string;
+    change: string;
+    save: string;
+    saved: string;
+    saveError: string;
+    addToCalendar: string;
+    calendarTitle: string;
+    calendarDescription: string;
+    remindersOffTitle: string;
+    remindersOn: string;
+    therapistNoPlan: string;
+    therapistNoneYet: string;
+    therapistDone: string;
+    therapistHeld: string;
+    therapistMissed: string;
+  };
+  welcome: {
+    title: string;
+    stepOf: string;
+    lastly: string;
+    step1Title: string;
+    step2Title: string;
+    step2Text: string;
+    step3Title: string;
+    step3Text: string;
+    stepPlanTitle: string;
+    check: {
+      device: string;
+      headphones: string;
+      place: string;
+      sound: string;
+    };
+    playTone: string;
+    continue: string;
+    finish: string;
+    planOptional: string;
+  };
+  start: {
+    greeting: string;
+    nextStep: string;
+    progress: string;
+    more: string;
+    evolution: string;
+    profile: string;
+    steps: {
+      welcome: {
+        title: string;
+        text: string;
+        button: string;
+      };
+      qpvii: {
+        title: string;
+        text: string;
+        button: string;
+      };
+      qpviiResume: {
+        title: string;
+        text: string;
+        button: string;
+      };
+      hierarchy: {
+        title: string;
+        text: string;
+        button: string;
+      };
+      explanation: {
+        title: string;
+        text: string;
+        button: string;
+      };
+      session: {
+        title: string;
+        text: string;
+        button: string;
+      };
+      review: {
+        title: string;
+        text: string;
+        button: string;
+      };
+      lastSession: {
+        title: string;
+        text: string;
+        button: string;
+      };
+      flightReport: {
+        title: string;
+        text: string;
+        button: string;
+      };
+      done: {
+        title: string;
+        text: string;
+        button: string;
+      };
+    };
+  };
+  flight: {
+    pageTitle: string;
+    compareTitle: string;
+    compareMissing: string;
+    before: string;
+    after: string;
+    change: {
+      improvement: string;
+      deterioration: string;
+      none: string;
+    };
+    guidelinesTitle: string;
+    guidelinesText: string;
+    downloadGuidelines: string;
+    whenTitle: string;
+    whenText: string;
+    plannedDate: string;
+    saveDate: string;
+    dateSaved: string;
+    dateCleared: string;
+    reportTitle: string;
+    flewQuestion: string;
+    yes: string;
+    notYet: string;
+    flightDate: string;
+    anxietyQuestion: string;
+    comment: string;
+    send: string;
+    thanks: string;
+    saveError: string;
+    backToStart: string;
+    celebrationButton: string;
+  };
+  remindersOff: {
+    title: string;
+    done: string;
+    failed: string;
+  };
   sessionEnd: {
     pausedTitle: string;
     pausedIntro: string;
@@ -1162,6 +1360,12 @@ export interface TranslationContent {
     noSession: string;
   };
   consentGate: {
+    plainTitle: string;
+    plain1: string;
+    plain2: string;
+    plain3: string;
+    plain4: string;
+    plain5: string;
     title: string;
     intro: string;
     introUpdated: string;
@@ -1277,6 +1481,44 @@ export interface ExposureSession {
   endReason?: 'pause' | 'completed';
 }
 
+// The patient's week of sessions (server/src/sessionPlan.ts): day 0 = Sunday,
+// time 'HH:MM' in the clinic's time zone.
+export interface SessionPlan {
+  userId: string;
+  slots: { day: number; time: string }[];
+  updatedAt: number;
+}
+
+// The real flight, as the patient reports it after the programme.
+export interface FlightReport {
+  userId: string;
+  flew: boolean;
+  flightDate?: string;
+  maxAnxiety?: number; // 1-9, like the exposure ratings
+  comment?: string;
+  updatedAt: number;
+}
+
+// A QPV-II being answered, kept on the server so it can be finished another day.
+export interface QpviiDraft {
+  answers: Record<string, number | null>;
+  startedAt: number;
+  updatedAt: number;
+}
+
+// How a patient has used one help video (server/migrations/009_help_video_views.sql).
+export interface HelpVideoView {
+  userId: string;
+  videoId: string;   // P06
+  versionId: string; // the version last watched: P06 or P06c
+  firstAt: number;
+  lastAt: number;
+  views: number;
+  maxPercent: number;
+  completedAt?: number; // Played to the end at least once
+  closedEarly: boolean; // The last viewing stopped before the end
+}
+
 export interface HelpModalSection { 
   id: 'fullManual' | 'fearOfFlying' | 'cafftInfo' | 'prospectus' | 'postTreatment' | 'postTreatmentSection' | 'helpVideos' | 'technicalSection' | 'aiChat' | 'therapistInfo' | 'therapistAiChat';
   titleKey: string; 
@@ -1365,6 +1607,7 @@ export interface SuperadminDashboardContent {
 }
 
 export interface FeedbackTranslations {
+  noTestimonials: string;
   pageTitle: string;
   ratingLabel: string;
   typeLabel: string;

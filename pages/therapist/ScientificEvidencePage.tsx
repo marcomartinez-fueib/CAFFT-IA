@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../hooks/useLanguage';
 import { PageTitle } from '../../components/PageTitle';
+import { HelpVideoCard } from '../../components/HelpVideoCard';
 import { Breadcrumbs } from '../../components/Breadcrumbs';
 import { FileText, ExternalLink, Quote, Beaker, Zap, BarChart3, HelpCircle } from 'lucide-react';
 
@@ -165,7 +166,12 @@ export const ScientificEvidencePage: React.FC = () => {
     <div className="max-w-[1920px] mx-auto">
       <Breadcrumbs items={[{ label: t('nav.therapistDashboard'), path: '/therapist/dashboard' }, { label: t('nav.scientificEvidence') }]} />
       <PageTitle title={t('nav.scientificEvidence')} />
-      
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6 items-start">
+        <HelpVideoCard id="T03" />
+        <HelpVideoCard id="P16" />
+      </div>
+
       <div className="mt-8 space-y-12">
         {/* Foundation & Evidence Description */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">

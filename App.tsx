@@ -11,6 +11,12 @@ import { FearOfFlyingPage } from './pages/FearOfFlyingPage.tsx';
 import { CafftProgramPage } from './pages/CafftProgramPage.tsx';
 import { UserGuidePage } from './pages/UserGuidePage.tsx';
 import { HelpVideosPage } from './pages/HelpVideosPage.tsx';
+import { SkipLink } from './components/SkipLink.tsx';
+import { SessionPlanPage } from './pages/SessionPlanPage.tsx';
+import { RemindersOffPage } from './pages/RemindersOffPage.tsx';
+import { WelcomePage } from './pages/WelcomePage.tsx';
+import { PatientStartPage } from './pages/PatientStartPage.tsx';
+import { FlightReportPage } from './pages/FlightReportPage.tsx';
 import { CafftIntroPage } from './pages/CafftIntroPage.tsx';
 import { QpviiPage } from './pages/QpviiPage.tsx';
 import { RegisterPage } from './pages/RegisterPage.tsx';
@@ -36,7 +42,6 @@ import { FeedbackLauncher } from './components/FeedbackForm.tsx';
 import { HelpCenterPage } from './pages/HelpCenterPage.tsx';
 import { OnboardingProvider } from './hooks/useOnboarding.tsx';
 import { OnboardingTour } from './components/OnboardingTour.tsx';
-import { ReminderCheck } from './components/ReminderCheck.tsx';
 import { NotificationBanner } from './components/NotificationBanner.tsx';
 import { SyncStatusBanner } from './components/SyncStatusBanner.tsx';
 import { NotificationConsentManager } from './components/NotificationConsentManager.tsx';
@@ -64,12 +69,13 @@ const MainLayout: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 overflow-x-hidden">
+      <SkipLink />
       <Navbar />
       <PatientProgressIndicator />
       <SyncStatusBanner />
       <NotificationBanner />
       <NotificationConsentManager />
-      <main className="flex-grow">
+      <main id="main-content" tabIndex={-1} className="flex-grow focus:outline-none">
         <Outlet />
       </main>
       <FeedbackLauncher />
@@ -89,7 +95,6 @@ const App: React.FC = () => {
     <LanguageProvider>
       <AuthProvider>
         <UIProvider>
-          <ReminderCheck />
           <OnboardingProvider>
             <HashRouter>
               <OnboardingTour />
@@ -112,12 +117,25 @@ const App: React.FC = () => {
                 <Route path="login" element={<LoginPage />} />
                 <Route path="forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="reset-password/:token" element={<ResetPasswordPage />} />
+                <Route path="reminders-off/:token" element={<RemindersOffPage />} />
                 
                 {/* Patient-only Routes */}
                 <Route path="qpvii-evaluation" element={<ConsentGuard><QpviiPage /></ConsentGuard>} />
 
                 <Route path="cafft-intro" element={
                     <ProtectedRoute role="patient"><CafftIntroPage /></ProtectedRoute>
+                }/>
+                <Route path="welcome" element={
+                    <ProtectedRoute role="patient" welcome><WelcomePage /></ProtectedRoute>
+                }/>
+                <Route path="start" element={
+                    <ProtectedRoute role="patient"><PatientStartPage /></ProtectedRoute>
+                }/>
+                <Route path="flight-report" element={
+                    <ProtectedRoute role="patient"><FlightReportPage /></ProtectedRoute>
+                }/>
+                <Route path="session-plan" element={
+                    <ProtectedRoute role="patient"><SessionPlanPage /></ProtectedRoute>
                 }/>
                 <Route path="profile" element={
                     <ProtectedRoute role="patient"><ProfilePage /></ProtectedRoute>

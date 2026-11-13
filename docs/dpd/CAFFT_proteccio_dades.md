@@ -29,12 +29,14 @@ els marcats **[DPD]** són preguntes per al DPD.
 |---|---|---|---|
 | Identificació | Nom d'usuari, correu electrònic, codi de pacient seudònim | Base de dades del servidor | El mateix pacient; el seu terapeuta; gestors i administradors |
 | Dades sociodemogràfiques | Data de naixement, gènere, ocupació, com ha conegut el servei, si accepta la presència d'estudiants | Ídem | Ídem |
-| **Salut** | Respostes i puntuacions del QPV-II; valoracions de malestar (escala 1–9) de cada vídeo d'exposició; sessions (data, durada); progrés en la jerarquia | Ídem | Ídem |
+| **Salut** | Respostes i puntuacions del QPV-II (també les d'un qüestionari a mig respondre, que s'esborren en enviar-lo); valoracions de malestar (escala 1–9) de cada vídeo d'exposició; sessions (data, durada); progrés en la jerarquia; autoinforme del vol real (si ha volat, data, malestar màxim 1–9 i un comentari opcional) | Ídem | Ídem |
 | **Converses amb l'assistent** | Text lliure de les preguntes i respostes | Ídem; el model d'IA de la UIB les processa en el moment de respondre (§ 4) | El pacient; el seu terapeuta |
 | Consentiments | Quina versió del text s'ha acceptat, quan i en quina llengua; retirades | Ídem | Terapeuta (estat); administradors |
 | Comunicacions | Correus enviats (invitació, restabliment de contrasenya, recordatoris) i resposta del servidor de correu | Ídem | Administradors |
 | Registre d'accessos | Data, usuari, acció, pacient afectat i adreça IP de: inicis de sessió, canvis de comptes, consentiments, i cada accés del personal a dades clíniques (§ 6) | Ídem | Administradors; el DPD a petició |
-| Preferències | Notificacions, nom de l'assistent | Ídem | El pacient |
+| Ús dels vídeos d'ajuda | Per a cada vídeo: quan s'ha obert, fins a quin percentatge s'ha vist, si s'ha acabat i quina versió | Ídem | El pacient; el seu terapeuta; exportació per als indicadors del pilot |
+| Planificació i recordatoris | Dies i hora de les sessions que el pacient planifica; data de cada recordatori enviat; adreça de subscripció de les notificacions del navegador | Ídem | El pacient; el seu terapeuta (planificació i sessions fetes) |
+| Preferències | Notificacions, nom de l'assistent, versió preferida dels vídeos d'ajuda, llengua dels correus, data prevista del vol, data en què va completar la benvinguda | Ídem | El pacient; el seu terapeuta |
 | Navegador | Només la llengua triada i una marca del recorregut guiat (`localStorage`). Les dades clíniques es tenen en memòria mentre l'aplicació és oberta i no queden al dispositiu. | Dispositiu del pacient | El pacient |
 
 No es tracten dades de pagament ni de geolocalització. L'aplicació no fa servir
@@ -59,6 +61,13 @@ galetes de seguiment ni analítica de tercers: només la galeta de sessió
 - El navegador només parla amb el servidor de la UIB (política de seguretat de
   contingut `default-src 'self'`): cap recurs ni dada no va a tercers des del
   navegador.
+- **Notificacions al dispositiu (opcionals).** Si el pacient les activa, el
+  servidor envia els recordatoris a través del servei de notificacions del seu
+  navegador (Google per a Chrome i Android, Mozilla per a Firefox, Apple per a
+  Safari i l'iPhone). El missatge va xifrat per al navegador i només conté el
+  text del recordatori («Té programada una sessió del CAFFT avui a les
+  18:00»), sense nom ni cap dada clínica. **[DPD]** Si cal esmentar aquests
+  serveis a la informació al pacient.
 - El codi font és a GitHub (repositori privat). **No hi ha dades de pacients**:
   les proves automàtiques fan servir bases de dades temporals amb usuaris
   inventats.
@@ -107,12 +116,20 @@ galetes de seguiment ni analítica de tercers: només la galeta de sessió
 - El servidor rebutja qualsevol dada clínica d'un pacient sense el
   consentiment vigent.
 - El consentiment per als avisos (recordatoris) és separat, es registra igual i
-  es pot **retirar** des del perfil.
+  es pot **retirar** des del perfil o amb l'enllaç que hi ha a cada correu de
+  recordatori, sense haver d'iniciar sessió. El text (versió 2026-12) diu què
+  s'envia: un correu el dia de cada sessió planificada i un recordatori si
+  passen uns dies sense sessió, opcionalment també com a notificació, sense
+  informació clínica.
 - La retirada del consentiment del tractament es fa per escrit al DPD o al
   terapeuta, tal com diu el text legal. **[DPD]** Si cal oferir-la també dins
   l'aplicació.
-- **[equip]** El text del consentiment en llenguatge planer (viatge del
-  pacient) s'haurà de revisar amb el DPD abans de publicar-lo.
+- Abans del text legal es mostra un **resum en llenguatge planer** (cinc
+  frases). No forma part del text versionat. **[equip] [DPD]** Revisar-lo
+  abans del pilot; si es vol que en formi part, se'n puja la versió.
+- **Exportació de l'embut del pilot**: una fila per pacient amb el codi
+  seudònim i les dates (sense hora) de cada pas del recorregut; sense comptes
+  de prova. Queda registrada al registre d'accessos.
 
 ## 6. Mesures de seguretat
 
